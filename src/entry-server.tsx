@@ -15,8 +15,7 @@ export async function render(url: string, lang?: string) {
     <HelmetProvider
       onServerState={(state) => {
         helmetState = state
-      }
-      }
+      }}
     >
       <I18nextProvider i18n={i18n}>
         <MemoryRouter initialEntries={[url]}>

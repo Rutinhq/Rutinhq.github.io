@@ -1,0 +1,69 @@
+{
+  "nav": {
+    "services": "Services",
+    "caseStudies": "Case Studies",
+    "cta": "Book a Strategy Call"
+  },
+  "hero": {
+    "eyebrow": "01 / REVENUE OPERATIONS",
+    "headline": "Your Revenue Engine Is Leaking.",
+    "subhead": "RutinHQ designs, builds, and hands off GTM systems that turn pipeline into a controlled machine — not a weekly fire drill.",
+    "cta": "Book a Strategy Call",
+    "social": "Trusted by RevOps leaders in HR tech, fintech, and legal tech."
+  },
+  "integrations": {
+    "eyebrow": "02 / STACK WE WIRE"
+  },
+  "architecture": {
+    "eyebrow": "03 / OPERATING SYSTEM",
+    "headline": "A revenue architecture that actually holds.",
+    "pillar1Title": "Diagnose the leak",
+    "pillar1Body": "We map how leads, routing, SLAs, and handoffs actually behave — then isolate the points where pipeline dies.",
+    "pillar2Title": "Design the machine",
+    "pillar2Body": "Scoring, enrichment, sequences, and reporting get one source of truth. Sales and marketing stop arguing over numbers.",
+    "pillar3Title": "Ship and transfer",
+    "pillar3Body": "We build the workflows, document the system, and train your team so the engine runs without us."
+  },
+  "footer": {
+    "sectionLabel": "00 / GET STARTED",
+    "headline": "Book a strategy call.",
+    "subhead": "Tell us where revenue is leaking. We will come back with a diagnostic plan — not a generic deck.",
+    "namePlaceholder": "Full name",
+    "companyPlaceholder": "Company",
+    "emailPlaceholder": "Work email",
+    "submitBtn": "Book a Strategy Call",
+    "sending": "Sending",
+    "successMsg": "✓ Request received. We will reply within one business day.",
+    "disclaimer": "No spam. One reply from a human at RutinHQ.",
+    "error": "We could not send that. Try again in a minute.",
+    "copyright": "Revenue Operations & GTM Engineering."
+  },
+  "caseStudies": {
+    "eyebrow": "04 / PROOF",
+    "headline": "Systems that moved the number.",
+    "subhead": "Three B2B operators. Same problem: pipeline that looked full and closed slow.",
+    "challenge": "Challenge",
+    "solution": "Solution",
+    "ctaHeadline": "Need the same treatment?",
+    "ctaSubhead": "We will walk your funnel, name the leaks, and tell you what we would build first.",
+    "ctaBtn": "Book a Strategy Call"
+  },
+  "services": {
+    "eyebrow": "05 / SERVICES",
+    "headline": "What We Build.",
+    "subhead": "Not another tool. An operating system for how your company creates, qualifies, and closes revenue.",
+    "deliverables": "Deliverables",
+    "outcome": "Outcome",
+    "ctaHeadline": "Ready to stop leaking pipeline?",
+    "ctaSubhead": "A 45-minute diagnostic call. You leave with a ranked list of leaks and a build sequence.",
+    "ctaBtn": "Book a Strategy Call"
+  },
+  "seo": {
+    "homeTitle": "RutinHQ — Revenue Operations & GTM Engineering",
+    "homeDescription": "RutinHQ designs and ships revenue systems for B2B teams: routing, enrichment, scoring, and reporting that actually close pipeline.",
+    "caseTitle": "Case Studies — RutinHQ",
+    "caseDescription": "How RutinHQ rebuilt pipeline velocity for HR tech, fintech, and legal tech operators.",
+    "servicesTitle": "Services — RutinHQ",
+    "servicesDescription": "RevOps architecture, GTM engineering, and system handoff for B2B revenue teams."
+  }
+}
