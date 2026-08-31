@@ -1,0 +1,145 @@
+{
+  "hero": {
+    "eyebrowKey": "services.eyebrow",
+    "headlineKey": "services.headline",
+    "subheadKey": "services.subhead"
+  },
+  "items": [
+    {
+      "number": "01",
+      "title": {
+        "en": "Revenue diagnostics",
+        "es": "Diagnóstico de ingresos"
+      },
+      "tagline": {
+        "en": "Find where pipeline dies.",
+        "es": "Encuentra dónde muere el pipeline."
+      },
+      "description": {
+        "en": "A forensic pass over CRM, routing, sequences, and reporting. You get a leak map, not a slide with industry averages.",
+        "es": "Un pase forense sobre CRM, routing, secuencias y reporting. Sales con un mapa de fugas, no un slide con promedios de industria."
+      },
+      "deliverables": {
+        "en": [
+          "Funnel instrumentation audit",
+          "Routing and SLA heat map",
+          "Prioritized leak backlog",
+          "90-day build sequence"
+        ],
+        "es": [
+          "Auditoría de instrumentación del funnel",
+          "Mapa de calor de routing y SLAs",
+          "Backlog priorizado de fugas",
+          "Secuencia de build a 90 días"
+        ]
+      },
+      "tools": ["HubSpot", "Salesforce", "Apollo", "Looker"],
+      "outcome": {
+        "en": "A ranked list of leaks with owners, impact, and the first three workflows to ship.",
+        "es": "Una lista priorizada de fugas con owners, impacto y los primeros tres workflows a entregar."
+      }
+    },
+    {
+      "number": "02",
+      "title": {
+        "en": "GTM systems engineering",
+        "es": "Ingeniería de sistemas GTM"
+      },
+      "tagline": {
+        "en": "Build the machine once.",
+        "es": "Construye la máquina una vez."
+      },
+      "description": {
+        "en": "Scoring, enrichment, outbound, inbound routing, and lifecycle reporting as one system. n8n, Make, and your CRM stop living as side quests.",
+        "es": "Scoring, enrichment, outbound, routing inbound y reporting de lifecycle como un solo sistema. n8n, Make y tu CRM dejan de ser misiones paralelas."
+      },
+      "deliverables": {
+        "en": [
+          "Lead-to-cash workflow map",
+          "Enrichment and scoring live in production",
+          "Sequence and SLA automation",
+          "Operator runbooks"
+        ],
+        "es": [
+          "Mapa de workflows lead-to-cash",
+          "Enrichment y scoring en producción",
+          "Automatización de secuencias y SLAs",
+          "Runbooks para operadores"
+        ]
+      },
+      "tools": ["n8n", "Make", "Apollo", "Clay"],
+      "outcome": {
+        "en": "A production GTM stack your team can operate without a contractor in the loop.",
+        "es": "Un stack GTM en producción que tu equipo opera sin un contractor en el medio."
+      }
+    },
+    {
+      "number": "03",
+      "title": {
+        "en": "Handoff and enablement",
+        "es": "Handoff y enablement"
+      },
+      "tagline": {
+        "en": "We leave. The system stays.",
+        "es": "Nos vamos. El sistema se queda."
+      },
+      "description": {
+        "en": "Documentation, admin ownership, and live training so RevOps owns the engine. No black boxes. No mystery Zap history.",
+        "es": "Documentación, ownership de admin y entrenamiento en vivo para que RevOps sea dueño del motor. Sin cajas negras. Sin historial misterioso de Zaps."
+      },
+      "deliverables": {
+        "en": [
+          "System architecture document",
+          "Admin and operator training",
+          "Alerting for broken workflows",
+          "90-day hypercare window"
+        ],
+        "es": [
+          "Documento de arquitectura del sistema",
+          "Entrenamiento para admin y operadores",
+          "Alertas para workflows rotos",
+          "Ventana de hypercare de 90 días"
+        ]
+      },
+      "tools": ["Notion", "Slack", "Datadog", "GitHub"],
+      "outcome": {
+        "en": "Your team can change scoring, add a source, and debug a failed run without calling us.",
+        "es": "Tu equipo puede cambiar scoring, agregar una fuente y depurar un run fallido sin llamarnos."
+      }
+    }
+  ],
+  "process": [
+    {
+      "number": "01",
+      "title": { "en": "Diagnostic", "es": "Diagnóstico" },
+      "body": {
+        "en": "Instrument the funnel. Name the leaks. Rank by revenue impact.",
+        "es": "Instrumentar el funnel. Nombrar las fugas. Priorizar por impacto en revenue."
+      }
+    },
+    {
+      "number": "02",
+      "title": { "en": "Architecture", "es": "Arquitectura" },
+      "body": {
+        "en": "One source of truth for objects, scoring, and reporting. Tools follow the model.",
+        "es": "Una fuente de verdad para objetos, scoring y reporting. Las herramientas siguen el modelo."
+      }
+    },
+    {
+      "number": "03",
+      "title": { "en": "Build", "es": "Build" },
+      "body": {
+        "en": "Workflows, sequences, and dashboards shipped in production — not a sandbox demo.",
+        "es": "Workflows, secuencias y dashboards en producción — no un demo en sandbox."
+      }
+    },
+    {
+      "number": "04",
+      "title": { "en": "Handoff", "es": "Handoff" },
+      "body": {
+        "en": "Docs, training, and alerts. Your operators own the machine.",
+        "es": "Documentación, entrenamiento y alertas. Tu equipo opera la máquina."
+      }
+    }
+  ]
+}
