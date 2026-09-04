@@ -15,15 +15,15 @@ if (isBrowser) {
 
 void i18n.init({
   resources: {
-    en: { translation: en },
     es: { translation: es },
+    en: { translation: en },
   },
   lng: isBrowser ? undefined : defaultLanguage,
   fallbackLng: defaultLanguage,
   supportedLngs: [...supportedLanguages],
   interpolation: { escapeValue: false },
   detection: {
-    order: ['localStorage', 'navigator', 'htmlTag'],
+    order: ['localStorage'],
     caches: ['localStorage'],
     lookupLocalStorage: 'i18nextLng',
   },

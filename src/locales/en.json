@@ -1,69 +1,92 @@
 {
-  "nav": {
-    "services": "Services",
-    "caseStudies": "Case Studies",
-    "cta": "Book a Strategy Call"
-  },
   "hero": {
-    "eyebrow": "01 / REVENUE OPERATIONS",
-    "headline": "Your Revenue Engine Is Leaking.",
-    "subhead": "RutinHQ designs, builds, and hands off GTM systems that turn pipeline into a controlled machine — not a weekly fire drill.",
-    "cta": "Book a Strategy Call",
-    "social": "Trusted by RevOps leaders in HR tech, fintech, and legal tech."
+    "headline": "A B2B outbound system that stays yours",
+    "subhead": "Clay → Instantly → CRM · Pacific time · 8–10 weeks",
+    "ctaPrimary": "Book 30 min",
+    "ctaSecondary": "Email"
   },
-  "integrations": {
-    "eyebrow": "02 / STACK WE WIRE"
+  "problem": {
+    "title": "The problem",
+    "items": [
+      "You close by hand; pipeline does not",
+      "The agency dies when you cancel",
+      "The US stack is in English and your team is not"
+    ]
   },
-  "architecture": {
-    "eyebrow": "03 / OPERATING SYSTEM",
-    "headline": "A revenue architecture that actually holds.",
-    "pillar1Title": "Diagnose the leak",
-    "pillar1Body": "We map how leads, routing, SLAs, and handoffs actually behave — then isolate the points where pipeline dies.",
-    "pillar2Title": "Design the machine",
-    "pillar2Body": "Scoring, enrichment, sequences, and reporting get one source of truth. Sales and marketing stop arguing over numbers.",
-    "pillar3Title": "Ship and transfer",
-    "pillar3Body": "We build the workflows, document the system, and train your team so the engine runs without us."
+  "install": {
+    "title": "What we install",
+    "line": "Clay → Instantly → your CRM → alert"
+  },
+  "ladder": {
+    "title": "Ladder",
+    "items": [
+      { "sku": "Radar", "time": "1 wk" },
+      { "sku": "Blueprint", "time": "2 wk" },
+      { "sku": "GTM OS", "time": "8–10" },
+      { "sku": "Pulse", "time": "monthly" }
+    ]
+  },
+  "who": {
+    "title": "Who this is for",
+    "items": [
+      "Founder / CEO, B2B, 1–20 people (up to ~80 if a Spanish-speaking GTM/ops buyer owns outbound)",
+      "Your customer ticket USD 5–25k (wider band 3–50k)",
+      "Offer already sells. Bottleneck is repeatable pipeline",
+      "Segment A2: MX founder or US Hispanic operator — US stack, explained and run in your language"
+    ]
+  },
+  "notFor": {
+    "title": "Who this is not for",
+    "items": [
+      "Ecom / B2C",
+      "Teams with 5+ SDRs",
+      "Ticket < USD 1k",
+      "“Just run ads”",
+      "Anyone asking for a guaranteed N meetings",
+      "Enterprise RFP"
+    ]
+  },
+  "prices": {
+    "title": "Pilot prices",
+    "sku": "SKU",
+    "what": "What it is",
+    "time": "Time",
+    "price": "Price (pilot · 0 case studies)",
+    "rows": [
+      {
+        "sku": "Radar",
+        "what": "Diagnose outbound that is not converting",
+        "time": "1 week",
+        "price": "USD 1,000–1,500"
+      },
+      {
+        "sku": "Blueprint",
+        "what": "Architecture: ICP, stack, roadmap. Credited if you continue",
+        "time": "2 weeks",
+        "price": "USD 1,500–2,000"
+      },
+      {
+        "sku": "GTM OS",
+        "what": "Full build (phases 0–7)",
+        "time": "8–10 weeks",
+        "price": "USD 3,500–4,500"
+      },
+      {
+        "sku": "Pulse",
+        "what": "Retainer so the system stays live (min. 3 months)",
+        "time": "monthly",
+        "price": "USD 1,000–1,500/mo"
+      }
+    ],
+    "payment": "OS payment: 40 / 40 / 20. No guaranteed number of meetings.",
+    "afterCase": "After 1 case study: OS 6,500–8,000 · Pulse 2,200–3,000/mo."
   },
   "footer": {
-    "sectionLabel": "00 / GET STARTED",
-    "headline": "Book a strategy call.",
-    "subhead": "Tell us where revenue is leaking. We will come back with a diagnostic plan — not a generic deck.",
-    "namePlaceholder": "Full name",
-    "companyPlaceholder": "Company",
-    "emailPlaceholder": "Work email",
-    "submitBtn": "Book a Strategy Call",
-    "sending": "Sending",
-    "successMsg": "✓ Request received. We will reply within one business day.",
-    "disclaimer": "No spam. One reply from a human at RutinHQ.",
-    "error": "We could not send that. Try again in a minute.",
-    "copyright": "Revenue Operations & GTM Engineering."
-  },
-  "caseStudies": {
-    "eyebrow": "04 / PROOF",
-    "headline": "Systems that moved the number.",
-    "subhead": "Three B2B operators. Same problem: pipeline that looked full and closed slow.",
-    "challenge": "Challenge",
-    "solution": "Solution",
-    "ctaHeadline": "Need the same treatment?",
-    "ctaSubhead": "We will walk your funnel, name the leaks, and tell you what we would build first.",
-    "ctaBtn": "Book a Strategy Call"
-  },
-  "services": {
-    "eyebrow": "05 / SERVICES",
-    "headline": "What We Build.",
-    "subhead": "Not another tool. An operating system for how your company creates, qualifies, and closes revenue.",
-    "deliverables": "Deliverables",
-    "outcome": "Outcome",
-    "ctaHeadline": "Ready to stop leaking pipeline?",
-    "ctaSubhead": "A 45-minute diagnostic call. You leave with a ranked list of leaks and a build sequence.",
-    "ctaBtn": "Book a Strategy Call"
+    "location": "Tijuana / Pacific",
+    "onePager": "One-pager"
   },
   "seo": {
-    "homeTitle": "RutinHQ — Revenue Operations & GTM Engineering",
-    "homeDescription": "RutinHQ designs and ships revenue systems for B2B teams: routing, enrichment, scoring, and reporting that actually close pipeline.",
-    "caseTitle": "Case Studies — RutinHQ",
-    "caseDescription": "How RutinHQ rebuilt pipeline velocity for HR tech, fintech, and legal tech operators.",
-    "servicesTitle": "Services — RutinHQ",
-    "servicesDescription": "RevOps architecture, GTM engineering, and system handoff for B2B revenue teams."
+    "homeTitle": "RutinHQ — GTM OS",
+    "homeDescription": "A B2B outbound system that stays yours. Clay → Instantly → CRM · Pacific time · 8–10 weeks."
   }
 }

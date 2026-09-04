@@ -1,7 +1,7 @@
 import { Helmet } from '@dr.pogodin/react-helmet'
 
-const SITE = 'https://rutinhq.com'
-const OG = `${SITE}/assets/og-image.png`
+const SITE = 'https://www.rutinhq.com'
+const OG = `${SITE}/airo-assets/images/logo/horizontal.svg`
 
 type SeoProps = {
   title: string
@@ -23,9 +23,7 @@ export function Seo({ title, description, path, jsonLd }: SeoProps) {
       <meta property="og:description" content={description} />
       <meta property="og:url" content={url} />
       <meta property="og:image" content={OG} />
-      <meta property="og:image:width" content="1200" />
-      <meta property="og:image:height" content="630" />
-      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:card" content="summary" />
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={OG} />
@@ -46,36 +44,25 @@ export function homeJsonLd() {
         url: `${SITE}/`,
         name: 'RutinHQ',
         description:
-          'Revenue Operations and GTM Engineering consultancy.',
-        inLanguage: ['en', 'es'],
+          'GTM OS — a B2B outbound system that stays yours. Clay → Instantly → CRM.',
+        inLanguage: ['es', 'en'],
       },
       {
         '@type': 'Organization',
         '@id': `${SITE}/#organization`,
         name: 'RutinHQ',
         url: `${SITE}/`,
-        logo: `${SITE}/airo-assets/images/logo/horizontal.png`,
+        email: 'rutinhqsolutions@gmail.com',
+        logo: `${SITE}/airo-assets/images/logo/horizontal.svg`,
       },
       {
         '@type': 'WebPage',
         '@id': `${SITE}/#webpage`,
         url: `${SITE}/`,
-        name: 'RutinHQ — Revenue Operations & GTM Engineering',
+        name: 'RutinHQ — GTM OS',
         isPartOf: { '@id': `${SITE}/#website` },
         about: { '@id': `${SITE}/#organization` },
       },
     ],
-  }
-}
-
-export function pageJsonLd(path: string, name: string) {
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'WebPage',
-    '@id': `${SITE}${path}#webpage`,
-    url: `${SITE}${path}`,
-    name,
-    isPartOf: { '@id': `${SITE}/#website` },
-    about: { '@id': `${SITE}/#organization` },
   }
 }
