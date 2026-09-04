@@ -34,7 +34,7 @@ export function Seo({ title, description, path, jsonLd }: SeoProps) {
   )
 }
 
-export function homeJsonLd() {
+export function hubJsonLd() {
   return {
     '@context': 'https://schema.org',
     '@graph': [
@@ -44,7 +44,7 @@ export function homeJsonLd() {
         url: `${SITE}/`,
         name: 'RutinHQ',
         description:
-          'GTM OS — a B2B outbound system that stays yours. Clay → Instantly → CRM.',
+          'GTM OS, Store OS, and NEXUS OS. Three operating systems for growth.',
         inLanguage: ['es', 'en'],
       },
       {
@@ -59,10 +59,23 @@ export function homeJsonLd() {
         '@type': 'WebPage',
         '@id': `${SITE}/#webpage`,
         url: `${SITE}/`,
-        name: 'RutinHQ — GTM OS',
+        name: 'RutinHQ — three operating systems',
         isPartOf: { '@id': `${SITE}/#website` },
         about: { '@id': `${SITE}/#organization` },
       },
     ],
+  }
+}
+
+export function skuJsonLd(path: string, name: string, description: string) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    '@id': `${SITE}${path}#webpage`,
+    url: `${SITE}${path}`,
+    name,
+    description,
+    isPartOf: { '@id': `${SITE}/#website` },
+    about: { '@id': `${SITE}/#organization` },
   }
 }

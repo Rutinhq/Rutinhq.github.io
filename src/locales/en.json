@@ -1,92 +1,221 @@
 {
-  "hero": {
-    "headline": "A B2B outbound system that stays yours",
-    "subhead": "Clay → Instantly → CRM · Pacific time · 8–10 weeks",
+  "common": {
     "ctaPrimary": "Book 30 min",
-    "ctaSecondary": "Email"
+    "ctaSecondary": "Email",
+    "ctaDiscovery": "Book discovery",
+    "ctaOffer": "See offer",
+    "hubLink": "Catalog",
+    "docs": "Docs"
   },
-  "problem": {
-    "title": "The problem",
-    "items": [
-      "You close by hand; pipeline does not",
-      "The agency dies when you cancel",
-      "The US stack is in English and your team is not"
-    ]
+  "nav": {
+    "language": "Language"
   },
-  "install": {
-    "title": "What we install",
-    "line": "Clay → Instantly → your CRM → alert"
+  "hub": {
+    "headline": "RutinHQ",
+    "subhead": "Three operating systems for growth.",
+    "lead": "One SKU per page. Each system is sold alone."
   },
-  "ladder": {
-    "title": "Ladder",
-    "items": [
-      { "sku": "Radar", "time": "1 wk" },
-      { "sku": "Blueprint", "time": "2 wk" },
-      { "sku": "GTM OS", "time": "8–10" },
-      { "sku": "Pulse", "time": "monthly" }
-    ]
+  "gtm": {
+    "hero": {
+      "headline": "A B2B outbound system that stays yours",
+      "subhead": "Clay → Instantly → CRM · Pacific time · 8–10 weeks"
+    },
+    "problem": {
+      "title": "The problem",
+      "items": [
+        "You close by hand; pipeline does not",
+        "The agency dies when you cancel",
+        "The US stack is in English and your team is not"
+      ]
+    },
+    "install": {
+      "title": "What we install",
+      "line": "Clay → Instantly → your CRM → alert"
+    },
+    "ladder": {
+      "title": "Ladder",
+      "items": [
+        { "sku": "Radar", "time": "1 wk" },
+        { "sku": "Blueprint", "time": "2 wk" },
+        { "sku": "GTM OS", "time": "8–10" },
+        { "sku": "Pulse", "time": "monthly" }
+      ]
+    },
+    "who": {
+      "title": "Who this is for",
+      "items": [
+        "Founder / CEO, B2B, 1–20 people (up to ~80 if a Spanish-speaking GTM/ops buyer owns outbound)",
+        "Your customer ticket USD 5–25k (wider band 3–50k)",
+        "Offer already sells. Bottleneck is repeatable pipeline",
+        "Segment A2: MX founder or US Hispanic operator — US stack, explained and run in your language"
+      ]
+    },
+    "notFor": {
+      "title": "Who this is not for",
+      "items": [
+        "Ecom / B2C",
+        "Teams with 5+ SDRs",
+        "Ticket < USD 1k",
+        "“Just run ads”",
+        "Anyone asking for a guaranteed N meetings",
+        "Enterprise RFP"
+      ]
+    },
+    "prices": {
+      "title": "Pilot prices",
+      "sku": "SKU",
+      "what": "What it is",
+      "time": "Time",
+      "price": "Price (pilot · 0 case studies)",
+      "rows": [
+        {
+          "sku": "Radar",
+          "what": "Diagnose outbound that is not converting",
+          "time": "1 week",
+          "price": "USD 1,000–1,500"
+        },
+        {
+          "sku": "Blueprint",
+          "what": "Architecture: ICP, stack, roadmap. Credited if you continue",
+          "time": "2 weeks",
+          "price": "USD 1,500–2,000"
+        },
+        {
+          "sku": "GTM OS",
+          "what": "Full build (phases 0–7)",
+          "time": "8–10 weeks",
+          "price": "USD 3,500–4,500"
+        },
+        {
+          "sku": "Pulse",
+          "what": "Retainer so the system stays live (min. 3 months)",
+          "time": "monthly",
+          "price": "USD 1,000–1,500/mo"
+        }
+      ],
+      "payment": "OS payment: 40 / 40 / 20. No guaranteed number of meetings.",
+      "afterCase": "After 1 case study: OS 6,500–8,000 · Pulse 2,200–3,000/mo."
+    }
   },
-  "who": {
-    "title": "Who this is for",
-    "items": [
-      "Founder / CEO, B2B, 1–20 people (up to ~80 if a Spanish-speaking GTM/ops buyer owns outbound)",
-      "Your customer ticket USD 5–25k (wider band 3–50k)",
-      "Offer already sells. Bottleneck is repeatable pipeline",
-      "Segment A2: MX founder or US Hispanic operator — US stack, explained and run in your language"
-    ]
+  "store": {
+    "hero": {
+      "headline": "Audit + Shopify Admin config so the store converts",
+      "subhead": "Variants, price, weight, shipping. We do not edit the theme."
+    },
+    "what": {
+      "title": "What it is",
+      "items": [
+        "Store audit in Shopify Admin",
+        "Config for variants, price, weight, and shipping",
+        "So the store converts before you buy traffic"
+      ]
+    },
+    "offer": {
+      "title": "The offer",
+      "line": "Audit + Admin config. No theme edit. No ads in this SKU."
+    },
+    "who": {
+      "title": "Who this is for",
+      "items": [
+        "Founder / ecom lead, DTC on Shopify",
+        "Ops friction: catalog, price, shipping",
+        "You want traffic, but the store does not convert yet"
+      ]
+    },
+    "notFor": {
+      "title": "Who this is not for",
+      "items": [
+        "Shopify Plus enterprise",
+        "Creatives only",
+        "Theme-only (Dawn and nothing else)",
+        "Paid traffic without a converting store"
+      ]
+    },
+    "prices": {
+      "title": "Price",
+      "body": "Store SKU table is TBD. Closed on discovery.",
+      "note": "Book discovery. No install price is published here."
+    }
   },
-  "notFor": {
-    "title": "Who this is not for",
-    "items": [
-      "Ecom / B2C",
-      "Teams with 5+ SDRs",
-      "Ticket < USD 1k",
-      "“Just run ads”",
-      "Anyone asking for a guaranteed N meetings",
-      "Enterprise RFP"
-    ]
+  "nexus": {
+    "hero": {
+      "headline": "Agent-led marketing for retailers. Paper first.",
+      "subhead": "Strategy → Social → Ads. Ads stay gated until photos + mix + budget."
+    },
+    "what": {
+      "title": "What it is",
+      "items": [
+        "Strategy → Social → Ads pipeline",
+        "Paper until GO: photos + mix + budget",
+        "Zero live ads without those gates"
+      ]
+    },
+    "offer": {
+      "title": "The offer",
+      "line": "Strategy → Social → Ads. Ads gated until GO."
+    },
+    "who": {
+      "title": "Who this is for",
+      "items": [
+        "Retailers with an offer / SKU",
+        "Anyone who accepts a paper brief before spend"
+      ]
+    },
+    "notFor": {
+      "title": "Who this is not for",
+      "items": [
+        "Ads without a creative bank",
+        "Budget 0",
+        "Anyone asking for live ads on day one"
+      ]
+    },
+    "gates": {
+      "title": "Gates",
+      "items": [
+        "No photos: no ads",
+        "No mix: no ads",
+        "No budget: no ads",
+        "Paper until GO. Zero live spend without all three."
+      ]
+    },
+    "prices": {
+      "title": "Price",
+      "body": "Paper / TBD. Closed on discovery.",
+      "note": "No percent of spend and no USD retainer on this page."
+    }
   },
-  "prices": {
-    "title": "Pilot prices",
-    "sku": "SKU",
-    "what": "What it is",
-    "time": "Time",
-    "price": "Price (pilot · 0 case studies)",
-    "rows": [
-      {
-        "sku": "Radar",
-        "what": "Diagnose outbound that is not converting",
-        "time": "1 week",
-        "price": "USD 1,000–1,500"
-      },
-      {
-        "sku": "Blueprint",
-        "what": "Architecture: ICP, stack, roadmap. Credited if you continue",
-        "time": "2 weeks",
-        "price": "USD 1,500–2,000"
-      },
-      {
-        "sku": "GTM OS",
-        "what": "Full build (phases 0–7)",
-        "time": "8–10 weeks",
-        "price": "USD 3,500–4,500"
-      },
-      {
-        "sku": "Pulse",
-        "what": "Retainer so the system stays live (min. 3 months)",
-        "time": "monthly",
-        "price": "USD 1,000–1,500/mo"
-      }
-    ],
-    "payment": "OS payment: 40 / 40 / 20. No guaranteed number of meetings.",
-    "afterCase": "After 1 case study: OS 6,500–8,000 · Pulse 2,200–3,000/mo."
+  "cards": {
+    "gtm": {
+      "name": "GTM OS",
+      "thesis": "An outbound system that stays yours."
+    },
+    "store": {
+      "name": "Store OS",
+      "thesis": "Shopify Admin audit + config that converts."
+    },
+    "nexus": {
+      "name": "NEXUS OS",
+      "thesis": "Agentic marketing. Paper-first / gated ads."
+    }
   },
   "footer": {
     "location": "Tijuana / Pacific",
     "onePager": "One-pager"
   },
+  "notFound": {
+    "title": "Page not found",
+    "body": "That route does not exist.",
+    "back": "Go to catalog"
+  },
   "seo": {
-    "homeTitle": "RutinHQ — GTM OS",
-    "homeDescription": "A B2B outbound system that stays yours. Clay → Instantly → CRM · Pacific time · 8–10 weeks."
+    "hubTitle": "RutinHQ — three operating systems",
+    "hubDescription": "GTM OS, Store OS, and NEXUS OS. One SKU per offer.",
+    "gtmTitle": "RutinHQ — GTM OS",
+    "gtmDescription": "A B2B outbound system that stays yours. Clay → Instantly → CRM · Pacific time · 8–10 weeks.",
+    "storeTitle": "RutinHQ — Store OS",
+    "storeDescription": "Audit + Shopify Admin config so the store converts. No theme edit.",
+    "nexusTitle": "RutinHQ — NEXUS OS",
+    "nexusDescription": "Agent-led marketing for retailers. Strategy → Social → Ads. Paper first. Ads gated.",
+    "notFoundTitle": "RutinHQ — 404"
   }
 }
