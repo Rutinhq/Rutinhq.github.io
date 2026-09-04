@@ -1,92 +1,221 @@
 {
-  "hero": {
-    "headline": "Sistema de outbound B2B que queda tuyo",
-    "subhead": "Clay → Instantly → CRM · Pacific time · 8–10 semanas",
+  "common": {
     "ctaPrimary": "Agendar 30 min",
-    "ctaSecondary": "Email"
+    "ctaSecondary": "Email",
+    "ctaDiscovery": "Agenda discovery",
+    "ctaOffer": "Ver oferta",
+    "hubLink": "Catálogo",
+    "docs": "Docs"
   },
-  "problem": {
-    "title": "Problema",
-    "items": [
-      "Cierras a mano; el pipeline no",
-      "La agencia se apaga al cortar",
-      "El stack US está en inglés y tu equipo no"
-    ]
+  "nav": {
+    "language": "Idioma"
   },
-  "install": {
-    "title": "Qué instalamos",
-    "line": "Clay → Instantly → tu CRM → alerta"
+  "hub": {
+    "headline": "RutinHQ",
+    "subhead": "Tres sistemas operativos para crecer.",
+    "lead": "Un SKU por página. Cada sistema se vende solo."
   },
-  "ladder": {
-    "title": "Escalera",
-    "items": [
-      { "sku": "Radar", "time": "1 sem" },
-      { "sku": "Blueprint", "time": "2 sem" },
-      { "sku": "GTM OS", "time": "8–10" },
-      { "sku": "Pulse", "time": "mensual" }
-    ]
+  "gtm": {
+    "hero": {
+      "headline": "Sistema de outbound B2B que queda tuyo",
+      "subhead": "Clay → Instantly → CRM · Pacific time · 8–10 semanas"
+    },
+    "problem": {
+      "title": "Problema",
+      "items": [
+        "Cierras a mano; el pipeline no",
+        "La agencia se apaga al cortar",
+        "El stack US está en inglés y tu equipo no"
+      ]
+    },
+    "install": {
+      "title": "Qué instalamos",
+      "line": "Clay → Instantly → tu CRM → alerta"
+    },
+    "ladder": {
+      "title": "Escalera",
+      "items": [
+        { "sku": "Radar", "time": "1 sem" },
+        { "sku": "Blueprint", "time": "2 sem" },
+        { "sku": "GTM OS", "time": "8–10" },
+        { "sku": "Pulse", "time": "mensual" }
+      ]
+    },
+    "who": {
+      "title": "Para quién",
+      "items": [
+        "Founder / CEO B2B, 1–20 personas (hasta ~80 si hay comprador hispanohablante de GTM/ops)",
+        "Ticket de tu cliente USD 5–25k (rango amplio 3–50k)",
+        "Ya vendes. El cuello es pipeline repetible",
+        "Segmento A2: empresario MX o hispanohablante en US — abrimos el stack US en tu idioma"
+      ]
+    },
+    "notFor": {
+      "title": "No es para",
+      "items": [
+        "Ecom / B2C",
+        "Equipos con 5+ SDRs",
+        "Ticket < USD 1k",
+        "“Solo ads”",
+        "Quien pide garantía de N meetings",
+        "RFP enterprise"
+      ]
+    },
+    "prices": {
+      "title": "Precios piloto",
+      "sku": "SKU",
+      "what": "Qué es",
+      "time": "Tiempo",
+      "price": "Precio (piloto · 0 case study)",
+      "rows": [
+        {
+          "sku": "Radar",
+          "what": "Diagnóstico del outbound que no cierra",
+          "time": "1 semana",
+          "price": "USD 1,000–1,500"
+        },
+        {
+          "sku": "Blueprint",
+          "what": "Arquitectura: ICP, stack, roadmap. Se descuenta si sigues",
+          "time": "2 semanas",
+          "price": "USD 1,500–2,000"
+        },
+        {
+          "sku": "GTM OS",
+          "what": "Implementación completa (fases 0–7)",
+          "time": "8–10 semanas",
+          "price": "USD 3,500–4,500"
+        },
+        {
+          "sku": "Pulse",
+          "what": "Retainer: el sistema no se apaga (mín. 3 meses)",
+          "time": "mensual",
+          "price": "USD 1,000–1,500/mes"
+        }
+      ],
+      "payment": "Pago OS: 40 / 40 / 20. Sin número de juntas garantizado.",
+      "afterCase": "Tras 1 case study: OS 6,500–8,000 · Pulse 2,200–3,000/mes."
+    }
   },
-  "who": {
-    "title": "Para quién",
-    "items": [
-      "Founder / CEO B2B, 1–20 personas (hasta ~80 si hay comprador hispanohablante de GTM/ops)",
-      "Ticket de tu cliente USD 5–25k (rango amplio 3–50k)",
-      "Ya vendes. El cuello es pipeline repetible",
-      "Segmento A2: empresario MX o hispanohablante en US — abrimos el stack US en tu idioma"
-    ]
+  "store": {
+    "hero": {
+      "headline": "Auditoría + config Shopify Admin para que la tienda convierta",
+      "subhead": "Variantes, precio, peso, envío. Sin editar el theme."
+    },
+    "what": {
+      "title": "Qué es",
+      "items": [
+        "Auditoría de la tienda en Shopify Admin",
+        "Config de variantes, precio, peso y envío",
+        "Para que la tienda convierta antes de gastar en tráfico"
+      ]
+    },
+    "offer": {
+      "title": "Oferta",
+      "line": "Audit + config Admin. Sin editar theme. Sin ads en este SKU."
+    },
+    "who": {
+      "title": "Para quién",
+      "items": [
+        "Founder / ecom lead DTC en Shopify",
+        "Fricción en ops: catálogo, precio, envío",
+        "Quiere tráfico, pero la tienda aún no convierte"
+      ]
+    },
+    "notFor": {
+      "title": "No es para",
+      "items": [
+        "Shopify Plus enterprise",
+        "Solo creatives",
+        "Theme-only (solo Dawn)",
+        "Tráfico pagado sin una tienda que convierta"
+      ]
+    },
+    "prices": {
+      "title": "Precio",
+      "body": "Tabulador Store TBD. Se cierra en discovery.",
+      "note": "Agenda discovery. No hay precio de install publicado."
+    }
   },
-  "notFor": {
-    "title": "No es para",
-    "items": [
-      "Ecom / B2C",
-      "Equipos con 5+ SDRs",
-      "Ticket < USD 1k",
-      "“Solo ads”",
-      "Quien pide garantía de N meetings",
-      "RFP enterprise"
-    ]
+  "nexus": {
+    "hero": {
+      "headline": "Marketing agéntico para retailers. Paper primero.",
+      "subhead": "Strategy → Social → Ads. Ads gated hasta fotos + mix + presupuesto."
+    },
+    "what": {
+      "title": "Qué es",
+      "items": [
+        "Pipeline Strategy → Social → Ads",
+        "Paper hasta GO: fotos + mix + presupuesto",
+        "Cero ads live sin esos gates"
+      ]
+    },
+    "offer": {
+      "title": "Oferta",
+      "line": "Strategy → Social → Ads. Ads gated hasta GO."
+    },
+    "who": {
+      "title": "Para quién",
+      "items": [
+        "Retailers con oferta / SKU",
+        "Quien acepta brief en paper antes de spend"
+      ]
+    },
+    "notFor": {
+      "title": "No es para",
+      "items": [
+        "Ads sin banco creativo",
+        "Presupuesto 0",
+        "Quien pide ads live el día 1"
+      ]
+    },
+    "gates": {
+      "title": "Gates",
+      "items": [
+        "Sin fotos: no hay ads",
+        "Sin mix: no hay ads",
+        "Sin presupuesto: no hay ads",
+        "Paper hasta GO. Cero spend en vivo sin los tres."
+      ]
+    },
+    "prices": {
+      "title": "Precio",
+      "body": "Paper / TBD. Se cierra en discovery.",
+      "note": "Sin % de spend ni retainer en USD en esta página."
+    }
   },
-  "prices": {
-    "title": "Precios piloto",
-    "sku": "SKU",
-    "what": "Qué es",
-    "time": "Tiempo",
-    "price": "Precio (piloto · 0 case study)",
-    "rows": [
-      {
-        "sku": "Radar",
-        "what": "Diagnóstico del outbound que no cierra",
-        "time": "1 semana",
-        "price": "USD 1,000–1,500"
-      },
-      {
-        "sku": "Blueprint",
-        "what": "Arquitectura: ICP, stack, roadmap. Se descuenta si sigues",
-        "time": "2 semanas",
-        "price": "USD 1,500–2,000"
-      },
-      {
-        "sku": "GTM OS",
-        "what": "Implementación completa (fases 0–7)",
-        "time": "8–10 semanas",
-        "price": "USD 3,500–4,500"
-      },
-      {
-        "sku": "Pulse",
-        "what": "Retainer: el sistema no se apaga (mín. 3 meses)",
-        "time": "mensual",
-        "price": "USD 1,000–1,500/mes"
-      }
-    ],
-    "payment": "Pago OS: 40 / 40 / 20. Sin número de juntas garantizado.",
-    "afterCase": "Tras 1 case study: OS 6,500–8,000 · Pulse 2,200–3,000/mes."
+  "cards": {
+    "gtm": {
+      "name": "GTM OS",
+      "thesis": "Sistema de outbound que queda tuyo."
+    },
+    "store": {
+      "name": "Store OS",
+      "thesis": "Auditoría + config Shopify Admin para que convierta."
+    },
+    "nexus": {
+      "name": "NEXUS OS",
+      "thesis": "Marketing agéntico. Paper primero / ads con gate."
+    }
   },
   "footer": {
     "location": "Tijuana / Pacific",
     "onePager": "One-pager"
   },
+  "notFound": {
+    "title": "Página no encontrada",
+    "body": "Esa ruta no existe.",
+    "back": "Ir al catálogo"
+  },
   "seo": {
-    "homeTitle": "RutinHQ — GTM OS",
-    "homeDescription": "Sistema de outbound B2B que queda tuyo. Clay → Instantly → CRM · Pacific time · 8–10 semanas."
+    "hubTitle": "RutinHQ — tres sistemas operativos",
+    "hubDescription": "GTM OS, Store OS y NEXUS OS. Un SKU por oferta.",
+    "gtmTitle": "RutinHQ — GTM OS",
+    "gtmDescription": "Sistema de outbound B2B que queda tuyo. Clay → Instantly → CRM · Pacific time · 8–10 semanas.",
+    "storeTitle": "RutinHQ — Store OS",
+    "storeDescription": "Auditoría + config Shopify Admin para que la tienda convierta. Sin editar el theme.",
+    "nexusTitle": "RutinHQ — NEXUS OS",
+    "nexusDescription": "Marketing agéntico para retailers. Strategy → Social → Ads. Paper primero. Ads gated.",
+    "notFoundTitle": "RutinHQ — 404"
   }
 }
