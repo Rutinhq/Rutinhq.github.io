@@ -2,7 +2,6 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import express from 'express'
-import { handleLeadCapture } from './api/contact/lead-capture/POST.ts'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const isProd = process.env.NODE_ENV === 'production'
@@ -10,18 +9,6 @@ const PORT = Number(process.env.PORT || 4321)
 
 async function start() {
   const app = express()
-  app.use(express.json())
-  app.post('/api/contact/lead-capture', (req, res) => {
-    void handleLeadCapture(req, {
-      status(code) {
-        res.status(code)
-        return this
-      },
-      json(payload) {
-        res.json(payload)
-      },
-    })
-  })
 
   if (!isProd) {
     const { createServer } = await import('vite')
@@ -31,10 +18,6 @@ async function start() {
     })
     app.use(vite.middlewares)
     app.use(async (req, res, next) => {
-      if (req.originalUrl.startsWith('/api')) {
-        next()
-        return
-      }
       try {
         const url = req.originalUrl
         const templatePath = path.resolve(__dirname, '../../index.html')
@@ -43,15 +26,10 @@ async function start() {
         const { render } = await vite.ssrLoadModule('/src/entry-server.tsx')
         const cookie = String(req.headers.cookie ?? '')
         const stored = cookie.match(/i18nextLng=([^;]+)/)?.[1]
-        const accept = String(req.headers['accept-language'] ?? '')
-        const lang = stored?.startsWith('es')
-          ? 'es'
-          : accept.startsWith('es')
-            ? 'es'
-            : 'en'
+        const lang = stored?.startsWith('en') ? 'en' : 'es'
         const { html, head, htmlAttributes } = await render(url, lang)
         const page = template
-          .replace('<html lang="en">', `<html lang="${lang}" ${htmlAttributes}>`)
+          .replace('<html lang="es">', `<html lang="${lang}" ${htmlAttributes}>`)
           .replace('<!--ssr-head-->', head)
           .replace('<!--ssr-outlet-->', html)
         res.status(200).set({ 'Content-Type': 'text/html' }).end(page)

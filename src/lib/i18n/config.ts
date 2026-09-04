@@ -1,3 +1,3 @@
-export const supportedLanguages = ['en', 'es'] as const
+export const supportedLanguages = ['es', 'en'] as const
 export type SupportedLanguage = (typeof supportedLanguages)[number]
-export const defaultLanguage: SupportedLanguage = 'en'
+export const defaultLanguage: SupportedLanguage = 'es'

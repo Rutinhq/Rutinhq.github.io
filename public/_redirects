@@ -1,2 +1,3 @@
-/api/*  /api/:splat  200
+/services / 301
+/case-studies / 301
 /*      /index.html  200

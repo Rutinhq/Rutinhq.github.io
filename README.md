@@ -1,16 +1,23 @@
-# RutinHQ
+# RutinHQ — GTM OS
 
-Landing B2B de captura de leads para consultoría de Revenue Operations y GTM Engineering.
+Landing de un scroll (Pack GTM §2): sistema de outbound B2B que queda del cliente.
 
-Sitio oscuro, tipografía técnica, cero border-radius. Home, servicios, casos y formulario de strategy call.
+Stack: Vite + React + Tailwind + i18next. Default **ES**, toggle **EN**.
 
-## Preview
+## Cloudflare Pages
 
-El preview público vive en **GitHub Pages** (sin Vercel):
+- **Proyecto:** `rutinhq-web`
+- **Build:** `npm run build`
+- **Output:** `dist`
+- **DNS www:** pendiente Capo / CORTEX. CNAME de `www.rutinhq.com` al hostname `*.pages.dev` del proyecto. Apex (`rutinhq.com`) al mismo target cuando Capo lo autorice.
+- **No tocar** `docs.rutinhq.com`.
 
-**https://rutinhq.github.io/**
+Deploy (con auth Wrangler):
 
-Cada push a `main` publica el sitio. La primera vez, si Pages no arranca, abre el repo → Settings → Pages → Source: **GitHub Actions**.
+```bash
+npm run build
+npx wrangler pages deploy dist --project-name rutinhq-web
+```
 
 ## Local
 
@@ -21,32 +28,14 @@ npm run dev
 
 Abre `http://127.0.0.1:4321`.
 
-Producción local:
-
 ```bash
 npm run build
-npm start
+npm run preview
 ```
 
-## Alternativa: Cloudflare Pages
+## Copy y CTAs
 
-Cuenta gratuita, sin el tope de Vercel. En el dashboard de Cloudflare: Workers & Pages → Importar este repo → build `npm run build` → output `dist`. O:
-
-```bash
-npx wrangler pages deploy dist --project-name rutinhq
-```
-
-## Lead capture
-
-El formulario hace `POST /api/contact/lead-capture`. En GitHub Pages (estático) el POST no tiene backend; en local y en Cloudflare/Express sí.
-
-Sin credenciales de GoDaddy Inbox, el handler deja el lead en logs y responde 200.
-
-```
-GODADDY_INBOX_WEBHOOK_URL=
-GODADDY_INBOX_API_KEY=
-```
-
-## Contenido
-
-Copy de páginas en `src/content/pages/*.json` (`virtual:content`). UI en `src/locales/en.json` y `src/locales/es.json`.
+- Primario: [Calendly 30 min](https://calendly.com/rutinhq/30min)
+- Secundario: `mailto:rutinhqsolutions@gmail.com?subject=GTM%20OS` (WhatsApp en park)
+- Precios piloto canónicos: Radar $1,000–1,500 · Blueprint $1,500–2,000 · OS $3,500–4,500 · Pulse $1,000–1,500/mo
+- WhatsApp, Store / NEXUS, foto, métricas inventadas y badge Apollo: fuera de v0

@@ -1,13 +1,12 @@
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
-import { Button } from '@/components/ui/button'
+import type { SupportedLanguage } from '@/lib/i18n/config'
 
 export function Header() {
-  const { t, i18n } = useTranslation()
-  const currentLang = i18n.language?.startsWith('es') ? 'es' : 'en'
-  const toggleLanguage = () => {
-    void i18n.changeLanguage(currentLang === 'en' ? 'es' : 'en')
-  }
+  const { i18n } = useTranslation()
+  const currentLang: SupportedLanguage = i18n.language?.startsWith('es')
+    ? 'es'
+    : 'en'
 
   return (
     <header className="sticky top-0 z-50 h-16 border-b border-border bg-background">
@@ -20,46 +19,34 @@ export function Header() {
             style={{ maxHeight: 56 }}
           />
         </Link>
-        <div className="flex items-center gap-4 md:gap-8">
-          <nav className="flex items-center gap-3 overflow-x-auto md:gap-6">
-            <Link
-              to="/services"
-              className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground hover:text-foreground"
-            >
-              {t('nav.services')}
-            </Link>
-            <Link
-              to="/case-studies"
-              className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground hover:text-foreground"
-            >
-              {t('nav.caseStudies')}
-            </Link>
-          </nav>
+        <div
+          className="flex items-center gap-2 font-mono text-[11px] tracking-[0.12em]"
+          role="group"
+          aria-label="Language"
+        >
           <button
             type="button"
-            onClick={toggleLanguage}
-            className="font-mono text-[11px] tracking-[0.12em]"
-            aria-label="Toggle language"
+            onClick={() => void i18n.changeLanguage('es')}
+            className={
+              currentLang === 'es' ? 'text-foreground' : 'text-muted-foreground'
+            }
+            aria-pressed={currentLang === 'es'}
           >
-            <span
-              className={
-                currentLang === 'en' ? 'text-foreground' : 'text-muted-foreground'
-              }
-            >
-              EN
-            </span>
-            <span className="text-muted-foreground"> / </span>
-            <span
-              className={
-                currentLang === 'es' ? 'text-foreground' : 'text-muted-foreground'
-              }
-            >
-              ES
-            </span>
+            ES
           </button>
-          <Button asChild className="shrink-0 px-3 md:px-6">
-            <a href="#contact">{t('nav.cta')}</a>
-          </Button>
+          <span className="text-muted-foreground" aria-hidden="true">
+            |
+          </span>
+          <button
+            type="button"
+            onClick={() => void i18n.changeLanguage('en')}
+            className={
+              currentLang === 'en' ? 'text-foreground' : 'text-muted-foreground'
+            }
+            aria-pressed={currentLang === 'en'}
+          >
+            EN
+          </button>
         </div>
       </div>
     </header>

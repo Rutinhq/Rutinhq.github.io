@@ -12,6 +12,11 @@ dist
 dist-ssr
 *.local
 
+# Published GH Pages leftovers — Cloudflare Pages builds from dist/
+/assets
+/404.html
+/.nojekyll
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
