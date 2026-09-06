@@ -17,9 +17,9 @@ export function Header() {
         <Link
           to="/"
           aria-label="RutinHQ"
-          className="flex min-w-0 shrink items-center text-foreground"
+          className="flex shrink-0 items-center text-foreground"
         >
-          <Logo className="h-7 w-auto max-w-[120px] min-w-0 shrink md:h-8 md:max-w-[160px]" />
+          <Logo />
         </Link>
         <div className="flex shrink-0 items-center gap-2 md:gap-4">
           <div

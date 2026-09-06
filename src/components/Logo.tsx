@@ -11,7 +11,7 @@ export function Logo({ className }: { className?: string }) {
       fill="none"
       aria-hidden="true"
       focusable="false"
-      className={cn('block', className)}
+      className={cn('block h-7 w-auto shrink-0 aspect-[156/40] md:h-8', className)}
     >
       <path
         d="M2 36V4h16l10 10v6l-7 10H18V36H2zm16-22h6l-6-6v6z"
