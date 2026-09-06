@@ -12,7 +12,7 @@ export function Header() {
     : 'en'
 
   return (
-    <header className="sticky top-0 isolate z-50 h-16 overflow-hidden border-b border-border bg-background">
+    <header className="sticky top-0 isolate z-50 h-16 border-b border-border bg-background">
       <div className="container mx-auto flex h-full flex-nowrap items-center justify-between gap-2 px-4 sm:gap-3 sm:px-6 md:gap-4 md:px-10">
         <Link
           to="/"
