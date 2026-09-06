@@ -1,6 +1,7 @@
 {
   "common": {
     "ctaPrimary": "Book 30 min",
+    "ctaPrimaryShort": "Book",
     "ctaSecondary": "Email",
     "ctaDiscovery": "Book discovery",
     "ctaOffer": "See offer",

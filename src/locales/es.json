@@ -1,6 +1,7 @@
 {
   "common": {
     "ctaPrimary": "Agendar 30 min",
+    "ctaPrimaryShort": "Agendar",
     "ctaSecondary": "Email",
     "ctaDiscovery": "Agenda discovery",
     "ctaOffer": "Ver oferta",
