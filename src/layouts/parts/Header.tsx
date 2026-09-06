@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
+import { Logo } from '@/components/Logo'
 import { Button } from '@/components/ui/button'
 import type { SupportedLanguage } from '@/lib/i18n/config'
 import { CALENDLY_URL } from '@/lib/links'
@@ -11,19 +12,18 @@ export function Header() {
     : 'en'
 
   return (
-    <header className="sticky top-0 z-50 h-16 border-b border-border bg-background">
-      <div className="container mx-auto flex h-full items-center justify-between gap-4 px-6 md:px-10">
-        <Link to="/" className="flex items-center">
-          <img
-            src={`${import.meta.env.BASE_URL}airo-assets/images/logo/horizontal.svg`}
-            alt="RutinHQ"
-            className="h-auto w-auto max-w-[140px] object-contain md:max-w-none"
-            style={{ maxHeight: 56 }}
-          />
+    <header className="sticky top-0 isolate z-50 h-16 border-b border-border bg-background">
+      <div className="container mx-auto flex h-full flex-nowrap items-center justify-between gap-2 px-4 sm:gap-3 sm:px-6 md:gap-4 md:px-10">
+        <Link
+          to="/"
+          aria-label="RutinHQ"
+          className="flex shrink-0 items-center text-foreground"
+        >
+          <Logo />
         </Link>
-        <div className="flex items-center gap-3 md:gap-4">
+        <div className="flex shrink-0 items-center gap-2 md:gap-4">
           <div
-            className="flex items-center gap-2 font-mono text-[11px] tracking-[0.12em]"
+            className="flex shrink-0 items-center gap-2 font-mono text-[11px] tracking-[0.12em]"
             role="group"
             aria-label={t('nav.language')}
           >
@@ -51,9 +51,10 @@ export function Header() {
               EN
             </button>
           </div>
-          <Button asChild size="sm">
+          <Button asChild size="sm" className="shrink-0 px-3 md:px-4">
             <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer">
-              {t('common.ctaPrimary')}
+              <span className="md:hidden">{t('common.ctaPrimaryShort')}</span>
+              <span className="hidden md:inline">{t('common.ctaPrimary')}</span>
             </a>
           </Button>
         </div>
