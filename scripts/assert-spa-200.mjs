@@ -20,4 +20,12 @@ if (!/\/\*\s+\/index\.html\s+200/.test(redirects)) {
   process.exit(1)
 }
 
-console.log('SPA 200 fallback: no 404.html; _redirects present.')
+for (const route of ['gtm-os', 'store-os', 'nexus-os']) {
+  const page = `dist/${route}/index.html`
+  if (!fs.existsSync(page)) {
+    console.error(`${page} missing — SKU routes must be real assets for HTTP 200.`)
+    process.exit(1)
+  }
+}
+
+console.log('SPA 200 fallback: no 404.html; _redirects + SKU pages present.')

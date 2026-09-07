@@ -16,8 +16,9 @@ Stack: Vite + React + Tailwind + i18next. Default **EN** (commercial copy). Togg
 - **Proyecto:** `rutinhq-web`
 - **Build:** `npm run build`
 - **Output:** `dist`
-- **SPA fallback:** `public/_redirects` → `/* /index.html 200`
+- **SPA fallback:** `public/_redirects` → explicit SKU rewrites + `/* /index.html 200`
 - **Do not ship `404.html`.** Cloudflare Pages would serve valid SPA routes (`/gtm-os`, `/store-os`, `/nexus-os`) with HTTP 404 even when the body is the Vite shell.
+- Build also copies `index.html` → `dist/{gtm-os,store-os,nexus-os}/index.html` so those three paths are real assets.
 - **DNS www:** pendiente Capo / CORTEX. CNAME de `www.rutinhq.com` al hostname `*.pages.dev` del proyecto. Apex (`rutinhq.com`) al mismo target cuando Capo lo autorice.
 - **No tocar** `docs.rutinhq.com`. CORTEX redeploya `rutinhq-web`.
 
