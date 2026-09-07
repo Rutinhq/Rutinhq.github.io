@@ -1,27 +1,20 @@
 import path from 'node:path'
-import fs from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
-import { defineConfig, type Plugin } from 'vite'
+import { defineConfig } from 'vite'
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url))
 
-function spaFallbackPlugin(): Plugin {
-  return {
-    name: 'spa-fallback',
-    closeBundle() {
-      const dir = path.resolve(rootDir, 'dist')
-      const index = path.join(dir, 'index.html')
-      if (fs.existsSync(index)) {
-        fs.copyFileSync(index, path.join(dir, '404.html'))
-      }
-    },
-  }
-}
+// Do not emit dist/404.html. On Cloudflare Pages a present 404.html
+// serves missing paths (including valid SPA routes) with HTTP 404 even
+// when the body is the SPA shell.
+// Do not emit dist/<sku>/index.html either — that folder form makes
+// Pages/wrangler 308 /gtm-os away from the pretty URL. Deep links use
+// public/_redirects exact 200 rewrites + `/* /index.html 200`.
 
 export default defineConfig({
-  plugins: [react(), tailwindcss(), spaFallbackPlugin()],
+  plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
       '@': path.resolve(rootDir, './src'),

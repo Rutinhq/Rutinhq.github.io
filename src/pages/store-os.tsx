@@ -3,13 +3,15 @@ import { Ctas } from '@/components/Ctas'
 import { BulletList, MonoTitle, Section } from '@/components/Section'
 import { Seo, skuJsonLd } from '@/components/Seo'
 import { useObjectList } from '@/lib/i18n/lists'
-import { MAILTO_STORE } from '@/lib/links'
+import { DOCS_STORE_URL, MAILTO_STORE } from '@/lib/links'
 
 export default function StoreOsPage() {
   const { t } = useTranslation()
-  const what = useObjectList<string>('store.what.items')
   const who = useObjectList<string>('store.who.items')
   const notFor = useObjectList<string>('store.notFor.items')
+  const how = useObjectList<string>('store.how.items')
+  const outcomes = useObjectList<string>('store.outcomes.items')
+  const notWhat = useObjectList<string>('store.notWhat.items')
 
   return (
     <>
@@ -25,8 +27,11 @@ export default function StoreOsPage() {
       />
 
       <Section first>
+        <p className="font-mono text-[12px] uppercase tracking-[0.14em] text-primary">
+          {t('store.eyebrow')}
+        </p>
         <h1
-          className="max-w-4xl font-heading font-extrabold tracking-[-0.03em]"
+          className="mt-4 max-w-4xl font-heading font-extrabold tracking-[-0.03em]"
           style={{ fontSize: 'clamp(36px, 6vw, 64px)' }}
         >
           {t('store.hero.headline')}
@@ -34,23 +39,7 @@ export default function StoreOsPage() {
         <p className="mt-6 max-w-2xl text-[17px] text-muted-foreground md:text-[18px]">
           {t('store.hero.subhead')}
         </p>
-        <Ctas
-          className="mt-10"
-          mailto={MAILTO_STORE}
-          primaryKey="common.ctaDiscovery"
-        />
-      </Section>
-
-      <Section>
-        <MonoTitle>{t('store.what.title')}</MonoTitle>
-        <BulletList items={what} />
-      </Section>
-
-      <Section>
-        <MonoTitle>{t('store.offer.title')}</MonoTitle>
-        <p className="mt-6 font-mono text-[15px] tracking-[0.04em] text-foreground md:text-[18px]">
-          {t('store.offer.line')}
-        </p>
+        <Ctas className="mt-10" mailto={MAILTO_STORE} docsHref={DOCS_STORE_URL} />
       </Section>
 
       <Section>
@@ -67,18 +56,19 @@ export default function StoreOsPage() {
       </Section>
 
       <Section>
-        <MonoTitle>{t('store.prices.title')}</MonoTitle>
-        <p className="mt-6 max-w-2xl text-[16px] text-foreground">
-          {t('store.prices.body')}
-        </p>
-        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          {t('store.prices.note')}
-        </p>
-        <Ctas
-          className="mt-10"
-          mailto={MAILTO_STORE}
-          primaryKey="common.ctaDiscovery"
-        />
+        <MonoTitle>{t('store.how.title')}</MonoTitle>
+        <BulletList items={how} />
+      </Section>
+
+      <Section>
+        <MonoTitle>{t('store.outcomes.title')}</MonoTitle>
+        <BulletList items={outcomes} />
+      </Section>
+
+      <Section>
+        <MonoTitle muted>{t('store.notWhat.title')}</MonoTitle>
+        <BulletList items={notWhat} muted />
+        <Ctas className="mt-10" mailto={MAILTO_STORE} docsHref={DOCS_STORE_URL} />
       </Section>
     </>
   )
