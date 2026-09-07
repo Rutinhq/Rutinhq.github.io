@@ -4,7 +4,7 @@ import { Ctas } from '@/components/Ctas'
 import { Section } from '@/components/Section'
 import { hubJsonLd, Seo } from '@/components/Seo'
 import { Button } from '@/components/ui/button'
-import { MAILTO_HUB } from '@/lib/links'
+import { DOCS_CATALOG_URL, MAILTO_HUB } from '@/lib/links'
 
 const CARDS = [
   { key: 'gtm', href: '/gtm-os' },
@@ -25,8 +25,11 @@ export default function HubPage() {
       />
 
       <Section first>
+        <p className="font-mono text-[12px] uppercase tracking-[0.14em] text-primary">
+          {t('hub.eyebrow')}
+        </p>
         <h1
-          className="max-w-4xl font-heading font-extrabold tracking-[-0.03em]"
+          className="mt-4 max-w-4xl font-heading font-extrabold tracking-[-0.03em]"
           style={{ fontSize: 'clamp(36px, 6vw, 64px)' }}
         >
           {t('hub.headline')}
@@ -34,10 +37,6 @@ export default function HubPage() {
         <p className="mt-6 max-w-2xl text-[17px] text-muted-foreground md:text-[18px]">
           {t('hub.subhead')}
         </p>
-        <p className="mt-3 max-w-2xl font-mono text-[12px] uppercase tracking-[0.14em] text-primary">
-          {t('hub.lead')}
-        </p>
-        <Ctas className="mt-10" mailto={MAILTO_HUB} />
       </Section>
 
       <Section>
@@ -58,11 +57,27 @@ export default function HubPage() {
                 {t(`cards.${card.key}.thesis`)}
               </p>
               <Button asChild className="mt-8 self-start" size="lg">
-                <Link to={card.href}>{t('common.ctaOffer')}</Link>
+                <Link to={card.href}>{t(`cards.${card.key}.cta`)}</Link>
               </Button>
             </article>
           ))}
         </div>
+      </Section>
+
+      <Section>
+        <Ctas mailto={MAILTO_HUB} />
+        <p className="mt-6 max-w-2xl text-sm text-muted-foreground">
+          {t('hub.catalogNote')}{' '}
+          <a
+            href={DOCS_CATALOG_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-foreground underline underline-offset-4 hover:text-primary"
+          >
+            docs.rutinhq.com/catalog
+          </a>{' '}
+          {t('hub.catalogNoteAfter')}
+        </p>
       </Section>
     </>
   )

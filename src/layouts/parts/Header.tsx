@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { Logo } from '@/components/Logo'
 import { Button } from '@/components/ui/button'
 import type { SupportedLanguage } from '@/lib/i18n/config'
-import { CALENDLY_URL } from '@/lib/links'
+import { MAILTO_HUB } from '@/lib/links'
 
 export function Header() {
   const { t, i18n } = useTranslation()
@@ -52,7 +52,7 @@ export function Header() {
             </button>
           </div>
           <Button asChild size="sm" className="shrink-0 px-3 md:px-4">
-            <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer">
+            <a href={MAILTO_HUB}>
               <span className="md:hidden">{t('common.ctaPrimaryShort')}</span>
               <span className="hidden md:inline">{t('common.ctaPrimary')}</span>
             </a>

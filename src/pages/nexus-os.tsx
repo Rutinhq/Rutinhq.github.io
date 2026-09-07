@@ -3,14 +3,15 @@ import { Ctas } from '@/components/Ctas'
 import { BulletList, MonoTitle, Section } from '@/components/Section'
 import { Seo, skuJsonLd } from '@/components/Seo'
 import { useObjectList } from '@/lib/i18n/lists'
-import { MAILTO_NEXUS } from '@/lib/links'
+import { DOCS_NEXUS_URL, MAILTO_NEXUS } from '@/lib/links'
 
 export default function NexusOsPage() {
   const { t } = useTranslation()
-  const what = useObjectList<string>('nexus.what.items')
   const who = useObjectList<string>('nexus.who.items')
   const notFor = useObjectList<string>('nexus.notFor.items')
-  const gates = useObjectList<string>('nexus.gates.items')
+  const how = useObjectList<string>('nexus.how.items')
+  const outcomes = useObjectList<string>('nexus.outcomes.items')
+  const notWhat = useObjectList<string>('nexus.notWhat.items')
 
   return (
     <>
@@ -26,8 +27,11 @@ export default function NexusOsPage() {
       />
 
       <Section first>
+        <p className="font-mono text-[12px] uppercase tracking-[0.14em] text-primary">
+          {t('nexus.eyebrow')}
+        </p>
         <h1
-          className="max-w-4xl font-heading font-extrabold tracking-[-0.03em]"
+          className="mt-4 max-w-4xl font-heading font-extrabold tracking-[-0.03em]"
           style={{ fontSize: 'clamp(36px, 6vw, 64px)' }}
         >
           {t('nexus.hero.headline')}
@@ -35,28 +39,7 @@ export default function NexusOsPage() {
         <p className="mt-6 max-w-2xl text-[17px] text-muted-foreground md:text-[18px]">
           {t('nexus.hero.subhead')}
         </p>
-        <Ctas
-          className="mt-10"
-          mailto={MAILTO_NEXUS}
-          primaryKey="common.ctaDiscovery"
-        />
-      </Section>
-
-      <Section>
-        <MonoTitle>{t('nexus.what.title')}</MonoTitle>
-        <BulletList items={what} />
-      </Section>
-
-      <Section>
-        <MonoTitle>{t('nexus.offer.title')}</MonoTitle>
-        <p className="mt-6 font-mono text-[15px] tracking-[0.04em] text-foreground md:text-[18px]">
-          {t('nexus.offer.line')}
-        </p>
-      </Section>
-
-      <Section>
-        <MonoTitle>{t('nexus.gates.title')}</MonoTitle>
-        <BulletList items={gates} />
+        <Ctas className="mt-10" mailto={MAILTO_NEXUS} docsHref={DOCS_NEXUS_URL} />
       </Section>
 
       <Section>
@@ -73,18 +56,19 @@ export default function NexusOsPage() {
       </Section>
 
       <Section>
-        <MonoTitle>{t('nexus.prices.title')}</MonoTitle>
-        <p className="mt-6 max-w-2xl text-[16px] text-foreground">
-          {t('nexus.prices.body')}
-        </p>
-        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          {t('nexus.prices.note')}
-        </p>
-        <Ctas
-          className="mt-10"
-          mailto={MAILTO_NEXUS}
-          primaryKey="common.ctaDiscovery"
-        />
+        <MonoTitle>{t('nexus.how.title')}</MonoTitle>
+        <BulletList items={how} />
+      </Section>
+
+      <Section>
+        <MonoTitle>{t('nexus.outcomes.title')}</MonoTitle>
+        <BulletList items={outcomes} />
+      </Section>
+
+      <Section>
+        <MonoTitle muted>{t('nexus.notWhat.title')}</MonoTitle>
+        <BulletList items={notWhat} muted />
+        <Ctas className="mt-10" mailto={MAILTO_NEXUS} docsHref={DOCS_NEXUS_URL} />
       </Section>
     </>
   )

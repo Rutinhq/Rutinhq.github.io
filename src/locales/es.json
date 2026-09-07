@@ -1,10 +1,10 @@
 {
   "common": {
-    "ctaPrimary": "Agendar 30 min",
-    "ctaPrimaryShort": "Agendar",
+    "ctaPrimary": "Talk to RutinHQ",
+    "ctaPrimaryShort": "Talk",
     "ctaSecondary": "Email",
-    "ctaDiscovery": "Agenda discovery",
-    "ctaOffer": "Ver oferta",
+    "ctaDocs": "Read the system",
+    "ctaOffer": "See the system",
     "hubLink": "Catálogo",
     "docs": "Docs"
   },
@@ -12,191 +12,200 @@
     "language": "Idioma"
   },
   "hub": {
-    "headline": "RutinHQ",
-    "subhead": "Tres sistemas operativos para crecer.",
-    "lead": "Un SKU por página. Cada sistema se vende solo."
+    "eyebrow": "RutinHQ systems",
+    "headline": "Systems you own — not retainers that vanish.",
+    "subhead": "Three installable operating systems. Pick the bottleneck. One page, one SKU.",
+    "catalogNote": "Catalog curriculum also lives at",
+    "catalogNoteAfter": "— this site sells one SKU at a time."
   },
   "gtm": {
+    "eyebrow": "GTM OS",
     "hero": {
-      "headline": "Sistema de outbound B2B que queda tuyo",
-      "subhead": "Clay → Instantly → CRM · Pacific time · 8–10 semanas"
-    },
-    "problem": {
-      "title": "Problema",
-      "items": [
-        "Cierras a mano; el pipeline no",
-        "La agencia se apaga al cortar",
-        "El stack US está en inglés y tu equipo no"
-      ]
-    },
-    "install": {
-      "title": "Qué instalamos",
-      "line": "Clay → Instantly → tu CRM → alerta"
-    },
-    "ladder": {
-      "title": "Escalera",
-      "items": [
-        { "sku": "Radar", "time": "1 sem" },
-        { "sku": "Blueprint", "time": "2 sem" },
-        { "sku": "GTM OS", "time": "8–10" },
-        { "sku": "Pulse", "time": "mensual" }
-      ]
+      "headline": "Outbound that stays yours.",
+      "subhead": "A cold B2B prospecting system installed in your team — not a rented SDR that dies when the contract ends. Change language, filters, and angle; keep the core."
     },
     "who": {
-      "title": "Para quién",
+      "title": "For whom",
       "items": [
-        "Founder / CEO B2B, 1–20 personas (hasta ~80 si hay comprador hispanohablante de GTM/ops)",
-        "Ticket de tu cliente USD 5–25k (rango amplio 3–50k)",
-        "Ya vendes. El cuello es pipeline repetible",
-        "Segmento A2: empresario MX o hispanohablante en US — abrimos el stack US en tu idioma"
+        "Founder / CEO or ops lead in B2B",
+        "Already sell; bottleneck is repeatable pipeline",
+        "ICP-filtered cold email",
+        "First run always cold"
       ]
     },
     "notFor": {
-      "title": "No es para",
+      "title": "Not for",
       "items": [
-        "Ecom / B2C",
-        "Equipos con 5+ SDRs",
-        "Ticket < USD 1k",
-        "“Solo ads”",
-        "Quien pide garantía de N meetings",
-        "RFP enterprise"
+        "Pure ecom / B2C",
+        "“Just run ads”",
+        "Enterprise RFP with no outbound owner",
+        "Guaranteed-N-meetings buyers"
       ]
     },
-    "prices": {
-      "title": "Precios piloto",
-      "sku": "SKU",
-      "what": "Qué es",
-      "time": "Tiempo",
-      "price": "Precio (piloto · 0 case study)",
-      "rows": [
-        {
-          "sku": "Radar",
-          "what": "Diagnóstico del outbound que no cierra",
-          "time": "1 semana",
-          "price": "USD 1,000–1,500"
-        },
-        {
-          "sku": "Blueprint",
-          "what": "Arquitectura: ICP, stack, roadmap. Se descuenta si sigues",
-          "time": "2 semanas",
-          "price": "USD 1,500–2,000"
-        },
-        {
-          "sku": "GTM OS",
-          "what": "Implementación completa (fases 0–7)",
-          "time": "8–10 semanas",
-          "price": "USD 3,500–4,500"
-        },
-        {
-          "sku": "Pulse",
-          "what": "Retainer: el sistema no se apaga (mín. 3 meses)",
-          "time": "mensual",
-          "price": "USD 1,000–1,500/mes"
-        }
-      ],
-      "payment": "Pago OS: 40 / 40 / 20. Sin número de juntas garantizado.",
-      "afterCase": "Tras 1 case study: OS 6,500–8,000 · Pulse 2,200–3,000/mes."
+    "how": {
+      "title": "How it works",
+      "items": [
+        "M0 Sector research",
+        "M1 ICP + validation",
+        "M2 Messaging framework",
+        "M3 Sales playbook + gate",
+        "M4 Campaign activation",
+        "M5 Crawl / analysis",
+        "M6 Weekly KPIs (ongoing)",
+        "M7 Close + scale to next vertical"
+      ]
+    },
+    "roles": {
+      "title": "Roles",
+      "items": [
+        "Commercial Architect designs and gates",
+        "Outbound Specialist runs sequences and classifies replies",
+        "HoD validates technical fit"
+      ]
+    },
+    "reply": {
+      "title": "Reply protocol",
+      "items": [
+        "Classify before you answer: open / question / referral / OOO / not interested / silence",
+        "One bump on silence — then discard",
+        "Discovery calls: the lead describes their process in their words — no feature pitch"
+      ]
+    },
+    "outcomes": {
+      "title": "Outcomes",
+      "items": [
+        "Outbound pipeline your team can run",
+        "ICP with checkable criteria",
+        "Sequences + SOP so the system survives without us",
+        "Validate one vertical before scaling the next"
+      ]
+    },
+    "notWhat": {
+      "title": "What it’s not",
+      "items": [
+        "An ads or social agency",
+        "A wiki for someone else’s SaaS",
+        "A dump of lead lists / CRM / APIs",
+        "A promise of N meetings"
+      ]
     }
   },
   "store": {
+    "eyebrow": "Store OS",
     "hero": {
-      "headline": "Auditoría + config Shopify Admin para que la tienda convierta",
-      "subhead": "Variantes, precio, peso, envío. Sin editar el theme."
-    },
-    "what": {
-      "title": "Qué es",
-      "items": [
-        "Auditoría de la tienda en Shopify Admin",
-        "Config de variantes, precio, peso y envío",
-        "Para que la tienda convierta antes de gastar en tráfico"
-      ]
-    },
-    "offer": {
-      "title": "Oferta",
-      "line": "Audit + config Admin. Sin editar theme. Sin ads en este SKU."
+      "headline": "Make the store convert before you buy ads.",
+      "subhead": "Replicable Shopify Admin audit + config — variants, price, weight, shipping — so ops friction stops killing conversion."
     },
     "who": {
-      "title": "Para quién",
+      "title": "For whom",
       "items": [
-        "Founder / ecom lead DTC en Shopify",
-        "Fricción en ops: catálogo, precio, envío",
-        "Quiere tráfico, pero la tienda aún no convierte"
+        "Founder / ecom lead on DTC Shopify",
+        "Ops friction",
+        "Wants ads but store doesn’t convert yet"
       ]
     },
     "notFor": {
-      "title": "No es para",
+      "title": "Not for",
       "items": [
-        "Shopify Plus enterprise",
-        "Solo creatives",
-        "Theme-only (solo Dawn)",
-        "Tráfico pagado sin una tienda que convierta"
+        "Theme-only work",
+        "Ads with no converting store",
+        "Creatives-only",
+        "Pure Plus enterprise with no Admin owner"
       ]
     },
-    "prices": {
-      "title": "Precio",
-      "body": "Tabulador Store TBD. Se cierra en discovery.",
-      "note": "Agenda discovery. No hay precio de install publicado."
+    "how": {
+      "title": "How it works",
+      "items": [
+        "1) Scorecard / Admin friction diagnosis",
+        "2) Audit: variants, price, weight, shipping",
+        "3) Admin config to the mold (no theme file edits)",
+        "4) Delivery checklist + handoff",
+        "5) Ads / creatives = out of scope (NEXUS OS)"
+      ]
+    },
+    "outcomes": {
+      "title": "Outcomes",
+      "items": [
+        "Store that converts with less ops friction",
+        "Coherent Admin config",
+        "A base ready before ad spend"
+      ]
+    },
+    "notWhat": {
+      "title": "What it’s not",
+      "items": [
+        "Theme / Dawn file editing",
+        "An ads agency",
+        "Someone else’s catalog defaults or shipping rates",
+        "Bots placing purchase orders"
+      ]
     }
   },
   "nexus": {
+    "eyebrow": "NEXUS OS",
     "hero": {
-      "headline": "Marketing agéntico para retailers. Paper primero.",
-      "subhead": "Strategy → Social → Ads. Ads gated hasta fotos + mix + presupuesto."
-    },
-    "what": {
-      "title": "Qué es",
-      "items": [
-        "Pipeline Strategy → Social → Ads",
-        "Paper hasta GO: fotos + mix + presupuesto",
-        "Cero ads live sin esos gates"
-      ]
-    },
-    "offer": {
-      "title": "Oferta",
-      "line": "Strategy → Social → Ads. Ads gated hasta GO."
+      "headline": "Agentic marketing — paper first, Ads only when signed.",
+      "subhead": "Strategy → Social → Ads. Until creatives, mix, and budget have an explicit GO: paper only (no pixel, no spend)."
     },
     "who": {
-      "title": "Para quién",
+      "title": "For whom",
       "items": [
-        "Retailers con oferta / SKU",
-        "Quien acepta brief en paper antes de spend"
+        "Retailer / ecom with clear offer and SKUs",
+        "Wants demand from social as a system",
+        "Brand voice owned by client’s ops/marketing (NEXUS does not invent ICP or offer)"
       ]
     },
     "notFor": {
-      "title": "No es para",
+      "title": "Not for",
       "items": [
-        "Ads sin banco creativo",
-        "Presupuesto 0",
-        "Quien pide ads live el día 1"
+        "No offer / SKU",
+        "Ads with zero creative bank",
+        "Budget 0 pretending to be “live Ads”"
       ]
     },
-    "gates": {
-      "title": "Gates",
+    "how": {
+      "title": "How it works",
       "items": [
-        "Sin fotos: no hay ads",
-        "Sin mix: no hay ads",
-        "Sin presupuesto: no hay ads",
-        "Paper hasta GO. Cero spend en vivo sin los tres."
+        "1) Brief + content pillars (one problem, one object)",
+        "2) Weekly paper batch: message · organic post · product story",
+        "3) Voice approval by client’s brand owner",
+        "4) Pillar rotation",
+        "5) Ads parked until photos + mix + budget signed"
       ]
     },
-    "prices": {
-      "title": "Precio",
-      "body": "Paper / TBD. Se cierra en discovery.",
-      "note": "Sin % de spend ni retainer en USD en esta página."
+    "outcomes": {
+      "title": "Outcomes",
+      "items": [
+        "Repeatable content system without invented claims",
+        "Paper ready for review before spend",
+        "Clear separation: NEXUS ≠ outbound (GTM OS) ≠ store Admin (Store OS)"
+      ]
+    },
+    "notWhat": {
+      "title": "What it’s not",
+      "items": [
+        "Live Ads / pixel / spend without GO",
+        "Owner of the client’s ICP or offer",
+        "GTM OS",
+        "Shopify theme editing"
+      ]
     }
   },
   "cards": {
     "gtm": {
       "name": "GTM OS",
-      "thesis": "Sistema de outbound que queda tuyo."
+      "thesis": "B2B outbound that stays with your team — cold, ICP-filtered, milestone-gated.",
+      "cta": "View GTM OS"
     },
     "store": {
       "name": "Store OS",
-      "thesis": "Auditoría + config Shopify Admin para que convierta."
+      "thesis": "Shopify Admin audit + config so the store converts before you spend on ads.",
+      "cta": "View Store OS"
     },
     "nexus": {
       "name": "NEXUS OS",
-      "thesis": "Marketing agéntico. Paper primero / ads con gate."
+      "thesis": "Agentic marketing — Strategy → Social → Ads (Ads gated until creatives, mix, and budget are signed).",
+      "cta": "View NEXUS OS"
     }
   },
   "footer": {
@@ -209,14 +218,14 @@
     "back": "Ir al catálogo"
   },
   "seo": {
-    "hubTitle": "RutinHQ — tres sistemas operativos",
-    "hubDescription": "GTM OS, Store OS y NEXUS OS. Un SKU por oferta.",
+    "hubTitle": "RutinHQ — systems you own",
+    "hubDescription": "Three installable operating systems. Pick the bottleneck. One page, one SKU.",
     "gtmTitle": "RutinHQ — GTM OS",
-    "gtmDescription": "Sistema de outbound B2B que queda tuyo. Clay → Instantly → CRM · Pacific time · 8–10 semanas.",
+    "gtmDescription": "Outbound that stays yours. A cold B2B prospecting system installed in your team.",
     "storeTitle": "RutinHQ — Store OS",
-    "storeDescription": "Auditoría + config Shopify Admin para que la tienda convierta. Sin editar el theme.",
+    "storeDescription": "Make the store convert before you buy ads. Replicable Shopify Admin audit + config.",
     "nexusTitle": "RutinHQ — NEXUS OS",
-    "nexusDescription": "Marketing agéntico para retailers. Strategy → Social → Ads. Paper primero. Ads gated.",
+    "nexusDescription": "Agentic marketing — paper first, Ads only when signed. Strategy → Social → Ads.",
     "notFoundTitle": "RutinHQ — 404"
   }
 }

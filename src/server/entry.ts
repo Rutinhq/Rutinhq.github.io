@@ -26,10 +26,10 @@ async function start() {
         const { render } = await vite.ssrLoadModule('/src/entry-server.tsx')
         const cookie = String(req.headers.cookie ?? '')
         const stored = cookie.match(/i18nextLng=([^;]+)/)?.[1]
-        const lang = stored?.startsWith('en') ? 'en' : 'es'
+        const lang = stored?.startsWith('es') ? 'es' : 'en'
         const { html, head, htmlAttributes } = await render(url, lang)
         const page = template
-          .replace('<html lang="es">', `<html lang="${lang}" ${htmlAttributes}>`)
+          .replace('<html lang="en">', `<html lang="${lang}" ${htmlAttributes}>`)
           .replace('<!--ssr-head-->', head)
           .replace('<!--ssr-outlet-->', html)
         res.status(200).set({ 'Content-Type': 'text/html' }).end(page)

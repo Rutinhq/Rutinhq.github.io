@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
-import { CALENDLY_URL, DOCS_URL, EMAIL, MAILTO_HUB, ONE_PAGER_URL } from '@/lib/links'
+import { DOCS_URL, EMAIL, MAILTO_HUB, ONE_PAGER_URL } from '@/lib/links'
 
 export function Footer() {
   const { t } = useTranslation()
@@ -18,12 +18,7 @@ export function Footer() {
           <Link to="/" className="hover:text-foreground">
             {t('common.hubLink')}
           </Link>
-          <a
-            href={CALENDLY_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-foreground"
-          >
+          <a href={MAILTO_HUB} className="hover:text-foreground">
             {t('common.ctaPrimary')}
           </a>
           <a
