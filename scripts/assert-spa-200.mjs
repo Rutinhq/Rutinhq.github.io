@@ -7,6 +7,16 @@ if (fs.existsSync('dist/404.html')) {
   process.exit(1)
 }
 
+for (const route of ['gtm-os', 'store-os', 'nexus-os']) {
+  const folderPage = `dist/${route}/index.html`
+  if (fs.existsSync(folderPage)) {
+    console.error(
+      `${folderPage} must not ship — folder assets make /${route} 308 instead of 200.`,
+    )
+    process.exit(1)
+  }
+}
+
 if (!fs.existsSync('dist/_redirects')) {
   console.error(
     'dist/_redirects missing — SPA fallback `/* /index.html 200` is required.',
@@ -20,12 +30,4 @@ if (!/\/\*\s+\/index\.html\s+200/.test(redirects)) {
   process.exit(1)
 }
 
-for (const route of ['gtm-os', 'store-os', 'nexus-os']) {
-  const page = `dist/${route}/index.html`
-  if (!fs.existsSync(page)) {
-    console.error(`${page} missing — SKU routes must be real assets for HTTP 200.`)
-    process.exit(1)
-  }
-}
-
-console.log('SPA 200 fallback: no 404.html; _redirects + SKU pages present.')
+console.log('SPA 200 fallback: no 404.html; _redirects present.')
