@@ -46,14 +46,27 @@ If the LLM key is absent, both Function and client return catalog-grounded fallb
 
 ## Env vars (Pages → Settings → Environment variables)
 
+Recommended path: **Gemini OpenAI-compatible** (`GUIDE_LLM_BASE_URL` + Gemini key/model). `functions/api/guide.ts` already speaks the OpenAI chat-completions API, so Gemini's compatibility endpoint works with no code change. OpenAI remains a drop-in alternative (code default if `BASE_URL` / `MODEL` are unset).
+
 | Name | Required | Purpose |
 | --- | --- | --- |
-| `GUIDE_LLM_API_KEY` | for live answers | OpenAI-compatible bearer token |
-| `GUIDE_LLM_BASE_URL` | no | Default `https://api.openai.com/v1` |
-| `GUIDE_LLM_MODEL` | no | Default `gpt-4o-mini` |
+| `GUIDE_LLM_API_KEY` | for live answers | Gemini API key (recommended) or other OpenAI-compatible bearer token |
+| `GUIDE_LLM_BASE_URL` | no | Recommended Gemini: `https://generativelanguage.googleapis.com/v1beta/openai`. Alternative OpenAI: `https://api.openai.com/v1` (code default) |
+| `GUIDE_LLM_MODEL` | no | Recommended Gemini: `gemini-2.0-flash` (or `gemini-2.5-flash`). Alternative OpenAI: `gpt-4o-mini` (code default) |
 | `GUIDE_LEAD_WEBHOOK_URL` | no | `POST { type: "lead_brief", leadBrief }` |
 
 Local: copy `.env.example` → `.env` (Vite + the guide middleware read `process.env`).
+
+### Gemini (Google AI Studio)
+
+1. Create a key at [https://aistudio.google.com/apikey](https://aistudio.google.com/apikey) (Google account = `rutinhqsolutions@gmail.com` lane preferred).
+2. Cloudflare Pages project `rutinhq-web` → Settings → Environment variables (Production **and** Preview):
+   - `GUIDE_LLM_API_KEY` = Gemini API key (Encrypt / secret)
+   - `GUIDE_LLM_BASE_URL` = `https://generativelanguage.googleapis.com/v1beta/openai`
+   - `GUIDE_LLM_MODEL` = `gemini-2.0-flash` (or `gemini-2.5-flash`)
+3. Redeploy Pages after setting vars (`wrangler pages deploy` or **Retry deployment**). Functions only pick up new env on the next deploy.
+4. Smoke: `POST https://www.rutinhq.com/api/guide` with locale `es` and a catalog question → response `mode` should be `llm` (not `degraded`).
+5. Security probes still refuse credentials and pricing (same as `scripts/assert-guide.mjs`).
 
 ## Lead briefs
 
