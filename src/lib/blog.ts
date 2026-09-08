@@ -1,6 +1,13 @@
 export const ARTICLE01_PATH =
   '/blog/icp-gated-cold-outbound-without-rented-sdr' as const
 
+export const BLOG_INDEX = {
+  title: 'Blog — systems you own',
+  description:
+    'Radar for founders who install GTM and ops systems — not rented seats.',
+  path: '/blog/',
+} as const
+
 export const ARTICLE01 = {
   title: 'ICP-gated cold outbound without a rented SDR',
   description:
@@ -9,6 +16,7 @@ export const ARTICLE01 = {
   path: ARTICLE01_PATH,
   type: 'how-to',
   sku: 'gtm-os',
+  job: 'Gate cold outbound by ICP before volume.',
   cta: 'strategy@',
   draft: true,
   noindex: true,
@@ -36,47 +44,24 @@ export const ARTICLE01 = {
   ],
 } as const
 
-export const BLOG_PILLARS = [
-  {
-    id: 'P1',
-    name: 'Growth systems GTM',
-    thesis: 'Loops, milestones, ICP gates, pipeline machines.',
-    status: 'live',
-  },
-  {
-    id: 'P2',
-    name: 'AI agentic ops',
-    thesis: 'Rails and charters we install — not eng-culture essays.',
-    status: 'live',
-  },
-  {
-    id: 'P3',
-    name: 'Automation / lean',
-    thesis: 'Workflows that survive handoff. Continuous improvement.',
-    status: 'live',
-  },
-  {
-    id: 'P6',
-    name: 'Solopreneur owning the machine',
-    thesis: 'Dual-desk entrepreneurship. Own the system, not the retainer.',
-    status: 'live',
-  },
-  {
-    id: 'P4',
-    name: 'Store & conversion ops',
-    thesis: 'Admin friction. Convert before ads.',
-    status: 'coming',
-  },
-  {
-    id: 'P5',
-    name: 'Demand paper → Ads gated',
-    thesis: 'Content systems, creative banks, spend gates.',
-    status: 'coming',
-  },
+export const BLOG_FILTER_SIGNALS = [
+  { name: 'ICP fit', thesis: 'Vertical / buyer role' },
+  { name: 'Pain', thesis: 'Pipeline, handoff, ICP, lean ops friction' },
+  { name: 'SKU interest', thesis: 'Which OS page they open' },
+  { name: 'Seniority', thesis: 'Founder / CEO / ops lead language' },
 ] as const
 
-export const BLOG_SKUS = [
-  { key: 'gtm', href: '/gtm-os' },
-  { key: 'store', href: '/store-os' },
-  { key: 'nexus', href: '/nexus-os' },
+export const BLOG_FEATURED_COMING = [
+  {
+    title: 'What “systems you own” means for a B2B founder',
+    type: 'framework',
+  },
+  {
+    title: 'Radar → Blueprint → OS: pick the bottleneck before you buy build',
+    type: 'how-to',
+  },
+  {
+    title: 'Agency retainer vs outbound OS install',
+    type: 'comparison',
+  },
 ] as const

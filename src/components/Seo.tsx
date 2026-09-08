@@ -143,7 +143,7 @@ export function articleJsonLd({
           '@type': 'ListItem',
           position: 2,
           name: 'Blog',
-          item: `${SITE}/blog`,
+          item: `${SITE}/blog/`,
         },
         {
           '@type': 'ListItem',
@@ -173,5 +173,40 @@ export function articleJsonLd({
   return {
     '@context': 'https://schema.org',
     '@graph': graph,
+  }
+}
+
+export function blogIndexJsonLd(
+  featured: readonly { path: string; name: string }[],
+) {
+  const url = `${SITE}/blog/`
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': ['CollectionPage', 'Blog'],
+        '@id': `${url}#blog`,
+        url,
+        name: 'Blog — systems you own',
+        description:
+          'Radar for founders who install GTM and ops systems — not rented seats.',
+        inLanguage: 'en',
+        isPartOf: { '@id': `${SITE}/#website` },
+        about: { '@id': `${SITE}/#organization` },
+        mainEntity: { '@id': `${url}#featured` },
+      },
+      {
+        '@type': 'ItemList',
+        '@id': `${url}#featured`,
+        name: 'Featured',
+        numberOfItems: featured.length,
+        itemListElement: featured.map((item, index) => ({
+          '@type': 'ListItem',
+          position: index + 1,
+          name: item.name,
+          url: `${SITE}${item.path}`,
+        })),
+      },
+    ],
   }
 }

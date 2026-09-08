@@ -3,7 +3,7 @@ import { Ctas } from '@/components/Ctas'
 import { MonoTitle, Section, SimpleTable } from '@/components/Section'
 import { Seo, articleJsonLd } from '@/components/Seo'
 import { ARTICLE01 } from '@/lib/blog'
-import { DOCS_GTM_URL, MAILTO_GTM } from '@/lib/links'
+import { DOCS_GTM_URL, MAILTO_GTM, WWW_GTM_URL } from '@/lib/links'
 
 const TITLE = `RutinHQ — ${ARTICLE01.title}`
 
@@ -125,12 +125,12 @@ export default function BlogIcpGatedColdOutboundPage() {
             GTM OS catalog
           </a>{' '}
           · commercial page:{' '}
-          <Link
-            to="/gtm-os"
+          <a
+            href={WWW_GTM_URL}
             className="text-foreground underline underline-offset-4 hover:text-primary"
           >
-            /gtm-os
-          </Link>
+            www.rutinhq.com/gtm-os
+          </a>
         </p>
       </Section>
 
@@ -222,12 +222,12 @@ export default function BlogIcpGatedColdOutboundPage() {
                     GTM OS catalog ficha
                   </a>{' '}
                   and the{' '}
-                  <Link
-                    to="/gtm-os"
+                  <a
+                    href={WWW_GTM_URL}
                     className="text-foreground underline underline-offset-4 hover:text-primary"
                   >
-                    /gtm-os
-                  </Link>{' '}
+                    www.rutinhq.com/gtm-os
+                  </a>{' '}
                   page.
                 </p>
               ) : (
@@ -245,12 +245,12 @@ export default function BlogIcpGatedColdOutboundPage() {
         <Ctas className="mt-8" mailto={MAILTO_GTM} />
         <p className="mt-6 max-w-2xl text-[16px] leading-7 text-muted-foreground">
           Or go direct:{' '}
-          <Link
-            to="/gtm-os"
+          <a
+            href={WWW_GTM_URL}
             className="text-foreground underline underline-offset-4 hover:text-primary"
           >
-            /gtm-os
-          </Link>
+            www.rutinhq.com/gtm-os
+          </a>
         </p>
       </Section>
     </>
