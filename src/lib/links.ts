@@ -1,4 +1,8 @@
 export const EMAIL = 'strategy@rutinhq.com'
+export const SITE_URL = 'https://www.rutinhq.com'
+export const WWW_GTM_URL = `${SITE_URL}/gtm-os`
+export const WWW_STORE_URL = `${SITE_URL}/store-os`
+export const WWW_NEXUS_URL = `${SITE_URL}/nexus-os`
 export const DOCS_URL = 'https://docs.rutinhq.com/'
 export const DOCS_CATALOG_URL = 'https://docs.rutinhq.com/catalog/'
 export const DOCS_GTM_URL = 'https://docs.rutinhq.com/catalog/gtm-os/'

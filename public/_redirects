@@ -11,4 +11,5 @@
 /robots.txt /robots.txt 200
 /services / 301
 /case-studies / 301
+/blog/why-one-sku /blog 301
 /*      /index.html  200

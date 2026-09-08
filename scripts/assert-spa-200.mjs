@@ -57,7 +57,7 @@ if (
   expectedLocs.some((url) => !locs.includes(url))
 ) {
   console.error(
-    `${sitemap} must list exactly the 4 www URLs (hub + 3 SKUs). Draft /blog stays out.`,
+    `${sitemap} must list exactly the 4 www URLs (hub + 3 SKUs). /blog stays out until Capo publish.`,
   )
   process.exit(1)
 }
@@ -71,8 +71,11 @@ if (!fs.existsSync('dist/_headers')) {
   process.exit(1)
 }
 const headers = fs.readFileSync('dist/_headers', 'utf8')
-if (!/\/blog\b[\s\S]*X-Robots-Tag:\s*noindex/i.test(headers)) {
-  console.error('dist/_headers must noindex /blog (draft scaffold).')
+if (
+  !/\/blog\b[\s\S]*X-Robots-Tag:\s*noindex/i.test(headers) ||
+  !/\/blog\/\*[\s\S]*X-Robots-Tag:\s*noindex/i.test(headers)
+) {
+  console.error('dist/_headers must noindex /blog and /blog/*.')
   process.exit(1)
 }
 

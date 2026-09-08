@@ -89,3 +89,124 @@ export function skuJsonLd(path: string, name: string, description: string) {
     about: { '@id': `${SITE}/#organization` },
   }
 }
+
+type FaqItem = { q: string; a: string }
+
+export function articleJsonLd({
+  path,
+  headline,
+  description,
+  datePublished,
+  dateModified,
+  faq,
+}: {
+  path: string
+  headline: string
+  description: string
+  datePublished: string
+  dateModified?: string
+  faq: readonly FaqItem[]
+}) {
+  const url = `${SITE}${path}`
+  const graph: Record<string, unknown>[] = [
+    {
+      '@type': 'Organization',
+      '@id': `${SITE}/#organization`,
+      name: 'RutinHQ',
+      url: `${SITE}/`,
+      email: 'strategy@rutinhq.com',
+    },
+    {
+      '@type': 'BlogPosting',
+      '@id': `${url}#article`,
+      headline,
+      description,
+      datePublished,
+      dateModified: dateModified ?? datePublished,
+      inLanguage: 'en',
+      url,
+      mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+      author: { '@id': `${SITE}/#organization` },
+      publisher: { '@id': `${SITE}/#organization` },
+    },
+    {
+      '@type': 'BreadcrumbList',
+      '@id': `${url}#breadcrumb`,
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: `${SITE}/`,
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'Blog',
+          item: `${SITE}/blog/`,
+        },
+        {
+          '@type': 'ListItem',
+          position: 3,
+          name: headline,
+          item: url,
+        },
+      ],
+    },
+  ]
+
+  if (faq.length > 0) {
+    graph.push({
+      '@type': 'FAQPage',
+      '@id': `${url}#faq`,
+      mainEntity: faq.map((item) => ({
+        '@type': 'Question',
+        name: item.q,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: item.a,
+        },
+      })),
+    })
+  }
+
+  return {
+    '@context': 'https://schema.org',
+    '@graph': graph,
+  }
+}
+
+export function blogIndexJsonLd(
+  featured: readonly { path: string; name: string }[],
+) {
+  const url = `${SITE}/blog/`
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': ['CollectionPage', 'Blog'],
+        '@id': `${url}#blog`,
+        url,
+        name: 'Blog — systems you own',
+        description:
+          'Radar for founders who install GTM and ops systems — not rented seats.',
+        inLanguage: 'en',
+        isPartOf: { '@id': `${SITE}/#website` },
+        about: { '@id': `${SITE}/#organization` },
+        mainEntity: { '@id': `${url}#featured` },
+      },
+      {
+        '@type': 'ItemList',
+        '@id': `${url}#featured`,
+        name: 'Featured',
+        numberOfItems: featured.length,
+        itemListElement: featured.map((item, index) => ({
+          '@type': 'ListItem',
+          position: index + 1,
+          name: item.name,
+          url: `${SITE}${item.path}`,
+        })),
+      },
+    ],
+  }
+}

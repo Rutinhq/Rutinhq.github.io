@@ -8,8 +8,8 @@ Catálogo público (`/`) y tres landings de un SKU cada una:
 | `/gtm-os` | GTM OS (Pack §2) |
 | `/store-os` | Store OS |
 | `/nexus-os` | NEXUS OS |
-| `/blog` | Draft notes (noindex, not in sitemap) |
-| `/blog/why-one-sku` | Sample draft article (noindex) |
+| `/blog` | Filter/radar index (noindex, not in sitemap; canonical `/blog/`) |
+| `/blog/icp-gated-cold-outbound-without-rented-sdr` | Article01 — ICP-gated cold outbound (noindex) |
 
 Stack: Vite + React + Tailwind + i18next. Default **EN** (commercial copy). Toggle ES keeps chrome; SKU pages stay EN. Tema oscuro `#0a0a0a` / `#2ecc8f` / radius 0.
 
@@ -28,7 +28,7 @@ Stack: Vite + React + Tailwind + i18next. Default **EN** (commercial copy). Togg
   2. Wildcard: Request URL `https://rutinhq.com/*` → Target `https://www.rutinhq.com/${1}` → **301** → Preserve query string **On**
   3. Enable **Always Use HTTPS** (or a second wildcard for `http://rutinhq.com/*`)
   4. Verify: `curl -sI https://rutinhq.com/gtm-os` → `301` + `location: https://www.rutinhq.com/gtm-os`
-- **Blog:** `/blog` + `/blog/why-one-sku` are DRAFT / `noindex` and stay **out** of the sitemap (4 www URLs). `public/_headers` sends `X-Robots-Tag: noindex, nofollow`.
+- **Blog:** `/blog` (canonical `https://www.rutinhq.com/blog/`) + Article01 stay `noindex` and **out** of the sitemap (4 www URLs) until a Capo publish card. `public/_headers` sends `X-Robots-Tag: noindex, nofollow` on `/blog` and `/blog/*`. No 3-SKU strip on `/blog`.
 - **No tocar** `docs.rutinhq.com`. CORTEX redeploya `rutinhq-web`.
 
 ## Local
