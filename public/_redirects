@@ -10,6 +10,7 @@
 /sitemap.xml /sitemap.xml 200
 /robots.txt /robots.txt 200
 /favicon.ico /favicon.ico 200
+/guide-kb.json /guide-kb.json 200
 /services / 301
 /case-studies / 301
 /blog/why-one-sku /blog 301
