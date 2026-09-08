@@ -1,3 +1,12 @@
 name = "rutinhq-web"
 compatibility_date = "2026-08-30"
 pages_build_output_dir = "dist"
+
+# RutinHQ Guide — Pages Function at functions/api/guide.ts
+# Dashboard secrets (Production + Preview):
+#   GUIDE_LLM_API_KEY
+#   GUIDE_LEAD_WEBHOOK_URL
+# Optional vars:
+#   GUIDE_LLM_BASE_URL = "https://api.openai.com/v1"
+#   GUIDE_LLM_MODEL = "gpt-4o-mini"
+# See GUIDE.md

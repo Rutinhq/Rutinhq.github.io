@@ -1,0 +1,17 @@
+name = "rutinhq-guide"
+main = "src/index.ts"
+compatibility_date = "2026-08-30"
+
+# Secrets (do not commit):
+#   wrangler secret put GUIDE_LLM_API_KEY
+#   wrangler secret put GUIDE_LEAD_WEBHOOK_URL
+#
+# Optional vars:
+#   GUIDE_LLM_BASE_URL = "https://api.openai.com/v1"
+#   GUIDE_LLM_MODEL = "gpt-4o-mini"
+#   GUIDE_KB_URL = "https://www.rutinhq.com/guide-kb.json"
+
+[vars]
+GUIDE_LLM_BASE_URL = "https://api.openai.com/v1"
+GUIDE_LLM_MODEL = "gpt-4o-mini"
+GUIDE_KB_URL = "https://www.rutinhq.com/guide-kb.json"

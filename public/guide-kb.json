@@ -1,0 +1,468 @@
+{
+  "builtAt": "2026-09-08T18:44:28.032Z",
+  "documents": [
+    {
+      "id": "catalog",
+      "url": "https://docs.rutinhq.com/catalog/",
+      "title": "Systems catalog",
+      "text": "# Systems catalog Source: https://docs.rutinhq.com/catalog/ Public curriculum of systems RutinHQ designs and installs — what they do, how they work, who they are for, and what outcome they chase. Not an ops wiki. One sheet = one system. Phase-1 sheets: - gtm-os — GTM OS — B2B outbound that stays with the client - store-os — STORE OS — Shopify Admin audit + config so the store converts - nexus-os — NEXUS OS — Agentic marketing (Strategy → Social → Ads gated) - grok-bot-os — GROK BOT OS — bot-department curriculum (not a commercial hub card) You will not find here: client names; pricing / live rate cards; day-of state; inboxes; secrets; lead lists.",
+      "source": "mirror"
+    },
+    {
+      "id": "grok-bot-os",
+      "url": "https://docs.rutinhq.com/catalog/grok-bot-os/",
+      "title": "GROK BOT OS (catalog curriculum)",
+      "text": "# GROK BOT OS (catalog curriculum) Source: https://docs.rutinhq.com/catalog/grok-bot-os/ Public catalog sheet only. Not sold as a fourth card on www.rutinhq.com. The commercial products remain GTM OS, STORE OS, and NEXUS OS. High-level: an operating-system design for scoped agents (charter → staged writes → explicit promote). Weekly state, keys, and runbooks do not live on the public DocuSite. This sheet is not a price catalog and not a dump of system prompts. If a visitor asks to buy “a bot OS”, steer to the three commercial SKUs or a 30-min fit call.",
+      "source": "mirror"
+    },
+    {
+      "id": "gtm-os",
+      "url": "https://www.rutinhq.com/gtm-os",
+      "title": "GTM OS",
+      "text": "# GTM OS Sources: https://www.rutinhq.com/gtm-os · https://docs.rutinhq.com/catalog/gtm-os/ A cold B2B prospecting system installed in the client’s team — not a rented SDR that dies when the contract ends. Change language, filters, and angle; keep the core. For whom: Founder / CEO or B2B ops lead; already sells; bottleneck is a repeatable pipeline; ICP-filtered cold email; first run always cold. Not for: Pure ecom / B2C; “just run ads”; enterprise RFP with no outbound owner; guaranteed-N-meetings buyers. How (M0–M7, no skip): sector research → ICP + validation → messaging framework → sales playbook + gate → campaign activation → crawl / analysis → weekly KPIs → close + scale to the next vertical. Validate one vertical before scaling. Roles: Commercial Architect designs and gates. Outbound Specialist runs sequences and classifies replies. HoD validates technical fit. Reply protocol: classify before answering (open / question / referral / OOO / not interested / silence). One bump on silence, then discard. Discovery: the lead describes their process — no feature pitch. Outcomes: outbound pipeline the team can run; ICP with checkable criteria; sequences + SOP so the system survives without the agency. What it is not: ads or social agency; a wiki for someone else’s SaaS; a dump of lead lists / CRM / APIs; a promise of N meetings.",
+      "source": "mirror"
+    },
+    {
+      "id": "hub",
+      "url": "https://docs.rutinhq.com/catalog/",
+      "title": "RutinHQ hub",
+      "text": "# RutinHQ hub Source: https://www.rutinhq.com/ RutinHQ installs operating systems teams own — not retainers that vanish. Three commercial SKUs, one page each: - GTM OS — B2B outbound that stays with the team (cold, ICP-filtered, milestone-gated). - STORE OS — Shopify Admin audit + config so the store converts before ads spend. - NEXUS OS — Agentic marketing, Strategy → Social → Ads (Ads gated until creatives, mix, and budget are signed). Public catalog curriculum: https://docs.rutinhq.com/catalog/ Commercial email: strategy@rutinhq.com Fit call: https://calendly.com/rutinhq/30min The hub does not publish prices. GROK BOT OS is not a fourth hub card.",
+      "source": "mirror"
+    },
+    {
+      "id": "nexus-os",
+      "url": "https://www.rutinhq.com/nexus-os",
+      "title": "NEXUS OS",
+      "text": "# NEXUS OS Sources: https://www.rutinhq.com/nexus-os · https://docs.rutinhq.com/catalog/nexus-os/ Agentic marketing — Strategy → Social → Ads. Until creatives, mix, and budget have an explicit GO: paper only (no pixel, no spend). Produces content batches and plans; does not invent the retailer’s offer or ICP. For whom: Retailer / ecom with a clear offer and SKUs; wants demand from social as a system; brand voice owned by the client’s ops/marketing. Not for: No offer / SKU; ads with zero creative bank; budget 0 pretending to be “live Ads”. How: 1) Brief + content pillars (one problem, one object). 2) Weekly paper batch: message · organic post · product story. 3) Voice approval by the client’s brand owner. 4) Pillar rotation. 5) Ads parked until photos + mix + budget are signed. Outcomes: repeatable content system without invented claims; paper ready for review before spend; clear split vs GTM OS (outbound) and STORE OS (Admin). What it is not: live Ads / pixel / spend without GO; owner of the client’s ICP or offer; GTM OS; Shopify theme editing.",
+      "source": "mirror"
+    },
+    {
+      "id": "store-os",
+      "url": "https://www.rutinhq.com/store-os",
+      "title": "STORE OS",
+      "text": "# STORE OS Sources: https://www.rutinhq.com/store-os · https://docs.rutinhq.com/catalog/store-os/ Shopify Admin audit + config — variants, price, weight, shipping — so the store converts before you buy ads. Delivery mold with a checklist. Named cases live outside the public catalog. For whom: Founder / ecom lead on DTC Shopify; ops friction; wants ads but the store does not convert yet. Not for: Theme-only work; ads with no converting store; creatives-only; pure Plus enterprise with no Admin owner. How: 1) Scorecard / Admin friction diagnosis. 2) Audit: variants, price, weight, shipping. 3) Admin config to the mold (no theme file edits). 4) Delivery checklist + handoff. 5) Ads / creatives = out of scope (NEXUS OS). Outcomes: store that converts with less ops friction; coherent Admin config; a base ready before ad spend. What it is not: Theme / Dawn file editing; an ads agency; someone else’s catalog defaults or shipping rates; bots placing purchase orders.",
+      "source": "mirror"
+    },
+    {
+      "id": "locale-gtm",
+      "url": "https://www.rutinhq.com/gtm-os",
+      "title": "GTM OS (site copy)",
+      "text": "GTM OS Outbound that stays yours. A cold B2B prospecting system installed in your team — not a rented SDR that dies when the contract ends. Change language, filters, and angle; keep the core. Founder / CEO or ops lead in B2B; Already sell; bottleneck is repeatable pipeline; ICP-filtered cold email; First run always cold Pure ecom / B2C; “Just run ads”; Enterprise RFP with no outbound owner; Guaranteed-N-meetings buyers M0 Sector research; M1 ICP + validation; M2 Messaging framework; M3 Sales playbook + gate; M4 Campaign activation; M5 Crawl / analysis; M6 Weekly KPIs (ongoing); M7 Close + scale to next vertical Outbound pipeline your team can run; ICP with checkable criteria; Sequences + SOP so the system survives without us; Validate one vertical before scaling the next An ads or social agency; A wiki for someone else’s SaaS; A dump of lead lists / CRM / APIs; A promise of N meetings",
+      "source": "locale"
+    },
+    {
+      "id": "locale-store",
+      "url": "https://www.rutinhq.com/store-os",
+      "title": "STORE OS (site copy)",
+      "text": "STORE OS Make the store convert before you buy ads. Replicable Shopify Admin audit + config — variants, price, weight, shipping — so ops friction stops killing conversion. Founder / ecom lead on DTC Shopify; Ops friction; Wants ads but store doesn’t convert yet Theme-only work; Ads with no converting store; Creatives-only; Pure Plus enterprise with no Admin owner 1) Scorecard / Admin friction diagnosis; 2) Audit: variants, price, weight, shipping; 3) Admin config to the mold (no theme file edits); 4) Delivery checklist + handoff; 5) Ads / creatives = out of scope (NEXUS OS) Store that converts with less ops friction; Coherent Admin config; A base ready before ad spend Theme / Dawn file editing; An ads agency; Someone else’s catalog defaults or shipping rates; Bots placing purchase orders",
+      "source": "locale"
+    },
+    {
+      "id": "locale-nexus",
+      "url": "https://www.rutinhq.com/nexus-os",
+      "title": "NEXUS OS (site copy)",
+      "text": "NEXUS OS Agentic marketing — paper first, Ads only when signed. Strategy → Social → Ads. Until creatives, mix, and budget have an explicit GO: paper only (no pixel, no spend). Retailer / ecom with clear offer and SKUs; Wants demand from social as a system; Brand voice owned by client’s ops/marketing (NEXUS does not invent ICP or offer) No offer / SKU; Ads with zero creative bank; Budget 0 pretending to be “live Ads” 1) Brief + content pillars (one problem, one object); 2) Weekly paper batch: message · organic post · product story; 3) Voice approval by client’s brand owner; 4) Pillar rotation; 5) Ads parked until photos + mix + budget signed Repeatable content system without invented claims; Paper ready for review before spend; Clear separation: NEXUS ≠ outbound (GTM OS) ≠ store Admin (STORE OS) Live Ads / pixel / spend without GO; Owner of the client’s ICP or offer; GTM OS; Shopify theme editing",
+      "source": "locale"
+    },
+    {
+      "id": "locale-hub",
+      "url": "https://www.rutinhq.com/",
+      "title": "RutinHQ hub (site copy)",
+      "text": "Systems you own — not retainers that vanish. Three installable operating systems. Pick the bottleneck. One page, one SKU. B2B outbound that stays with your team — cold, ICP-filtered, milestone-gated. Shopify Admin audit + config so the store converts before you spend on ads. Agentic marketing — Strategy → Social → Ads (Ads gated until creatives, mix, and budget are signed).",
+      "source": "locale"
+    },
+    {
+      "id": "crawl-www.rutinhq.com/gtm-os",
+      "url": "https://www.rutinhq.com/gtm-os",
+      "title": "https://www.rutinhq.com/gtm-os",
+      "text": "RutinHQ — GTM OS",
+      "source": "crawl"
+    },
+    {
+      "id": "crawl-www.rutinhq.com/es",
+      "url": "https://www.rutinhq.com/es",
+      "title": "https://www.rutinhq.com/es",
+      "text": "RutinHQ — sistemas que posees",
+      "source": "crawl"
+    },
+    {
+      "id": "crawl-www.rutinhq.com/es/gtm-os",
+      "url": "https://www.rutinhq.com/es/gtm-os",
+      "title": "https://www.rutinhq.com/es/gtm-os",
+      "text": "RutinHQ — GTM OS",
+      "source": "crawl"
+    },
+    {
+      "id": "crawl-www.rutinhq.com/nexus-os",
+      "url": "https://www.rutinhq.com/nexus-os",
+      "title": "https://www.rutinhq.com/nexus-os",
+      "text": "RutinHQ — NEXUS OS",
+      "source": "crawl"
+    },
+    {
+      "id": "crawl-www.rutinhq.com/store-os",
+      "url": "https://www.rutinhq.com/store-os",
+      "title": "https://www.rutinhq.com/store-os",
+      "text": "RutinHQ — STORE OS",
+      "source": "crawl"
+    },
+    {
+      "id": "crawl-docs.rutinhq.com/catalog/",
+      "url": "https://docs.rutinhq.com/catalog/",
+      "title": "https://docs.rutinhq.com/catalog/",
+      "text": "Systems catalog | RutinHQ Docs Skip to content RutinHQ Docs Search Ctrl K Cancel GitHub Select theme Dark Light Auto Select language English Español Home Channel Canonical protocol How to publish Catalog Public catalog Systems catalog GTM OS Store OS NEXUS OS GROK BOT OS Projects Projects PETOP Store OS NEXUS OS GTM OS GTM Legal RutinHQ GTM OS GROK BOT OS Charter — Support Triage Charter — Writing Public landing Templates Archive mold GTM mold Tool mold Bot onboarding (rails) Ops / bots mold Process mold Product mold GitHub Select theme Dark Light Auto Select language English Español On this page Overview What this catalog is How to read it Phase-1 systems What you will not find here How it is published On this page Overview What this catalog is How to read it Phase-1 systems What you will not find here How it is published Systems catalog Copy for LLMs This is not an ops wiki. It is the catalog of systems RutinHQ designs and installs — what they do, how they work, who they’re for, and what outcome they chase. What this catalog is Section titled “What this catalog is” Shareable presentation of system-products (not the agency’s day-of state). Each sheet: what / for whom / how / outcomes / what it is not. One sheet = one system. No Notion dumps. How to read it Section titled “How to read it” Piece Use Hub ( /catalog/ ) Map + reading rules Sheet /catalog/&#x3C;slug>/ Universal overview of the system Internal docs (Channel / Projects) KEEP register of decisions — a different rail Phase-1 systems Section titled “Phase-1 systems” Slug System One line gtm-os GTM OS B2B outbound that stays with the client store-os Store OS Shopify Admin audit + config so the store converts nexus-os NEXUS OS Agentic marketing (Strategy → Social → Ads gated) grok-bot-os GROK BOT OS Bot department: profiles, rails, orchestration What you will not find here Section titled “What you will not find here” Client names or operating cases Pricing / live rate cards STATE, inboxes, trackers, ACCESOS, secrets Lead lists, pools, mailboxes Day-of determinations or actions How it is published Section titled “How it is published” Outline scrub → review CEO GO on structure (path /catalog/ ) MDX + sidebar «Public catalog» + PR estado: borrador Final scrub → aprobado + deploy Previous Catalog Next GTM OS",
+      "source": "crawl"
+    },
+    {
+      "id": "crawl-docs.rutinhq.com/catalog/grok-bot-os/",
+      "url": "https://docs.rutinhq.com/catalog/grok-bot-os/",
+      "title": "https://docs.rutinhq.com/catalog/grok-bot-os/",
+      "text": "GROK BOT OS | RutinHQ Docs Skip to content RutinHQ Docs Search Ctrl K Cancel GitHub Select theme Dark Light Auto Select language English Español Home Channel Canonical protocol How to publish Catalog Public catalog Systems catalog GTM OS Store OS NEXUS OS GROK BOT OS Projects Projects PETOP Store OS NEXUS OS GTM OS GTM Legal RutinHQ GTM OS GROK BOT OS Charter — Support Triage Charter — Writing Public landing Templates Archive mold GTM mold Tool mold Bot onboarding (rails) Ops / bots mold Process mold Product mold GitHub Select theme Dark Light Auto Select language English Español On this page Overview What it is For whom Governance How it works (rails) Components (roles, not live seats) Outcomes What it is not On this page Overview What it is For whom Governance How it works (rails) Components (roles, not live seats) Outcomes What it is not GROK BOT OS Copy for LLMs GROK BOT OS is RutinHQ’s bot department: scoped profiles, onboarding rails, staging/revert, and a single orchestration head. Weekly state does not live on the public DocuSite. What it is Section titled “What it is” An operating system for agents: charter → CreateAgent → read-only → DRAFT/PR → promote with OK . Map of components and triggers (contract), not the day’s inbox. The agency’s products ( GTM OS , Store OS , NEXUS OS ) are not the bot department that runs them. For whom Section titled “For whom” Field KEEP Internal use Teams that operate agents under strict governance Public readers Anyone who wants to see how a bot OS is designed (curriculum) No-ICP Anyone hunting keys, day-of state, or runbooks with secrets Governance Section titled “Governance” Role Responsibility Not CEO Authorizes the irreversible — CORTEX (HoD) Orchestrates. Single head. Escalates to CEO Asking bots to skip the rail Bots Report to CORTEX Assigning work to each other How it works (rails) Section titled “How it works (rails)” Onboard: KEEP charter + mold + staging rail → OK → CreateAgent Read-only phase (~48h): outlines and proposals; zero live writes Write: DRAFT/PR only Promote with explicit OK (CEO if irreversible) Revert first if it gets worse; the document beats the chat Components (roles, not live seats) Section titled “Components (roles, not live seats)” Role Responsibility Orchestrator Orchestration and token governance PMO Single backlog tracker Setup Connectors and surface onboarding Engineering Build and automations Case outbound Assigned-case B2B outbound Store ops Assigned-case store operations Storefront Storefront technical craft Demand / paper Content and plans until ads GO Each seat has a stream and prohibitions in its charter. This sheet does not list live seats or cases. Outcomes Section titled “Outcomes” Bots with clear scope and limited write surfaces Less operational hallucination: canonical source > improvisation Separation of products vs cases vs tools What it is not Section titled “What it is not” Is not Commercial price catalog Day-of state, inboxes, or secrets Dump of system prompts Substitute for the agency’s Business OS Previous NEXUS OS Next Projects",
+      "source": "crawl"
+    },
+    {
+      "id": "crawl-docs.rutinhq.com/catalog/store-os/",
+      "url": "https://docs.rutinhq.com/catalog/store-os/",
+      "title": "https://docs.rutinhq.com/catalog/store-os/",
+      "text": "Store OS | RutinHQ Docs Skip to content RutinHQ Docs Search Ctrl K Cancel GitHub Select theme Dark Light Auto Select language English Español Home Channel Canonical protocol How to publish Catalog Public catalog Systems catalog GTM OS Store OS NEXUS OS GROK BOT OS Projects Projects PETOP Store OS NEXUS OS GTM OS GTM Legal RutinHQ GTM OS GROK BOT OS Charter — Support Triage Charter — Writing Public landing Templates Archive mold GTM mold Tool mold Bot onboarding (rails) Ops / bots mold Process mold Product mold GitHub Select theme Dark Light Auto Select language English Español On this page Overview What it is For whom How it works Outcomes What it is not On this page Overview What it is For whom How it works Outcomes What it is not Store OS Copy for LLMs Store OS is the Shopify Admin audit + config SKU: variants, price, weight, and shipping — so the store converts before you spend on ads. What it is Section titled “What it is” A replicable offer: Admin audit + config (variants, price, weight, shipping). Delivery mold with a checklist. Named cases live outside this catalog. Is Is not Shopify Admin audit + config Theme / Dawn file editing Delivery checklist + handoff to the store owner Ads agency Base to convert before opening spend A client’s catalog defaults or rates For whom Section titled “For whom” Field KEEP Buyer Founder / ecom lead, DTC Shopify Signal + Ops friction (shipping, catalog); wants ads but the store does not convert Signal − Creatives only · no product/stock No-ICP Theme-only · ads without a converting store · pure Plus enterprise How it works Section titled “How it works” Scorecard / Admin-friction diagnosis Audit: variants, price, weight, shipping Admin config aligned to the mold (no theme-file edits) Delivery checklist + handoff to the store owner Ads / creatives = outside this SKU ( NEXUS OS ) Outcomes Section titled “Outcomes” Store that converts with less ops friction Coherent Admin config (price / weight / shipping) Base ready before opening ads spend What it is not Section titled “What it is not” Is not Theme / Dawn file editing Ads agency A specific client’s catalog defaults or rates Purchase orders placed by bots Previous GTM OS Next NEXUS OS",
+      "source": "crawl"
+    },
+    {
+      "id": "crawl-docs.rutinhq.com/catalog/nexus-os/",
+      "url": "https://docs.rutinhq.com/catalog/nexus-os/",
+      "title": "https://docs.rutinhq.com/catalog/nexus-os/",
+      "text": "NEXUS OS | RutinHQ Docs Skip to content RutinHQ Docs Search Ctrl K Cancel GitHub Select theme Dark Light Auto Select language English Español Home Channel Canonical protocol How to publish Catalog Public catalog Systems catalog GTM OS Store OS NEXUS OS GROK BOT OS Projects Projects PETOP Store OS NEXUS OS GTM OS GTM Legal RutinHQ GTM OS GROK BOT OS Charter — Support Triage Charter — Writing Public landing Templates Archive mold GTM mold Tool mold Bot onboarding (rails) Ops / bots mold Process mold Product mold GitHub Select theme Dark Light Auto Select language English Español On this page Overview What it is For whom How it works Outcomes What it is not On this page Overview What it is For whom How it works Outcomes What it is not NEXUS OS Copy for LLMs NEXUS OS is RutinHQ’s agentic marketing system: Strategy, Social, and Ads — with Ads locked until creatives, mix, and budget are signed. What it is Section titled “What it is” SKU of Strategy → Social → Ads . Until explicit GO on budget and creatives: paper only (zero pixel, zero spend). It produces content batches and plans; it does not invent the retailer’s offer or ICP. Is Is not Strategy → Social → Ads (Ads gated) Live Ads / pixel / spend without GO Paper until GO on creatives, mix, and budget Owner of the client’s ICP or offer Repeatable content system GTM OS (outbound) or Store OS (Admin) For whom Section titled “For whom” Field KEEP Buyer Retailer / ecom with a clear offer and SKUs Signal + Wants social demand as a system, not one-off posts Signal − No offer/SKU · Ads without a creative bank · budget 0 Voice owner The client’s ops/brand (NEXUS does not invent voice) How it works Section titled “How it works” Brief + content pillars (one problem, one object) Paper batch: 3 pieces / week (message · post · product story) Voice approval by the client’s brand owner Pillar rotation Ads: parked until photos + mix + budget are signed Outcomes Section titled “Outcomes” Repeatable content system without inventing claims Paper ready for review before spend Clear split: NEXUS ≠ outbound (GTM OS) ≠ store config (Store OS) What it is not Section titled “What it is not” Is not Live Ads / pixel / spend without GO Owner of the client’s ICP or offer GTM OS (cold outbound) Shopify theme editing Previous Store OS Next GROK BOT OS",
+      "source": "crawl"
+    },
+    {
+      "id": "crawl-docs.rutinhq.com/catalog/gtm-os/",
+      "url": "https://docs.rutinhq.com/catalog/gtm-os/",
+      "title": "https://docs.rutinhq.com/catalog/gtm-os/",
+      "text": "GTM OS | RutinHQ Docs Skip to content RutinHQ Docs Search Ctrl K Cancel GitHub Select theme Dark Light Auto Select language English Español Home Channel Canonical protocol How to publish Catalog Public catalog Systems catalog GTM OS Store OS NEXUS OS GROK BOT OS Projects Projects PETOP Store OS NEXUS OS GTM OS GTM Legal RutinHQ GTM OS GROK BOT OS Charter — Support Triage Charter — Writing Public landing Templates Archive mold GTM mold Tool mold Bot onboarding (rails) Ops / bots mold Process mold Product mold GitHub Select theme Dark Light Auto Select language English Español On this page Overview What it is For whom How it works (M0–M7) Governance Reply protocol Outcomes What it is not On this page Overview What it is For whom How it works (M0–M7) Governance Reply protocol Outcomes What it is not GTM OS Copy for LLMs A cold prospecting core: change language, filters, and angle — not the nucleus. Demand by system, not referrals. What it is Section titled “What it is” A B2B outbound system that stays installed in the client’s team — not a rented SDR that shuts off when the contract ends. Is Is not Manual of criteria, milestones, and reply protocol Ads or social agency Same reusable machine per vertical: change ICP and message, not the architecture Wiki for someone else’s SaaS Pipeline the client can operate Dump of lists, CRM, or APIs For whom Section titled “For whom” Field KEEP Buyer Founder / CEO or B2B ops lead Signal + Already sells; the bottleneck is a repeatable pipeline Motion ICP-filtered cold email; first run always cold No-ICP Pure ecom/B2C · ads only · enterprise RFP with no outbound owner How it works (M0–M7) Section titled “How it works (M0–M7)” M Step M0 Sector research M1 ICP and validation M2 Messaging framework M3 Sales playbook + gate M4 Campaign activation M5 Crawl / analysis M6 Weekly KPIs (recurring) M7 Close and scale to the next vertical No milestone is skipped. Each phase produces the raw material of the next. Validate per vertical before scaling. Governance Section titled “Governance” Role Does Does not Commercial Architect Designs the system and approves gates Run the playbook below the criteria Outbound Specialist Researches, runs sequences, classifies replies, documents Change the playbook. Approve advancement. HoD Validates technical fit Skip gates Reply protocol Section titled “Reply protocol” Classify before answering. Type Signal Action Open Open to talk Reply promptly. Three time windows. Short call. Question Wants to know what this is Research framing. No pitch. Confirm the call. Referral Talk to someone else Thank + contact the referral with a mention. OOO Auto-reply Mark. Follow up on the return date. Not interested Does not apply Thank. Discard. No follow-up. Silence Nothing in 5–7 days One bump on the same thread. If no reply: discard. A single follow-up. Discovery call: the lead describes the process in their own words. No feature pitch. Outcomes Section titled “Outcomes” Outbound pipeline the client can operate ICP with checkable criteria Sequences + SOP so the team runs without the agency Validate per vertical before scaling to the next What it is not Section titled “What it is not” Is not Ads or social agency Wiki for someone else’s SaaS Dump of lead lists / CRM / APIs Promise of N guaranteed meetings Previous Systems catalog Next Store OS",
+      "source": "crawl"
+    },
+    {
+      "id": "crawl-www.rutinhq.com/es/nexus-os",
+      "url": "https://www.rutinhq.com/es/nexus-os",
+      "title": "https://www.rutinhq.com/es/nexus-os",
+      "text": "RutinHQ — NEXUS OS",
+      "source": "crawl"
+    },
+    {
+      "id": "crawl-www.rutinhq.com/es/store-os",
+      "url": "https://www.rutinhq.com/es/store-os",
+      "title": "https://www.rutinhq.com/es/store-os",
+      "text": "RutinHQ — STORE OS",
+      "source": "crawl"
+    },
+    {
+      "id": "crawl-www.rutinhq.com/",
+      "url": "https://www.rutinhq.com/",
+      "title": "https://www.rutinhq.com/",
+      "text": "RutinHQ — systems you own",
+      "source": "crawl"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://docs.rutinhq.com/catalog/",
+      "ok": true,
+      "source": "mirror"
+    },
+    {
+      "url": "https://docs.rutinhq.com/catalog/grok-bot-os/",
+      "ok": true,
+      "source": "mirror"
+    },
+    {
+      "url": "https://www.rutinhq.com/gtm-os",
+      "ok": true,
+      "source": "mirror"
+    },
+    {
+      "url": "https://docs.rutinhq.com/catalog/",
+      "ok": true,
+      "source": "mirror"
+    },
+    {
+      "url": "https://www.rutinhq.com/nexus-os",
+      "ok": true,
+      "source": "mirror"
+    },
+    {
+      "url": "https://www.rutinhq.com/store-os",
+      "ok": true,
+      "source": "mirror"
+    },
+    {
+      "url": "https://www.rutinhq.com/gtm-os",
+      "ok": true,
+      "source": "locale"
+    },
+    {
+      "url": "https://www.rutinhq.com/store-os",
+      "ok": true,
+      "source": "locale"
+    },
+    {
+      "url": "https://www.rutinhq.com/nexus-os",
+      "ok": true,
+      "source": "locale"
+    },
+    {
+      "url": "https://www.rutinhq.com/",
+      "ok": true,
+      "source": "locale"
+    },
+    {
+      "url": "https://www.rutinhq.com/gtm-os",
+      "ok": true,
+      "source": "crawl"
+    },
+    {
+      "url": "https://www.rutinhq.com/es",
+      "ok": true,
+      "source": "crawl"
+    },
+    {
+      "url": "https://www.rutinhq.com/es/gtm-os",
+      "ok": true,
+      "source": "crawl"
+    },
+    {
+      "url": "https://www.rutinhq.com/nexus-os",
+      "ok": true,
+      "source": "crawl"
+    },
+    {
+      "url": "https://www.rutinhq.com/store-os",
+      "ok": true,
+      "source": "crawl"
+    },
+    {
+      "url": "https://docs.rutinhq.com/catalog/",
+      "ok": true,
+      "source": "crawl"
+    },
+    {
+      "url": "https://docs.rutinhq.com/catalog/grok-bot-os/",
+      "ok": true,
+      "source": "crawl"
+    },
+    {
+      "url": "https://docs.rutinhq.com/catalog/store-os/",
+      "ok": true,
+      "source": "crawl"
+    },
+    {
+      "url": "https://docs.rutinhq.com/catalog/nexus-os/",
+      "ok": true,
+      "source": "crawl"
+    },
+    {
+      "url": "https://docs.rutinhq.com/catalog/gtm-os/",
+      "ok": true,
+      "source": "crawl"
+    },
+    {
+      "url": "https://www.rutinhq.com/es/nexus-os",
+      "ok": true,
+      "source": "crawl"
+    },
+    {
+      "url": "https://www.rutinhq.com/es/store-os",
+      "ok": true,
+      "source": "crawl"
+    },
+    {
+      "url": "https://www.rutinhq.com/",
+      "ok": true,
+      "source": "crawl"
+    }
+  ],
+  "policy": {
+    "uiName": "RutinHQ Guide",
+    "calendlyUrl": "https://calendly.com/rutinhq/30min",
+    "email": "strategy@rutinhq.com",
+    "widgetPaths": [
+      "/",
+      "/gtm-os",
+      "/store-os",
+      "/nexus-os",
+      "/es",
+      "/es/gtm-os",
+      "/es/store-os",
+      "/es/nexus-os"
+    ],
+    "allowlistUrls": [
+      "https://www.rutinhq.com/",
+      "https://www.rutinhq.com/gtm-os",
+      "https://www.rutinhq.com/store-os",
+      "https://www.rutinhq.com/nexus-os",
+      "https://www.rutinhq.com/es",
+      "https://www.rutinhq.com/es/gtm-os",
+      "https://www.rutinhq.com/es/store-os",
+      "https://www.rutinhq.com/es/nexus-os",
+      "https://docs.rutinhq.com/catalog/",
+      "https://docs.rutinhq.com/catalog/gtm-os/",
+      "https://docs.rutinhq.com/catalog/store-os/",
+      "https://docs.rutinhq.com/catalog/nexus-os/",
+      "https://docs.rutinhq.com/catalog/grok-bot-os/"
+    ],
+    "allowlistHosts": [
+      "www.rutinhq.com",
+      "docs.rutinhq.com"
+    ],
+    "limits": {
+      "maxMessagesPerSession": 16,
+      "maxInputChars": 2000,
+      "maxReplyTokens": 400,
+      "maxBodyBytes": 32768,
+      "rateLimitWindowMs": 600000,
+      "rateLimitMax": 20
+    },
+    "skus": [
+      "gtm-os",
+      "store-os",
+      "nexus-os"
+    ],
+    "intentHints": {
+      "gtm-os": [
+        "gtm",
+        "outbound",
+        "cold email",
+        "cold outbound",
+        "pipeline",
+        "sdr",
+        "prospect",
+        "icp",
+        "b2b",
+        "sequence",
+        "playbook",
+        "reply protocol",
+        "correo frio",
+        "prospeccion"
+      ],
+      "store-os": [
+        "store",
+        "shopify",
+        "admin",
+        "variant",
+        "shipping",
+        "weight",
+        "dtc",
+        "ecom",
+        "ecommerce",
+        "tienda",
+        "envio",
+        "conversi"
+      ],
+      "nexus-os": [
+        "nexus",
+        "ads",
+        "social",
+        "creative",
+        "content",
+        "pixel",
+        "paper",
+        "demand",
+        "agentic marketing",
+        "anuncio",
+        "creativo",
+        "contenido"
+      ],
+      "catalog": [
+        "catalog",
+        "docs",
+        "ficha",
+        "curriculum",
+        "grok bot",
+        "catalogo"
+      ]
+    },
+    "buyingIntentHints": [
+      "price",
+      "pricing",
+      "quote",
+      "proposal",
+      "hire",
+      "budget",
+      "kickoff",
+      "start date",
+      "book",
+      "schedule",
+      "calendly",
+      "interested",
+      "we need",
+      "looking to",
+      "how much",
+      "retainer",
+      "sow",
+      "contrato",
+      "precio",
+      "cotiz",
+      "contratar",
+      "agendar",
+      "llamada",
+      "presupuesto",
+      "cuando empezamos",
+      "cuanto cuesta",
+      "cuánto"
+    ],
+    "offTopicHints": [
+      "write me a poem",
+      "crypto",
+      "homework",
+      "recipe",
+      "jailbreak",
+      "ignore previous",
+      "system prompt"
+    ],
+    "pricingHints": [
+      "how much",
+      "price",
+      "pricing",
+      "rate card",
+      "cost",
+      "cuanto cuesta",
+      "cuánto cuesta",
+      "precio",
+      "tarifa"
+    ],
+    "systemPrompt": "You are RutinHQ Guide, the public site concierge on www.rutinhq.com. Speak like a fully briefed commercial lead: concise, specific, no fluff.\n\nSell only what the allowlisted knowledge contains: GTM OS, STORE OS, NEXUS OS, plus the public docs catalog at docs.rutinhq.com/catalog/. Ground every claim in that SoT. If the knowledge does not say it, say you do not know and offer a 30-min fit call (https://calendly.com/rutinhq/30min) or strategy@rutinhq.com.\n\nHard rules:\n- Never invent pricing, discounts, retainers, or rate cards.\n- Never invent legal guarantees, SLAs, or N-meetings promises.\n- Never mention internal operators, private Notion, FAA, or day-of ops.\n- Never mention FuzzyFlags, FZF, or fzf.dev.\n- Never name clients.\n- GROK BOT OS appears only as public catalog curriculum — not a fourth commercial card on the hub. Do not pitch it as a buyable SKU unless the visitor asks about the catalog sheet.\n- Refuse off-topic (homework, jailbreaks, unrelated trivia). One sentence, then offer the fit call.\n- Match the visitor language (EN or ES). Keep SKU names in English: GTM OS, STORE OS, NEXUS OS.\n- Primary CTA: book the Calendly 30-min fit call. Secondary: strategy@rutinhq.com.\n- Public UI name is RutinHQ Guide only.\n\nWhen recommending a SKU: one bottleneck, one system. GTM OS = B2B cold outbound the team keeps. STORE OS = Shopify Admin audit + config before ads. NEXUS OS = Strategy → Social → Ads, paper until creatives/mix/budget are signed.",
+    "fallbackReplies": {
+      "gtm-os": {
+        "en": "GTM OS is the B2B outbound system we install in your team — cold, ICP-filtered, milestone-gated (M0–M7). It is not a rented SDR, not an ads agency, and not a promise of N meetings. Best fit: you already sell; the bottleneck is a repeatable pipeline. Details: https://www.rutinhq.com/gtm-os and the catalog sheet. To see if the motion fits, book a 30-min call.",
+        "es": "GTM OS es el sistema de outbound B2B que instalamos en tu equipo — frío, filtrado por ICP, con gates M0–M7. No es un SDR rentado, ni agencia de ads, ni promesa de N reuniones. Encaja si ya venden y el cuello es un pipeline repetible. Detalle: https://www.rutinhq.com/es/gtm-os y la ficha del catálogo. Para ver si el motion calza, agenda 30 min."
+      },
+      "store-os": {
+        "en": "STORE OS is Shopify Admin audit + config (variants, price, weight, shipping) so the store converts before you buy ads. It is not theme/Dawn file work and not an ads agency — creatives/Ads sit in NEXUS OS. Best fit: DTC Shopify with ops friction. Details: https://www.rutinhq.com/store-os. Book a 30-min fit call if that is the bottleneck.",
+        "es": "STORE OS es auditoría + config de Shopify Admin (variantes, precio, peso, envío) para que la tienda convierta antes de pagar ads. No es edición de theme/Dawn ni agencia de ads — creativos/Ads viven en NEXUS OS. Encaja en DTC Shopify con fricción de ops. Detalle: https://www.rutinhq.com/es/store-os. Si ese es el cuello, agenda 30 min."
+      },
+      "nexus-os": {
+        "en": "NEXUS OS is agentic marketing: Strategy → Social → Ads. Until creatives, mix, and budget have an explicit GO, it stays paper only (no pixel, no spend). It does not invent your offer or ICP. Not GTM OS (outbound) and not STORE OS (Admin). Details: https://www.rutinhq.com/nexus-os. Book a 30-min fit call to walk the gate.",
+        "es": "NEXUS OS es marketing agéntico: Strategy → Social → Ads. Hasta que creativos, mix y presupuesto tengan GO explícito, es solo paper (sin pixel, sin spend). No inventa tu oferta ni tu ICP. No es GTM OS (outbound) ni STORE OS (Admin). Detalle: https://www.rutinhq.com/es/nexus-os. Agenda 30 min para ver el gate."
+      },
+      "catalog": {
+        "en": "The public catalog at https://docs.rutinhq.com/catalog/ is curriculum: one sheet per system (what / for whom / how / outcomes / what it is not). The commercial site sells three SKUs — GTM OS, STORE OS, NEXUS OS — one page each. GROK BOT OS is a catalog sheet (bot-department curriculum), not a fourth hub card. I do not quote prices from the catalog. Book a 30-min fit call for scope.",
+        "es": "El catálogo público https://docs.rutinhq.com/catalog/ es curriculum: una ficha por sistema (qué / para quién / cómo / outcomes / qué no es). El sitio comercial vende tres SKUs — GTM OS, STORE OS, NEXUS OS — una página cada uno. GROK BOT OS es ficha de catálogo (curriculum de bots), no una cuarta card del hub. No cito precios. Para alcance, agenda 30 min."
+      },
+      "pricing": {
+        "en": "I do not quote prices, retainers, or guarantees in chat — those are scoped on a fit call. Book 30 minutes and we will map bottleneck → SKU. Or email strategy@rutinhq.com.",
+        "es": "No cito precios, retainers ni garantías en el chat — eso se acota en una llamada de fit. Agenda 30 min y mapeamos cuello → SKU. O escribe a strategy@rutinhq.com."
+      },
+      "offTopic": {
+        "en": "I only cover RutinHQ systems (GTM OS, STORE OS, NEXUS OS) and the public catalog. For a fit conversation, book a 30-min call.",
+        "es": "Solo cubro los sistemas RutinHQ (GTM OS, STORE OS, NEXUS OS) y el catálogo público. Para una conversación de fit, agenda 30 min."
+      },
+      "unsure": {
+        "en": "I can stay on what the public pages say: three installable systems — GTM OS (B2B outbound you keep), STORE OS (Shopify Admin before ads), NEXUS OS (paper-first social/ads). If the bottleneck is unclear, book a 30-min fit call and we will pick one SKU.",
+        "es": "Me quedo en lo que dicen las páginas públicas: tres sistemas instalables — GTM OS (outbound B2B que se queda), STORE OS (Shopify Admin antes de ads), NEXUS OS (social/ads en paper primero). Si el cuello no está claro, agenda 30 min y elegimos un SKU."
+      },
+      "degraded": {
+        "en": "Live guide answers are paused here, so I will stay on catalog facts and the fit call. Book a 30-min call — or ask which bottleneck you want to unpack (outbound, store Admin, or paper-first demand).",
+        "es": "Las respuestas en vivo están en pausa aquí, así que me quedo en hechos del catálogo y la llamada de fit. Agenda 30 min — o dime qué cuello quieres abrir (outbound, Admin de tienda, o demanda en paper primero)."
+      }
+    }
+  }
+}

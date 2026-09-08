@@ -59,3 +59,7 @@ npm run preview
 - Opcional: **Read the system** → `https://docs.rutinhq.com/catalog/{sku}/`
 - Hub `/` = índice de 3 SKUs. Un SKU por landing. Sin tabulador de precios.
 - Fuera: FuzzyFlags / fzf.dev, nombres de clientes, mailbox inventado, GROK BOT OS como 4ª card
+
+## RutinHQ Guide
+
+Floating concierge on the hub + SKU LPs (not blog). Allowlisted SoT, Calendly CTA, lead-brief mailto. Internal runbook: [`GUIDE.md`](GUIDE.md).

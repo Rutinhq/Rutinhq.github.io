@@ -25,12 +25,7 @@ async function start() {
         template = await vite.transformIndexHtml(url, template)
         const { render } = await vite.ssrLoadModule('/src/entry-server.tsx')
         const pathname = url.split('?')[0] ?? '/'
-<<<<<<< HEAD
-        const lang =
-          pathname === '/es' || pathname.startsWith('/es/') ? 'es' : 'en'
-=======
         const lang = pathname === '/es' || pathname.startsWith('/es/') ? 'es' : 'en'
->>>>>>> 9a2060a (fix: avoid shadowing node:path in SSR language detection)
         const { html, head, htmlAttributes } = await render(url, lang)
         const page = template
           .replace(

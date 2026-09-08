@@ -230,5 +230,18 @@
     "nexusTitle": "RutinHQ — NEXUS OS — marketing agéntico en papel primero",
     "nexusDescription": "Marketing agéntico — primero en papel, Ads solo con GO. Estrategia → Social → Ads.",
     "notFoundTitle": "RutinHQ — 404"
+  },
+  "guide": {
+    "launcher": "Preguntar a RutinHQ Guide",
+    "subtitle": "Preguntas comerciales sobre GTM OS, STORE OS y NEXUS OS.",
+    "placeholder": "Pregunta por un sistema…",
+    "send": "Enviar",
+    "close": "Cerrar",
+    "thinking": "Trabajando",
+    "greeting": "Soy RutinHQ Guide. Recorro los tres sistemas que vendemos y el catálogo público. No cito precios ni invento términos — si es una pregunta de fit, agenda 30 min.",
+    "ctaBook": "Agendar 30 min de fit",
+    "leadCta": "Enviar un brief corto al equipo",
+    "limit": "Llegamos al tope de turnos de este chat. Agenda 30 min y lo seguimos ahí.",
+    "disclaimer": "Las respuestas se quedan en hechos del catálogo público. Sin precios ni términos legales en el chat."
   }
 }

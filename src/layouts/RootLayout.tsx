@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { languageFromPathname } from '@/lib/i18n/paths'
+import { GuideHost } from '@/components/guide/GuideHost'
 import { Footer } from './parts/Footer'
 import { Header } from './parts/Header'
 
@@ -28,6 +29,7 @@ export function RootLayout() {
         <Outlet />
       </main>
       <Footer />
+      <GuideHost />
     </div>
   )
 }
