@@ -12,14 +12,18 @@
 /services / 301
 /case-studies / 301
 /blog/why-one-sku /blog 301
-# Blog crawl shells (pretty URL + 200). Not folder index.html — that 308s.
-/blog /blog.html 200
-/blog/ /blog.html 200
-/blog/icp-gated-cold-outbound-without-rented-sdr /prerender/blog-icp-gated-cold-outbound-without-rented-sdr.html 200
-/blog/icp-gated-cold-outbound-without-rented-sdr/ /prerender/blog-icp-gated-cold-outbound-without-rented-sdr.html 200
+# Blog crawl shells. Do NOT rewrite /blog → /blog.html (or emit dist/blog.html):
+# Pages html-handling 308s *.html to the pretty URL, so that pair self-loops
+# Location: /blog. Same class of bug as exact /{sku} /index.html 200.
+# Target the extensionless pretty URL under /prerender/ (that path 200s).
+# Article01 used to 308 → /prerender/<slug>.html pretty URL; point at it directly.
+/blog /prerender/blog 200
+/blog/ /prerender/blog 200
+/blog/icp-gated-cold-outbound-without-rented-sdr /prerender/blog-icp-gated-cold-outbound-without-rented-sdr 200
+/blog/icp-gated-cold-outbound-without-rented-sdr/ /prerender/blog-icp-gated-cold-outbound-without-rented-sdr 200
 /es /es/blog 301
-/es/blog /es/blog.html 200
-/es/blog/ /es/blog.html 200
-/es/blog/outbound-frio-con-icp-sin-sdr-rentado /prerender/es-blog-outbound-frio-con-icp-sin-sdr-rentado.html 200
-/es/blog/outbound-frio-con-icp-sin-sdr-rentado/ /prerender/es-blog-outbound-frio-con-icp-sin-sdr-rentado.html 200
+/es/blog /prerender/es-blog 200
+/es/blog/ /prerender/es-blog 200
+/es/blog/outbound-frio-con-icp-sin-sdr-rentado /prerender/es-blog-outbound-frio-con-icp-sin-sdr-rentado 200
+/es/blog/outbound-frio-con-icp-sin-sdr-rentado/ /prerender/es-blog-outbound-frio-con-icp-sin-sdr-rentado 200
 /*      /index.html  200

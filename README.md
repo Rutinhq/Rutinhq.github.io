@@ -30,7 +30,7 @@ Stack: Vite + React + Tailwind + i18next. Default **EN** (commercial copy). Togg
   2. Wildcard: Request URL `https://rutinhq.com/*` → Target `https://www.rutinhq.com/${1}` → **301** → Preserve query string **On**
   3. Enable **Always Use HTTPS** (or a second wildcard for `http://rutinhq.com/*`)
   4. Verify: `curl -sI https://rutinhq.com/gtm-os` → `301` + `location: https://www.rutinhq.com/gtm-os`
-- **Blog:** `/blog` (canonical `https://www.rutinhq.com/blog`) + Article01 are **indexable** and listed in `sitemap.xml` (8 www URLs, including `/es/blog` + ES Article01). Build prerenders crawl shells (`dist/blog.html`, `dist/es/blog.html`, `dist/prerender/…`) and `_redirects` 200-rewrites the pretty URLs so `curl` sees unique title/canonical/OG without JS. hreflang EN ↔ ES; EN is `x-default`. Do **not** emit `dist/blog/index.html` or `dist/es/blog/index.html` (CF would 308). Soft-park Store/NEXUS on the blog footer only. No 3-SKU strip on `/blog`.
+- **Blog:** `/blog` (canonical `https://www.rutinhq.com/blog`) + Article01 are **indexable** and listed in `sitemap.xml` (8 www URLs, including `/es/blog` + ES Article01). Build prerenders crawl shells under `dist/prerender/*.html` and `_redirects` 200-rewrites the pretty URLs to the **extensionless** `/prerender/…` path (that path is already a 200). Do **not** emit `dist/blog.html` / `dist/es/blog.html` or rewrite `/blog /blog.html 200` — html-handling 308s `*.html` → pretty URL and that pair **self-loops** `Location: /blog`. Same for `/es/blog`. Do **not** emit `dist/blog/index.html` or `dist/es/blog/index.html`. hreflang EN ↔ ES; EN is `x-default`. Soft-park Store/NEXUS on the blog footer only. No 3-SKU strip on `/blog`.
 - **No tocar** `docs.rutinhq.com`. CORTEX redeploya `rutinhq-web`.
 
 ## Local
