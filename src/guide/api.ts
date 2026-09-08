@@ -169,10 +169,10 @@ export async function handleGuideRequest(
       reply = live
       mode = 'live'
     } else {
-      reply = localGuideReply(messages, locale, true)
+      reply = localGuideReply(messages, locale)
     }
   } catch {
-    reply = localGuideReply(messages, locale, true)
+    reply = localGuideReply(messages, locale)
   }
 
   const body: GuideApiResponse = {

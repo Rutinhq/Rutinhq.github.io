@@ -133,9 +133,14 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
   const emailMatch = hay.match(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i)
   const buying = score(hay, policy.buyingIntentHints) >= 1
   const skuIntent = intent()
+  const skuRank = (['gtm-os', 'store-os', 'nexus-os'] as const).map((key) => ({
+    key,
+    n: score(hay, policy.intentHints[key] || []),
+  }))
+  skuRank.sort((a, b) => b.n - a.n)
   const recommendedSku =
-    skuIntent === 'gtm-os' || skuIntent === 'store-os' || skuIntent === 'nexus-os'
-      ? skuIntent
+    skuRank[0] && skuRank[0].n > 0 && skuRank[0].n !== skuRank[1]?.n
+      ? skuRank[0].key
       : 'unclear'
 
   let reply = pick(skuIntent)
@@ -181,10 +186,8 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
         }
       }
     } catch {
-      reply = `${pick('degraded')}\n\n${reply}`
+      /* keep catalog fallback */
     }
-  } else {
-    reply = `${pick('degraded')}\n\n${reply}`
   }
 
   const body: Record<string, unknown> = {

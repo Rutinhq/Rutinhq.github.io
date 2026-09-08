@@ -37,9 +37,16 @@ export function classifyIntent(messages: GuideChatMessage[]): GuideIntent {
 }
 
 export function recommendSku(messages: GuideChatMessage[]): RecommendedSku {
-  const intent = classifyIntent(messages)
-  if (intent === 'gtm-os' || intent === 'store-os' || intent === 'nexus-os') return intent
-  return 'unclear'
+  const text = haystack(messages)
+  const ranked = (['gtm-os', 'store-os', 'nexus-os'] as const).map((key) => ({
+    key,
+    score: scoreHints(text, guidePolicy.intentHints[key] ?? []),
+  }))
+  ranked.sort((a, b) => b.score - a.score)
+  const top = ranked[0]
+  if (!top || top.score === 0) return 'unclear'
+  if (ranked[1] && top.score === ranked[1].score) return 'unclear'
+  return top.key
 }
 
 export function hasBuyingIntent(messages: GuideChatMessage[]): boolean {

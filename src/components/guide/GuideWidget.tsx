@@ -65,8 +65,9 @@ export function GuideWidget() {
   }, [open])
 
   useEffect(() => {
-    listRef.current?.scrollTo({ top: listRef.current.scrollHeight })
-  }, [messages, open])
+    const last = listRef.current?.lastElementChild as HTMLElement | undefined
+    last?.scrollIntoView({ block: 'nearest' })
+  }, [messages, open, pending])
 
   const turnsUsed = messages.filter((m) => m.role === 'user').length
   const atCap = turnsUsed >= GUIDE_LIMITS.maxMessagesPerSession
@@ -86,7 +87,7 @@ export function GuideWidget() {
     setMessages(nextMessages)
     setPending(true)
 
-    let reply = localGuideReply(conversation, locale, true)
+    let reply = localGuideReply(conversation, locale)
     let brief: LeadBrief | undefined
 
     try {
@@ -129,7 +130,7 @@ export function GuideWidget() {
           aria-modal="true"
           aria-labelledby={titleId}
           tabIndex={-1}
-          className="pointer-events-auto flex w-full max-w-[400px] flex-col border border-border bg-background shadow-[0_0_0_1px_#111] outline-none max-h-[min(36rem,calc(100dvh-5.5rem))]"
+          className="pointer-events-auto flex w-full max-w-[400px] flex-col rounded-none border border-border bg-background shadow-[0_0_0_1px_#111] outline-none max-h-[min(40rem,calc(100dvh-5.5rem))]"
         >
           <header className="flex items-start justify-between gap-3 border-b border-border px-4 py-3">
             <div>
