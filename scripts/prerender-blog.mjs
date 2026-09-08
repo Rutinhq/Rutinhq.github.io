@@ -8,13 +8,15 @@ const dist = path.join(root, 'dist')
 const SITE = 'https://www.rutinhq.com'
 const OG = `${SITE}/airo-assets/images/logo/horizontal.svg`
 
-// Do NOT emit dist/blog/index.html or dist/blog/<slug>/index.html.
-// Cloudflare Pages html-handling 308s those pretty URLs. SKU routes
-// stay on the SPA fallback. Blog shells are flat files + _redirects 200.
+// Do NOT emit dist/blog.html, dist/es/blog.html, dist/blog/index.html, or
+// dist/blog/<slug>/index.html. Pages html-handling 308s pretty URLs:
+// /blog.html → /blog, and /blog → /blog.html 200 then self-loops Location:/blog.
+// Shells live under dist/prerender/*.html; _redirects 200-rewrites to the
+// extensionless pretty URL (/prerender/blog), which Pages serves as 200.
 const ROUTES = [
   {
     path: '/blog',
-    file: 'blog.html',
+    file: 'prerender/blog.html',
     title: 'Blog — systems you own',
     description:
       'Radar for founders who install GTM and ops systems — not rented seats.',
@@ -142,7 +144,7 @@ const ROUTES = [
   },
   {
     path: '/es/blog',
-    file: 'es/blog.html',
+    file: 'prerender/es-blog.html',
     title: 'Blog — sistemas que posees',
     description:
       'Radar para founders que instalan sistemas de GTM y ops — no asientos rentados.',

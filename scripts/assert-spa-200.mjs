@@ -29,6 +29,18 @@ if (fs.existsSync('dist/es/blog/index.html')) {
   )
   process.exit(1)
 }
+if (fs.existsSync('dist/blog.html')) {
+  console.error(
+    'dist/blog.html must not ship — html-handling 308s /blog.html → /blog and a /blog /blog.html rewrite self-loops.',
+  )
+  process.exit(1)
+}
+if (fs.existsSync('dist/es/blog.html')) {
+  console.error(
+    'dist/es/blog.html must not ship — html-handling 308s /es/blog onto itself.',
+  )
+  process.exit(1)
+}
 
 if (!fs.existsSync('dist/_redirects')) {
   console.error(
@@ -42,22 +54,50 @@ if (!/\/\*\s+\/index\.html\s+200/.test(redirects)) {
   console.error('dist/_redirects must include `/* /index.html 200`.')
   process.exit(1)
 }
-if (!/\/blog\s+\/blog\.html\s+200/.test(redirects)) {
-  console.error('dist/_redirects must 200-rewrite /blog to /blog.html.')
+if (/\/blog\s+\/blog\.html\s+200/.test(redirects)) {
+  console.error(
+    'dist/_redirects must not rewrite /blog to /blog.html — Pages 308 self-loop.',
+  )
+  process.exit(1)
+}
+if (/\/es\/blog\s+\/es\/blog\.html\s+200/.test(redirects)) {
+  console.error(
+    'dist/_redirects must not rewrite /es/blog to /es/blog.html — Pages 308 self-loop.',
+  )
+  process.exit(1)
+}
+if (!/\/blog\s+\/prerender\/blog\s+200/.test(redirects)) {
+  console.error(
+    'dist/_redirects must 200-rewrite /blog to /prerender/blog (extensionless).',
+  )
+  process.exit(1)
+}
+if (!/\/blog\/\s+\/prerender\/blog\s+200/.test(redirects)) {
+  console.error(
+    'dist/_redirects must 200-rewrite /blog/ to /prerender/blog.',
+  )
   process.exit(1)
 }
 if (
-  !/\/blog\/icp-gated-cold-outbound-without-rented-sdr\s+\/prerender\/blog-icp-gated-cold-outbound-without-rented-sdr\.html\s+200/.test(
+  !/\/blog\/icp-gated-cold-outbound-without-rented-sdr\s+\/prerender\/blog-icp-gated-cold-outbound-without-rented-sdr\s+200/.test(
     redirects,
   )
 ) {
   console.error(
-    'dist/_redirects must 200-rewrite Article01 to its prerendered HTML shell.',
+    'dist/_redirects must 200-rewrite Article01 to /prerender/<slug> (not .html).',
   )
   process.exit(1)
 }
-if (!/\/es\/blog\s+\/es\/blog\.html\s+200/.test(redirects)) {
-  console.error('dist/_redirects must 200-rewrite /es/blog to /es/blog.html.')
+if (!/\/es\/blog\s+\/prerender\/es-blog\s+200/.test(redirects)) {
+  console.error(
+    'dist/_redirects must 200-rewrite /es/blog to /prerender/es-blog.',
+  )
+  process.exit(1)
+}
+if (!/\/es\/blog\/\s+\/prerender\/es-blog\s+200/.test(redirects)) {
+  console.error(
+    'dist/_redirects must 200-rewrite /es/blog/ to /prerender/es-blog.',
+  )
   process.exit(1)
 }
 
@@ -129,7 +169,7 @@ if (!/draft:\s*false/.test(blogFlags) || !/noindex:\s*false/.test(blogFlags)) {
 }
 
 const homepageTitle = 'RutinHQ — systems you own'
-const blogShell = 'dist/blog.html'
+const blogShell = 'dist/prerender/blog.html'
 const articleShell =
   'dist/prerender/blog-icp-gated-cold-outbound-without-rented-sdr.html'
 if (!fs.existsSync(blogShell)) {
@@ -194,11 +234,25 @@ if (
   process.exit(1)
 }
 
-const esBlogShell = 'dist/es/blog.html'
+const esBlogShell = 'dist/prerender/es-blog.html'
 const esArticleShell =
   'dist/prerender/es-blog-outbound-frio-con-icp-sin-sdr-rentado.html'
 if (!fs.existsSync(esBlogShell) || !fs.existsSync(esArticleShell)) {
   console.error('ES blog prerender shells missing.')
+  process.exit(1)
+}
+const esBlogHtml = fs.readFileSync(esBlogShell, 'utf8')
+const esBlogTitle = 'Blog — sistemas que posees'
+if (!esBlogHtml.includes(`<title>${esBlogTitle}</title>`)) {
+  console.error(`${esBlogShell} must ship unique ES index <title>.`)
+  process.exit(1)
+}
+if (esBlogHtml.includes(`<title>${homepageTitle}</title>`)) {
+  console.error(`${esBlogShell} must not keep the homepage <title>.`)
+  process.exit(1)
+}
+if (!esBlogHtml.includes('rel="canonical" href="https://www.rutinhq.com/es/blog"')) {
+  console.error(`${esBlogShell} must canonical https://www.rutinhq.com/es/blog.`)
   process.exit(1)
 }
 const esArticleHtml = fs.readFileSync(esArticleShell, 'utf8')
