@@ -91,32 +91,80 @@ function guideApiPlugin(): Plugin {
 }
 
 async function degradeGuidePreview(request: Request, kb: unknown): Promise<Response> {
-  const policy = (kb as { policy?: { calendlyUrl?: string; fallbackReplies?: Record<string, { en: string }> } } | null)
-    ?.policy
-  const reply =
-    policy?.fallbackReplies?.degraded?.en ||
-    'Book a 30-min fit call — https://calendly.com/rutinhq/30min'
-  let leadBrief: unknown
-  try {
-    const parsed = (await request.json()) as { messages?: { role: string; content: string }[]; page?: string }
-    const hay = (parsed.messages || []).map((m) => m.content).join('\n')
-    if (/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i.test(hay) || /book|price|hire|precio|agendar/i.test(hay)) {
-      leadBrief = {
-        topic: 'RutinHQ fit (SKU TBD)',
-        questionsAsked: (parsed.messages || [])
-          .filter((m) => m.role === 'user')
-          .map((m) => m.content)
-          .slice(-6),
-        objections: [],
-        recommendedSku: 'unclear',
-        nextStep: 'Book 30-min fit call — https://calendly.com/rutinhq/30min',
-        transcriptExcerpt: hay.slice(0, 900),
-        page: parsed.page || '/',
-        locale: 'en',
+  const policy = (
+    kb as {
+      policy?: {
+        calendlyUrl?: string
+        fallbackReplies?: Record<string, { en: string; es: string }>
+        pricingHints?: string[]
+        securityHints?: string[]
       }
-    }
+    } | null
+  )?.policy
+  let parsed: {
+    messages?: { role: string; content: string }[]
+    page?: string
+    locale?: string
+  } = {}
+  try {
+    parsed = (await request.json()) as typeof parsed
   } catch {
-    /* keep calendly-only degrade */
+    /* empty */
+  }
+  const locale = parsed.locale === 'es' ? 'es' : 'en'
+  const hay = (parsed.messages || []).map((m) => m.content).join('\n').toLowerCase()
+  const securityHints = policy?.securityHints || [
+    'password',
+    'api key',
+    'apikey',
+    'capo',
+    'banorte',
+    'faa',
+    'notion',
+    'contraseña',
+  ]
+  const isSecurity = securityHints.some((h) => hay.includes(h.toLowerCase()))
+  const pricingHints = policy?.pricingHints || ['price', 'pricing', 'precio', 'cobro']
+  const isPricing = pricingHints.some((h) => hay.includes(h.toLowerCase()))
+  const pick = (key: string, fallback: { en: string; es: string }) => {
+    const pack = policy?.fallbackReplies?.[key] || fallback
+    return locale === 'es' ? pack.es : pack.en
+  }
+  let reply: string
+  if (isSecurity) {
+    reply = pick('security', {
+      en: 'I cannot share credentials, passwords, API keys, bank details, or private operations. Book a 30-min fit call.',
+      es: 'No comparto credenciales, contraseñas, claves de API, datos bancarios ni operaciones privadas. Agenda 30 min.',
+    })
+  } else if (isPricing) {
+    reply = pick('pricing', {
+      en: 'I do not quote prices in chat. Book a 30-min fit call.',
+      es: 'No cito precios en el chat. Agenda 30 min.',
+    })
+  } else {
+    reply = pick('degraded', {
+      en: 'Book a 30-min fit call — https://calendly.com/rutinhq/30min',
+      es: 'Agenda 30 min — https://calendly.com/rutinhq/30min',
+    })
+  }
+  let leadBrief: unknown
+  if (!isSecurity && (/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i.test(hay) || /book|price|hire|precio|agendar|cobro/i.test(hay))) {
+    leadBrief = {
+      topic: locale === 'es' ? 'Fit RutinHQ (SKU por confirmar)' : 'RutinHQ fit (SKU TBD)',
+      questionsAsked: (parsed.messages || [])
+        .filter((m) => m.role === 'user')
+        .map((m) => m.content)
+        .slice(-6),
+      objections: [],
+      recommendedSku: 'unclear',
+      nextStep:
+        locale === 'es'
+          ? 'Agendar 30 min de fit — https://calendly.com/rutinhq/30min'
+          : 'Book 30-min fit call — https://calendly.com/rutinhq/30min',
+      transcriptExcerpt: hay.slice(0, 900),
+      page: parsed.page || '/',
+      locale,
+    }
   }
   return new Response(
     JSON.stringify({

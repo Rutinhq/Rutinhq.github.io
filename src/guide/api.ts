@@ -8,6 +8,7 @@ import {
 } from './config'
 import { localGuideReply } from './fallback'
 import { buildLeadBrief } from './lead'
+import { enforceSafeReply, isSecurityProbe, securityReply } from './security'
 import type {
   GuideApiRequest,
   GuideApiResponse,
@@ -81,7 +82,7 @@ async function callLlm(
   const docs = kb?.documents ?? []
   const system = [
     GUIDE_SYSTEM_PROMPT,
-    `Visitor locale: ${locale}.`,
+    `Visitor locale: ${locale}. Reply entirely in ${locale === 'es' ? 'Spanish' : 'English'}. Do not mix languages. SKU names stay in English.`,
     'Allowlisted knowledge:',
     knowledgeBlock(docs),
   ].join('\n\n')
@@ -151,6 +152,26 @@ export async function handleGuideRequest(
   const locale = asLocale(parsed.locale)
   const page = typeof parsed.page === 'string' ? parsed.page.slice(0, 80) : '/'
 
+  if (isSecurityProbe(messages) || classifyIntent(messages) === 'security') {
+    return json(200, {
+      reply: securityReply(locale),
+      mode: 'degraded',
+      calendlyUrl: guidePolicy.calendlyUrl,
+    })
+  }
+
+  if (classifyIntent(messages) === 'pricing') {
+    const body: GuideApiResponse = {
+      reply: fallbackReply('pricing', locale),
+      mode: env.GUIDE_LLM_API_KEY ? 'live' : 'degraded',
+      calendlyUrl: guidePolicy.calendlyUrl,
+    }
+    if (shouldCaptureLead(messages)) {
+      body.leadBrief = buildLeadBrief(messages, page, locale)
+    }
+    return json(200, body)
+  }
+
   if (classifyIntent(messages) === 'offTopic') {
     const reply = fallbackReply('offTopic', locale)
     const body: GuideApiResponse = {
@@ -166,8 +187,8 @@ export async function handleGuideRequest(
   try {
     const live = await callLlm(env, messages, kb, locale)
     if (live) {
-      reply = live
-      mode = 'live'
+      reply = enforceSafeReply(live, locale)
+      mode = reply === live ? 'live' : 'degraded'
     } else {
       reply = localGuideReply(messages, locale)
     }

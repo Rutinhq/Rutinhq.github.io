@@ -1,4 +1,5 @@
 import { guidePolicy } from './config'
+import { isSecurityProbe } from './security'
 import type { GuideChatMessage, GuideIntent, GuideSku, RecommendedSku } from './types'
 
 function haystack(messages: GuideChatMessage[]): string {
@@ -12,6 +13,7 @@ function scoreHints(text: string, hints: string[]): number {
 }
 
 export function classifyIntent(messages: GuideChatMessage[]): GuideIntent {
+  if (isSecurityProbe(messages)) return 'security'
   const text = haystack(messages)
   const onTopicHits =
     scoreHints(text, guidePolicy.intentHints['gtm-os'] ?? []) +

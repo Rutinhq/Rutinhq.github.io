@@ -22,7 +22,7 @@ export function fallbackReply(
   locale: GuideLocale,
 ): string {
   const pack = guidePolicy.fallbackReplies[key] ?? guidePolicy.fallbackReplies.unsure
-  return (locale === 'es' ? pack?.es : pack?.en) ?? guidePolicy.fallbackReplies.unsure.en
+  return (locale === 'es' ? pack?.es : pack?.en) ?? guidePolicy.fallbackReplies.unsure?.[locale === 'es' ? 'es' : 'en'] ?? guidePolicy.fallbackReplies.unsure.en
 }
 
 export function knowledgeBlock(documents: { title: string; url: string; text: string }[]) {
