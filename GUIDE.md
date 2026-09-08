@@ -66,7 +66,7 @@ Local: copy `.env.example` → `.env` (Vite + the guide middleware read `process
    - `GUIDE_LLM_API_KEY` = Gemini API key (Encrypt / secret)
    - `GUIDE_LLM_BASE_URL` = `https://generativelanguage.googleapis.com/v1beta/openai`
    - `GUIDE_LLM_MODEL` = `gemini-2.0-flash` (or `gemini-2.5-flash`)
-3. Redeploy Pages after setting vars (`wrangler pages deploy` — Direct Upload cannot Retry). Functions only pick up new env on the next deploy. **`wrangler pages deploy` replaces plaintext dashboard vars** with `wrangler.toml` `[vars]`; keep `GUIDE_LLM_BASE_URL` + `GUIDE_LLM_MODEL` there (or as secrets). `GUIDE_LLM_API_KEY` stays a secret and is not wiped. The Function also defaults a Gemini-shaped key (`AIza…`) to the Gemini OpenAI-compat base so a wiped plaintext var cannot send the key to `api.openai.com`.
+3. Store `GUIDE_LLM_API_KEY`, `GUIDE_LLM_BASE_URL`, and `GUIDE_LLM_MODEL` as **Pages secrets** (not plaintext dashboard vars). `wrangler pages deploy` wipes plaintext vars; the same name cannot also live in `wrangler.toml` `[vars]` (binding already in use). Then fresh `wrangler pages deploy` — Direct Upload cannot Retry. The Function also defaults a Gemini-shaped key (`AIza…`) to the Gemini OpenAI-compat base so a wiped plaintext var cannot send the key to `api.openai.com`.
 4. Smoke: `POST https://www.rutinhq.com/api/guide` with locale `es` and a catalog question → response `mode` should be `llm` (not `degraded`).
 5. Security probes still refuse credentials and pricing (same as `scripts/assert-guide.mjs`).
 

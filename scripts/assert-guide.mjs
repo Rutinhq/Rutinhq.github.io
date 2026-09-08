@@ -191,7 +191,11 @@ if (!/resolveGuideLlmBaseUrl/.test(llm) || !/AIza/.test(llm)) {
 
 const wrangler = fs.readFileSync(path.join(root, 'wrangler.toml'), 'utf8')
 if (!/GUIDE_LLM_BASE_URL/.test(wrangler) || !/generativelanguage.googleapis.com/.test(wrangler)) {
-  console.error('wrangler.toml [vars] must pin GUIDE_LLM_BASE_URL so Direct Upload does not wipe it')
+  console.error('wrangler.toml must document Gemini GUIDE_LLM_BASE_URL')
+  process.exit(1)
+}
+if (/\n\[vars\]/.test(wrangler) && /GUIDE_LLM_BASE_URL\s*=/.test(wrangler)) {
+  console.error('do not put GUIDE_LLM_BASE_URL in wrangler.toml [vars] — it conflicts with the Pages secret')
   process.exit(1)
 }
 
