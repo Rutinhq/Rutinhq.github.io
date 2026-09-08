@@ -11,7 +11,7 @@
  */
 
 import {
-  callGuideLlm,
+  callGuideLlmDetailed,
   composeGuideSystemPrompt,
   type GuideLlmMode,
 } from '../../src/guide/llm'
@@ -266,13 +266,14 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
   const key = context.env.GUIDE_LLM_API_KEY?.trim()
   const skipLlm = skuIntent === 'pricing' || skuIntent === 'offTopic'
 
+  let llmDebug: Record<string, unknown> | null = null
   if (key && !skipLlm) {
     const knowledge = (kb?.documents || [])
       .map((d) => `### ${d.title}\nSource: ${d.url}\n${d.text}`)
       .join('\n\n')
       .slice(0, 14000)
     try {
-      const text = await callGuideLlm({
+      const result = await callGuideLlmDetailed({
         apiKey: key,
         baseUrl: context.env.GUIDE_LLM_BASE_URL,
         model: context.env.GUIDE_LLM_MODEL,
@@ -283,6 +284,16 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
           content: String(m.content).slice(0, limits.maxInputChars),
         })),
       })
+      llmDebug = {
+        hasKey: true,
+        hasBase: Boolean(context.env.GUIDE_LLM_BASE_URL),
+        hasModel: Boolean(context.env.GUIDE_LLM_MODEL),
+        host: result.host,
+        lastStatus: result.lastStatus,
+        lastError: result.lastError,
+        modelsTried: result.modelsTried,
+      }
+      const text = result.text
       if (text && !LEAK_RE.test(text)) {
         reply = text
         mode = 'llm'
@@ -290,7 +301,15 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
         reply = pick('security')
       }
     } catch {
-      /* keep catalog fallback */
+      llmDebug = { hasKey: true, lastError: 'call_threw' }
+    }
+  } else {
+    llmDebug = {
+      hasKey: Boolean(key),
+      hasBase: Boolean(context.env.GUIDE_LLM_BASE_URL),
+      hasModel: Boolean(context.env.GUIDE_LLM_MODEL),
+      skipLlm,
+      skuIntent,
     }
   }
 
@@ -298,6 +317,9 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
     reply,
     mode,
     calendlyUrl: policy.calendlyUrl,
+  }
+  if (context.request.headers.get('x-rutinhq-guide-debug') === '1') {
+    body.debug = llmDebug
   }
 
   if (emailMatch || buying) {

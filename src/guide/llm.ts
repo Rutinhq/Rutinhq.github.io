@@ -142,18 +142,45 @@ function modelMissing(status: number, body: string): boolean {
   return /model|not found|does not exist|invalid/i.test(body)
 }
 
-export async function callGuideLlm(opts: {
+export type GuideLlmCallResult = {
+  text: string | null
+  host: string
+  modelsTried: string[]
+  lastStatus: number | null
+  lastError: string | null
+}
+
+function sanitizeProviderError(status: number, body: string): string {
+  const clipped = body.replace(/\s+/g, ' ').slice(0, 180)
+  const redacted = clipped.replace(/AIza[0-9A-Za-z_-]+/g, 'AIza***').replace(/sk-[a-zA-Z0-9]+/g, 'sk-***')
+  return `${status}:${redacted}`
+}
+
+export async function callGuideLlmDetailed(opts: {
   apiKey: string
   baseUrl?: string
   model?: string
   system: string
   messages: GuideLlmMessage[]
   maxTokens: number
-}): Promise<string | null> {
+}): Promise<GuideLlmCallResult> {
   const key = opts.apiKey.trim()
-  if (!key) return null
-
   const base = resolveGuideLlmBaseUrl(opts.baseUrl, key)
+  let host = 'invalid'
+  try {
+    host = new URL(base).host
+  } catch {
+    host = 'invalid'
+  }
+  const empty: GuideLlmCallResult = {
+    text: null,
+    host,
+    modelsTried: [],
+    lastStatus: null,
+    lastError: key ? null : 'missing_key',
+  }
+  if (!key) return empty
+
   const gemini = isGeminiHost(base)
   const headers: Record<string, string> = {
     authorization: `Bearer ${key}`,
@@ -162,6 +189,7 @@ export async function callGuideLlm(opts: {
   if (gemini) headers['x-goog-api-key'] = key
 
   const models = guideLlmModelCandidates(resolveGuideLlmModel(opts.model, key))
+  empty.modelsTried = models
   for (const model of models) {
     try {
       const res = await fetch(`${base}/chat/completions`, {
@@ -175,25 +203,43 @@ export async function callGuideLlm(opts: {
         }),
       })
       const raw = await res.text()
+      empty.lastStatus = res.status
       if (!res.ok) {
-        if (gemini && modelMissing(res.status, raw) && model !== models[models.length - 1]) {
-          continue
-        }
-        return null
+        empty.lastError = sanitizeProviderError(res.status, raw)
+        if (gemini && modelMissing(res.status, raw)) continue
+        return empty
       }
       let data: unknown
       try {
         data = JSON.parse(raw)
       } catch {
-        return null
+        empty.lastError = `${res.status}:invalid_json`
+        return empty
       }
       const text = extractLlmText(data)
-      if (text) return text
-    } catch {
-      /* try next model or degrade */
+      if (text) {
+        empty.text = text
+        empty.lastError = null
+        return empty
+      }
+      empty.lastError = `${res.status}:empty_content`
+    } catch (err) {
+      empty.lastError = err instanceof Error ? err.name : 'fetch_failed'
     }
   }
-  return null
+  return empty
+}
+
+export async function callGuideLlm(opts: {
+  apiKey: string
+  baseUrl?: string
+  model?: string
+  system: string
+  messages: GuideLlmMessage[]
+  maxTokens: number
+}): Promise<string | null> {
+  const result = await callGuideLlmDetailed(opts)
+  return result.text
 }
 
 export function composeGuideSystemPrompt(
