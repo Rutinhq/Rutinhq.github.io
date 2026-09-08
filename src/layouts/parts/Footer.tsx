@@ -18,6 +18,9 @@ export function Footer() {
           <Link to="/" className="hover:text-foreground">
             {t('common.hubLink')}
           </Link>
+          <Link to="/blog" className="hover:text-foreground">
+            {t('common.blog')}
+          </Link>
           <a href={MAILTO_HUB} className="hover:text-foreground">
             {t('common.ctaPrimary')}
           </a>

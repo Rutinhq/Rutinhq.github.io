@@ -1,3 +1,10 @@
+# Cloudflare Pages `_redirects` is path-only.
+# Domain-level (host) redirects are unsupported — see
+# https://developers.cloudflare.com/pages/configuration/redirects/
+# Do NOT add `/* https://www.rutinhq.com/:splat 301`: that would also
+# 301 www onto itself (no hostname match). Apex → www is a zone
+# Single Redirect / Bulk Redirect (Capo / Dashboard). Steps in README.
+#
 # Crawl files ship from public/ into dist/. These lines stay above the
 # SPA fallback so /sitemap.xml and /robots.txt are never rewritten to HTML.
 /sitemap.xml /sitemap.xml 200
@@ -5,4 +12,3 @@
 /services / 301
 /case-studies / 301
 /*      /index.html  200
-

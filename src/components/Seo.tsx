@@ -8,16 +8,26 @@ type SeoProps = {
   description: string
   path: string
   jsonLd?: Record<string, unknown>
+  noindex?: boolean
+  ogType?: 'website' | 'article'
 }
 
-export function Seo({ title, description, path, jsonLd }: SeoProps) {
+export function Seo({
+  title,
+  description,
+  path,
+  jsonLd,
+  noindex = false,
+  ogType = 'website',
+}: SeoProps) {
   const url = `${SITE}${path}`
   return (
     <Helmet>
       <title>{title}</title>
       <meta name="description" content={description} />
       <link rel="canonical" href={url} />
-      <meta property="og:type" content="website" />
+      {noindex ? <meta name="robots" content="noindex, nofollow" /> : null}
+      <meta property="og:type" content={ogType} />
       <meta property="og:site_name" content="RutinHQ" />
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />

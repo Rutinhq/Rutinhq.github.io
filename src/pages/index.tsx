@@ -78,6 +78,16 @@ export default function HubPage() {
           </a>{' '}
           {t('hub.catalogNoteAfter')}
         </p>
+        <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
+          {t('hub.blogNote')}{' '}
+          <Link
+            to="/blog"
+            className="text-foreground underline underline-offset-4 hover:text-primary"
+          >
+            {t('common.blog')}
+          </Link>
+          .
+        </p>
       </Section>
     </>
   )
