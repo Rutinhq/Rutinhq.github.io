@@ -1,3 +1,8 @@
+# Crawl files ship from public/ into dist/. These lines stay above the
+# SPA fallback so /sitemap.xml and /robots.txt are never rewritten to HTML.
+/sitemap.xml /sitemap.xml 200
+/robots.txt /robots.txt 200
 /services / 301
 /case-studies / 301
 /*      /index.html  200
+
