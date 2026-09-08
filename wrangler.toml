@@ -6,10 +6,11 @@ pages_build_output_dir = "dist"
 # Dashboard secrets (Production + Preview):
 #   GUIDE_LLM_API_KEY
 #   GUIDE_LEAD_WEBHOOK_URL
-# Persist as Pages *secrets* (not dashboard plaintext, not [vars]):
-#   GUIDE_LLM_API_KEY
-#   GUIDE_LLM_BASE_URL = https://generativelanguage.googleapis.com/v1beta/openai
-#   GUIDE_LLM_MODEL = gemini-2.0-flash
-# Direct Upload wipes plaintext dashboard vars. The same name cannot be both
-# a secret and a wrangler.toml [vars] binding ("already in use").
-# Successful completions return mode=llm. See GUIDE.md.
+# GUIDE_LLM_API_KEY stays a Pages secret (dashboard / wrangler pages secret put).
+# BASE_URL + MODEL must be [vars] here: Direct Upload wipes dashboard plaintext,
+# and wrangler pages secret put for these names did not land on production
+# deployment_configs. Do not also secret-put the same names (binding clash).
+
+[vars]
+GUIDE_LLM_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai"
+GUIDE_LLM_MODEL = "gemini-2.0-flash"

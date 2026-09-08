@@ -184,8 +184,8 @@ if (!/extractLlmText/.test(llm) || !/x-goog-api-key/.test(llm) || !/normalizeGui
   console.error('LLM client must normalize Gemini base URL, send x-goog-api-key, and parse compat content')
   process.exit(1)
 }
-if (!/resolveGuideLlmBaseUrl/.test(llm) || !/AIza/.test(llm)) {
-  console.error('LLM client must default a Gemini-shaped key to the Gemini OpenAI-compat base')
+if (!/resolveGuideLlmBaseUrl/.test(llm) || !/AIza/.test(llm) || !/AQ\./.test(llm)) {
+  console.error('LLM client must default AIza/AQ. keys to the Gemini OpenAI-compat base')
   process.exit(1)
 }
 
@@ -194,8 +194,8 @@ if (!/GUIDE_LLM_BASE_URL/.test(wrangler) || !/generativelanguage.googleapis.com/
   console.error('wrangler.toml must document Gemini GUIDE_LLM_BASE_URL')
   process.exit(1)
 }
-if (/\n\[vars\]/.test(wrangler) && /GUIDE_LLM_BASE_URL\s*=/.test(wrangler)) {
-  console.error('do not put GUIDE_LLM_BASE_URL in wrangler.toml [vars] — it conflicts with the Pages secret')
+if (!/\n\[vars\]/.test(wrangler) || !/GUIDE_LLM_BASE_URL\s*=/.test(wrangler)) {
+  console.error('wrangler.toml [vars] must pin GUIDE_LLM_BASE_URL for Direct Upload')
   process.exit(1)
 }
 

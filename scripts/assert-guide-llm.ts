@@ -43,11 +43,15 @@ assert(
 
 assert(
   resolveGuideLlmBaseUrl(undefined, 'AIzaSyFakeKeyForShapeOnly').includes('generativelanguage.googleapis.com'),
-  'Gemini-shaped key must default to Gemini OpenAI-compat base',
+  'AIza-shaped key must default to Gemini OpenAI-compat base',
 )
 assert(
-  resolveGuideLlmModel(undefined, 'AIzaSyFakeKeyForShapeOnly') === 'gemini-2.0-flash',
-  'Gemini-shaped key must default to gemini-2.0-flash',
+  resolveGuideLlmBaseUrl(undefined, 'AQ.FakeStudioKeyForShapeOnly').includes('generativelanguage.googleapis.com'),
+  'AQ.-shaped AI Studio key must default to Gemini OpenAI-compat base',
+)
+assert(
+  resolveGuideLlmModel(undefined, 'AQ.FakeStudioKeyForShapeOnly') === 'gemini-2.0-flash',
+  'AQ.-shaped key must default to gemini-2.0-flash',
 )
 assert(
   resolveGuideLlmBaseUrl(undefined, 'sk-openai-shape').includes('api.openai.com'),

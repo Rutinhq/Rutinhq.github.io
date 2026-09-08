@@ -30,13 +30,16 @@ const MODEL_FALLBACKS: Record<string, string[]> = {
 }
 
 function looksLikeGeminiKey(apiKey?: string): boolean {
-  return Boolean(apiKey?.trim().startsWith('AIza'))
+  const key = apiKey?.trim() || ''
+  // Legacy Google API keys are AIza…; current AI Studio / Gemini keys are AQ.…
+  return key.startsWith('AIza') || key.startsWith('AQ.')
 }
 
-export function resolveGuideLlmBaseUrl(raw?: string, apiKey?: string): string {
+export function resolveGuideLlmBaseUrl(raw?: string, apiKey?: string, model?: string): string {
   const explicit = raw?.trim()
   if (explicit) return normalizeGuideLlmBaseUrl(explicit)
-  if (looksLikeGeminiKey(apiKey)) {
+  const modelId = (model || '').toLowerCase()
+  if (looksLikeGeminiKey(apiKey) || modelId.includes('gemini')) {
     return normalizeGuideLlmBaseUrl('https://generativelanguage.googleapis.com/v1beta/openai')
   }
   return normalizeGuideLlmBaseUrl('https://api.openai.com/v1')
@@ -151,9 +154,11 @@ export type GuideLlmCallResult = {
 }
 
 function sanitizeProviderError(status: number, body: string): string {
-  const clipped = body.replace(/\s+/g, ' ').slice(0, 180)
-  const redacted = clipped.replace(/AIza[0-9A-Za-z_-]+/g, 'AIza***').replace(/sk-[a-zA-Z0-9]+/g, 'sk-***')
-  return `${status}:${redacted}`
+  if (status === 401 || status === 403) return `${status}:auth`
+  if (status === 404) return `${status}:not_found`
+  if (status === 429) return `${status}:rate_limit`
+  if (/model|not found|does not exist/i.test(body)) return `${status}:model`
+  return `${status}:provider`
 }
 
 export async function callGuideLlmDetailed(opts: {
@@ -165,7 +170,7 @@ export async function callGuideLlmDetailed(opts: {
   maxTokens: number
 }): Promise<GuideLlmCallResult> {
   const key = opts.apiKey.trim()
-  const base = resolveGuideLlmBaseUrl(opts.baseUrl, key)
+  const base = resolveGuideLlmBaseUrl(opts.baseUrl, key, opts.model)
   let host = 'invalid'
   try {
     host = new URL(base).host
