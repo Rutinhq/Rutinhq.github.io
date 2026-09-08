@@ -42,6 +42,7 @@ export function Seo({
       <title>{title}</title>
       <meta name="description" content={description} />
       <link rel="canonical" href={url} />
+      <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       {alternates?.map((alt) => (
         <link
           key={alt.hreflang}

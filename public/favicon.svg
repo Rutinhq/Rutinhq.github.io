@@ -1,5 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
-  <rect width="32" height="32" fill="#0A0A0A"/>
-  <path d="M6 26V6h12l8 8v4l-6 8H6z" fill="#2ECC8F"/>
-  <path d="M16 6v10h10" stroke="#0A0A0A" stroke-width="2"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <rect width="64" height="64" fill="#0A0A0A"/>
+  <defs>
+    <mask id="q-gap" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">
+      <rect width="64" height="64" fill="#fff"/>
+      <line x1="40.17" y1="29.17" x2="54.88" y2="43.88" stroke="#000" stroke-width="7.4" stroke-linecap="butt"/>
+    </mask>
+  </defs>
+  <rect x="4.6" y="4.6" width="54.8" height="54.8" rx="16" ry="16" fill="none" stroke="#2ECC8F" stroke-width="5.6"/>
+  <line x1="14.8" y1="20.4" x2="14.8" y2="43.6" stroke="#2ECC8F" stroke-width="5.2" stroke-linecap="square"/>
+  <line x1="26.4" y1="20.4" x2="26.4" y2="43.6" stroke="#2ECC8F" stroke-width="5.2" stroke-linecap="square"/>
+  <line x1="14.8" y1="32" x2="26.4" y2="32" stroke="#2ECC8F" stroke-width="5.2" stroke-linecap="square"/>
+  <circle cx="43" cy="32" r="10.4" fill="none" stroke="#2ECC8F" stroke-width="5.2" mask="url(#q-gap)"/>
+  <line x1="43.28" y1="32.28" x2="51.77" y2="40.77" stroke="#2ECC8F" stroke-width="4.4" stroke-linecap="butt"/>
+  <polygon fill="#2ECC8F" points="40.17,29.17 45.55,30.02 41.02,34.55"/>
+  <polygon fill="#2ECC8F" points="54.88,43.88 49.51,43.03 54.03,38.51"/>
 </svg>
