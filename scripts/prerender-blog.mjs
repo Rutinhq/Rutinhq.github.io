@@ -207,6 +207,179 @@ const ROUTES = [
   },
 ]
 
+function skuJsonLd(path, name, description) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    '@id': `${SITE}${path}#webpage`,
+    url: `${SITE}${path}`,
+    name,
+    description,
+    isPartOf: { '@id': `${SITE}/#website` },
+    about: { '@id': `${SITE}/#organization` },
+  }
+}
+
+function skuRoute({ path, file, title, description, locale }) {
+  const enPath = path === '/es' ? '/' : path.replace(/^\/es/, '') || '/'
+  const esPath = enPath === '/' ? '/es' : `/es${enPath}`
+  return {
+    path,
+    file,
+    title,
+    description,
+    ogType: 'website',
+    locale,
+    alternates: [
+      { hreflang: 'en', href: `${SITE}${enPath}` },
+      { hreflang: 'es', href: `${SITE}${esPath}` },
+      { hreflang: 'x-default', href: `${SITE}${enPath}` },
+    ],
+    jsonLd: skuJsonLd(path, title, description),
+  }
+}
+
+const MARKETING_ROUTES = [
+  skuRoute({
+    path: '/gtm-os',
+    file: 'prerender/gtm-os.html',
+    title: 'RutinHQ — GTM OS',
+    description:
+      'Outbound that stays yours. A cold B2B prospecting system installed in your team.',
+    locale: 'en',
+  }),
+  skuRoute({
+    path: '/store-os',
+    file: 'prerender/store-os.html',
+    title: 'RutinHQ — STORE OS',
+    description:
+      'Make the store convert before you buy ads. Replicable Shopify Admin audit + config.',
+    locale: 'en',
+  }),
+  skuRoute({
+    path: '/nexus-os',
+    file: 'prerender/nexus-os.html',
+    title: 'RutinHQ — NEXUS OS',
+    description:
+      'Agentic marketing — paper first, Ads only when signed. Strategy → Social → Ads.',
+    locale: 'en',
+  }),
+  skuRoute({
+    path: '/es',
+    file: 'prerender/es.html',
+    title: 'RutinHQ — sistemas que posees',
+    description:
+      'Tres sistemas operativos instalables. Elige el cuello de botella. Una página, un SKU.',
+    locale: 'es',
+  }),
+  skuRoute({
+    path: '/es/gtm-os',
+    file: 'prerender/es-gtm-os.html',
+    title: 'RutinHQ — GTM OS',
+    description:
+      'Outbound que se queda en tu equipo. Un sistema de prospección B2B en frío instalado en tu operación.',
+    locale: 'es',
+  }),
+  skuRoute({
+    path: '/es/store-os',
+    file: 'prerender/es-store-os.html',
+    title: 'RutinHQ — STORE OS',
+    description:
+      'Haz que la tienda convierta antes de comprar ads. Auditoría y config replicable de Shopify Admin.',
+    locale: 'es',
+  }),
+  skuRoute({
+    path: '/es/nexus-os',
+    file: 'prerender/es-nexus-os.html',
+    title: 'RutinHQ — NEXUS OS',
+    description:
+      'Marketing agéntico — paper primero, Ads solo con GO. Strategy → Social → Ads.',
+    locale: 'es',
+  }),
+]
+
+ROUTES.push(...MARKETING_ROUTES)
+
+const HUB_JSON_LD = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebSite',
+      '@id': `${SITE}/#website`,
+      url: `${SITE}/`,
+      name: 'RutinHQ',
+      description:
+        'RutinHQ installs B2B operating systems — GTM OS, STORE OS, and NEXUS OS — that founding teams own.',
+      inLanguage: ['en', 'es'],
+      publisher: { '@id': `${SITE}/#organization` },
+    },
+    {
+      '@type': 'Organization',
+      '@id': `${SITE}/#organization`,
+      name: 'RutinHQ',
+      alternateName: 'Rutin HQ',
+      url: `${SITE}/`,
+      email: 'strategy@rutinhq.com',
+      logo: `${SITE}/airo-assets/images/logo/horizontal.svg`,
+      image: `${SITE}/apple-touch-icon.png`,
+      description:
+        'RutinHQ is a B2B systems studio. We install GTM OS, STORE OS, and NEXUS OS — operating systems teams own, not retainers that vanish.',
+      knowsAbout: ['GTM OS', 'STORE OS', 'NEXUS OS', 'B2B outbound'],
+    },
+    {
+      '@type': 'WebPage',
+      '@id': `${SITE}/#webpage`,
+      url: `${SITE}/`,
+      name: 'RutinHQ — systems you own',
+      isPartOf: { '@id': `${SITE}/#website` },
+      about: { '@id': `${SITE}/#organization` },
+    },
+    {
+      '@type': 'ItemList',
+      '@id': `${SITE}/#os-landings`,
+      name: 'RutinHQ operating systems',
+      numberOfItems: 3,
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'GTM OS',
+          url: `${SITE}/gtm-os`,
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'STORE OS',
+          url: `${SITE}/store-os`,
+        },
+        {
+          '@type': 'ListItem',
+          position: 3,
+          name: 'NEXUS OS',
+          url: `${SITE}/nexus-os`,
+        },
+      ],
+    },
+  ],
+}
+
+const esHub = ROUTES.find((route) => route.path === '/es')
+if (esHub) {
+  esHub.jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': HUB_JSON_LD['@graph'].map((node) =>
+      node['@type'] === 'WebPage'
+        ? {
+            ...node,
+            '@id': `${SITE}/es#webpage`,
+            url: `${SITE}/es`,
+            name: esHub.title,
+          }
+        : node,
+    ),
+  }
+}
+
 function esc(value) {
   return value
     .replaceAll('&', '&amp;')
@@ -223,6 +396,7 @@ function stripHomepageSeo(html) {
     .replace(/<meta\s+property="og:[^"]+"[\s\S]*?\/?>/gi, '')
     .replace(/<meta\s+name="twitter:[^"]+"[\s\S]*?\/?>/gi, '')
     .replace(/<meta\s+name="robots"[\s\S]*?\/?>/gi, '')
+    .replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/gi, '')
 }
 
 function seoHead(route) {
@@ -262,8 +436,21 @@ if (!fs.existsSync(templatePath)) {
 
 const template = fs.readFileSync(templatePath, 'utf8')
 
+if (!template.includes('application/ld+json')) {
+  const hubHead = `<script type="application/ld+json">${JSON.stringify(HUB_JSON_LD)}</script>`
+  if (!template.includes('</head>')) {
+    console.error('dist/index.html has no </head> — cannot inject hub JSON-LD.')
+    process.exit(1)
+  }
+  const withLd = template.replace('</head>', `    ${hubHead}\n  </head>`)
+  fs.writeFileSync(templatePath, withLd)
+  console.log('prerender / → index.html (hub JSON-LD)')
+}
+
+const pageTemplate = fs.readFileSync(templatePath, 'utf8')
+
 for (const route of ROUTES) {
-  let page = stripHomepageSeo(template)
+  let page = stripHomepageSeo(pageTemplate)
   if (!page.includes('</head>')) {
     console.error('dist/index.html has no </head> — cannot inject blog SEO.')
     process.exit(1)

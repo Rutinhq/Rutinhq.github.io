@@ -15,9 +15,13 @@ export default function App() {
     <Routes>
       <Route element={<RootLayout />}>
         <Route path="/" element={<HubPage />} />
+        <Route path="/es" element={<HubPage />} />
         <Route path="/gtm-os" element={<GtmOsPage />} />
+        <Route path="/es/gtm-os" element={<GtmOsPage />} />
         <Route path="/store-os" element={<StoreOsPage />} />
+        <Route path="/es/store-os" element={<StoreOsPage />} />
         <Route path="/nexus-os" element={<NexusOsPage />} />
+        <Route path="/es/nexus-os" element={<NexusOsPage />} />
         <Route path="/blog" element={<BlogPage />} />
         <Route
           path="/blog/icp-gated-cold-outbound-without-rented-sdr"

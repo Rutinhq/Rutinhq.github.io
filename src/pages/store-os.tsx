@@ -3,10 +3,13 @@ import { Ctas } from '@/components/Ctas'
 import { BulletList, MonoTitle, Section } from '@/components/Section'
 import { Seo, skuJsonLd } from '@/components/Seo'
 import { useObjectList } from '@/lib/i18n/lists'
+import { usePageLocale } from '@/lib/i18n/usePageLocale'
 import { DOCS_STORE_URL, MAILTO_STORE } from '@/lib/links'
 
 export default function StoreOsPage() {
   const { t } = useTranslation()
+  const { locale, localized, alternatesFor } = usePageLocale()
+  const path = localized('/store-os')
   const who = useObjectList<string>('store.who.items')
   const notFor = useObjectList<string>('store.notFor.items')
   const how = useObjectList<string>('store.how.items')
@@ -18,12 +21,10 @@ export default function StoreOsPage() {
       <Seo
         title={t('seo.storeTitle')}
         description={t('seo.storeDescription')}
-        path="/store-os"
-        jsonLd={skuJsonLd(
-          '/store-os',
-          t('seo.storeTitle'),
-          t('seo.storeDescription'),
-        )}
+        path={path}
+        locale={locale}
+        alternates={alternatesFor('/store-os')}
+        jsonLd={skuJsonLd(path, t('seo.storeTitle'), t('seo.storeDescription'))}
       />
 
       <Section first>

@@ -1,10 +1,10 @@
 {
   "common": {
-    "ctaPrimary": "Talk to RutinHQ",
-    "ctaPrimaryShort": "Talk",
+    "ctaPrimary": "Hablar con RutinHQ",
+    "ctaPrimaryShort": "Hablar",
     "ctaSecondary": "Email",
-    "ctaDocs": "Read the system",
-    "ctaOffer": "See the system",
+    "ctaDocs": "Leer el sistema",
+    "ctaOffer": "Ver el sistema",
     "hubLink": "Catálogo",
     "blog": "Blog",
     "docs": "Docs"
@@ -13,12 +13,12 @@
     "language": "Idioma"
   },
   "hub": {
-    "eyebrow": "RutinHQ systems",
-    "headline": "Systems you own — not retainers that vanish.",
-    "subhead": "Three installable operating systems. Pick the bottleneck. One page, one SKU.",
-    "catalogNote": "Catalog curriculum also lives at",
-    "catalogNoteAfter": "— this site sells one SKU at a time.",
-    "blogNote": "Writing lives on the"
+    "eyebrow": "Sistemas RutinHQ",
+    "headline": "Sistemas que posees — no retainers que se evaporan.",
+    "subhead": "Tres sistemas operativos instalables. Elige el cuello de botella. Una página, un SKU.",
+    "catalogNote": "El curriculum del catálogo también vive en",
+    "catalogNoteAfter": "— este sitio vende un SKU a la vez.",
+    "blogNote": "La escritura vive en el"
   },
   "gtm": {
     "eyebrow": "GTM OS",
@@ -93,7 +93,7 @@
     }
   },
   "store": {
-    "eyebrow": "Store OS",
+    "eyebrow": "STORE OS",
     "hero": {
       "headline": "Make the store convert before you buy ads.",
       "subhead": "Replicable Shopify Admin audit + config — variants, price, weight, shipping — so ops friction stops killing conversion."
@@ -180,7 +180,7 @@
       "items": [
         "Repeatable content system without invented claims",
         "Paper ready for review before spend",
-        "Clear separation: NEXUS ≠ outbound (GTM OS) ≠ store Admin (Store OS)"
+        "Clear separation: NEXUS ≠ outbound (GTM OS) ≠ store Admin (STORE OS)"
       ]
     },
     "notWhat": {
@@ -197,17 +197,17 @@
     "gtm": {
       "name": "GTM OS",
       "thesis": "B2B outbound that stays with your team — cold, ICP-filtered, milestone-gated.",
-      "cta": "View GTM OS"
+      "cta": "Ver GTM OS"
     },
     "store": {
-      "name": "Store OS",
+      "name": "STORE OS",
       "thesis": "Shopify Admin audit + config so the store converts before you spend on ads.",
-      "cta": "View Store OS"
+      "cta": "Ver STORE OS"
     },
     "nexus": {
       "name": "NEXUS OS",
       "thesis": "Agentic marketing — Strategy → Social → Ads (Ads gated until creatives, mix, and budget are signed).",
-      "cta": "View NEXUS OS"
+      "cta": "Ver NEXUS OS"
     }
   },
   "footer": {
@@ -220,14 +220,14 @@
     "back": "Ir al catálogo"
   },
   "seo": {
-    "hubTitle": "RutinHQ — systems you own",
-    "hubDescription": "Three installable operating systems. Pick the bottleneck. One page, one SKU.",
+    "hubTitle": "RutinHQ — sistemas que posees",
+    "hubDescription": "Tres sistemas operativos instalables. Elige el cuello de botella. Una página, un SKU.",
     "gtmTitle": "RutinHQ — GTM OS",
-    "gtmDescription": "Outbound that stays yours. A cold B2B prospecting system installed in your team.",
-    "storeTitle": "RutinHQ — Store OS",
-    "storeDescription": "Make the store convert before you buy ads. Replicable Shopify Admin audit + config.",
+    "gtmDescription": "Outbound que se queda en tu equipo. Un sistema de prospección B2B en frío instalado en tu operación.",
+    "storeTitle": "RutinHQ — STORE OS",
+    "storeDescription": "Haz que la tienda convierta antes de comprar ads. Auditoría y config replicable de Shopify Admin.",
     "nexusTitle": "RutinHQ — NEXUS OS",
-    "nexusDescription": "Agentic marketing — paper first, Ads only when signed. Strategy → Social → Ads.",
+    "nexusDescription": "Marketing agéntico — paper primero, Ads solo con GO. Strategy → Social → Ads.",
     "notFoundTitle": "RutinHQ — 404"
   }
 }

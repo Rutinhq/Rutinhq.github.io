@@ -2,29 +2,27 @@ import { useTranslation } from 'react-i18next'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Logo } from '@/components/Logo'
 import { Button } from '@/components/ui/button'
-import { localePath } from '@/lib/blog'
 import type { SupportedLanguage } from '@/lib/i18n/config'
+import { languageFromPathname, localePath, withLocale } from '@/lib/i18n/paths'
 import { MAILTO_HUB } from '@/lib/links'
 
 export function Header() {
   const { t, i18n } = useTranslation()
   const location = useLocation()
   const navigate = useNavigate()
-  const currentLang: SupportedLanguage = i18n.language?.startsWith('es')
-    ? 'es'
-    : 'en'
+  const currentLang: SupportedLanguage = languageFromPathname(location.pathname)
 
   function switchLang(next: SupportedLanguage) {
     void i18n.changeLanguage(next)
     const mapped = localePath(location.pathname, next)
-    if (mapped && mapped !== location.pathname) navigate(mapped)
+    if (mapped !== location.pathname) navigate(mapped)
   }
 
   return (
     <header className="sticky top-0 isolate z-50 h-16 border-b border-border bg-background">
       <div className="container mx-auto flex h-full flex-nowrap items-center justify-between gap-2 px-4 sm:gap-3 sm:px-6 md:gap-4 md:px-10">
         <Link
-          to="/"
+          to={withLocale('/', currentLang)}
           aria-label="RutinHQ"
           className="flex shrink-0 items-center text-foreground"
         >

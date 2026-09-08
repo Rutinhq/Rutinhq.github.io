@@ -4,6 +4,7 @@ import { Ctas } from '@/components/Ctas'
 import { Section } from '@/components/Section'
 import { hubJsonLd, Seo } from '@/components/Seo'
 import { Button } from '@/components/ui/button'
+import { usePageLocale } from '@/lib/i18n/usePageLocale'
 import { DOCS_CATALOG_URL, MAILTO_HUB } from '@/lib/links'
 
 const CARDS = [
@@ -14,14 +15,17 @@ const CARDS = [
 
 export default function HubPage() {
   const { t } = useTranslation()
+  const { locale, localized, alternatesFor } = usePageLocale()
 
   return (
     <>
       <Seo
         title={t('seo.hubTitle')}
         description={t('seo.hubDescription')}
-        path="/"
-        jsonLd={hubJsonLd()}
+        path={localized('/')}
+        locale={locale}
+        alternates={alternatesFor('/')}
+        jsonLd={hubJsonLd(localized('/'), t('seo.hubTitle'))}
       />
 
       <Section first>
@@ -57,7 +61,7 @@ export default function HubPage() {
                 {t(`cards.${card.key}.thesis`)}
               </p>
               <Button asChild className="mt-8 self-start" size="lg">
-                <Link to={card.href}>{t(`cards.${card.key}.cta`)}</Link>
+                <Link to={localized(card.href)}>{t(`cards.${card.key}.cta`)}</Link>
               </Button>
             </article>
           ))}
@@ -81,7 +85,7 @@ export default function HubPage() {
         <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
           {t('hub.blogNote')}{' '}
           <Link
-            to="/blog"
+            to={localized('/blog')}
             className="text-foreground underline underline-offset-4 hover:text-primary"
           >
             {t('common.blog')}

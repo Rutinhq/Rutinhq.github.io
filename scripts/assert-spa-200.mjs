@@ -7,11 +7,18 @@ if (fs.existsSync('dist/404.html')) {
   process.exit(1)
 }
 
-for (const route of ['gtm-os', 'store-os', 'nexus-os', 'blog']) {
+for (const route of ['gtm-os', 'store-os', 'nexus-os', 'blog', 'es']) {
   const folderPage = `dist/${route}/index.html`
   if (fs.existsSync(folderPage)) {
     console.error(
       `${folderPage} must not ship — folder assets make /${route} 308 instead of 200.`,
+    )
+    process.exit(1)
+  }
+  const htmlPage = `dist/${route}.html`
+  if (fs.existsSync(htmlPage)) {
+    console.error(
+      `${htmlPage} must not ship — html-handling 308s pretty /${route}.`,
     )
     process.exit(1)
   }
@@ -65,6 +72,34 @@ if (/\/es\/blog\s+\/es\/blog\.html\s+200/.test(redirects)) {
     'dist/_redirects must not rewrite /es/blog to /es/blog.html — Pages 308 self-loop.',
   )
   process.exit(1)
+}
+if (/\/es\s+\/es\/blog\s+301/.test(redirects)) {
+  console.error(
+    'dist/_redirects must not 301 /es onto /es/blog — hub language switch.',
+  )
+  process.exit(1)
+}
+if (!/\/es\s+\/prerender\/es\s+200/.test(redirects)) {
+  console.error('dist/_redirects must 200-rewrite /es to /prerender/es.')
+  process.exit(1)
+}
+if (!/\/es\/\s+\/prerender\/es\s+200/.test(redirects)) {
+  console.error('dist/_redirects must 200-rewrite /es/ to /prerender/es.')
+  process.exit(1)
+}
+for (const sku of ['gtm-os', 'store-os', 'nexus-os']) {
+  if (!new RegExp(`/${sku}\\s+/prerender/${sku}\\s+200`).test(redirects)) {
+    console.error(`dist/_redirects must 200-rewrite /${sku} to /prerender/${sku}.`)
+    process.exit(1)
+  }
+  if (
+    !new RegExp(`/es/${sku}\\s+/prerender/es-${sku}\\s+200`).test(redirects)
+  ) {
+    console.error(
+      `dist/_redirects must 200-rewrite /es/${sku} to /prerender/es-${sku}.`,
+    )
+    process.exit(1)
+  }
 }
 if (!/\/blog\s+\/prerender\/blog\s+200/.test(redirects)) {
   console.error(
@@ -122,6 +157,10 @@ const expectedLocs = [
   'https://www.rutinhq.com/gtm-os',
   'https://www.rutinhq.com/store-os',
   'https://www.rutinhq.com/nexus-os',
+  'https://www.rutinhq.com/es',
+  'https://www.rutinhq.com/es/gtm-os',
+  'https://www.rutinhq.com/es/store-os',
+  'https://www.rutinhq.com/es/nexus-os',
   'https://www.rutinhq.com/blog',
   'https://www.rutinhq.com/blog/icp-gated-cold-outbound-without-rented-sdr',
   'https://www.rutinhq.com/es/blog',
@@ -132,7 +171,7 @@ if (
   expectedLocs.some((url) => !locs.includes(url))
 ) {
   console.error(
-    `${sitemap} must list exactly the 8 www URLs (hub + 3 SKUs + EN/ES blog + Article01).`,
+    `${sitemap} must list the 12 www URLs (hub + 3 SKUs + ES hub/LPs + EN/ES blog + Article01).`,
   )
   process.exit(1)
 }
@@ -281,6 +320,123 @@ if (!robotsBody.includes('Sitemap: https://www.rutinhq.com/sitemap.xml')) {
   process.exit(1)
 }
 
+const skuShells = [
+  {
+    file: 'dist/prerender/gtm-os.html',
+    title: 'RutinHQ — GTM OS',
+    canonical: 'https://www.rutinhq.com/gtm-os',
+  },
+  {
+    file: 'dist/prerender/store-os.html',
+    title: 'RutinHQ — STORE OS',
+    canonical: 'https://www.rutinhq.com/store-os',
+  },
+  {
+    file: 'dist/prerender/nexus-os.html',
+    title: 'RutinHQ — NEXUS OS',
+    canonical: 'https://www.rutinhq.com/nexus-os',
+  },
+  {
+    file: 'dist/prerender/es.html',
+    title: 'RutinHQ — sistemas que posees',
+    canonical: 'https://www.rutinhq.com/es',
+  },
+  {
+    file: 'dist/prerender/es-gtm-os.html',
+    title: 'RutinHQ — GTM OS',
+    canonical: 'https://www.rutinhq.com/es/gtm-os',
+  },
+  {
+    file: 'dist/prerender/es-store-os.html',
+    title: 'RutinHQ — STORE OS',
+    canonical: 'https://www.rutinhq.com/es/store-os',
+  },
+  {
+    file: 'dist/prerender/es-nexus-os.html',
+    title: 'RutinHQ — NEXUS OS',
+    canonical: 'https://www.rutinhq.com/es/nexus-os',
+  },
+]
+
+for (const shell of skuShells) {
+  if (!fs.existsSync(shell.file)) {
+    console.error(`${shell.file} missing — crawlers would get the homepage SPA shell.`)
+    process.exit(1)
+  }
+  const html = fs.readFileSync(shell.file, 'utf8')
+  if (!html.includes(`<title>${shell.title}</title>`)) {
+    console.error(`${shell.file} must ship unique <title>${shell.title}</title>.`)
+    process.exit(1)
+  }
+  if (html.includes(`<title>${homepageTitle}</title>`)) {
+    console.error(`${shell.file} must not keep the homepage <title>.`)
+    process.exit(1)
+  }
+  if (!html.includes(`rel="canonical" href="${shell.canonical}"`)) {
+    console.error(`${shell.file} must canonical ${shell.canonical}.`)
+    process.exit(1)
+  }
+  if (!html.includes(`property="og:title" content="${shell.title}"`)) {
+    console.error(`${shell.file} must ship unique og:title.`)
+    process.exit(1)
+  }
+  if (!html.includes(`property="og:url" content="${shell.canonical}"`)) {
+    console.error(`${shell.file} must ship unique og:url.`)
+    process.exit(1)
+  }
+}
+
+const homepage = fs.readFileSync('dist/index.html', 'utf8')
+if (!homepage.includes(`<title>${homepageTitle}</title>`)) {
+  console.error('dist/index.html must keep the hub <title>.')
+  process.exit(1)
+}
+if (!homepage.includes('rel="canonical" href="https://www.rutinhq.com/"')) {
+  console.error('dist/index.html must canonical the hub.')
+  process.exit(1)
+}
+if (!homepage.includes('"@type":"Organization"') || !homepage.includes('strategy@rutinhq.com')) {
+  console.error('dist/index.html must emit Organization JSON-LD with strategy@rutinhq.com.')
+  process.exit(1)
+}
+if (!homepage.includes('GTM OS') || !homepage.includes('STORE OS') || !homepage.includes('NEXUS OS')) {
+  console.error('dist/index.html JSON-LD must name the three OS landings.')
+  process.exit(1)
+}
+
+const favicon = 'dist/favicon.ico'
+if (!fs.existsSync(favicon)) {
+  console.error(`${favicon} missing — crawlers would receive SPA HTML at /favicon.ico.`)
+  process.exit(1)
+}
+const ico = fs.readFileSync(favicon)
+if (ico.includes(Buffer.from('<html')) || ico.includes(Buffer.from('<!doctype'))) {
+  console.error(`${favicon} must be an icon, not HTML.`)
+  process.exit(1)
+}
+if (ico[0] !== 0 || ico[1] !== 0 || ico[2] !== 1 || ico[3] !== 0) {
+  console.error(`${favicon} must be a Windows ICO (16/32/48).`)
+  process.exit(1)
+}
+if (ico[4] < 3) {
+  console.error(`${favicon} must contain at least 16/32/48 sizes.`)
+  process.exit(1)
+}
+
+const appSource = fs.readFileSync('src/App.tsx', 'utf8')
+for (const route of ['/es', '/es/gtm-os', '/es/store-os', '/es/nexus-os']) {
+  if (!appSource.includes(`path="${route}"`)) {
+    console.error(`src/App.tsx must route ${route} for the EN/ES toggle.`)
+    process.exit(1)
+  }
+}
+
+const mailto = fs.readFileSync('src/lib/links.ts', 'utf8')
+if (!mailto.includes("mailto('STORE OS — fit call')")) {
+  console.error('src/lib/links.ts must use STORE OS — fit call.')
+  process.exit(1)
+}
+
 console.log(
-  'SPA 200 fallback: no 404.html; blog prerender shells unique; crawl files www-only; /blog + Article01 indexed.',
+  'SPA 200 fallback: no 404.html; blog + SKU prerender shells unique; favicon.ico real; crawl files www-only; /es hub not 301.',
 )

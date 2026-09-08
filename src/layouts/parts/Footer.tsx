@@ -1,9 +1,11 @@
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
+import { usePageLocale } from '@/lib/i18n/usePageLocale'
 import { DOCS_URL, EMAIL, MAILTO_HUB, ONE_PAGER_URL } from '@/lib/links'
 
 export function Footer() {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
+  const { localized } = usePageLocale()
 
   return (
     <footer className="border-t border-border bg-background py-10">
@@ -15,11 +17,11 @@ export function Footer() {
           </a>
         </p>
         <nav className="flex flex-wrap items-center gap-x-4 gap-y-2">
-          <Link to="/" className="hover:text-foreground">
+          <Link to={localized('/')} className="hover:text-foreground">
             {t('common.hubLink')}
           </Link>
           <Link
-            to={i18n.language?.startsWith('es') ? '/es/blog' : '/blog'}
+            to={localized('/blog')}
             className="hover:text-foreground"
           >
             {t('common.blog')}

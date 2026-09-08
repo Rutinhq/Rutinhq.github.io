@@ -6,14 +6,16 @@ Catálogo público (`/`) y tres landings de un SKU cada una:
 | --- | --- |
 | `/` | Hub — 3 cards |
 | `/gtm-os` | GTM OS (Pack §2) |
-| `/store-os` | Store OS |
+| `/store-os` | STORE OS |
 | `/nexus-os` | NEXUS OS |
+| `/es` | Hub ES (hreflang ↔ `/`) |
+| `/es/gtm-os` `/es/store-os` `/es/nexus-os` | SKU landings ES |
 | `/blog` | Filter/radar index (indexed; prerendered HTML; canonical `https://www.rutinhq.com/blog`) |
 | `/blog/icp-gated-cold-outbound-without-rented-sdr` | Article01 — ICP-gated cold outbound (indexed; prerendered HTML) |
 | `/es/blog` | Índice ES (hreflang ↔ EN) |
 | `/es/blog/outbound-frio-con-icp-sin-sdr-rentado` | Article01 ES — Outbound frío con ICP (tuteo) |
 
-Stack: Vite + React + Tailwind + i18next. Default **EN** (commercial copy). Toggle ES keeps chrome; SKU pages stay EN. Tema oscuro `#0a0a0a` / `#2ecc8f` / radius 0.
+Stack: Vite + React + Tailwind + i18next. Default **EN** (commercial copy). Toggle ES↔EN stays on the current page (`/` ↔ `/es`, `/gtm-os` ↔ `/es/gtm-os`, blog pairs). SKU bodies may still be EN when ES strings are incomplete. Tema oscuro `#0a0a0a` / `#2ecc8f` / radius 0.
 
 ## Cloudflare Pages
 
@@ -30,7 +32,7 @@ Stack: Vite + React + Tailwind + i18next. Default **EN** (commercial copy). Togg
   2. Wildcard: Request URL `https://rutinhq.com/*` → Target `https://www.rutinhq.com/${1}` → **301** → Preserve query string **On**
   3. Enable **Always Use HTTPS** (or a second wildcard for `http://rutinhq.com/*`)
   4. Verify: `curl -sI https://rutinhq.com/gtm-os` → `301` + `location: https://www.rutinhq.com/gtm-os`
-- **Blog:** `/blog` (canonical `https://www.rutinhq.com/blog`) + Article01 are **indexable** and listed in `sitemap.xml` (8 www URLs, including `/es/blog` + ES Article01). Build prerenders crawl shells under `dist/prerender/*.html` and `_redirects` 200-rewrites the pretty URLs to the **extensionless** `/prerender/…` path (that path is already a 200). Do **not** emit `dist/blog.html` / `dist/es/blog.html` or rewrite `/blog /blog.html 200` — html-handling 308s `*.html` → pretty URL and that pair **self-loops** `Location: /blog`. Same for `/es/blog`. Do **not** emit `dist/blog/index.html` or `dist/es/blog/index.html`. hreflang EN ↔ ES; EN is `x-default`. Soft-park Store/NEXUS on the blog footer only. No 3-SKU strip on `/blog`.
+- **Blog + SKUs:** `/blog`, Article01, hub, and the three OS landings are **indexable** and listed in `sitemap.xml` (12 www URLs, including `/es`, ES LPs, `/es/blog` + ES Article01). Build prerenders crawl shells under `dist/prerender/*.html` and `_redirects` 200-rewrites the pretty URLs to the **extensionless** `/prerender/…` path (that path is already a 200). Do **not** emit `dist/blog.html` / `dist/es/blog.html` / `dist/gtm-os.html` or rewrite those to `*.html` 200 — html-handling 308s `*.html` → pretty URL and that pair **self-loops**. Do **not** 301 `/es` onto `/es/blog`. Do **not** emit `dist/blog/index.html` or `dist/es/index.html`. hreflang EN ↔ ES; EN is `x-default`. Soft-park STORE/NEXUS on the blog footer only. No 3-SKU strip on `/blog`.
 - **No tocar** `docs.rutinhq.com`. CORTEX redeploya `rutinhq-web`.
 
 ## Local
@@ -52,7 +54,7 @@ npm run preview
 - Comercial público en **EN**. CTA: **Talk to RutinHQ** → `mailto:strategy@rutinhq.com`
   - Hub: `RutinHQ`
   - GTM: `GTM OS — fit call`
-  - Store: `Store OS — fit call`
+  - Store: `STORE OS — fit call`
   - NEXUS: `NEXUS OS — fit call`
 - Opcional: **Read the system** → `https://docs.rutinhq.com/catalog/{sku}/`
 - Hub `/` = índice de 3 SKUs. Un SKU por landing. Sin tabulador de precios.
