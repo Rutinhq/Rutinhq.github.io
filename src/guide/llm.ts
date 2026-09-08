@@ -140,9 +140,10 @@ function isGeminiHost(base: string): boolean {
 }
 
 function modelMissing(status: number, body: string): boolean {
+  if (status === 429 || status === 503) return false
   if (status === 404) return true
-  if (status !== 400 && status !== 404) return false
-  return /model|not found|does not exist|invalid/i.test(body)
+  if (status !== 400) return false
+  return /not found|does not exist|invalid model|model.*not/i.test(body)
 }
 
 export type GuideLlmCallResult = {
@@ -211,6 +212,10 @@ export async function callGuideLlmDetailed(opts: {
       empty.lastStatus = res.status
       if (!res.ok) {
         empty.lastError = sanitizeProviderError(res.status, raw)
+        if (res.status === 503 || res.status === 429) {
+          await new Promise((r) => setTimeout(r, 250))
+          continue
+        }
         if (gemini && modelMissing(res.status, raw)) continue
         return empty
       }
