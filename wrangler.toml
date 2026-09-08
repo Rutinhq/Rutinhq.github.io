@@ -7,6 +7,6 @@ pages_build_output_dir = "dist"
 #   GUIDE_LLM_API_KEY
 #   GUIDE_LEAD_WEBHOOK_URL
 # Optional vars:
-#   GUIDE_LLM_BASE_URL = "https://api.openai.com/v1"
-#   GUIDE_LLM_MODEL = "gpt-4o-mini"
-# See GUIDE.md
+#   GUIDE_LLM_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai"
+#   GUIDE_LLM_MODEL = "gemini-2.0-flash"
+# Successful completions return mode=llm (not "live"). See GUIDE.md.

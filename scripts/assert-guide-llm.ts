@@ -1,0 +1,71 @@
+import {
+  extractLlmText,
+  guideLlmModelCandidates,
+  normalizeGuideLlmBaseUrl,
+  normalizeGuideLlmModel,
+  GUIDE_MANDATE,
+} from '../src/guide/llm.ts'
+
+function assert(cond: unknown, msg: string) {
+  if (!cond) {
+    console.error(msg)
+    process.exit(1)
+  }
+}
+
+assert(
+  normalizeGuideLlmBaseUrl('https://generativelanguage.googleapis.com/v1beta/openai/') ===
+    'https://generativelanguage.googleapis.com/v1beta/openai',
+  'Gemini base URL must strip trailing slash',
+)
+assert(
+  normalizeGuideLlmBaseUrl(
+    'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
+  ) === 'https://generativelanguage.googleapis.com/v1beta/openai',
+  'Gemini base URL must strip /chat/completions',
+)
+assert(
+  normalizeGuideLlmBaseUrl('https://generativelanguage.googleapis.com/v1beta/openai/v1') ===
+    'https://generativelanguage.googleapis.com/v1beta/openai',
+  'Gemini base URL must strip mistaken /openai/v1',
+)
+assert(
+  normalizeGuideLlmBaseUrl('https://generativelanguage.googleapis.com/v1beta') ===
+    'https://generativelanguage.googleapis.com/v1beta/openai',
+  'Gemini /v1beta must gain /openai',
+)
+assert(
+  normalizeGuideLlmBaseUrl('https://api.openai.com/v1/') === 'https://api.openai.com/v1',
+  'OpenAI base URL must strip trailing slash',
+)
+
+assert(normalizeGuideLlmModel('models/gemini-2.0-flash') === 'gemini-2.0-flash', 'strip models/')
+assert(
+  guideLlmModelCandidates('gemini-2.0-flash').includes('gemini-2.5-flash'),
+  'gemini-2.0-flash must have a working alias fallback',
+)
+
+assert(
+  extractLlmText({ choices: [{ message: { content: '  hello  ' } }] }) === 'hello',
+  'OpenAI string content',
+)
+assert(
+  extractLlmText({
+    choices: [{ message: { content: [{ type: 'text', text: 'part-a' }, { text: 'part-b' }] } }],
+  }) === 'part-apart-b',
+  'Gemini parts-array content',
+)
+assert(
+  extractLlmText({ candidates: [{ content: { parts: [{ text: 'native' }] } }] }) === 'native',
+  'Gemini native candidates',
+)
+
+assert(/RutinHQ Guide/.test(GUIDE_MANDATE), 'mandate names public UI')
+assert(/GTM OS/.test(GUIDE_MANDATE) && /STORE OS/.test(GUIDE_MANDATE) && /NEXUS OS/.test(GUIDE_MANDATE), 'mandate SKUs')
+assert(
+  /calendly.com\/rutinhq\/30min/.test(GUIDE_MANDATE) && /strategy@rutinhq.com/.test(GUIDE_MANDATE),
+  'mandate CTAs',
+)
+assert(!/capo|fuzzyflags|\bfzf\b/i.test(GUIDE_MANDATE), 'mandate must stay public-safe')
+
+console.log('guide LLM client + mandate checks passed')

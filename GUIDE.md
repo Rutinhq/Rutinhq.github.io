@@ -16,7 +16,7 @@ Answers like a briefed commercial lead, grounded in allowlisted SoT only:
 
 It must not invent pricing, legal guarantees, or private ops. Off-topic is refused. Unsure → Calendly `https://calendly.com/rutinhq/30min` or `strategy@rutinhq.com`.
 
-Security layer (degraded and live): credential / password / API key / bank / FAA / Banorte / internal-nickname / Notion probes are pre-filtered. They return a fixed locale refuse + Calendly — never a SKU pitch. Pricing questions refuse specifics and point to the fit call. `scripts/assert-guide.mjs` encodes those probes.
+Security layer (degraded and llm): credential / password / API key / bank / FAA / Banorte / internal-nickname / Notion probes are pre-filtered. They return a fixed locale refuse + Calendly — never a SKU pitch. Pricing questions refuse specifics and point to the fit call. `scripts/assert-guide.mjs` encodes those probes.
 
 Primary CTA in chat: book Calendly.
 
@@ -42,15 +42,17 @@ Skip the network crawl: `GUIDE_KB_SKIP_CRAWL=1`.
 2. **Local** — Vite middleware in `vite.config.ts` loads `src/guide/api.ts` (`npm run dev`). Preview without the SSR loader degrades from the KB.
 3. **Companion Worker** — `workers/guide-companion/` if Functions stay off this static project.
 
-If the LLM key is absent, both Function and client return catalog-grounded fallback copy plus the Calendly CTA. The widget still builds a lead-brief template.
+If the LLM key is absent or the provider fails, both Function and client return catalog-grounded fallback copy plus the Calendly CTA (`mode: degraded`). A successful Gemini/OpenAI completion returns `mode: llm`. The widget still builds a lead-brief template.
+
+Gemini is not a bare model: `functions/api/guide.ts` always prefixes the **GEMINI ENGINE** public mandate (catalog-only GTM OS / STORE OS / NEXUS OS, no prices/legal/credentials, Calendly + `strategy@rutinhq.com`, locale EN/ES) plus `policy.systemPrompt` and the allowlisted KB.
 
 ## Env vars (Pages → Settings → Environment variables)
 
-Recommended path: **Gemini OpenAI-compatible** (`GUIDE_LLM_BASE_URL` + Gemini key/model). `functions/api/guide.ts` already speaks the OpenAI chat-completions API, so Gemini's compatibility endpoint works with no code change. OpenAI remains a drop-in alternative (code default if `BASE_URL` / `MODEL` are unset).
+Recommended path: **Gemini OpenAI-compatible** (`GUIDE_LLM_BASE_URL` + Gemini key/model). The Function normalizes trailing slashes, Gemini `/openai` vs `/openai/v1`, `models/` prefixes, Bearer + `x-goog-api-key`, and parses both string and parts-array content. If `gemini-2.0-flash` 404s, it tries `gemini-2.0-flash-001` → `gemini-flash-latest` → `gemini-2.5-flash` → `gemini-3.6-flash`. OpenAI remains a drop-in alternative (code default if `BASE_URL` / `MODEL` are unset).
 
 | Name | Required | Purpose |
 | --- | --- | --- |
-| `GUIDE_LLM_API_KEY` | for live answers | Gemini API key (recommended) or other OpenAI-compatible bearer token |
+| `GUIDE_LLM_API_KEY` | for `mode: llm` | Gemini API key (recommended) or other OpenAI-compatible bearer token |
 | `GUIDE_LLM_BASE_URL` | no | Recommended Gemini: `https://generativelanguage.googleapis.com/v1beta/openai`. Alternative OpenAI: `https://api.openai.com/v1` (code default) |
 | `GUIDE_LLM_MODEL` | no | Recommended Gemini: `gemini-2.0-flash` (or `gemini-2.5-flash`). Alternative OpenAI: `gpt-4o-mini` (code default) |
 | `GUIDE_LEAD_WEBHOOK_URL` | no | `POST { type: "lead_brief", leadBrief }` |

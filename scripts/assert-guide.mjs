@@ -154,6 +154,36 @@ if (!/SECURITY_HINTS/.test(fn) || !/isSecurityHay/.test(fn)) {
   console.error('Function must pre-filter security probes before SKU matching')
   process.exit(1)
 }
+if (!/mode = 'llm'/.test(fn) && !/mode: 'llm'/.test(fn)) {
+  console.error('Function must report mode=llm on successful Gemini/OpenAI completions')
+  process.exit(1)
+}
+if (!/composeGuideSystemPrompt|GUIDE_MANDATE|GEMINI ENGINE/.test(fn)) {
+  console.error('Function must embed the GEMINI ENGINE / RutinHQ Guide mandate')
+  process.exit(1)
+}
+
+const llm = fs.readFileSync(path.join(root, 'src/guide/llm.ts'), 'utf8')
+if (!/export const GUIDE_MANDATE/.test(llm)) {
+  console.error('src/guide/llm.ts must export GUIDE_MANDATE')
+  process.exit(1)
+}
+if (!/GTM OS/.test(llm) || !/STORE OS/.test(llm) || !/NEXUS OS/.test(llm)) {
+  console.error('GUIDE_MANDATE must name the three public SKUs')
+  process.exit(1)
+}
+if (!/calendly.com\/rutinhq\/30min/.test(llm) || !/strategy@rutinhq.com/.test(llm)) {
+  console.error('GUIDE_MANDATE must include Calendly + strategy@')
+  process.exit(1)
+}
+if (/capo|fuzzyflags|\bfzf\b/i.test(llm)) {
+  console.error('GUIDE_MANDATE must not name Capo or FZF')
+  process.exit(1)
+}
+if (!/extractLlmText/.test(llm) || !/x-goog-api-key/.test(llm) || !/normalizeGuideLlmBaseUrl/.test(llm)) {
+  console.error('LLM client must normalize Gemini base URL, send x-goog-api-key, and parse compat content')
+  process.exit(1)
+}
 
 function escapeRe(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -213,6 +243,15 @@ for (const probe of securityProbes) {
       process.exit(1)
     }
   }
+}
+
+if (!/GEMINI ENGINE/.test(policySrc.systemPrompt) || !/not a generic assistant/.test(policySrc.systemPrompt)) {
+  console.error('policy.systemPrompt must embed the GEMINI ENGINE mandate (not a generic assistant)')
+  process.exit(1)
+}
+if (!/calendly.com\/rutinhq\/30min/.test(policySrc.systemPrompt) || !/strategy@rutinhq.com/.test(policySrc.systemPrompt)) {
+  console.error('policy.systemPrompt must keep Calendly + strategy@')
+  process.exit(1)
 }
 
 if (!policySrc.fallbackReplies?.security?.en || !policySrc.fallbackReplies?.security?.es) {

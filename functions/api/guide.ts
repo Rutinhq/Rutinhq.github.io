@@ -2,10 +2,19 @@
  * Cloudflare Pages Function — POST /api/guide
  * Secrets (Pages → Settings → Environment variables):
  *   GUIDE_LLM_API_KEY (or OpenAI-compatible key)
- *   GUIDE_LLM_BASE_URL (optional, default https://api.openai.com/v1)
- *   GUIDE_LLM_MODEL (optional, default gpt-4o-mini)
+ *   GUIDE_LLM_BASE_URL (optional, Gemini: https://generativelanguage.googleapis.com/v1beta/openai)
+ *   GUIDE_LLM_MODEL (optional, recommended gemini-2.0-flash)
  *   GUIDE_LEAD_WEBHOOK_URL (optional JSON POST of lead briefs)
+ *
+ * Gemini runs with the full RutinHQ Guide mandate (not a bare model).
+ * Successful LLM answers return mode=llm. Security/pricing stay hard refuses.
  */
+
+import {
+  callGuideLlm,
+  composeGuideSystemPrompt,
+  type GuideLlmMode,
+} from '../../src/guide/llm'
 
 type Env = {
   ASSETS?: { fetch: (input: Request | URL | string) => Promise<Response> }
@@ -253,49 +262,32 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
   }
 
   let reply = pick(skuIntent)
-  let mode: 'live' | 'degraded' = 'degraded'
+  let mode: GuideLlmMode = 'degraded'
   const key = context.env.GUIDE_LLM_API_KEY?.trim()
   const skipLlm = skuIntent === 'pricing' || skuIntent === 'offTopic'
 
   if (key && !skipLlm) {
-    const base = (context.env.GUIDE_LLM_BASE_URL || 'https://api.openai.com/v1').replace(/\/$/, '')
-    const model = context.env.GUIDE_LLM_MODEL || 'gpt-4o-mini'
     const knowledge = (kb?.documents || [])
       .map((d) => `### ${d.title}\nSource: ${d.url}\n${d.text}`)
       .join('\n\n')
       .slice(0, 14000)
     try {
-      const llm = await fetch(`${base}/chat/completions`, {
-        method: 'POST',
-        headers: {
-          authorization: `Bearer ${key}`,
-          'content-type': 'application/json',
-        },
-        body: JSON.stringify({
-          model,
-          temperature: 0.2,
-          max_tokens: limits.maxReplyTokens,
-          messages: [
-            {
-              role: 'system',
-              content: `${policy.systemPrompt}\n\nVisitor locale: ${locale}. Reply entirely in ${locale === 'es' ? 'Spanish' : 'English'}. Do not mix languages.\n\nAllowlisted knowledge:\n${knowledge}`,
-            },
-            ...messages.map((m) => ({
-              role: m.role,
-              content: String(m.content).slice(0, limits.maxInputChars),
-            })),
-          ],
-        }),
+      const text = await callGuideLlm({
+        apiKey: key,
+        baseUrl: context.env.GUIDE_LLM_BASE_URL,
+        model: context.env.GUIDE_LLM_MODEL,
+        maxTokens: limits.maxReplyTokens,
+        system: composeGuideSystemPrompt(policy.systemPrompt, locale, knowledge),
+        messages: messages.map((m) => ({
+          role: m.role,
+          content: String(m.content).slice(0, limits.maxInputChars),
+        })),
       })
-      if (llm.ok) {
-        const data = (await llm.json()) as { choices?: { message?: { content?: string } }[] }
-        const text = data.choices?.[0]?.message?.content?.trim()
-        if (text && !LEAK_RE.test(text)) {
-          reply = text
-          mode = 'live'
-        } else if (text && LEAK_RE.test(text)) {
-          reply = pick('security')
-        }
+      if (text && !LEAK_RE.test(text)) {
+        reply = text
+        mode = 'llm'
+      } else if (text && LEAK_RE.test(text)) {
+        reply = pick('security')
       }
     } catch {
       /* keep catalog fallback */
