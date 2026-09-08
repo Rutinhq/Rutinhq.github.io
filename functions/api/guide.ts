@@ -16,8 +16,69 @@ type Env = {
 }
 
 type Msg = { role: 'user' | 'assistant'; content: string }
+type Locale = 'en' | 'es'
 
 const hits = new Map<string, { n: number; resetAt: number }>()
+
+const SECURITY_HINTS = [
+  'password',
+  'contraseña',
+  'contrasena',
+  'api key',
+  'apikey',
+  'api-key',
+  'access token',
+  'secret key',
+  'admin secret',
+  'shopify token',
+  'shopify secret',
+  'private key',
+  'credencial',
+  'credentials',
+  'cuenta bancaria',
+  'bank account',
+  'routing number',
+  'workspace id',
+  'private ops',
+  'day-of ops',
+  'internal notion',
+  'notion interno',
+  'correo interno',
+  'email privado',
+  'private email',
+  'capo',
+  'fuzzyflags',
+  'fzf',
+  'faa',
+  'banorte',
+  'clabe',
+  'saldo',
+  'notion',
+]
+
+const LEAK_RE =
+  /\b(capo|fuzzyflags|fzf|banorte|faa|clabe|password|api[-\s]?key|contraseña)\b/i
+
+const COPY = {
+  en: {
+    degraded:
+      'Book a 30-min fit call and we will map the bottleneck to GTM OS, STORE OS, or NEXUS OS. https://calendly.com/rutinhq/30min',
+    security:
+      'I cannot share credentials, passwords, API keys, bank details, or private operations. I only cover public RutinHQ systems. Book a 30-min fit call if you want to talk GTM OS, STORE OS, or NEXUS OS.',
+    nextStep: (url: string) => `Book 30-min fit call — ${url}`,
+    topicUnclear: 'RutinHQ fit (SKU TBD)',
+    topicSku: (sku: string) => `${sku} fit`,
+  },
+  es: {
+    degraded:
+      'Agenda 30 min y mapeamos el cuello a GTM OS, STORE OS o NEXUS OS. https://calendly.com/rutinhq/30min',
+    security:
+      'No comparto credenciales, contraseñas, claves de API, datos bancarios ni operaciones privadas. Solo cubro los sistemas públicos de RutinHQ. Agenda 30 min si quieres hablar de GTM OS, STORE OS o NEXUS OS.',
+    nextStep: (url: string) => `Agendar 30 min de fit — ${url}`,
+    topicUnclear: 'Fit RutinHQ (SKU por confirmar)',
+    topicSku: (sku: string) => `Fit ${sku}`,
+  },
+} as const
 
 function json(status: number, body: unknown) {
   return new Response(JSON.stringify(body), {
@@ -26,9 +87,25 @@ function json(status: number, body: unknown) {
   })
 }
 
+function escapeRe(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+function hintMatches(hay: string, hint: string): boolean {
+  const text = hay.toLowerCase()
+  const h = hint.toLowerCase()
+  if (!h) return false
+  if (h.includes(' ')) return text.includes(h)
+  return new RegExp(`(?:^|[^a-z0-9_])${escapeRe(h)}(?:[^a-z0-9_]|$)`).test(text)
+}
+
 function score(text: string, hints: string[]) {
   const hay = text.toLowerCase()
-  return hints.reduce((n, h) => (hay.includes(h.toLowerCase()) ? n + 1 : n), 0)
+  return hints.reduce((n, h) => (hintMatches(hay, h) ? n + 1 : n), 0)
+}
+
+function isSecurityHay(hay: string, extra: string[] = []): boolean {
+  return [...SECURITY_HINTS, ...extra].some((hint) => hintMatches(hay, hint))
 }
 
 async function loadKb(context: { request: Request; env: Env }) {
@@ -45,6 +122,28 @@ async function loadKb(context: { request: Request; env: Env }) {
 }
 
 export async function onRequestPost(context: { request: Request; env: Env }) {
+  const raw = await context.request.text()
+  let parsed: { messages?: Msg[]; locale?: string; page?: string } = {}
+  try {
+    parsed = JSON.parse(raw || '{}')
+  } catch {
+    return json(400, { error: 'invalid_json' })
+  }
+
+  const locale: Locale = parsed.locale === 'es' ? 'es' : 'en'
+  const page = typeof parsed.page === 'string' ? parsed.page.slice(0, 80) : '/'
+  const messages = Array.isArray(parsed.messages) ? parsed.messages : []
+  const hay = messages.map((m) => m.content).join('\n')
+  const calendly = 'https://calendly.com/rutinhq/30min'
+
+  if (isSecurityHay(hay)) {
+    return json(200, {
+      reply: COPY[locale].security,
+      mode: 'degraded',
+      calendlyUrl: calendly,
+    })
+  }
+
   const kb = (await loadKb(context)) as {
     documents?: { title: string; url: string; text: string }[]
     policy?: {
@@ -63,6 +162,7 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
       buyingIntentHints: string[]
       pricingHints: string[]
       offTopicHints: string[]
+      securityHints?: string[]
       fallbackReplies: Record<string, { en: string; es: string }>
     }
   } | null
@@ -70,10 +170,18 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
   const policy = kb?.policy
   if (!policy) {
     return json(200, {
-      reply:
-        'Book a 30-min fit call and we will map the bottleneck to GTM OS, STORE OS, or NEXUS OS. https://calendly.com/rutinhq/30min',
+      reply: COPY[locale].degraded,
       mode: 'degraded',
-      calendlyUrl: 'https://calendly.com/rutinhq/30min',
+      calendlyUrl: calendly,
+    })
+  }
+
+  if (isSecurityHay(hay, policy.securityHints || [])) {
+    const pack = policy.fallbackReplies.security
+    return json(200, {
+      reply: locale === 'es' ? pack?.es || COPY.es.security : pack?.en || COPY.en.security,
+      mode: 'degraded',
+      calendlyUrl: policy.calendlyUrl,
     })
   }
 
@@ -90,23 +198,10 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
     if (row.n > limits.rateLimitMax) return json(429, { error: 'rate_limited' })
   }
 
-  const raw = await context.request.text()
   if (raw.length > limits.maxBodyBytes) return json(413, { error: 'payload_too_large' })
-
-  let parsed: { messages?: Msg[]; locale?: string; page?: string }
-  try {
-    parsed = JSON.parse(raw)
-  } catch {
-    return json(400, { error: 'invalid_json' })
-  }
-
-  const messages = Array.isArray(parsed.messages) ? parsed.messages : []
   if (messages.length === 0 || messages.length > limits.maxMessagesPerSession) {
     return json(400, { error: 'invalid_messages' })
   }
-  const locale = parsed.locale === 'es' ? 'es' : 'en'
-  const page = typeof parsed.page === 'string' ? parsed.page.slice(0, 80) : '/'
-  const hay = messages.map((m) => m.content).join('\n')
 
   function pick(key: string) {
     const pack = policy.fallbackReplies[key] || policy.fallbackReplies.unsure
@@ -114,11 +209,15 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
   }
 
   function intent() {
-    if (score(hay, policy.offTopicHints) && !score(hay, [
-      ...(policy.intentHints['gtm-os'] || []),
-      ...(policy.intentHints['store-os'] || []),
-      ...(policy.intentHints['nexus-os'] || []),
-    ])) {
+    if (isSecurityHay(hay, policy.securityHints || [])) return 'security'
+    if (
+      score(hay, policy.offTopicHints) &&
+      !score(hay, [
+        ...(policy.intentHints['gtm-os'] || []),
+        ...(policy.intentHints['store-os'] || []),
+        ...(policy.intentHints['nexus-os'] || []),
+      ])
+    ) {
       return 'offTopic'
     }
     if (score(hay, policy.pricingHints)) return 'pricing'
@@ -127,7 +226,9 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
       n: score(hay, policy.intentHints[key] || []),
     }))
     ranked.sort((a, b) => b.n - a.n)
-    return ranked[0] && ranked[0].n > 0 ? ranked[0].key : 'unsure'
+    if (!ranked[0] || ranked[0].n === 0) return 'unsure'
+    if (ranked[1] && ranked[0].n === ranked[1].n && ranked[0].n < 2) return 'unsure'
+    return ranked[0].key
   }
 
   const emailMatch = hay.match(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i)
@@ -143,11 +244,20 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
       ? skuRank[0].key
       : 'unclear'
 
+  if (skuIntent === 'security') {
+    return json(200, {
+      reply: pick('security'),
+      mode: 'degraded',
+      calendlyUrl: policy.calendlyUrl,
+    })
+  }
+
   let reply = pick(skuIntent)
   let mode: 'live' | 'degraded' = 'degraded'
   const key = context.env.GUIDE_LLM_API_KEY?.trim()
+  const skipLlm = skuIntent === 'pricing' || skuIntent === 'offTopic'
 
-  if (key) {
+  if (key && !skipLlm) {
     const base = (context.env.GUIDE_LLM_BASE_URL || 'https://api.openai.com/v1').replace(/\/$/, '')
     const model = context.env.GUIDE_LLM_MODEL || 'gpt-4o-mini'
     const knowledge = (kb?.documents || [])
@@ -168,7 +278,7 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
           messages: [
             {
               role: 'system',
-              content: `${policy.systemPrompt}\n\nVisitor locale: ${locale}.\n\nAllowlisted knowledge:\n${knowledge}`,
+              content: `${policy.systemPrompt}\n\nVisitor locale: ${locale}. Reply entirely in ${locale === 'es' ? 'Spanish' : 'English'}. Do not mix languages.\n\nAllowlisted knowledge:\n${knowledge}`,
             },
             ...messages.map((m) => ({
               role: m.role,
@@ -180,9 +290,11 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
       if (llm.ok) {
         const data = (await llm.json()) as { choices?: { message?: { content?: string } }[] }
         const text = data.choices?.[0]?.message?.content?.trim()
-        if (text) {
+        if (text && !LEAK_RE.test(text)) {
           reply = text
           mode = 'live'
+        } else if (text && LEAK_RE.test(text)) {
+          reply = pick('security')
         }
       }
     } catch {
@@ -205,12 +317,12 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
     const leadBrief = {
       topic:
         recommendedSku === 'unclear'
-          ? 'RutinHQ fit (SKU TBD)'
-          : `${recommendedSku} fit`,
+          ? COPY[locale].topicUnclear
+          : COPY[locale].topicSku(recommendedSku),
       questionsAsked: questions,
       objections: [],
       recommendedSku,
-      nextStep: `Book 30-min fit call — ${policy.calendlyUrl}`,
+      nextStep: COPY[locale].nextStep(policy.calendlyUrl),
       transcriptExcerpt: messages
         .slice(-8)
         .map((m) => `${m.role}: ${m.content}`)

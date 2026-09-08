@@ -49,6 +49,31 @@ export default {
     const locale = parsed.locale === 'es' ? 'es' : 'en'
     const messages = parsed.messages || []
     const hay = messages.map((m) => m.content).join('\n')
+    const securityHay = hay.toLowerCase()
+    const securityHints = [
+      'password',
+      'contraseña',
+      'api key',
+      'apikey',
+      'capo',
+      'banorte',
+      'faa',
+      'notion',
+      'fuzzyflags',
+      'fzf',
+      'clabe',
+      'saldo',
+    ]
+    if (securityHints.some((h) => securityHay.includes(h))) {
+      return json(200, {
+        reply:
+          locale === 'es'
+            ? 'No comparto credenciales, contraseñas, claves de API, datos bancarios ni operaciones privadas. Agenda 30 min si quieres hablar de GTM OS, STORE OS o NEXUS OS.'
+            : 'I cannot share credentials, passwords, API keys, bank details, or private operations. Book a 30-min fit call if you want to talk GTM OS, STORE OS, or NEXUS OS.',
+        mode: 'degraded',
+        calendlyUrl: kb?.policy?.calendlyUrl || 'https://calendly.com/rutinhq/30min',
+      })
+    }
     const pick = (key: string) => {
       const pack = kb?.policy?.fallbackReplies?.[key] || kb?.policy?.fallbackReplies?.unsure
       if (!pack) {
@@ -81,7 +106,10 @@ export default {
             temperature: 0.2,
             max_tokens: kb.policy.limits?.maxReplyTokens || 400,
             messages: [
-              { role: 'system', content: `${kb.policy.systemPrompt}\n\n${knowledge}` },
+              {
+                role: 'system',
+                content: `${kb.policy.systemPrompt}\n\nVisitor locale: ${locale}. Reply entirely in ${locale === 'es' ? 'Spanish' : 'English'}.\n\n${knowledge}`,
+              },
               ...messages.map((m) => ({
                 role: m.role,
                 content: String(m.content).slice(0, kb.policy?.limits.maxInputChars || 2000),
@@ -114,11 +142,14 @@ export default {
     )
     if (email || buying) {
       const leadBrief = {
-        topic: 'RutinHQ fit',
+        topic: locale === 'es' ? 'Fit RutinHQ' : 'RutinHQ fit',
         questionsAsked: messages.filter((m) => m.role === 'user').map((m) => m.content).slice(-6),
         objections: [],
         recommendedSku: 'unclear',
-        nextStep: `Book 30-min fit call — ${body.calendlyUrl}`,
+        nextStep:
+          locale === 'es'
+            ? `Agendar 30 min de fit — ${body.calendlyUrl}`
+            : `Book 30-min fit call — ${body.calendlyUrl}`,
         transcriptExcerpt: hay.slice(0, 900),
         email,
         page: parsed.page || '/',

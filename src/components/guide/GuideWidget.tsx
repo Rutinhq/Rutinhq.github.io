@@ -1,4 +1,4 @@
-import { Calendar, MessageSquare, Send, X } from 'lucide-react'
+import { Calendar, Mail, MessageSquare, Send, X } from 'lucide-react'
 import { useEffect, useId, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
@@ -9,7 +9,8 @@ import {
   GUIDE_UI_NAME,
 } from '@/guide/config'
 import { localGuideReply } from '@/guide/fallback'
-import { buildLeadBrief, leadMailtoHref } from '@/guide/lead'
+import { buildLeadBrief, leadMailtoHref, strategyMailtoHref } from '@/guide/lead'
+import { enforceSafeReply, isSecurityProbe, securityReply } from '@/guide/security'
 import type {
   GuideApiResponse,
   GuideChatMessage,
@@ -30,6 +31,7 @@ export function GuideWidget() {
   const { t } = useTranslation()
   const { pathname } = useLocation()
   const locale: GuideLocale = languageFromPathname(pathname)
+  const copy = (key: string) => t(key, { lng: locale })
   const titleId = useId()
   const dialogRef = useRef<HTMLDivElement>(null)
   const launcherRef = useRef<HTMLButtonElement>(null)
@@ -38,9 +40,7 @@ export function GuideWidget() {
   const [input, setInput] = useState('')
   const [pending, setPending] = useState(false)
   const [leadBrief, setLeadBrief] = useState<LeadBrief | null>(null)
-  const [messages, setMessages] = useState<UiMessage[]>(() => [
-    { id: 'greet', role: 'assistant', content: t('guide.greeting') },
-  ])
+  const [messages, setMessages] = useState<UiMessage[]>([])
 
   useEffect(() => {
     if (!open) return
@@ -78,10 +78,10 @@ export function GuideWidget() {
 
     const userMessage: UiMessage = { id: uid(), role: 'user', content: text }
     const nextMessages = [...messages, userMessage]
-    const payload: GuideChatMessage[] = nextMessages
-      .filter((m) => m.id !== 'greet')
-      .map(({ role, content }) => ({ role, content }))
-    const conversation = payload.length > 0 ? payload : [{ role: 'user' as const, content: text }]
+    const conversation: GuideChatMessage[] = nextMessages.map(({ role, content }) => ({
+      role,
+      content,
+    }))
 
     setInput('')
     setMessages(nextMessages)
@@ -109,6 +109,13 @@ export function GuideWidget() {
       // Degrade locally — same SoT replies + Calendly.
     }
 
+    if (isSecurityProbe(conversation)) {
+      reply = securityReply(locale)
+      brief = undefined
+    } else {
+      reply = enforceSafeReply(reply, locale)
+    }
+
     if (!brief && shouldCaptureLead(conversation)) {
       brief = buildLeadBrief(conversation, pathname, locale)
     }
@@ -122,7 +129,7 @@ export function GuideWidget() {
   }
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[80] flex justify-end p-4 sm:p-6">
+    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[80] flex justify-end p-4 pb-[4.5rem] md:p-6 md:pb-28">
       {open ? (
         <div
           ref={dialogRef}
@@ -130,7 +137,7 @@ export function GuideWidget() {
           aria-modal="true"
           aria-labelledby={titleId}
           tabIndex={-1}
-          className="pointer-events-auto flex w-full max-w-[400px] flex-col rounded-none border border-border bg-background shadow-[0_0_0_1px_#111] outline-none max-h-[min(40rem,calc(100dvh-5.5rem))]"
+          className="pointer-events-auto flex w-full max-w-[400px] flex-col rounded-none border border-border bg-background shadow-[0_0_0_1px_#111] outline-none max-h-[min(40rem,calc(100dvh-9.5rem))] md:max-h-[min(40rem,calc(100dvh-12rem))]"
         >
           <header className="flex items-start justify-between gap-3 border-b border-border px-4 py-3">
             <div>
@@ -140,13 +147,13 @@ export function GuideWidget() {
               >
                 {GUIDE_UI_NAME}
               </p>
-              <p className="mt-1 text-[12px] text-muted-foreground">{t('guide.subtitle')}</p>
+              <p className="mt-1 text-[12px] text-muted-foreground">{copy('guide.subtitle')}</p>
             </div>
             <button
               type="button"
               onClick={() => setOpen(false)}
               className="p-1 text-muted-foreground hover:text-foreground"
-              aria-label={t('guide.close')}
+              aria-label={copy('guide.close')}
             >
               <X className="size-4" />
             </button>
@@ -157,6 +164,9 @@ export function GuideWidget() {
             className="flex-1 space-y-3 overflow-y-auto px-4 py-3"
             aria-live="polite"
           >
+            <p className="max-w-[92%] whitespace-pre-wrap text-[14px] leading-6 text-foreground/90">
+              {copy('guide.greeting')}
+            </p>
             {messages.map((message) => (
               <p
                 key={message.id}
@@ -172,13 +182,13 @@ export function GuideWidget() {
             ))}
             {pending ? (
               <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
-                {t('guide.thinking')}
+                {copy('guide.thinking')}
               </p>
             ) : null}
           </div>
 
           <div className="border-t border-border px-4 py-3">
-            <p className="mb-3 text-[11px] text-muted-foreground">{t('guide.disclaimer')}</p>
+            <p className="mb-3 text-[11px] text-muted-foreground">{copy('guide.disclaimer')}</p>
             <div className="flex flex-wrap gap-2">
               <a
                 href={GUIDE_CALENDLY_URL}
@@ -187,20 +197,27 @@ export function GuideWidget() {
                 className="inline-flex h-9 items-center gap-2 bg-primary px-3 text-[11px] font-bold uppercase tracking-widest text-primary-foreground hover:bg-primary/90"
               >
                 <Calendar className="size-3.5" />
-                {t('guide.ctaBook')}
+                {copy('guide.ctaBook')}
+              </a>
+              <a
+                href={strategyMailtoHref(locale)}
+                className="inline-flex h-9 items-center gap-2 border border-border px-3 text-[11px] font-bold uppercase tracking-widest text-foreground hover:bg-card"
+              >
+                <Mail className="size-3.5" />
+                {copy('guide.emailCta')}
               </a>
               {leadBrief ? (
                 <a
                   href={leadMailtoHref(leadBrief)}
                   className="inline-flex h-9 items-center border border-border px-3 text-[11px] font-bold uppercase tracking-widest text-foreground hover:bg-card"
                 >
-                  {t('guide.leadCta')}
+                  {copy('guide.leadCta')}
                 </a>
               ) : null}
             </div>
 
             {atCap ? (
-              <p className="mt-3 text-[13px] text-muted-foreground">{t('guide.limit')}</p>
+              <p className="mt-3 text-[13px] text-muted-foreground">{copy('guide.limit')}</p>
             ) : (
               <form
                 className="mt-3 flex items-end gap-2"
@@ -210,7 +227,7 @@ export function GuideWidget() {
                 }}
               >
                 <label className="sr-only" htmlFor="guide-input">
-                  {t('guide.placeholder')}
+                  {copy('guide.placeholder')}
                 </label>
                 <textarea
                   id="guide-input"
@@ -223,7 +240,7 @@ export function GuideWidget() {
                       void send()
                     }
                   }}
-                  placeholder={t('guide.placeholder')}
+                  placeholder={copy('guide.placeholder')}
                   maxLength={GUIDE_LIMITS.maxInputChars}
                   className="min-h-11 flex-1 resize-none border border-input bg-card px-3 py-2 text-[14px] text-foreground outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 />
@@ -231,7 +248,7 @@ export function GuideWidget() {
                   type="submit"
                   disabled={pending || !input.trim()}
                   className="inline-flex h-11 items-center justify-center bg-primary px-3 text-primary-foreground disabled:opacity-50"
-                  aria-label={t('guide.send')}
+                  aria-label={copy('guide.send')}
                 >
                   <Send className="size-4" />
                 </button>
@@ -249,7 +266,7 @@ export function GuideWidget() {
           aria-haspopup="dialog"
         >
           <MessageSquare className="size-4 text-primary" />
-          {t('guide.launcher')}
+          {copy('guide.launcher')}
         </button>
       )}
     </div>

@@ -5,6 +5,7 @@ export type GuideIntent =
   | GuideSku
   | 'catalog'
   | 'pricing'
+  | 'security'
   | 'offTopic'
   | 'unsure'
 
@@ -62,6 +63,7 @@ export type GuidePolicy = {
   buyingIntentHints: string[]
   offTopicHints: string[]
   pricingHints: string[]
+  securityHints: string[]
   systemPrompt: string
   fallbackReplies: Record<string, { en: string; es: string }>
 }
