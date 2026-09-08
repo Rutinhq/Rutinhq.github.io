@@ -10,3 +10,11 @@ pages_build_output_dir = "dist"
 #   GUIDE_LLM_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai"
 #   GUIDE_LLM_MODEL = "gemini-2.0-flash"
 # Successful completions return mode=llm (not "live"). See GUIDE.md.
+#
+# Direct Upload (`wrangler pages deploy`) replaces plaintext dashboard vars
+# with this [vars] block. Secrets (GUIDE_LLM_API_KEY) persist. Keep these
+# two here so Gemini does not fall back to api.openai.com after deploy.
+
+[vars]
+GUIDE_LLM_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai"
+GUIDE_LLM_MODEL = "gemini-2.0-flash"

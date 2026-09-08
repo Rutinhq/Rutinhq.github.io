@@ -184,6 +184,16 @@ if (!/extractLlmText/.test(llm) || !/x-goog-api-key/.test(llm) || !/normalizeGui
   console.error('LLM client must normalize Gemini base URL, send x-goog-api-key, and parse compat content')
   process.exit(1)
 }
+if (!/resolveGuideLlmBaseUrl/.test(llm) || !/AIza/.test(llm)) {
+  console.error('LLM client must default a Gemini-shaped key to the Gemini OpenAI-compat base')
+  process.exit(1)
+}
+
+const wrangler = fs.readFileSync(path.join(root, 'wrangler.toml'), 'utf8')
+if (!/GUIDE_LLM_BASE_URL/.test(wrangler) || !/generativelanguage.googleapis.com/.test(wrangler)) {
+  console.error('wrangler.toml [vars] must pin GUIDE_LLM_BASE_URL so Direct Upload does not wipe it')
+  process.exit(1)
+}
 
 function escapeRe(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')

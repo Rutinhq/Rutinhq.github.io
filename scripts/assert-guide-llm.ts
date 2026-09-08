@@ -3,6 +3,8 @@ import {
   guideLlmModelCandidates,
   normalizeGuideLlmBaseUrl,
   normalizeGuideLlmModel,
+  resolveGuideLlmBaseUrl,
+  resolveGuideLlmModel,
   GUIDE_MANDATE,
 } from '../src/guide/llm.ts'
 
@@ -37,6 +39,19 @@ assert(
 assert(
   normalizeGuideLlmBaseUrl('https://api.openai.com/v1/') === 'https://api.openai.com/v1',
   'OpenAI base URL must strip trailing slash',
+)
+
+assert(
+  resolveGuideLlmBaseUrl(undefined, 'AIzaSyFakeKeyForShapeOnly').includes('generativelanguage.googleapis.com'),
+  'Gemini-shaped key must default to Gemini OpenAI-compat base',
+)
+assert(
+  resolveGuideLlmModel(undefined, 'AIzaSyFakeKeyForShapeOnly') === 'gemini-2.0-flash',
+  'Gemini-shaped key must default to gemini-2.0-flash',
+)
+assert(
+  resolveGuideLlmBaseUrl(undefined, 'sk-openai-shape').includes('api.openai.com'),
+  'non-Gemini key keeps OpenAI default',
 )
 
 assert(normalizeGuideLlmModel('models/gemini-2.0-flash') === 'gemini-2.0-flash', 'strip models/')

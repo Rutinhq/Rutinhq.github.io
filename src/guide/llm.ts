@@ -29,6 +29,26 @@ const MODEL_FALLBACKS: Record<string, string[]> = {
   'gemini-2.5-flash': ['gemini-2.5-flash-lite', 'gemini-flash-latest', 'gemini-3.6-flash'],
 }
 
+function looksLikeGeminiKey(apiKey?: string): boolean {
+  return Boolean(apiKey?.trim().startsWith('AIza'))
+}
+
+export function resolveGuideLlmBaseUrl(raw?: string, apiKey?: string): string {
+  const explicit = raw?.trim()
+  if (explicit) return normalizeGuideLlmBaseUrl(explicit)
+  if (looksLikeGeminiKey(apiKey)) {
+    return normalizeGuideLlmBaseUrl('https://generativelanguage.googleapis.com/v1beta/openai')
+  }
+  return normalizeGuideLlmBaseUrl('https://api.openai.com/v1')
+}
+
+export function resolveGuideLlmModel(raw?: string, apiKey?: string): string {
+  const explicit = raw?.trim()
+  if (explicit) return normalizeGuideLlmModel(explicit)
+  if (looksLikeGeminiKey(apiKey)) return 'gemini-2.0-flash'
+  return 'gpt-4o-mini'
+}
+
 export function normalizeGuideLlmBaseUrl(raw?: string): string {
   let base = (raw || 'https://api.openai.com/v1').trim()
   base = base.replace(/\/+$/, '')
@@ -133,7 +153,7 @@ export async function callGuideLlm(opts: {
   const key = opts.apiKey.trim()
   if (!key) return null
 
-  const base = normalizeGuideLlmBaseUrl(opts.baseUrl)
+  const base = resolveGuideLlmBaseUrl(opts.baseUrl, key)
   const gemini = isGeminiHost(base)
   const headers: Record<string, string> = {
     authorization: `Bearer ${key}`,
@@ -141,7 +161,7 @@ export async function callGuideLlm(opts: {
   }
   if (gemini) headers['x-goog-api-key'] = key
 
-  const models = guideLlmModelCandidates(opts.model)
+  const models = guideLlmModelCandidates(resolveGuideLlmModel(opts.model, key))
   for (const model of models) {
     try {
       const res = await fetch(`${base}/chat/completions`, {
