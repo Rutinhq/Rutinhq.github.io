@@ -48,6 +48,26 @@ if (fs.existsSync('dist/es/blog.html')) {
   )
   process.exit(1)
 }
+if (fs.existsSync('dist/es.html')) {
+  console.error(
+    'dist/es.html must not ship — html-handling 308s /es onto itself.',
+  )
+  process.exit(1)
+}
+if (fs.existsSync('dist/es/index.html')) {
+  console.error(
+    'dist/es/index.html must not ship — pretty /es would 308.',
+  )
+  process.exit(1)
+}
+for (const sku of ['gtm-os', 'store-os', 'nexus-os']) {
+  if (fs.existsSync(`dist/es/${sku}/index.html`)) {
+    console.error(
+      `dist/es/${sku}/index.html must not ship — pretty /es/${sku} would 308.`,
+    )
+    process.exit(1)
+  }
+}
 
 if (!fs.existsSync('dist/_redirects')) {
   console.error(
@@ -75,7 +95,7 @@ if (/\/es\/blog\s+\/es\/blog\.html\s+200/.test(redirects)) {
 }
 if (/\/es\s+\/es\/blog\s+301/.test(redirects)) {
   console.error(
-    'dist/_redirects must not 301 /es onto /es/blog — hub language switch.',
+    'dist/_redirects must not 301 /es to /es/blog — /es is the Spanish hub.',
   )
   process.exit(1)
 }
@@ -171,7 +191,7 @@ if (
   expectedLocs.some((url) => !locs.includes(url))
 ) {
   console.error(
-    `${sitemap} must list the 12 www URLs (hub + 3 SKUs + ES hub/LPs + EN/ES blog + Article01).`,
+    `${sitemap} must list exactly the 12 www URLs (EN+ES hub + 3 SKUs + EN/ES blog + Article01).`,
   )
   process.exit(1)
 }
@@ -322,6 +342,167 @@ if (esArticleHtml.includes(`<title>${homepageTitle}</title>`)) {
   process.exit(1)
 }
 
+const esMarketing = [
+  {
+    file: 'dist/prerender/es.html',
+    path: '/es',
+    title: 'RutinHQ — sistemas que posees',
+    description:
+      'Tres sistemas operativos instalables. Elige el cuello de botella. Una página, un SKU.',
+  },
+  {
+    file: 'dist/prerender/es-gtm-os.html',
+    path: '/es/gtm-os',
+    title: 'RutinHQ — GTM OS — outbound que se queda contigo',
+    description:
+      'Outbound que se queda contigo. Un sistema de prospección B2B en frío instalado en tu equipo.',
+  },
+  {
+    file: 'dist/prerender/es-store-os.html',
+    path: '/es/store-os',
+    title: 'RutinHQ — STORE OS — la tienda convierte antes de los ads',
+    description:
+      'Haz que la tienda convierta antes de comprar ads. Auditoría y config replicable del Admin de Shopify.',
+  },
+  {
+    file: 'dist/prerender/es-nexus-os.html',
+    path: '/es/nexus-os',
+    title: 'RutinHQ — NEXUS OS — marketing agéntico en papel primero',
+    description:
+      'Marketing agéntico — primero en papel, Ads solo con GO. Estrategia → Social → Ads.',
+  },
+]
+
+const esTitles = new Set()
+for (const route of esMarketing) {
+  if (!fs.existsSync(route.file)) {
+    console.error(`${route.file} missing — crawlers would get the EN homepage shell at ${route.path}.`)
+    process.exit(1)
+  }
+  const html = fs.readFileSync(route.file, 'utf8')
+  if (!html.includes(`<title>${route.title}</title>`)) {
+    console.error(`${route.file} must ship unique <title>${route.title}</title>.`)
+    process.exit(1)
+  }
+  if (html.includes(`<title>${homepageTitle}</title>`)) {
+    console.error(`${route.file} must not keep the homepage <title>.`)
+    process.exit(1)
+  }
+  if (
+    !html.includes(
+      `rel="canonical" href="https://www.rutinhq.com${route.path}"`,
+    )
+  ) {
+    console.error(`${route.file} must canonical https://www.rutinhq.com${route.path}.`)
+    process.exit(1)
+  }
+  if (!html.includes(`content="${route.description}"`)) {
+    console.error(`${route.file} must ship unique ES description.`)
+    process.exit(1)
+  }
+  if (!html.includes('property="og:locale" content="es_MX"')) {
+    console.error(`${route.file} must set og:locale es_MX.`)
+    process.exit(1)
+  }
+  if (!html.includes('<html lang="es">')) {
+    console.error(`${route.file} must set <html lang="es">.`)
+    process.exit(1)
+  }
+  esTitles.add(route.title)
+}
+if (esTitles.size !== esMarketing.length) {
+  console.error('ES hub + LP prerender titles must be unique from each other.')
+  process.exit(1)
+}
+
+const enJson = JSON.parse(fs.readFileSync('src/locales/en.json', 'utf8'))
+const esJson = JSON.parse(fs.readFileSync('src/locales/es.json', 'utf8'))
+
+function keyTree(value, prefix = '') {
+  if (Array.isArray(value)) {
+    return value.flatMap((_, index) => keyTree(value[index], `${prefix}[${index}]`))
+  }
+  if (value && typeof value === 'object') {
+    return Object.keys(value).flatMap((key) =>
+      keyTree(value[key], prefix ? `${prefix}.${key}` : key),
+    )
+  }
+  return [prefix]
+}
+
+function lookup(obj, path) {
+  return path.split('.').reduce((acc, key) => acc?.[key], obj)
+}
+
+const enKeys = keyTree(enJson).sort()
+const esKeys = keyTree(esJson).sort()
+if (enKeys.join('|') !== esKeys.join('|')) {
+  console.error('src/locales/es.json must have the same key tree as en.json.')
+  process.exit(1)
+}
+
+const mustDiffer = [
+  'common.ctaPrimary',
+  'common.ctaPrimaryShort',
+  'common.ctaDocs',
+  'hub.eyebrow',
+  'hub.headline',
+  'hub.subhead',
+  'gtm.hero.headline',
+  'gtm.hero.subhead',
+  'store.hero.headline',
+  'store.hero.subhead',
+  'nexus.hero.headline',
+  'nexus.hero.subhead',
+  'cards.gtm.thesis',
+  'cards.gtm.cta',
+  'cards.store.thesis',
+  'cards.store.cta',
+  'cards.nexus.thesis',
+  'cards.nexus.cta',
+  'seo.hubTitle',
+  'seo.hubDescription',
+  'seo.gtmTitle',
+  'seo.gtmDescription',
+  'seo.storeTitle',
+  'seo.storeDescription',
+  'seo.nexusTitle',
+  'seo.nexusDescription',
+]
+for (const key of mustDiffer) {
+  if (lookup(enJson, key) === lookup(esJson, key)) {
+    console.error(`${key} must not fall back to the English marketing string on ES.`)
+    process.exit(1)
+  }
+}
+
+const linksSource = fs.readFileSync('src/lib/links.ts', 'utf8')
+if (!linksSource.includes('https://calendly.com/rutinhq/30min')) {
+  console.error('Primary scheduling URL must be https://calendly.com/rutinhq/30min.')
+  process.exit(1)
+}
+const headerSource = fs.readFileSync('src/layouts/parts/Header.tsx', 'utf8')
+const ctasSource = fs.readFileSync('src/components/Ctas.tsx', 'utf8')
+const footerSource = fs.readFileSync('src/layouts/parts/Footer.tsx', 'utf8')
+for (const [name, source] of [
+  ['Header', headerSource],
+  ['Footer', footerSource],
+  ['Ctas', ctasSource],
+]) {
+  if (!source.includes('CALENDLY_URL')) {
+    console.error(`${name} primary Talk CTA must use CALENDLY_URL.`)
+    process.exit(1)
+  }
+}
+if (headerSource.includes('MAILTO_HUB') || ctasSource.includes('mailto={')) {
+  console.error('Header/Ctas must not use mailto as the primary Talk button.')
+  process.exit(1)
+}
+if (!footerSource.includes('MAILTO_EMAIL')) {
+  console.error('Footer email line must use MAILTO_EMAIL.')
+  process.exit(1)
+}
+
 const robots = 'dist/robots.txt'
 if (!fs.existsSync(robots)) {
   console.error(`${robots} missing — deploy would fall back to SPA HTML at /robots.txt.`)
@@ -360,17 +541,17 @@ const skuShells = [
   },
   {
     file: 'dist/prerender/es-gtm-os.html',
-    title: 'RutinHQ — GTM OS',
+    title: 'RutinHQ — GTM OS — outbound que se queda contigo',
     canonical: 'https://www.rutinhq.com/es/gtm-os',
   },
   {
     file: 'dist/prerender/es-store-os.html',
-    title: 'RutinHQ — STORE OS',
+    title: 'RutinHQ — STORE OS — la tienda convierte antes de los ads',
     canonical: 'https://www.rutinhq.com/es/store-os',
   },
   {
     file: 'dist/prerender/es-nexus-os.html',
-    title: 'RutinHQ — NEXUS OS',
+    title: 'RutinHQ — NEXUS OS — marketing agéntico en papel primero',
     canonical: 'https://www.rutinhq.com/es/nexus-os',
   },
 ]
@@ -454,7 +635,6 @@ if (!mailto.includes("mailto('STORE OS — fit call')")) {
   process.exit(1)
 }
 
-const footerSource = fs.readFileSync('src/layouts/parts/Footer.tsx', 'utf8')
 if (footerSource.includes('ONE_PAGER_URL') || /\bDOCS_URL\b/.test(footerSource)) {
   console.error('Footer must drop standalone Docs and One-pager.')
   process.exit(1)
@@ -462,12 +642,15 @@ if (footerSource.includes('ONE_PAGER_URL') || /\bDOCS_URL\b/.test(footerSource))
 if (
   !footerSource.includes('DOCS_CATALOG_URL') ||
   !footerSource.includes("localized('/blog')") ||
-  !footerSource.includes('MAILTO_HUB')
+  !footerSource.includes('CALENDLY_URL') ||
+  !footerSource.includes('MAILTO_EMAIL')
 ) {
-  console.error('Footer must keep Catalog (docs), locale Blog, and Talk mailto.')
+  console.error(
+    'Footer must keep Catalog (docs), locale Blog, Calendly Talk, and mailto email.',
+  )
   process.exit(1)
 }
 
 console.log(
-  'SPA 200 fallback: no 404.html; blog + SKU prerender shells unique; favicon.ico real; crawl files www-only; /es hub not 301.',
+  'SPA 200 fallback: no 404.html; blog + SKU + ES hub/LP prerender shells unique; favicon.ico real; Calendly primary CTA.',
 )

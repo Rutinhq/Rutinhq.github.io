@@ -13,7 +13,6 @@ import {
 import {
   DOCS_CATALOG_URL,
   DOCS_GTM_URL,
-  MAILTO_HUB,
   WWW_GTM_URL,
   WWW_NEXUS_URL,
   WWW_STORE_URL,
@@ -178,7 +177,7 @@ export default function BlogPage() {
       </Section>
 
       <Section>
-        <Ctas mailto={MAILTO_HUB} />
+        <Ctas />
         <p className="mt-6 max-w-2xl text-sm text-muted-foreground">
           Proof:{' '}
           <a

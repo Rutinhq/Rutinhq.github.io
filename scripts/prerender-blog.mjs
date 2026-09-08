@@ -275,25 +275,25 @@ const MARKETING_ROUTES = [
   skuRoute({
     path: '/es/gtm-os',
     file: 'prerender/es-gtm-os.html',
-    title: 'RutinHQ — GTM OS',
+    title: 'RutinHQ — GTM OS — outbound que se queda contigo',
     description:
-      'Outbound que se queda en tu equipo. Un sistema de prospección B2B en frío instalado en tu operación.',
+      'Outbound que se queda contigo. Un sistema de prospección B2B en frío instalado en tu equipo.',
     locale: 'es',
   }),
   skuRoute({
     path: '/es/store-os',
     file: 'prerender/es-store-os.html',
-    title: 'RutinHQ — STORE OS',
+    title: 'RutinHQ — STORE OS — la tienda convierte antes de los ads',
     description:
-      'Haz que la tienda convierta antes de comprar ads. Auditoría y config replicable de Shopify Admin.',
+      'Haz que la tienda convierta antes de comprar ads. Auditoría y config replicable del Admin de Shopify.',
     locale: 'es',
   }),
   skuRoute({
     path: '/es/nexus-os',
     file: 'prerender/es-nexus-os.html',
-    title: 'RutinHQ — NEXUS OS',
+    title: 'RutinHQ — NEXUS OS — marketing agéntico en papel primero',
     description:
-      'Marketing agéntico — paper primero, Ads solo con GO. Strategy → Social → Ads.',
+      'Marketing agéntico — primero en papel, Ads solo con GO. Estrategia → Social → Ads.',
     locale: 'es',
   }),
 ]
@@ -454,6 +454,9 @@ for (const route of ROUTES) {
   if (!page.includes('</head>')) {
     console.error('dist/index.html has no </head> — cannot inject blog SEO.')
     process.exit(1)
+  }
+  if (route.locale === 'es') {
+    page = page.replace('<html lang="en">', '<html lang="es">')
   }
   page = page.replace('</head>', `    ${seoHead(route)}\n  </head>`)
   const outPath = path.join(dist, route.file)

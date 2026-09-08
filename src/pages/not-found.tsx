@@ -2,8 +2,9 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { Section } from '@/components/Section'
 import { Seo } from '@/components/Seo'
-import { Button } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 import { usePageLocale } from '@/lib/i18n/usePageLocale'
+import { cn } from '@/lib/utils'
 
 export default function NotFoundPage() {
   const { t } = useTranslation()
@@ -26,9 +27,12 @@ export default function NotFoundPage() {
         <p className="mt-6 max-w-2xl text-[17px] text-muted-foreground">
           {t('notFound.body')}
         </p>
-        <Button asChild size="lg" className="mt-10">
-          <Link to={localized('/')}>{t('notFound.back')}</Link>
-        </Button>
+        <Link
+          to={localized('/')}
+          className={cn(buttonVariants({ size: 'lg' }), 'mt-10')}
+        >
+          {t('notFound.back')}
+        </Link>
       </Section>
     </>
   )

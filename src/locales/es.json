@@ -3,6 +3,7 @@
     "ctaPrimary": "Hablar con RutinHQ",
     "ctaPrimaryShort": "Hablar",
     "ctaSecondary": "Email",
+    "ctaEmail": "Escribir a {{email}}",
     "ctaDocs": "Leer el sistema",
     "ctaOffer": "Ver el sistema",
     "hubLink": "Catálogo",
@@ -14,204 +15,204 @@
   },
   "hub": {
     "eyebrow": "Sistemas RutinHQ",
-    "headline": "Sistemas que posees — no retainers que se evaporan.",
+    "headline": "Sistemas que posees — no retainers que desaparecen.",
     "subhead": "Tres sistemas operativos instalables. Elige el cuello de botella. Una página, un SKU.",
     "catalogNote": "El curriculum del catálogo también vive en",
     "catalogNoteAfter": "— este sitio vende un SKU a la vez.",
-    "blogNote": "La escritura vive en el"
+    "blogNote": "Los textos viven en el"
   },
   "gtm": {
     "eyebrow": "GTM OS",
     "hero": {
-      "headline": "Outbound that stays yours.",
-      "subhead": "A cold B2B prospecting system installed in your team — not a rented SDR that dies when the contract ends. Change language, filters, and angle; keep the core."
+      "headline": "Outbound que se queda contigo.",
+      "subhead": "Un sistema de prospección B2B en frío instalado en tu equipo — no un SDR rentado que muere cuando termina el contrato. Cambia idioma, filtros y ángulo; el núcleo se queda."
     },
     "who": {
-      "title": "For whom",
+      "title": "Para quién",
       "items": [
-        "Founder / CEO or ops lead in B2B",
-        "Already sell; bottleneck is repeatable pipeline",
-        "ICP-filtered cold email",
-        "First run always cold"
+        "Founder / CEO o lead de ops en B2B",
+        "Ya venden; el cuello es un pipeline repetible",
+        "Cold email filtrado por ICP",
+        "La primera corrida siempre es en frío"
       ]
     },
     "notFor": {
-      "title": "Not for",
+      "title": "No es para",
       "items": [
-        "Pure ecom / B2C",
-        "“Just run ads”",
-        "Enterprise RFP with no outbound owner",
-        "Guaranteed-N-meetings buyers"
+        "Ecom puro / B2C",
+        "“Solo corre ads”",
+        "RFP enterprise sin dueño de outbound",
+        "Compradores de N juntas garantizadas"
       ]
     },
     "how": {
-      "title": "How it works",
+      "title": "Cómo funciona",
       "items": [
-        "M0 Sector research",
-        "M1 ICP + validation",
-        "M2 Messaging framework",
-        "M3 Sales playbook + gate",
-        "M4 Campaign activation",
-        "M5 Crawl / analysis",
-        "M6 Weekly KPIs (ongoing)",
-        "M7 Close + scale to next vertical"
+        "M0 Investigación de sector",
+        "M1 ICP + validación",
+        "M2 Framework de messaging",
+        "M3 Playbook de ventas + gate",
+        "M4 Activación de campaña",
+        "M5 Crawl / análisis",
+        "M6 KPIs semanales (continuo)",
+        "M7 Cierre + escala al siguiente vertical"
       ]
     },
     "roles": {
       "title": "Roles",
       "items": [
-        "Commercial Architect designs and gates",
-        "Outbound Specialist runs sequences and classifies replies",
-        "HoD validates technical fit"
+        "Commercial Architect diseña y pone gates",
+        "Outbound Specialist corre secuencias y clasifica replies",
+        "HoD valida el fit técnico"
       ]
     },
     "reply": {
-      "title": "Reply protocol",
+      "title": "Protocolo de reply",
       "items": [
-        "Classify before you answer: open / question / referral / OOO / not interested / silence",
-        "One bump on silence — then discard",
-        "Discovery calls: the lead describes their process in their words — no feature pitch"
+        "Clasifica antes de responder: open / pregunta / referral / OOO / no interesado / silencio",
+        "Un bump si hay silencio — luego se descarta",
+        "Discovery: el lead describe su proceso con sus palabras — sin pitch de features"
       ]
     },
     "outcomes": {
-      "title": "Outcomes",
+      "title": "Resultados",
       "items": [
-        "Outbound pipeline your team can run",
-        "ICP with checkable criteria",
-        "Sequences + SOP so the system survives without us",
-        "Validate one vertical before scaling the next"
+        "Pipeline de outbound que tu equipo puede correr",
+        "ICP con criterios verificables",
+        "Secuencias + SOP para que el sistema sobreviva sin nosotros",
+        "Valida un vertical antes de escalar el siguiente"
       ]
     },
     "notWhat": {
-      "title": "What it’s not",
+      "title": "Qué no es",
       "items": [
-        "An ads or social agency",
-        "A wiki for someone else’s SaaS",
-        "A dump of lead lists / CRM / APIs",
-        "A promise of N meetings"
+        "Una agencia de ads o social",
+        "Una wiki del SaaS de otro",
+        "Un dump de listas / CRM / APIs",
+        "Una promesa de N juntas"
       ]
     }
   },
   "store": {
     "eyebrow": "STORE OS",
     "hero": {
-      "headline": "Make the store convert before you buy ads.",
-      "subhead": "Replicable Shopify Admin audit + config — variants, price, weight, shipping — so ops friction stops killing conversion."
+      "headline": "Haz que la tienda convierta antes de comprar ads.",
+      "subhead": "Auditoría + config replicable del Admin de Shopify — variantes, precio, peso, envío — para que la fricción de ops deje de matar la conversión."
     },
     "who": {
-      "title": "For whom",
+      "title": "Para quién",
       "items": [
-        "Founder / ecom lead on DTC Shopify",
-        "Ops friction",
-        "Wants ads but store doesn’t convert yet"
+        "Founder / lead de ecom en Shopify DTC",
+        "Fricción de ops",
+        "Quiere ads pero la tienda aún no convierte"
       ]
     },
     "notFor": {
-      "title": "Not for",
+      "title": "No es para",
       "items": [
-        "Theme-only work",
-        "Ads with no converting store",
-        "Creatives-only",
-        "Pure Plus enterprise with no Admin owner"
+        "Solo trabajo de theme",
+        "Ads sin una tienda que convierta",
+        "Solo creatividades",
+        "Plus enterprise puro sin dueño del Admin"
       ]
     },
     "how": {
-      "title": "How it works",
+      "title": "Cómo funciona",
       "items": [
-        "1) Scorecard / Admin friction diagnosis",
-        "2) Audit: variants, price, weight, shipping",
-        "3) Admin config to the mold (no theme file edits)",
-        "4) Delivery checklist + handoff",
-        "5) Ads / creatives = out of scope (NEXUS OS)"
+        "1) Scorecard / diagnóstico de fricción en Admin",
+        "2) Auditoría: variantes, precio, peso, envío",
+        "3) Config de Admin al molde (sin editar archivos de theme)",
+        "4) Checklist de entrega + handoff",
+        "5) Ads / creatividades = fuera de alcance (NEXUS OS)"
       ]
     },
     "outcomes": {
-      "title": "Outcomes",
+      "title": "Resultados",
       "items": [
-        "Store that converts with less ops friction",
-        "Coherent Admin config",
-        "A base ready before ad spend"
+        "Tienda que convierte con menos fricción de ops",
+        "Config de Admin coherente",
+        "Una base lista antes de gastar en ads"
       ]
     },
     "notWhat": {
-      "title": "What it’s not",
+      "title": "Qué no es",
       "items": [
-        "Theme / Dawn file editing",
-        "An ads agency",
-        "Someone else’s catalog defaults or shipping rates",
-        "Bots placing purchase orders"
+        "Edición de archivos de theme / Dawn",
+        "Una agencia de ads",
+        "Defaults de catálogo o tarifas de envío de otro",
+        "Bots que colocan órdenes de compra"
       ]
     }
   },
   "nexus": {
     "eyebrow": "NEXUS OS",
     "hero": {
-      "headline": "Agentic marketing — paper first, Ads only when signed.",
-      "subhead": "Strategy → Social → Ads. Until creatives, mix, and budget have an explicit GO: paper only (no pixel, no spend)."
+      "headline": "Marketing agéntico — primero en papel, Ads solo con GO.",
+      "subhead": "Estrategia → Social → Ads. Hasta que creatividades, mix y presupuesto tengan un GO explícito: solo papel (sin pixel, sin spend)."
     },
     "who": {
-      "title": "For whom",
+      "title": "Para quién",
       "items": [
-        "Retailer / ecom with clear offer and SKUs",
-        "Wants demand from social as a system",
-        "Brand voice owned by client’s ops/marketing (NEXUS does not invent ICP or offer)"
+        "Retailer / ecom con oferta y SKUs claros",
+        "Quiere demanda desde social como sistema",
+        "Voz de marca en ops/marketing del cliente (NEXUS no inventa ICP ni oferta)"
       ]
     },
     "notFor": {
-      "title": "Not for",
+      "title": "No es para",
       "items": [
-        "No offer / SKU",
-        "Ads with zero creative bank",
-        "Budget 0 pretending to be “live Ads”"
+        "Sin oferta / SKU",
+        "Ads con banco creativo en cero",
+        "Presupuesto 0 haciéndose pasar por “Ads en vivo”"
       ]
     },
     "how": {
-      "title": "How it works",
+      "title": "Cómo funciona",
       "items": [
-        "1) Brief + content pillars (one problem, one object)",
-        "2) Weekly paper batch: message · organic post · product story",
-        "3) Voice approval by client’s brand owner",
-        "4) Pillar rotation",
-        "5) Ads parked until photos + mix + budget signed"
+        "1) Brief + pilares de contenido (un problema, un objeto)",
+        "2) Batch semanal en papel: mensaje · post orgánico · historia de producto",
+        "3) Aprobación de voz por el dueño de marca del cliente",
+        "4) Rotación de pilares",
+        "5) Ads en pausa hasta firmar fotos + mix + presupuesto"
       ]
     },
     "outcomes": {
-      "title": "Outcomes",
+      "title": "Resultados",
       "items": [
-        "Repeatable content system without invented claims",
-        "Paper ready for review before spend",
-        "Clear separation: NEXUS ≠ outbound (GTM OS) ≠ store Admin (STORE OS)"
+        "Sistema de contenido repetible sin claims inventados",
+        "Papel listo para review antes del spend",
+        "Separación clara: NEXUS ≠ outbound (GTM OS) ≠ Admin de tienda (STORE OS)"
       ]
     },
     "notWhat": {
-      "title": "What it’s not",
+      "title": "Qué no es",
       "items": [
-        "Live Ads / pixel / spend without GO",
-        "Owner of the client’s ICP or offer",
+        "Ads en vivo / pixel / spend sin GO",
+        "Dueño del ICP o la oferta del cliente",
         "GTM OS",
-        "Shopify theme editing"
+        "Edición de theme de Shopify"
       ]
     }
   },
   "cards": {
     "gtm": {
       "name": "GTM OS",
-      "thesis": "B2B outbound that stays with your team — cold, ICP-filtered, milestone-gated.",
+      "thesis": "Outbound B2B que se queda con tu equipo — en frío, filtrado por ICP, con gates por milestone.",
       "cta": "Ver GTM OS"
     },
     "store": {
       "name": "STORE OS",
-      "thesis": "Shopify Admin audit + config so the store converts before you spend on ads.",
+      "thesis": "Auditoría + config del Admin de Shopify para que la tienda convierta antes de gastar en ads.",
       "cta": "Ver STORE OS"
     },
     "nexus": {
       "name": "NEXUS OS",
-      "thesis": "Agentic marketing — Strategy → Social → Ads (Ads gated until creatives, mix, and budget are signed).",
+      "thesis": "Marketing agéntico — Estrategia → Social → Ads (Ads con gate hasta firmar creatividades, mix y presupuesto).",
       "cta": "Ver NEXUS OS"
     }
   },
   "footer": {
-    "location": "Tijuana / Pacific",
+    "location": "Tijuana / Pacífico",
     "onePager": "One-pager"
   },
   "notFound": {
@@ -222,12 +223,12 @@
   "seo": {
     "hubTitle": "RutinHQ — sistemas que posees",
     "hubDescription": "Tres sistemas operativos instalables. Elige el cuello de botella. Una página, un SKU.",
-    "gtmTitle": "RutinHQ — GTM OS",
-    "gtmDescription": "Outbound que se queda en tu equipo. Un sistema de prospección B2B en frío instalado en tu operación.",
-    "storeTitle": "RutinHQ — STORE OS",
-    "storeDescription": "Haz que la tienda convierta antes de comprar ads. Auditoría y config replicable de Shopify Admin.",
-    "nexusTitle": "RutinHQ — NEXUS OS",
-    "nexusDescription": "Marketing agéntico — paper primero, Ads solo con GO. Strategy → Social → Ads.",
+    "gtmTitle": "RutinHQ — GTM OS — outbound que se queda contigo",
+    "gtmDescription": "Outbound que se queda contigo. Un sistema de prospección B2B en frío instalado en tu equipo.",
+    "storeTitle": "RutinHQ — STORE OS — la tienda convierte antes de los ads",
+    "storeDescription": "Haz que la tienda convierta antes de comprar ads. Auditoría y config replicable del Admin de Shopify.",
+    "nexusTitle": "RutinHQ — NEXUS OS — marketing agéntico en papel primero",
+    "nexusDescription": "Marketing agéntico — primero en papel, Ads solo con GO. Estrategia → Social → Ads.",
     "notFoundTitle": "RutinHQ — 404"
   }
 }

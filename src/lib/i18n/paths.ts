@@ -1,11 +1,20 @@
-export type PageLocale = 'en' | 'es'
+import { useLocation } from 'react-router-dom'
+import type { SupportedLanguage } from './config'
 
-const ARTICLE_PAIRS = [
-  {
-    en: '/blog/icp-gated-cold-outbound-without-rented-sdr',
-    es: '/es/blog/outbound-frio-con-icp-sin-sdr-rentado',
-  },
-] as const
+export type PageLocale = SupportedLanguage
+export type SkuSlug = 'gtm-os' | 'store-os' | 'nexus-os'
+
+export const HUB_PATHS = { en: '/', es: '/es' } as const
+export const GTM_PATHS = { en: '/gtm-os', es: '/es/gtm-os' } as const
+export const STORE_PATHS = { en: '/store-os', es: '/es/store-os' } as const
+export const NEXUS_PATHS = { en: '/nexus-os', es: '/es/nexus-os' } as const
+export const BLOG_PATHS = { en: '/blog', es: '/es/blog' } as const
+export const ARTICLE01_PATHS = {
+  en: '/blog/icp-gated-cold-outbound-without-rented-sdr',
+  es: '/es/blog/outbound-frio-con-icp-sin-sdr-rentado',
+} as const
+
+const ARTICLE_PAIRS = [ARTICLE01_PATHS] as const
 
 export function normalizePathname(pathname: string): string {
   const trimmed = pathname.split('?')[0]?.replace(/\/$/, '') ?? ''
@@ -37,4 +46,25 @@ export function localePath(pathname: string, lang: PageLocale): string {
     if (normalized === pair.en || normalized === pair.es) return pair[lang]
   }
   return withLocale(normalized, lang)
+}
+
+export function hubPath(lang: PageLocale): string {
+  return HUB_PATHS[lang]
+}
+
+export function skuPath(sku: SkuSlug, lang: PageLocale): string {
+  return withLocale(`/${sku}`, lang)
+}
+
+export function useLocale() {
+  const { pathname } = useLocation()
+  const lang = languageFromPathname(pathname)
+  return {
+    lang,
+    isEs: lang === 'es',
+    hubPath: withLocale('/', lang),
+    blogPath: withLocale('/blog', lang),
+    skuPath: (sku: SkuSlug) => skuPath(sku, lang),
+    localePath: (next: PageLocale) => localePath(pathname, next),
+  }
 }

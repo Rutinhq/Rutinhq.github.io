@@ -1,28 +1,42 @@
 import { useTranslation } from 'react-i18next'
-import { Button } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
+import { CALENDLY_URL, EMAIL, MAILTO_EMAIL } from '@/lib/links'
 import { cn } from '@/lib/utils'
 
 type CtasProps = {
   className?: string
-  mailto: string
   docsHref?: string
 }
 
-export function Ctas({ className, mailto, docsHref }: CtasProps) {
+export function Ctas({ className, docsHref }: CtasProps) {
   const { t } = useTranslation()
 
   return (
     <div className={cn('flex flex-wrap items-center gap-3', className)}>
-      <Button asChild size="lg">
-        <a href={mailto}>{t('common.ctaPrimary')}</a>
-      </Button>
+      <a
+        href={CALENDLY_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={buttonVariants({ size: 'lg' })}
+      >
+        {t('common.ctaPrimary')}
+      </a>
       {docsHref ? (
-        <Button asChild size="lg" variant="outline">
-          <a href={docsHref} target="_blank" rel="noopener noreferrer">
-            {t('common.ctaDocs')}
-          </a>
-        </Button>
+        <a
+          href={docsHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={buttonVariants({ size: 'lg', variant: 'outline' })}
+        >
+          {t('common.ctaDocs')}
+        </a>
       ) : null}
+      <a
+        href={MAILTO_EMAIL}
+        className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground"
+      >
+        {t('common.ctaEmail', { email: EMAIL })}
+      </a>
     </div>
   )
 }

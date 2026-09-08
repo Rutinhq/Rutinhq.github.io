@@ -29,7 +29,10 @@ async function start() {
           pathname === '/es' || pathname.startsWith('/es/') ? 'es' : 'en'
         const { html, head, htmlAttributes } = await render(url, lang)
         const page = template
-          .replace('<html lang="en">', `<html lang="${lang}" ${htmlAttributes}>`)
+          .replace(
+            '<html lang="en">',
+            `<html ${htmlAttributes || `lang="${lang}"`}>`,
+          )
           .replace('<!--ssr-head-->', head)
           .replace('<!--ssr-outlet-->', html)
         res.status(200).set({ 'Content-Type': 'text/html' }).end(page)
