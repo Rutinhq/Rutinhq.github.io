@@ -1,0 +1,7 @@
+# Draft blog is scaffold-only. Keep it out of the sitemap and tell
+# crawlers not to index even if they hit the SPA shell without JS.
+/blog
+  X-Robots-Tag: noindex, nofollow
+
+/blog/*
+  X-Robots-Tag: noindex, nofollow

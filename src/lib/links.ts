@@ -1,6 +1,6 @@
 export const EMAIL = 'strategy@rutinhq.com'
-export const DOCS_URL = 'https://docs.rutinhq.com'
-export const DOCS_CATALOG_URL = 'https://docs.rutinhq.com/catalog'
+export const DOCS_URL = 'https://docs.rutinhq.com/'
+export const DOCS_CATALOG_URL = 'https://docs.rutinhq.com/catalog/'
 export const DOCS_GTM_URL = 'https://docs.rutinhq.com/catalog/gtm-os/'
 export const DOCS_STORE_URL = 'https://docs.rutinhq.com/catalog/store-os/'
 export const DOCS_NEXUS_URL = 'https://docs.rutinhq.com/catalog/nexus-os/'

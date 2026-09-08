@@ -8,6 +8,8 @@ Catálogo público (`/`) y tres landings de un SKU cada una:
 | `/gtm-os` | GTM OS (Pack §2) |
 | `/store-os` | Store OS |
 | `/nexus-os` | NEXUS OS |
+| `/blog` | Draft notes (noindex, not in sitemap) |
+| `/blog/why-one-sku` | Sample draft article (noindex) |
 
 Stack: Vite + React + Tailwind + i18next. Default **EN** (commercial copy). Toggle ES keeps chrome; SKU pages stay EN. Tema oscuro `#0a0a0a` / `#2ecc8f` / radius 0.
 
@@ -19,7 +21,14 @@ Stack: Vite + React + Tailwind + i18next. Default **EN** (commercial copy). Togg
 - **SPA fallback:** `public/_redirects` → `/* /index.html 200`
 - **Do not ship `404.html`.** Cloudflare Pages would serve valid SPA routes (`/gtm-os`, `/store-os`, `/nexus-os`) with HTTP 404 even when the body is the Vite shell.
 - **Do not emit `dist/<sku>/index.html` or exact `/{sku} /index.html 200` rewrites.** Both make Pages/wrangler html-handling 308 `/gtm-os` → `/` instead of 200.
-- **DNS www:** pendiente Capo / CORTEX. CNAME de `www.rutinhq.com` al hostname `*.pages.dev` del proyecto. Apex (`rutinhq.com`) al mismo target cuando Capo lo autorice.
+- **Pretty URLs:** live SKU routes have **no trailing slash** (`/gtm-os`, not `/gtm-os/`). Do not add `_redirects` slash-normalization — folder `index.html` + html-handling already 308'd `/gtm-os` away from the pretty URL.
+- **Canonical host:** `https://www.rutinhq.com`. `sitemap.xml` + `robots.txt` are www-only.
+- **Apex → www 301:** **not possible in `public/_redirects`.** Cloudflare Pages marks domain-level (host) redirects as unsupported. A path-only `/* https://www.rutinhq.com/:splat 301` would also 301 www onto itself. Capo applies a **zone Single Redirect** (or Bulk Redirect) — see PR / steps below. Confirm `@` is Proxied. Do **not** enable Include subdomains (would catch `docs.rutinhq.com`).
+  1. Dashboard → zone `rutinhq.com` → **Rules → Redirect Rules → Create rule**
+  2. Wildcard: Request URL `https://rutinhq.com/*` → Target `https://www.rutinhq.com/${1}` → **301** → Preserve query string **On**
+  3. Enable **Always Use HTTPS** (or a second wildcard for `http://rutinhq.com/*`)
+  4. Verify: `curl -sI https://rutinhq.com/gtm-os` → `301` + `location: https://www.rutinhq.com/gtm-os`
+- **Blog:** `/blog` + `/blog/why-one-sku` are DRAFT / `noindex` and stay **out** of the sitemap (4 www URLs). `public/_headers` sends `X-Robots-Tag: noindex, nofollow`.
 - **No tocar** `docs.rutinhq.com`. CORTEX redeploya `rutinhq-web`.
 
 ## Local

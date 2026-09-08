@@ -6,6 +6,7 @@
     "ctaDocs": "Read the system",
     "ctaOffer": "See the system",
     "hubLink": "Catalog",
+    "blog": "Blog",
     "docs": "Docs"
   },
   "nav": {
@@ -16,7 +17,8 @@
     "headline": "Systems you own — not retainers that vanish.",
     "subhead": "Three installable operating systems. Pick the bottleneck. One page, one SKU.",
     "catalogNote": "Catalog curriculum also lives at",
-    "catalogNoteAfter": "— this site sells one SKU at a time."
+    "catalogNoteAfter": "— this site sells one SKU at a time.",
+    "blogNote": "Draft notes (not indexed) live on the"
   },
   "gtm": {
     "eyebrow": "GTM OS",
