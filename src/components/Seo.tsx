@@ -1,7 +1,9 @@
 import { Helmet } from '@dr.pogodin/react-helmet'
 
-const SITE = 'https://www.rutinhq.com'
+export const SITE = 'https://www.rutinhq.com'
 const OG = `${SITE}/airo-assets/images/logo/horizontal.svg`
+
+export type HreflangLink = { hreflang: string; href: string }
 
 type SeoProps = {
   title: string
@@ -10,6 +12,16 @@ type SeoProps = {
   jsonLd?: Record<string, unknown>
   noindex?: boolean
   ogType?: 'website' | 'article'
+  locale?: 'en' | 'es'
+  alternates?: readonly HreflangLink[]
+}
+
+export function hreflangPair(enPath: string, esPath: string): HreflangLink[] {
+  return [
+    { hreflang: 'en', href: `${SITE}${enPath}` },
+    { hreflang: 'es', href: `${SITE}${esPath}` },
+    { hreflang: 'x-default', href: `${SITE}${enPath}` },
+  ]
 }
 
 export function Seo({
@@ -19,16 +31,29 @@ export function Seo({
   jsonLd,
   noindex = false,
   ogType = 'website',
+  locale = 'en',
+  alternates,
 }: SeoProps) {
   const url = `${SITE}${path}`
+  const ogLocale = locale === 'es' ? 'es_MX' : 'en_US'
   return (
     <Helmet>
+      <html lang={locale} />
       <title>{title}</title>
       <meta name="description" content={description} />
       <link rel="canonical" href={url} />
+      {alternates?.map((alt) => (
+        <link
+          key={alt.hreflang}
+          rel="alternate"
+          hrefLang={alt.hreflang}
+          href={alt.href}
+        />
+      ))}
       {noindex ? <meta name="robots" content="noindex, nofollow" /> : null}
       <meta property="og:type" content={ogType} />
       <meta property="og:site_name" content="RutinHQ" />
+      <meta property="og:locale" content={ogLocale} />
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
       <meta property="og:url" content={url} />
@@ -99,6 +124,9 @@ export function articleJsonLd({
   datePublished,
   dateModified,
   faq,
+  inLanguage = 'en',
+  breadcrumbHome = 'Home',
+  breadcrumbBlog = 'Blog',
 }: {
   path: string
   headline: string
@@ -106,8 +134,12 @@ export function articleJsonLd({
   datePublished: string
   dateModified?: string
   faq: readonly FaqItem[]
+  inLanguage?: 'en' | 'es'
+  breadcrumbHome?: string
+  breadcrumbBlog?: string
 }) {
   const url = `${SITE}${path}`
+  const blogPath = inLanguage === 'es' ? '/es/blog' : '/blog'
   const graph: Record<string, unknown>[] = [
     {
       '@type': 'Organization',
@@ -123,7 +155,7 @@ export function articleJsonLd({
       description,
       datePublished,
       dateModified: dateModified ?? datePublished,
-      inLanguage: 'en',
+      inLanguage,
       url,
       mainEntityOfPage: { '@type': 'WebPage', '@id': url },
       author: { '@id': `${SITE}/#organization` },
@@ -136,14 +168,14 @@ export function articleJsonLd({
         {
           '@type': 'ListItem',
           position: 1,
-          name: 'Home',
+          name: breadcrumbHome,
           item: `${SITE}/`,
         },
         {
           '@type': 'ListItem',
           position: 2,
-          name: 'Blog',
-          item: `${SITE}/blog/`,
+          name: breadcrumbBlog,
+          item: `${SITE}${blogPath}`,
         },
         {
           '@type': 'ListItem',
@@ -178,8 +210,19 @@ export function articleJsonLd({
 
 export function blogIndexJsonLd(
   featured: readonly { path: string; name: string }[],
+  {
+    path = '/blog',
+    name = 'Blog — systems you own',
+    description = 'Radar for founders who install GTM and ops systems — not rented seats.',
+    inLanguage = 'en',
+  }: {
+    path?: string
+    name?: string
+    description?: string
+    inLanguage?: 'en' | 'es'
+  } = {},
 ) {
-  const url = `${SITE}/blog/`
+  const url = `${SITE}${path}`
   return {
     '@context': 'https://schema.org',
     '@graph': [
@@ -187,10 +230,9 @@ export function blogIndexJsonLd(
         '@type': ['CollectionPage', 'Blog'],
         '@id': `${url}#blog`,
         url,
-        name: 'Blog — systems you own',
-        description:
-          'Radar for founders who install GTM and ops systems — not rented seats.',
-        inLanguage: 'en',
+        name,
+        description,
+        inLanguage,
         isPartOf: { '@id': `${SITE}/#website` },
         about: { '@id': `${SITE}/#organization` },
         mainEntity: { '@id': `${url}#featured` },
@@ -198,7 +240,7 @@ export function blogIndexJsonLd(
       {
         '@type': 'ItemList',
         '@id': `${url}#featured`,
-        name: 'Featured',
+        name: inLanguage === 'es' ? 'Destacado' : 'Featured',
         numberOfItems: featured.length,
         itemListElement: featured.map((item, index) => ({
           '@type': 'ListItem',

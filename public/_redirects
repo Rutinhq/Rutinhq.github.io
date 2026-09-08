@@ -12,4 +12,9 @@
 /services / 301
 /case-studies / 301
 /blog/why-one-sku /blog 301
+# Blog crawl shells (pretty URL + 200). Not folder index.html — that 308s.
+/blog /blog.html 200
+/blog/ /blog.html 200
+/blog/icp-gated-cold-outbound-without-rented-sdr /prerender/blog-icp-gated-cold-outbound-without-rented-sdr.html 200
+/blog/icp-gated-cold-outbound-without-rented-sdr/ /prerender/blog-icp-gated-cold-outbound-without-rented-sdr.html 200
 /*      /index.html  200

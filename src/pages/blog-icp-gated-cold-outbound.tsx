@@ -2,10 +2,10 @@ import { Link } from 'react-router-dom'
 import { Ctas } from '@/components/Ctas'
 import { MonoTitle, Section, SimpleTable } from '@/components/Section'
 import { Seo, articleJsonLd } from '@/components/Seo'
-import { ARTICLE01 } from '@/lib/blog'
+import { ARTICLE01, articleSeoTitle } from '@/lib/blog'
 import { DOCS_GTM_URL, MAILTO_GTM, WWW_GTM_URL } from '@/lib/links'
 
-const TITLE = `RutinHQ — ${ARTICLE01.title}`
+const TITLE = articleSeoTitle(ARTICLE01.title)
 
 export default function BlogIcpGatedColdOutboundPage() {
   return (
@@ -14,7 +14,8 @@ export default function BlogIcpGatedColdOutboundPage() {
         title={TITLE}
         description={ARTICLE01.description}
         path={ARTICLE01.path}
-        noindex
+        locale="en"
+        noindex={ARTICLE01.noindex}
         ogType="article"
         jsonLd={articleJsonLd({
           path: ARTICLE01.path,
@@ -28,7 +29,7 @@ export default function BlogIcpGatedColdOutboundPage() {
 
       <Section first>
         <p className="font-mono text-[12px] uppercase tracking-[0.14em] text-primary">
-          How-to · GTM OS · not indexed
+          How-to · GTM OS
         </p>
         <p className="mt-3 font-mono text-[12px] tracking-[0.04em] text-muted-foreground">
           <Link to="/" className="hover:text-foreground">

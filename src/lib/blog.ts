@@ -5,8 +5,14 @@ export const BLOG_INDEX = {
   title: 'Blog — systems you own',
   description:
     'Radar for founders who install GTM and ops systems — not rented seats.',
-  path: '/blog/',
+  path: '/blog',
+  draft: false,
+  noindex: false,
 } as const
+
+export function articleSeoTitle(title: string) {
+  return `RutinHQ — ${title}`
+}
 
 export const ARTICLE01 = {
   title: 'ICP-gated cold outbound without a rented SDR',
@@ -18,8 +24,8 @@ export const ARTICLE01 = {
   sku: 'gtm-os',
   job: 'Gate cold outbound by ICP before volume.',
   cta: 'strategy@',
-  draft: true,
-  noindex: true,
+  draft: false,
+  noindex: false,
   inLanguage: 'en',
   author: 'RutinHQ',
   datePublished: '2026-09-08',
@@ -39,7 +45,7 @@ export const ARTICLE01 = {
     },
     {
       q: 'Where’s the full system sheet?',
-      a: 'See the GTM OS catalog ficha and the /gtm-os page.',
+      a: 'See the GTM OS catalog ficha at https://docs.rutinhq.com/catalog/gtm-os/ and the https://www.rutinhq.com/gtm-os page.',
     },
   ],
 } as const

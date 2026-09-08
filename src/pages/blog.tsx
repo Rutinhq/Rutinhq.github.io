@@ -25,13 +25,14 @@ export default function BlogPage() {
         title={BLOG_INDEX.title}
         description={BLOG_INDEX.description}
         path={BLOG_INDEX.path}
-        noindex
+        locale="en"
+        noindex={BLOG_INDEX.noindex}
         jsonLd={blogIndexJsonLd([{ path: ARTICLE01.path, name: ARTICLE01.title }])}
       />
 
       <Section first>
         <p className="font-mono text-[12px] uppercase tracking-[0.14em] text-primary">
-          Radar · filter · not indexed
+          Radar · filter
         </p>
         <h1
           className="mt-4 max-w-4xl font-heading font-extrabold tracking-[-0.03em]"
