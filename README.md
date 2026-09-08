@@ -62,4 +62,4 @@ npm run preview
 
 ## RutinHQ Guide
 
-Floating concierge on the hub + SKU LPs (not blog). Allowlisted SoT, Calendly CTA, lead-brief mailto. Internal runbook: [`GUIDE.md`](GUIDE.md).
+Floating concierge on the hub + SKU LPs (not blog). Allowlisted SoT, Calendly CTA, lead-brief clipboard + short mailto. Internal runbook: [`GUIDE.md`](GUIDE.md).

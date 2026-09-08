@@ -24,7 +24,7 @@ function guideApiPlugin(): Plugin {
   ) => {
     server.middlewares.use(async (req: IncomingMessage, res: ServerResponse, next: Connect.NextFunction) => {
       const url = req.url?.split('?')[0]
-      if (url !== '/api/guide') {
+      if (url !== '/api/guide' && url !== '/api/guide/lead') {
         next()
         return
       }
@@ -41,7 +41,7 @@ function guideApiPlugin(): Plugin {
       }
       try {
         const body = await readBody(req)
-        const request = new Request('http://guide.local/api/guide', {
+        const request = new Request(`http://guide.local${url}`, {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
           body: body.length ? new Uint8Array(body) : undefined,
@@ -64,8 +64,20 @@ function guideApiPlugin(): Plugin {
               env: Record<string, string | undefined>,
               kb: unknown,
             ) => Promise<Response>
+            handleGuideLeadRequest: (
+              req: Request,
+              env: Record<string, string | undefined>,
+            ) => Promise<Response>
           }
-          response = await mod.handleGuideRequest(request, env, kb)
+          response =
+            url === '/api/guide/lead'
+              ? await mod.handleGuideLeadRequest(request, env)
+              : await mod.handleGuideRequest(request, env, kb)
+        } else if (url === '/api/guide/lead') {
+          response = new Response(JSON.stringify({ ok: true, delivered: false }), {
+            status: 200,
+            headers: { 'content-type': 'application/json; charset=utf-8' },
+          })
         } else {
           response = await degradeGuidePreview(request, kb)
         }

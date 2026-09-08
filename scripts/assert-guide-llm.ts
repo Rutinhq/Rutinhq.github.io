@@ -1,10 +1,12 @@
 import {
   extractLlmText,
   guideLlmModelCandidates,
+  guideLlmOnProviderError,
   normalizeGuideLlmBaseUrl,
   normalizeGuideLlmModel,
   resolveGuideLlmBaseUrl,
   resolveGuideLlmModel,
+  GUIDE_LLM_CANDIDATE_CAP,
   GUIDE_MANDATE,
 } from '../src/guide/llm.ts'
 
@@ -50,8 +52,12 @@ assert(
   'AQ.-shaped AI Studio key must default to Gemini OpenAI-compat base',
 )
 assert(
-  resolveGuideLlmModel(undefined, 'AQ.FakeStudioKeyForShapeOnly') === 'gemini-2.0-flash',
-  'AQ.-shaped key must default to gemini-2.0-flash',
+  resolveGuideLlmModel(undefined, 'AQ.FakeStudioKeyForShapeOnly') === 'gemini-3.6-flash',
+  'AQ.-shaped key must default to gemini-3.6-flash',
+)
+assert(
+  resolveGuideLlmModel('gemini-3.6-flash', 'AQ.FakeStudioKeyForShapeOnly') === 'gemini-3.6-flash',
+  'GUIDE_LLM_MODEL is the single primary',
 )
 assert(
   resolveGuideLlmBaseUrl(undefined, 'sk-openai-shape').includes('api.openai.com'),
@@ -62,6 +68,42 @@ assert(normalizeGuideLlmModel('models/gemini-2.0-flash') === 'gemini-2.0-flash',
 assert(
   guideLlmModelCandidates('gemini-2.0-flash').includes('gemini-2.5-flash'),
   'gemini-2.0-flash must have a working alias fallback',
+)
+assert(
+  guideLlmModelCandidates('gemini-3.6-flash')[0] === 'gemini-3.6-flash',
+  'candidates must start with the configured primary',
+)
+assert(
+  guideLlmModelCandidates('gemini-3.6-flash').length <= GUIDE_LLM_CANDIDATE_CAP,
+  'candidates must stay at primary + at most 2 fallbacks',
+)
+assert(
+  guideLlmModelCandidates('gemini-2.0-flash').length <= GUIDE_LLM_CANDIDATE_CAP,
+  'legacy flash aliases must not cascade 5 models',
+)
+assert(
+  guideLlmOnProviderError(429, 'rate_limit', true, false) === 'retry',
+  '429 on primary retries once',
+)
+assert(
+  guideLlmOnProviderError(429, 'rate_limit', true, true) === 'fail',
+  '429 after one retry fails fast — no 5-model walk',
+)
+assert(
+  guideLlmOnProviderError(503, 'overload', true, true) === 'fail',
+  '503 after one retry fails fast',
+)
+assert(
+  guideLlmOnProviderError(429, 'rate_limit', false, false) === 'fail',
+  '429 on a fallback model must not continue the cascade',
+)
+assert(
+  guideLlmOnProviderError(404, 'not found', true, false) === 'fallback',
+  '404 may walk the short model-missing list',
+)
+assert(
+  /4–8 short sentences/.test(GUIDE_MANDATE) && /Do not stop mid-sentence/.test(GUIDE_MANDATE),
+  'mandate asks for multi-sentence replies that finish',
 )
 
 assert(

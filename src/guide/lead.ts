@@ -76,11 +76,56 @@ export function formatLeadMarkdown(brief: LeadBrief): string {
   ].join('\n')
 }
 
-export function leadMailtoHref(brief: LeadBrief): string {
+/** Long markdown bodies blow past mobile mailto limits (~2k encoded). Cap the href. */
+export const LEAD_MAILTO_HREF_MAX = 1200
+
+function leadSubject(brief: LeadBrief): string {
   const prefix = brief.locale === 'es' ? 'Brief de lead' : 'Lead brief'
-  const subject = `${prefix} — ${brief.topic}`
-  const body = formatLeadMarkdown(brief).slice(0, 1600)
-  return `mailto:${guidePolicy.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+  return `${prefix} — ${brief.topic}`
+}
+
+export function capMailtoHref(href: string, max = LEAD_MAILTO_HREF_MAX): string {
+  if (href.length <= max) return href
+  const match = href.match(/^(mailto:[^?]+\?subject=[^&]+&body=)(.*)$/)
+  if (!match) return href.slice(0, max)
+  const header = match[1]
+  const budget = max - header.length
+  if (budget < 24) return href.slice(0, max)
+  let body = ''
+  try {
+    body = decodeURIComponent(match[2])
+  } catch {
+    body = match[2]
+  }
+  while (encodeURIComponent(body).length > budget && body.length > 24) {
+    body = `${body.slice(0, Math.max(24, body.length - 80))}\n…`
+  }
+  return `${header}${encodeURIComponent(body)}`
+}
+
+/** Short mailto after clipboard copy — subject + 2–3 lines, not the full brief. */
+export function leadShortMailtoHref(brief: LeadBrief): string {
+  const subject = leadSubject(brief)
+  const body =
+    brief.locale === 'es'
+      ? `Hola — el brief completo está en el portapapeles. Pégalo debajo de esta línea y envíalo a strategy@.\n\nSKU: ${brief.recommendedSku}\nPágina: ${brief.page}\n`
+      : `Hi — the full brief is on the clipboard. Paste it below this line and send it to strategy@.\n\nSKU: ${brief.recommendedSku}\nPage: ${brief.page}\n`
+  return capMailtoHref(
+    `mailto:${guidePolicy.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`,
+  )
+}
+
+/** Full brief in the body, truncated so the href stays under LEAD_MAILTO_HREF_MAX. */
+export function leadSafeMailtoHref(brief: LeadBrief): string {
+  const subject = leadSubject(brief)
+  const body = formatLeadMarkdown(brief)
+  const href = `mailto:${guidePolicy.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+  return capMailtoHref(href)
+}
+
+/** Backward-compatible alias — never emit an uncapped long mailto. */
+export function leadMailtoHref(brief: LeadBrief): string {
+  return leadSafeMailtoHref(brief)
 }
 
 export function strategyMailtoHref(locale: GuideLocale): string {

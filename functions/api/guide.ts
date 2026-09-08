@@ -3,7 +3,7 @@
  * Secrets (Pages → Settings → Environment variables):
  *   GUIDE_LLM_API_KEY (or OpenAI-compatible key)
  *   GUIDE_LLM_BASE_URL (optional, Gemini: https://generativelanguage.googleapis.com/v1beta/openai)
- *   GUIDE_LLM_MODEL (optional, recommended gemini-2.0-flash)
+ *   GUIDE_LLM_MODEL (optional, recommended gemini-3.6-flash)
  *   GUIDE_LEAD_WEBHOOK_URL (optional JSON POST of lead briefs)
  *
  * Gemini runs with the full RutinHQ Guide mandate (not a bare model).
@@ -28,6 +28,8 @@ type Msg = { role: 'user' | 'assistant'; content: string }
 type Locale = 'en' | 'es'
 
 const hits = new Map<string, { n: number; resetAt: number }>()
+const KB_TTL_MS = 60_000
+let kbCache: { at: number; value: unknown } | null = null
 
 const SECURITY_HINTS = [
   'password',
@@ -118,15 +120,18 @@ function isSecurityHay(hay: string, extra: string[] = []): boolean {
 }
 
 async function loadKb(context: { request: Request; env: Env }) {
+  if (kbCache && Date.now() - kbCache.at < KB_TTL_MS) return kbCache.value
   try {
     const url = new URL('/guide-kb.json', context.request.url)
     const res = context.env.ASSETS
       ? await context.env.ASSETS.fetch(url)
       : await fetch(url)
     if (!res.ok) return null
-    return await res.json()
+    const value = await res.json()
+    kbCache = { at: Date.now(), value }
+    return value
   } catch {
-    return null
+    return kbCache?.value ?? null
   }
 }
 

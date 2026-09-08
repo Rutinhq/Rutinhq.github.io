@@ -13,21 +13,27 @@ Public catalog only: GTM OS, STORE OS, NEXUS OS, plus public docs curriculum at 
 Never invent prices, retainers, legal terms, SLAs, credentials, bank data, or private operations.
 Primary CTA: https://calendly.com/rutinhq/30min. Secondary: strategy@rutinhq.com.
 Reply 100% in the visitor locale (English or Spanish). Keep SKU names in English: GTM OS, STORE OS, NEXUS OS.
+Reply in 4–8 short sentences unless the visitor asks for less. Do not stop mid-sentence.
 If unsure, say so and offer the 30-min fit call. Refuse security probes in one sentence + Calendly — do not pitch a SKU.
 Public UI name is RutinHQ Guide only.`
 
 const GEMINI_HOST = 'generativelanguage.googleapis.com'
+const DEFAULT_GEMINI_MODEL = 'gemini-3.6-flash'
 
+/** 404 / model-not-found only. Never used on 429/503. Primary + at most 2 alts. */
 const MODEL_FALLBACKS: Record<string, string[]> = {
-  'gemini-2.0-flash': [
-    'gemini-2.0-flash-001',
-    'gemini-flash-latest',
-    'gemini-2.5-flash',
-    'gemini-3.6-flash',
-  ],
-  'gemini-2.0-flash-exp': ['gemini-2.0-flash', 'gemini-2.5-flash', 'gemini-3.6-flash'],
-  'gemini-2.5-flash': ['gemini-2.5-flash-lite', 'gemini-flash-latest', 'gemini-3.6-flash'],
+  'gemini-2.0-flash': ['gemini-3.6-flash', 'gemini-2.5-flash'],
+  'gemini-2.0-flash-exp': ['gemini-3.6-flash', 'gemini-2.5-flash'],
+  'gemini-2.0-flash-001': ['gemini-3.6-flash', 'gemini-2.5-flash'],
+  'gemini-flash-latest': ['gemini-3.6-flash', 'gemini-2.5-flash'],
+  'gemini-2.5-flash': ['gemini-3.6-flash'],
+  'gemini-2.5-flash-lite': ['gemini-2.5-flash', 'gemini-3.6-flash'],
+  'gemini-3.6-flash': ['gemini-2.5-flash'],
 }
+
+export const GUIDE_LLM_CANDIDATE_CAP = 3
+export const GUIDE_LLM_RATE_LIMIT_BACKOFF_MS = 600
+export const GUIDE_LLM_BUDGET_MS = 9_000
 
 function looksLikeGeminiKey(apiKey?: string): boolean {
   const key = apiKey?.trim() || ''
@@ -48,7 +54,7 @@ export function resolveGuideLlmBaseUrl(raw?: string, apiKey?: string, model?: st
 export function resolveGuideLlmModel(raw?: string, apiKey?: string): string {
   const explicit = raw?.trim()
   if (explicit) return normalizeGuideLlmModel(explicit)
-  if (looksLikeGeminiKey(apiKey)) return 'gemini-2.0-flash'
+  if (looksLikeGeminiKey(apiKey)) return DEFAULT_GEMINI_MODEL
   return 'gpt-4o-mini'
 }
 
@@ -81,7 +87,31 @@ export function normalizeGuideLlmModel(raw?: string): string {
 export function guideLlmModelCandidates(raw?: string): string[] {
   const primary = normalizeGuideLlmModel(raw)
   const extra = MODEL_FALLBACKS[primary] || []
-  return [primary, ...extra].filter((id, i, all) => id && all.indexOf(id) === i)
+  return [primary, ...extra]
+    .filter((id, i, all) => id && all.indexOf(id) === i)
+    .slice(0, GUIDE_LLM_CANDIDATE_CAP)
+}
+
+export function modelMissing(status: number, body: string): boolean {
+  if (status === 429 || status === 503) return false
+  if (status === 404) return true
+  if (status !== 400) return false
+  return /not found|does not exist|invalid model|model.*not/i.test(body)
+}
+
+/** 429/503: retry primary once, then fail. 404: walk short fallbacks. Else fail. */
+export function guideLlmOnProviderError(
+  status: number,
+  body: string,
+  isPrimary: boolean,
+  retriedPrimary: boolean,
+): 'retry' | 'fallback' | 'fail' {
+  if (status === 429 || status === 503) {
+    if (isPrimary && !retriedPrimary) return 'retry'
+    return 'fail'
+  }
+  if (modelMissing(status, body)) return 'fallback'
+  return 'fail'
 }
 
 function textFromUnknown(value: unknown): string {
@@ -139,13 +169,6 @@ function isGeminiHost(base: string): boolean {
   }
 }
 
-function modelMissing(status: number, body: string): boolean {
-  if (status === 429 || status === 503) return false
-  if (status === 404) return true
-  if (status !== 400) return false
-  return /not found|does not exist|invalid model|model.*not/i.test(body)
-}
-
 export type GuideLlmCallResult = {
   text: string | null
   host: string
@@ -158,8 +181,24 @@ function sanitizeProviderError(status: number, body: string): string {
   if (status === 401 || status === 403) return `${status}:auth`
   if (status === 404) return `${status}:not_found`
   if (status === 429) return `${status}:rate_limit`
+  if (status === 503) return `${status}:unavailable`
   if (/model|not found|does not exist/i.test(body)) return `${status}:model`
   return `${status}:provider`
+}
+
+function sleep(ms: number, signal?: AbortSignal): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (signal?.aborted) {
+      reject(Object.assign(new Error('Aborted'), { name: 'AbortError' }))
+      return
+    }
+    const timer = setTimeout(resolve, ms)
+    const onAbort = () => {
+      clearTimeout(timer)
+      reject(Object.assign(new Error('Aborted'), { name: 'AbortError' }))
+    }
+    signal?.addEventListener('abort', onAbort, { once: true })
+  })
 }
 
 export async function callGuideLlmDetailed(opts: {
@@ -169,6 +208,7 @@ export async function callGuideLlmDetailed(opts: {
   system: string
   messages: GuideLlmMessage[]
   maxTokens: number
+  timeoutMs?: number
 }): Promise<GuideLlmCallResult> {
   const key = opts.apiKey.trim()
   const base = resolveGuideLlmBaseUrl(opts.baseUrl, key, opts.model)
@@ -194,48 +234,78 @@ export async function callGuideLlmDetailed(opts: {
   }
   if (gemini) headers['x-goog-api-key'] = key
 
-  const models = guideLlmModelCandidates(resolveGuideLlmModel(opts.model, key))
-  empty.modelsTried = models
-  for (const model of models) {
-    try {
-      const res = await fetch(`${base}/chat/completions`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          model,
-          temperature: 0.2,
-          max_tokens: opts.maxTokens,
-          messages: [{ role: 'system', content: opts.system }, ...opts.messages],
-        }),
-      })
-      const raw = await res.text()
-      empty.lastStatus = res.status
-      if (!res.ok) {
-        empty.lastError = sanitizeProviderError(res.status, raw)
-        if (res.status === 503 || res.status === 429) {
-          await new Promise((r) => setTimeout(r, 250))
-          continue
+  const primary = resolveGuideLlmModel(opts.model, key)
+  const models = guideLlmModelCandidates(primary)
+  const controller = new AbortController()
+  const budgetMs = opts.timeoutMs ?? GUIDE_LLM_BUDGET_MS
+  const budget = setTimeout(() => controller.abort(), budgetMs)
+
+  const postOnce = async (model: string): Promise<{ status: number; raw: string; ok: boolean }> => {
+    const res = await fetch(`${base}/chat/completions`, {
+      method: 'POST',
+      headers,
+      signal: controller.signal,
+      body: JSON.stringify({
+        model,
+        temperature: 0.2,
+        max_tokens: opts.maxTokens,
+        messages: [{ role: 'system', content: opts.system }, ...opts.messages],
+      }),
+    })
+    const raw = await res.text()
+    return { status: res.status, raw, ok: res.ok }
+  }
+
+  try {
+    for (let i = 0; i < models.length; i++) {
+      const model = models[i]
+      const isPrimary = i === 0
+      empty.modelsTried.push(model)
+      let retriedPrimary = false
+
+      while (true) {
+        try {
+          const res = await postOnce(model)
+          empty.lastStatus = res.status
+          if (!res.ok) {
+            empty.lastError = sanitizeProviderError(res.status, res.raw)
+            const action = guideLlmOnProviderError(res.status, res.raw, isPrimary, retriedPrimary)
+            if (action === 'retry') {
+              retriedPrimary = true
+              await sleep(GUIDE_LLM_RATE_LIMIT_BACKOFF_MS, controller.signal)
+              continue
+            }
+            if (action === 'fallback' && gemini) break
+            return empty
+          }
+          let data: unknown
+          try {
+            data = JSON.parse(res.raw)
+          } catch {
+            empty.lastError = `${res.status}:invalid_json`
+            return empty
+          }
+          const text = extractLlmText(data)
+          if (text) {
+            empty.text = text
+            empty.lastError = null
+            return empty
+          }
+          empty.lastError = `${res.status}:empty_content`
+          return empty
+        } catch (err) {
+          const name = err instanceof Error ? err.name : 'fetch_failed'
+          if (name === 'AbortError') {
+            empty.lastError = 'timeout'
+            return empty
+          }
+          empty.lastError = name
+          return empty
         }
-        if (gemini && modelMissing(res.status, raw)) continue
-        return empty
       }
-      let data: unknown
-      try {
-        data = JSON.parse(raw)
-      } catch {
-        empty.lastError = `${res.status}:invalid_json`
-        return empty
-      }
-      const text = extractLlmText(data)
-      if (text) {
-        empty.text = text
-        empty.lastError = null
-        return empty
-      }
-      empty.lastError = `${res.status}:empty_content`
-    } catch (err) {
-      empty.lastError = err instanceof Error ? err.name : 'fetch_failed'
     }
+  } finally {
+    clearTimeout(budget)
   }
   return empty
 }
@@ -262,6 +332,7 @@ export function composeGuideSystemPrompt(
     GUIDE_MANDATE,
     policyPrompt,
     `Visitor locale: ${locale}. Reply entirely in ${lang}. Do not mix languages. SKU names stay in English.`,
+    'Reply in 4–8 short sentences unless the visitor asks for less. Do not stop mid-sentence.',
     knowledge ? `Allowlisted knowledge:\n${knowledge}` : '',
   ]
     .filter(Boolean)
