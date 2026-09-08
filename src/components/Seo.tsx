@@ -89,3 +89,89 @@ export function skuJsonLd(path: string, name: string, description: string) {
     about: { '@id': `${SITE}/#organization` },
   }
 }
+
+type FaqItem = { q: string; a: string }
+
+export function articleJsonLd({
+  path,
+  headline,
+  description,
+  datePublished,
+  dateModified,
+  faq,
+}: {
+  path: string
+  headline: string
+  description: string
+  datePublished: string
+  dateModified?: string
+  faq: readonly FaqItem[]
+}) {
+  const url = `${SITE}${path}`
+  const graph: Record<string, unknown>[] = [
+    {
+      '@type': 'Organization',
+      '@id': `${SITE}/#organization`,
+      name: 'RutinHQ',
+      url: `${SITE}/`,
+      email: 'strategy@rutinhq.com',
+    },
+    {
+      '@type': 'BlogPosting',
+      '@id': `${url}#article`,
+      headline,
+      description,
+      datePublished,
+      dateModified: dateModified ?? datePublished,
+      inLanguage: 'en',
+      url,
+      mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+      author: { '@id': `${SITE}/#organization` },
+      publisher: { '@id': `${SITE}/#organization` },
+    },
+    {
+      '@type': 'BreadcrumbList',
+      '@id': `${url}#breadcrumb`,
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: `${SITE}/`,
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'Blog',
+          item: `${SITE}/blog`,
+        },
+        {
+          '@type': 'ListItem',
+          position: 3,
+          name: headline,
+          item: url,
+        },
+      ],
+    },
+  ]
+
+  if (faq.length > 0) {
+    graph.push({
+      '@type': 'FAQPage',
+      '@id': `${url}#faq`,
+      mainEntity: faq.map((item) => ({
+        '@type': 'Question',
+        name: item.q,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: item.a,
+        },
+      })),
+    })
+  }
+
+  return {
+    '@context': 'https://schema.org',
+    '@graph': graph,
+  }
+}

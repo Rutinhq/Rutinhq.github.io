@@ -5,7 +5,7 @@ import GtmOsPage from '@/pages/gtm-os'
 import StoreOsPage from '@/pages/store-os'
 import NexusOsPage from '@/pages/nexus-os'
 import BlogPage from '@/pages/blog'
-import BlogWhyOneSkuPage from '@/pages/blog-why-one-sku'
+import BlogIcpGatedColdOutboundPage from '@/pages/blog-icp-gated-cold-outbound'
 import NotFoundPage from '@/pages/not-found'
 
 export default function App() {
@@ -17,7 +17,10 @@ export default function App() {
         <Route path="/store-os" element={<StoreOsPage />} />
         <Route path="/nexus-os" element={<NexusOsPage />} />
         <Route path="/blog" element={<BlogPage />} />
-        <Route path="/blog/why-one-sku" element={<BlogWhyOneSkuPage />} />
+        <Route
+          path="/blog/icp-gated-cold-outbound-without-rented-sdr"
+          element={<BlogIcpGatedColdOutboundPage />}
+        />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

@@ -68,3 +68,47 @@ export function BulletList({
     </ul>
   )
 }
+
+export function SimpleTable({
+  headers,
+  rows,
+}: {
+  headers: string[]
+  rows: string[][]
+}) {
+  return (
+    <div className="mt-6 overflow-x-auto">
+      <table className="w-full max-w-3xl text-left text-[15px]">
+        <thead>
+          <tr className="border-b border-border">
+            {headers.map((header) => (
+              <th
+                key={header}
+                className="py-3 pr-6 font-mono text-[11px] font-normal uppercase tracking-[0.18em] text-primary"
+              >
+                {header}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.join('|')} className="border-b border-border">
+              {row.map((cell, index) => (
+                <td
+                  key={`${row[0]}-${cell}-${index}`}
+                  className={cn(
+                    'py-3 pr-6 align-top',
+                    index === 0 ? 'text-foreground' : 'text-muted-foreground',
+                  )}
+                >
+                  {cell}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
