@@ -1,6 +1,7 @@
 import { Helmet } from '@dr.pogodin/react-helmet'
+import { SITE_URL } from '@/lib/links'
 
-const SITE = 'https://www.rutinhq.com'
+const SITE = SITE_URL
 const OG = `${SITE}/airo-assets/images/logo/horizontal.svg`
 
 type SeoProps = {
@@ -8,21 +9,33 @@ type SeoProps = {
   description: string
   path: string
   jsonLd?: Record<string, unknown>
+  ogType?: 'website' | 'article'
+  publishedTime?: string
 }
 
-export function Seo({ title, description, path, jsonLd }: SeoProps) {
+export function Seo({
+  title,
+  description,
+  path,
+  jsonLd,
+  ogType = 'website',
+  publishedTime,
+}: SeoProps) {
   const url = `${SITE}${path}`
   return (
     <Helmet>
       <title>{title}</title>
       <meta name="description" content={description} />
       <link rel="canonical" href={url} />
-      <meta property="og:type" content="website" />
+      <meta property="og:type" content={ogType} />
       <meta property="og:site_name" content="RutinHQ" />
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
       <meta property="og:url" content={url} />
       <meta property="og:image" content={OG} />
+      {publishedTime ? (
+        <meta property="article:published_time" content={publishedTime} />
+      ) : null}
       <meta name="twitter:card" content="summary" />
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
@@ -77,5 +90,58 @@ export function skuJsonLd(path: string, name: string, description: string) {
     description,
     isPartOf: { '@id': `${SITE}/#website` },
     about: { '@id': `${SITE}/#organization` },
+  }
+}
+
+function organizationNode() {
+  return {
+    '@type': 'Organization',
+    '@id': `${SITE}/#organization`,
+    name: 'RutinHQ',
+    url: `${SITE}/`,
+  }
+}
+
+export function blogIndexJsonLd(name: string, description: string) {
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      organizationNode(),
+      {
+        '@type': 'Blog',
+        '@id': `${SITE}/blog#blog`,
+        url: `${SITE}/blog`,
+        name,
+        description,
+        publisher: { '@id': `${SITE}/#organization` },
+        inLanguage: 'en',
+      },
+    ],
+  }
+}
+
+export function blogPostJsonLd(post: {
+  path: string
+  title: string
+  description: string
+  datePublished: string
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      organizationNode(),
+      {
+        '@type': 'BlogPosting',
+        headline: post.title,
+        description: post.description,
+        url: `${SITE}${post.path}`,
+        mainEntityOfPage: `${SITE}${post.path}`,
+        datePublished: post.datePublished,
+        inLanguage: 'en',
+        author: { '@id': `${SITE}/#organization` },
+        publisher: { '@id': `${SITE}/#organization` },
+        isPartOf: { '@id': `${SITE}/blog#blog` },
+      },
+    ],
   }
 }

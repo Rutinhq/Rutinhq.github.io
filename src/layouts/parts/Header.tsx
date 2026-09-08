@@ -22,6 +22,12 @@ export function Header() {
           <Logo />
         </Link>
         <div className="flex shrink-0 items-center gap-2 md:gap-4">
+          <Link
+            to="/blog"
+            className="font-mono text-[11px] tracking-[0.12em] text-muted-foreground hover:text-foreground"
+          >
+            {t('common.blog')}
+          </Link>
           <div
             className="flex shrink-0 items-center gap-2 font-mono text-[11px] tracking-[0.12em]"
             role="group"

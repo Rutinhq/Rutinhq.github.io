@@ -4,6 +4,8 @@ import HubPage from '@/pages/index'
 import GtmOsPage from '@/pages/gtm-os'
 import StoreOsPage from '@/pages/store-os'
 import NexusOsPage from '@/pages/nexus-os'
+import BlogIndexPage from '@/pages/blog/index'
+import BlogPostPage from '@/pages/blog/post'
 import NotFoundPage from '@/pages/not-found'
 
 export default function App() {
@@ -14,6 +16,8 @@ export default function App() {
         <Route path="/gtm-os" element={<GtmOsPage />} />
         <Route path="/store-os" element={<StoreOsPage />} />
         <Route path="/nexus-os" element={<NexusOsPage />} />
+        <Route path="/blog" element={<BlogIndexPage />} />
+        <Route path="/blog/:slug" element={<BlogPostPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

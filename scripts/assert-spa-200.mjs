@@ -7,7 +7,7 @@ if (fs.existsSync('dist/404.html')) {
   process.exit(1)
 }
 
-for (const route of ['gtm-os', 'store-os', 'nexus-os']) {
+for (const route of ['gtm-os', 'store-os', 'nexus-os', 'blog', 'blog/choose-a-system']) {
   const folderPage = `dist/${route}/index.html`
   if (fs.existsSync(folderPage)) {
     console.error(
@@ -42,6 +42,19 @@ if (/<!doctype html|<html[\s>]/i.test(sitemapBody)) {
 }
 if (!sitemapBody.includes('<urlset') || !sitemapBody.includes('https://www.rutinhq.com/')) {
   console.error(`${sitemap} must be a urlset with www.rutinhq.com loc entries.`)
+  process.exit(1)
+}
+for (const loc of [
+  'https://www.rutinhq.com/blog',
+  'https://www.rutinhq.com/blog/choose-a-system',
+]) {
+  if (!sitemapBody.includes(`<loc>${loc}</loc>`)) {
+    console.error(`${sitemap} must include ${loc}`)
+    process.exit(1)
+  }
+}
+if (/https?:\/\/rutinhq\.com\//.test(sitemapBody)) {
+  console.error(`${sitemap} must list www hosts only — no apex locs.`)
   process.exit(1)
 }
 

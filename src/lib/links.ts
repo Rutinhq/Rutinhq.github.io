@@ -1,3 +1,4 @@
+export const SITE_URL = 'https://www.rutinhq.com'
 export const EMAIL = 'strategy@rutinhq.com'
 export const DOCS_URL = 'https://docs.rutinhq.com'
 export const DOCS_CATALOG_URL = 'https://docs.rutinhq.com/catalog'

@@ -6,7 +6,8 @@
     "ctaDocs": "Read the system",
     "ctaOffer": "See the system",
     "hubLink": "Catalog",
-    "docs": "Docs"
+    "docs": "Docs",
+    "blog": "Notes"
   },
   "nav": {
     "language": "Language"
@@ -208,6 +209,17 @@
       "cta": "View NEXUS OS"
     }
   },
+  "blog": {
+    "eyebrow": "Notes",
+    "headline": "Notes on the three systems",
+    "subhead": "Short, scannable briefs. Catalog restatements — not case studies.",
+    "demoBadge": "Example",
+    "read": "Read",
+    "back": "All notes",
+    "related": "Related systems",
+    "catalogLead": "Landings:",
+    "docsLead": "Curriculum:"
+  },
   "footer": {
     "location": "Tijuana / Pacific",
     "onePager": "One-pager"
@@ -226,6 +238,8 @@
     "storeDescription": "Make the store convert before you buy ads. Replicable Shopify Admin audit + config.",
     "nexusTitle": "RutinHQ — NEXUS OS",
     "nexusDescription": "Agentic marketing — paper first, Ads only when signed. Strategy → Social → Ads.",
+    "blogTitle": "RutinHQ — notes",
+    "blogDescription": "Short briefs on GTM OS, Store OS, and NEXUS OS. Catalog restatements — not case studies.",
     "notFoundTitle": "RutinHQ — 404"
   }
 }
