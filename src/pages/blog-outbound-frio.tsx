@@ -1,6 +1,4 @@
-import { Link } from 'react-router-dom'
-import { Ctas } from '@/components/Ctas'
-import { MonoTitle, Section, SimpleTable } from '@/components/Section'
+import { BlogPostLayout, BlogTable } from '@/components/blog'
 import { Seo, articleJsonLd, hreflangPair } from '@/components/Seo'
 import { ARTICLE01, ARTICLE01_ES, articleSeoTitle } from '@/lib/blog'
 import { DOCS_GTM_URL, MAILTO_GTM, WWW_GTM_URL } from '@/lib/links'
@@ -31,125 +29,120 @@ export default function BlogOutboundFrioPage() {
         })}
       />
 
-      <Section first>
-        <p className="font-mono text-[12px] uppercase tracking-[0.14em] text-primary">
-          How-to · GTM OS
-        </p>
-        <p className="mt-3 font-mono text-[12px] tracking-[0.04em] text-muted-foreground">
-          <Link to="/" className="hover:text-foreground">
-            Inicio
-          </Link>
-          {' / '}
-          <Link to="/es/blog" className="hover:text-foreground">
-            Blog
-          </Link>
-          {' / '}
-          {ARTICLE01_ES.title}
-        </p>
-        <h1
-          className="mt-4 max-w-4xl font-heading font-extrabold tracking-[-0.03em]"
-          style={{ fontSize: 'clamp(36px, 6vw, 64px)' }}
-        >
-          {ARTICLE01_ES.title}
-        </h1>
-        <p className="mt-6 max-w-2xl text-[17px] text-foreground md:text-[18px]">
-          El outbound frío funciona cuando la <strong>máquina</strong> se queda
-          fija y solo cambian el lenguaje, los filtros y el ángulo. Un SDR
-          rentado se va con el contrato. Un sistema con <strong>puerta de ICP</strong>{' '}
-          se queda con tu equipo.
-        </p>
-      </Section>
-
-      <Section>
-        <h2 className="text-2xl font-heading font-extrabold tracking-[-0.03em]">
-          Qué significa “con puerta de ICP”
-        </h2>
-        <p className="mt-6 max-w-2xl text-[16px] leading-7 text-foreground">
+      <BlogPostLayout
+        typeLabel="How-to · GTM OS"
+        breadcrumbs={[
+          { label: 'Inicio', to: '/' },
+          { label: 'Blog', to: '/es/blog' },
+          { label: ARTICLE01_ES.title },
+        ]}
+        title={ARTICLE01_ES.title}
+        lede={
+          <p>
+            El outbound frío funciona cuando la <strong>máquina</strong> se queda
+            fija y solo cambian el lenguaje, los filtros y el ángulo. Un SDR
+            rentado se va con el contrato. Un sistema con{' '}
+            <strong>puerta de ICP</strong> se queda con tu equipo.
+          </p>
+        }
+        faqTitle="FAQ"
+        faq={ARTICLE01_ES.faq.map((item) =>
+          item.q === '¿Dónde está la ficha del sistema?'
+            ? {
+                q: item.q,
+                a: (
+                  <p>
+                    Mira la{' '}
+                    <a
+                      href={DOCS_GTM_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      ficha GTM OS en catalog
+                    </a>{' '}
+                    y la página{' '}
+                    <a href={WWW_GTM_URL}>www.rutinhq.com/gtm-os</a>.
+                  </p>
+                ),
+              }
+            : item,
+        )}
+        cta={{
+          title: 'Un SKU. Un siguiente paso.',
+          mailto: MAILTO_GTM,
+          mailtoLabel: 'strategy@',
+          lpHref: WWW_GTM_URL,
+          lpLabel: 'www.rutinhq.com/gtm-os',
+        }}
+      >
+        <h2>Qué significa “con puerta de ICP”</h2>
+        <p>
           Outbound con puerta de ICP <strong>no abre volumen</strong> hasta que
           los criterios son <strong>verificables</strong>. Nada de listas spray.
           Nada de “ya afinamos cuando lleguen replies.” La puerta es el
           producto: si fallan los tests firmográficos y de motion, la secuencia
           no sale.
         </p>
-        <SimpleTable
+        <BlogTable
           headers={['Puerta', 'Señal de pase']}
           rows={[
-            ['Fit firmográfico', 'Vertical + rol del buyer coinciden con la hoja'],
-            ['Fit de motion', 'Cold email es aceptable; el primer run se queda en frío'],
-            ['Fit de mensaje', 'El dolor es lo bastante específico para clasificar replies'],
-            ['Fit de volumen', 'No escalas hasta que el vertical previo mostró señal'],
+            [
+              'Fit firmográfico',
+              'Vertical + rol del buyer coinciden con la hoja',
+            ],
+            [
+              'Fit de motion',
+              'Cold email es aceptable; el primer run se queda en frío',
+            ],
+            [
+              'Fit de mensaje',
+              'El dolor es lo bastante específico para clasificar replies',
+            ],
+            [
+              'Fit de volumen',
+              'No escalas hasta que el vertical previo mostró señal',
+            ],
           ]}
         />
-      </Section>
 
-      <Section>
-        <h2 className="text-2xl font-heading font-extrabold tracking-[-0.03em]">
-          Núcleo fijo, inputs que cambian
-        </h2>
-        <p className="mt-6 max-w-2xl text-[16px] leading-7 text-foreground">
+        <h2>Núcleo fijo, inputs que cambian</h2>
+        <p>
           El GTM OS de RutinHQ trata el outbound como una máquina reutilizable.
           Por vertical cambias:
         </p>
-        <ul className="mt-6 max-w-2xl space-y-3 text-[16px] text-foreground">
-          <li className="flex gap-3">
-            <span className="text-primary" aria-hidden="true">
-              ·
-            </span>
-            <span>
-              <strong>Lenguaje</strong> — cómo nombras el dolor
-            </span>
+        <ul>
+          <li>
+            <strong>Lenguaje</strong> — cómo nombras el dolor
           </li>
-          <li className="flex gap-3">
-            <span className="text-primary" aria-hidden="true">
-              ·
-            </span>
-            <span>
-              <strong>Filtros</strong> — quién entra al pool
-            </span>
+          <li>
+            <strong>Filtros</strong> — quién entra al pool
           </li>
-          <li className="flex gap-3">
-            <span className="text-primary" aria-hidden="true">
-              ·
-            </span>
-            <span>
-              <strong>Ángulo</strong> — qué tesis abre el hilo
-            </span>
+          <li>
+            <strong>Ángulo</strong> — qué tesis abre el hilo
           </li>
         </ul>
-        <p className="mt-6 max-w-2xl text-[16px] leading-7 text-foreground">
+        <p>
           <strong>No</strong> reconstruyes milestones, protocolo de respuesta ni
           gobernanza en cada experimento. Esa es la diferencia entre instalar un
           sistema y rentar un asiento.
         </p>
-        <p className="mt-6 max-w-2xl text-[16px] leading-7 text-muted-foreground">
+        <p className="note">
           Prueba de currículo:{' '}
           <a
             href={DOCS_GTM_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-foreground underline underline-offset-4 hover:text-primary"
           >
             ficha GTM OS
-          </a>{' '}
-          · página comercial:{' '}
-          <a
-            href={WWW_GTM_URL}
-            className="text-foreground underline underline-offset-4 hover:text-primary"
-          >
-            www.rutinhq.com/gtm-os
           </a>
         </p>
-      </Section>
 
-      <Section>
-        <h2 className="text-2xl font-heading font-extrabold tracking-[-0.03em]">
-          Orden de milestones (M0–M7 de un vistazo)
-        </h2>
-        <p className="mt-6 max-w-2xl text-[16px] leading-7 text-foreground">
+        <h2>Orden de milestones (M0–M7 de un vistazo)</h2>
+        <p>
           Nada se salta. Cada fase alimenta la siguiente. Validas un vertical
           antes del siguiente.
         </p>
-        <SimpleTable
+        <BlogTable
           headers={['M', 'Paso']}
           rows={[
             ['M0', 'Research de sector'],
@@ -162,21 +155,17 @@ export default function BlogOutboundFrioPage() {
             ['M7', 'Cierre + escala al siguiente vertical'],
           ]}
         />
-        <p className="mt-6 max-w-2xl text-[16px] leading-7 text-muted-foreground">
+        <p className="note">
           Saltar M3 para “conseguir juntas más rápido” casi siempre significa
           que escalaste ruido.
         </p>
-      </Section>
 
-      <Section>
-        <h2 className="text-2xl font-heading font-extrabold tracking-[-0.03em]">
-          Responder antes de pitch
-        </h2>
-        <p className="mt-6 max-w-2xl text-[16px] leading-7 text-foreground">
+        <h2>Responder antes de pitch</h2>
+        <p>
           Clasifica antes de contestar. En discovery: el lead describe su
           proceso con sus palabras — sin pitch de features.
         </p>
-        <SimpleTable
+        <BlogTable
           headers={['Tipo', 'Acción']}
           rows={[
             ['Abierto', 'Responde pronto; tres horarios; call corta'],
@@ -187,13 +176,9 @@ export default function BlogOutboundFrioPage() {
             ['Silencio (5–7d)', 'Un bump en el hilo; luego descarta'],
           ]}
         />
-      </Section>
 
-      <Section>
-        <h2 className="text-2xl font-heading font-extrabold tracking-[-0.03em]">
-          Para quién / no para quién
-        </h2>
-        <SimpleTable
+        <h2>Para quién / no para quién</h2>
+        <BlogTable
           headers={['Para', 'No para']}
           rows={[
             ['Founder / CEO o lead de ops B2B (MX)', 'Ecom / B2C puro'],
@@ -205,62 +190,13 @@ export default function BlogOutboundFrioPage() {
               'Quieres poseer la máquina después del install',
               'RFP enterprise sin dueño de outbound',
             ],
-            ['Motion cold-first', 'Compradores que exigen N juntas garantizadas'],
+            [
+              'Motion cold-first',
+              'Compradores que exigen N juntas garantizadas',
+            ],
           ]}
         />
-      </Section>
-
-      <Section>
-        <MonoTitle>FAQ</MonoTitle>
-        <div className="mt-8 max-w-2xl space-y-8">
-          {ARTICLE01_ES.faq.map((item) => (
-            <div key={item.q}>
-              <h3 className="text-xl font-heading font-extrabold tracking-[-0.03em]">
-                {item.q}
-              </h3>
-              {item.q === '¿Dónde está la ficha del sistema?' ? (
-                <p className="mt-3 text-[16px] leading-7 text-muted-foreground">
-                  Mira la{' '}
-                  <a
-                    href={DOCS_GTM_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-foreground underline underline-offset-4 hover:text-primary"
-                  >
-                    ficha GTM OS en catalog
-                  </a>{' '}
-                  y la página{' '}
-                  <a
-                    href={WWW_GTM_URL}
-                    className="text-foreground underline underline-offset-4 hover:text-primary"
-                  >
-                    www.rutinhq.com/gtm-os
-                  </a>
-                  .
-                </p>
-              ) : (
-                <p className="mt-3 text-[16px] leading-7 text-muted-foreground">
-                  {item.a}
-                </p>
-              )}
-            </div>
-          ))}
-        </div>
-      </Section>
-
-      <Section>
-        <MonoTitle>Un SKU. Un siguiente paso.</MonoTitle>
-        <Ctas className="mt-8" mailto={MAILTO_GTM} />
-        <p className="mt-6 max-w-2xl text-[16px] leading-7 text-muted-foreground">
-          O ve directo:{' '}
-          <a
-            href={WWW_GTM_URL}
-            className="text-foreground underline underline-offset-4 hover:text-primary"
-          >
-            www.rutinhq.com/gtm-os
-          </a>
-        </p>
-      </Section>
+      </BlogPostLayout>
     </>
   )
 }
