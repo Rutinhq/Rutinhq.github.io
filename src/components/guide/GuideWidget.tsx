@@ -9,7 +9,13 @@ import {
   GUIDE_UI_NAME,
 } from '@/guide/config'
 import { localGuideReply } from '@/guide/fallback'
-import { buildLeadBrief, leadMailtoHref, strategyMailtoHref } from '@/guide/lead'
+import {
+  buildLeadBrief,
+  formatLeadMarkdown,
+  leadSafeMailtoHref,
+  leadShortMailtoHref,
+  strategyMailtoHref,
+} from '@/guide/lead'
 import { enforceSafeReply, isSecurityProbe, securityReply } from '@/guide/security'
 import type {
   GuideApiResponse,
@@ -40,6 +46,7 @@ export function GuideWidget() {
   const [input, setInput] = useState('')
   const [pending, setPending] = useState(false)
   const [leadBrief, setLeadBrief] = useState<LeadBrief | null>(null)
+  const [leadStatus, setLeadStatus] = useState<string | null>(null)
   const [messages, setMessages] = useState<UiMessage[]>([])
 
   useEffect(() => {
@@ -124,8 +131,36 @@ export function GuideWidget() {
       ...prev,
       { id: uid(), role: 'assistant', content: reply },
     ])
-    if (brief) setLeadBrief(brief)
+    if (brief) {
+      setLeadBrief(brief)
+      setLeadStatus(null)
+    }
     setPending(false)
+  }
+
+  async function sendLeadBrief() {
+    if (!leadBrief) return
+
+    void fetch('/api/guide/lead', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ leadBrief }),
+    }).catch(() => {
+      /* webhook is optional — clipboard + mailto still run */
+    })
+
+    let copied = false
+    try {
+      await navigator.clipboard.writeText(formatLeadMarkdown(leadBrief))
+      copied = true
+    } catch {
+      copied = false
+    }
+
+    const href = copied ? leadShortMailtoHref(leadBrief) : leadSafeMailtoHref(leadBrief)
+    window.location.assign(href)
+
+    if (copied) setLeadStatus(copy('guide.leadCopied'))
   }
 
   return (
@@ -207,14 +242,20 @@ export function GuideWidget() {
                 {copy('guide.emailCta')}
               </a>
               {leadBrief ? (
-                <a
-                  href={leadMailtoHref(leadBrief)}
+                <button
+                  type="button"
+                  onClick={() => void sendLeadBrief()}
                   className="inline-flex h-9 items-center border border-border px-3 text-[11px] font-bold uppercase tracking-widest text-foreground hover:bg-card"
                 >
                   {copy('guide.leadCta')}
-                </a>
+                </button>
               ) : null}
             </div>
+            {leadStatus ? (
+              <p className="mt-2 text-[12px] text-muted-foreground" role="status">
+                {leadStatus}
+              </p>
+            ) : null}
 
             {atCap ? (
               <p className="mt-3 text-[13px] text-muted-foreground">{copy('guide.limit')}</p>

@@ -81,6 +81,7 @@ const guideKeys = [
   'ctaBook',
   'emailCta',
   'leadCta',
+  'leadCopied',
   'limit',
   'disclaimer',
 ]
@@ -140,6 +141,36 @@ if (!/mailto:\$\{guidePolicy\.email\}/.test(lead)) {
   console.error('lead mailto must target strategy@ from policy.email')
   process.exit(1)
 }
+if (!/LEAD_MAILTO_HREF_MAX = 1200/.test(lead)) {
+  console.error('lead mailto href must be capped at 1200 chars')
+  process.exit(1)
+}
+if (!/leadShortMailtoHref/.test(lead) || !/leadSafeMailtoHref/.test(lead)) {
+  console.error('lead helpers must expose short clipboard mailto + capped fallback')
+  process.exit(1)
+}
+
+if (policySrc.limits.maxReplyTokens !== 1024 || policy.limits.maxReplyTokens !== 1024) {
+  console.error('policy + guide-kb maxReplyTokens must be 1024')
+  process.exit(1)
+}
+if (!/4–8 short sentences/.test(policySrc.systemPrompt)) {
+  console.error('systemPrompt must ask for 4–8 short sentences')
+  process.exit(1)
+}
+
+if (/href=\{leadMailtoHref/.test(widget)) {
+  console.error('lead CTA must not be a long mailto <a>')
+  process.exit(1)
+}
+if (!/formatLeadMarkdown/.test(widget) || !/clipboard\.writeText/.test(widget)) {
+  console.error('lead CTA must copy the markdown brief to the clipboard')
+  process.exit(1)
+}
+if (!/leadShortMailtoHref|leadSafeMailtoHref/.test(widget)) {
+  console.error('lead CTA must open a short or capped mailto')
+  process.exit(1)
+}
 
 const fn = fs.readFileSync(path.join(root, 'functions/api/guide.ts'), 'utf8')
 if (!/parsed\.locale === 'es'/.test(fn)) {
@@ -196,6 +227,14 @@ if (!/GUIDE_LLM_BASE_URL/.test(wrangler) || !/generativelanguage.googleapis.com/
 }
 if (!/\n\[vars\]/.test(wrangler) || !/GUIDE_LLM_BASE_URL\s*=/.test(wrangler)) {
   console.error('wrangler.toml [vars] must pin GUIDE_LLM_BASE_URL for Direct Upload')
+  process.exit(1)
+}
+if (!/GUIDE_LLM_MODEL\s*=\s*"gemini-2.0-flash"/.test(wrangler)) {
+  console.error('wrangler [vars] must pin GUIDE_LLM_MODEL=gemini-2.0-flash (non-thinking)')
+  process.exit(1)
+}
+if (!/guideLlmOnProviderError/.test(llm) || !/GUIDE_LLM_CANDIDATE_CAP/.test(llm)) {
+  console.error('LLM client must fail-fast on 429 and cap model candidates')
   process.exit(1)
 }
 

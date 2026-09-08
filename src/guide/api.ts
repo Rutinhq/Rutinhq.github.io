@@ -17,6 +17,7 @@ import type {
   GuideEnv,
   GuideKb,
   GuideLocale,
+  LeadBrief,
 } from './types'
 
 export type { GuideEnv }
@@ -92,18 +93,50 @@ async function callLlm(
   })
 }
 
-async function notifyWebhook(env: GuideEnv, payload: unknown): Promise<void> {
+async function notifyWebhook(env: GuideEnv, payload: unknown): Promise<boolean> {
   const url = env.GUIDE_LEAD_WEBHOOK_URL?.trim()
-  if (!url) return
+  if (!url) return false
   try {
-    await fetch(url, {
+    const res = await fetch(url, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(payload),
     })
+    return res.ok
   } catch {
-    // Delivery is best-effort; mailto remains the v1 path.
+    return false
   }
+}
+
+function asLeadBrief(value: unknown): LeadBrief | null {
+  if (!value || typeof value !== 'object') return null
+  const rec = value as Partial<LeadBrief>
+  if (typeof rec.topic !== 'string' || typeof rec.page !== 'string') return null
+  return rec as LeadBrief
+}
+
+/** POST /api/guide/lead — webhook if configured, always 200 { ok, delivered }. */
+export async function handleGuideLeadRequest(
+  request: Request,
+  env: GuideEnv,
+): Promise<Response> {
+  if (request.method !== 'POST') {
+    return json(405, { error: 'method_not_allowed' })
+  }
+  const raw = await request.text()
+  if (raw.length > GUIDE_LIMITS.maxBodyBytes) {
+    return json(200, { ok: true, delivered: false })
+  }
+  let parsed: { leadBrief?: unknown }
+  try {
+    parsed = JSON.parse(raw || '{}') as { leadBrief?: unknown }
+  } catch {
+    return json(200, { ok: true, delivered: false })
+  }
+  const leadBrief = asLeadBrief(parsed.leadBrief)
+  if (!leadBrief) return json(200, { ok: true, delivered: false })
+  const delivered = await notifyWebhook(env, { type: 'lead_brief', leadBrief })
+  return json(200, { ok: true, delivered })
 }
 
 export async function handleGuideRequest(
