@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { usePageLocale } from '@/lib/i18n/usePageLocale'
-import { DOCS_URL, EMAIL, MAILTO_HUB, ONE_PAGER_URL } from '@/lib/links'
+import { DOCS_CATALOG_URL, EMAIL, MAILTO_HUB } from '@/lib/links'
 
 export function Footer() {
   const { t } = useTranslation()
@@ -17,33 +17,20 @@ export function Footer() {
           </a>
         </p>
         <nav className="flex flex-wrap items-center gap-x-4 gap-y-2">
-          <Link to={localized('/')} className="hover:text-foreground">
-            {t('common.hubLink')}
-          </Link>
-          <Link
-            to={localized('/blog')}
+          <a
+            href={DOCS_CATALOG_URL}
+            target="_blank"
+            rel="noopener noreferrer"
             className="hover:text-foreground"
           >
+            {t('common.hubLink')}
+          </a>
+          <Link to={localized('/blog')} className="hover:text-foreground">
             {t('common.blog')}
           </Link>
           <a href={MAILTO_HUB} className="hover:text-foreground">
-            {t('common.ctaPrimary')}
-          </a>
-          <a
-            href={DOCS_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-muted-foreground/80 hover:text-muted-foreground"
-          >
-            {t('common.docs')}
-          </a>
-          <a
-            href={ONE_PAGER_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-muted-foreground/80 hover:text-muted-foreground"
-          >
-            {t('footer.onePager')}
+            <span className="md:hidden">{t('common.ctaPrimaryShort')}</span>
+            <span className="hidden md:inline">{t('common.ctaPrimary')}</span>
           </a>
         </nav>
       </div>

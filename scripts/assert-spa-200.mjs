@@ -454,6 +454,20 @@ if (!mailto.includes("mailto('STORE OS — fit call')")) {
   process.exit(1)
 }
 
+const footerSource = fs.readFileSync('src/layouts/parts/Footer.tsx', 'utf8')
+if (footerSource.includes('ONE_PAGER_URL') || /\bDOCS_URL\b/.test(footerSource)) {
+  console.error('Footer must drop standalone Docs and One-pager.')
+  process.exit(1)
+}
+if (
+  !footerSource.includes('DOCS_CATALOG_URL') ||
+  !footerSource.includes("localized('/blog')") ||
+  !footerSource.includes('MAILTO_HUB')
+) {
+  console.error('Footer must keep Catalog (docs), locale Blog, and Talk mailto.')
+  process.exit(1)
+}
+
 console.log(
   'SPA 200 fallback: no 404.html; blog + SKU prerender shells unique; favicon.ico real; crawl files www-only; /es hub not 301.',
 )
