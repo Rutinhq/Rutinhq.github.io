@@ -69,12 +69,6 @@ export default function BlogOutboundFrioPage() {
         )}
         cta={{
           title: 'Un SKU. Un siguiente paso.',
-          body: (
-            <p>
-              O ve directo:{' '}
-              <a href={WWW_GTM_URL}>www.rutinhq.com/gtm-os</a>
-            </p>
-          ),
           mailto: MAILTO_GTM,
           mailtoLabel: 'strategy@',
           lpHref: WWW_GTM_URL,
@@ -140,9 +134,7 @@ export default function BlogOutboundFrioPage() {
             rel="noopener noreferrer"
           >
             ficha GTM OS
-          </a>{' '}
-          · página comercial:{' '}
-          <a href={WWW_GTM_URL}>www.rutinhq.com/gtm-os</a>
+          </a>
         </p>
 
         <h2>Orden de milestones (M0–M7 de un vistazo)</h2>

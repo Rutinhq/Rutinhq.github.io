@@ -55,7 +55,9 @@ export function BlogTable({
         <thead>
           <tr>
             {headers.map((header) => (
-              <th key={header}>{header}</th>
+              <th key={header} scope="col">
+                {header}
+              </th>
             ))}
           </tr>
         </thead>
@@ -63,7 +65,12 @@ export function BlogTable({
           {rows.map((row) => (
             <tr key={row.join('|')}>
               {row.map((cell, index) => (
-                <td key={`${row[0]}-${cell}-${index}`}>{cell}</td>
+                <td
+                  key={`${row[0]}-${cell}-${index}`}
+                  data-label={headers[index]}
+                >
+                  {cell}
+                </td>
               ))}
             </tr>
           ))}
@@ -84,13 +91,10 @@ export function BlogPostLayout({
   cta,
 }: BlogPostLayoutProps) {
   return (
-    <article className="bg-background px-5 py-12 sm:px-6 md:px-10 md:py-16">
-      <div className="mx-auto w-full max-w-[65ch]">
-        <p className="text-[13px] font-medium text-primary">{typeLabel}</p>
-        <nav
-          aria-label="Breadcrumb"
-          className="mt-3 text-[13px] leading-6 text-muted-foreground"
-        >
+    <article className="blog-post">
+      <div className="blog-post-column">
+        <p className="blog-kicker">{typeLabel}</p>
+        <nav aria-label="Breadcrumb" className="blog-breadcrumb">
           {breadcrumbs.map((crumb, index) => (
             <span key={`${crumb.label}-${index}`}>
               {index > 0 ? <span aria-hidden="true"> / </span> : null}
@@ -99,46 +103,36 @@ export function BlogPostLayout({
                   {crumb.label}
                 </Link>
               ) : (
-                <span className="text-foreground/80">{crumb.label}</span>
+                <span>{crumb.label}</span>
               )}
             </span>
           ))}
         </nav>
 
-        <h1 className="blog-post-title mt-6">{title}</h1>
-        <div className="blog-lede mt-5">{lede}</div>
+        <h1 className="blog-post-title">{title}</h1>
+        <div className="blog-lede">{lede}</div>
 
-        <BlogProse className="mt-12">{children}</BlogProse>
+        <BlogProse>{children}</BlogProse>
 
-        <section className="mt-14 border-t border-border pt-10">
+        <section className="blog-faq">
           <h2 className="blog-section-heading">{faqTitle}</h2>
-          <div className="mt-8 space-y-8">
+          <div className="blog-faq-list">
             {faq.map((item) => (
               <div key={item.q}>
                 <h3 className="blog-faq-question">{item.q}</h3>
-                <div className="blog-faq-answer mt-2">{item.a}</div>
+                <div className="blog-faq-answer">{item.a}</div>
               </div>
             ))}
           </div>
         </section>
 
-        <footer className="mt-14 border-t border-border pt-10">
+        <footer className="blog-cta">
           <h2 className="blog-section-heading">{cta.title}</h2>
-          {cta.body ? <div className="blog-lede mt-4">{cta.body}</div> : null}
-          <p className="mt-5 text-[18px] leading-[1.7] text-foreground">
-            <a
-              href={cta.mailto}
-              className="underline underline-offset-4 hover:text-primary"
-            >
-              {cta.mailtoLabel ?? 'strategy@'}
-            </a>
+          {cta.body ? <div className="blog-lede">{cta.body}</div> : null}
+          <p className="blog-cta-links">
+            <a href={cta.mailto}>{cta.mailtoLabel ?? 'strategy@'}</a>
             {' · '}
-            <a
-              href={cta.lpHref}
-              className="underline underline-offset-4 hover:text-primary"
-            >
-              {cta.lpLabel}
-            </a>
+            <a href={cta.lpHref}>{cta.lpLabel}</a>
           </p>
         </footer>
       </div>

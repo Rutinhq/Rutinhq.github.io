@@ -65,12 +65,6 @@ export default function BlogIcpGatedColdOutboundPage() {
         )}
         cta={{
           title: 'One SKU. One next step.',
-          body: (
-            <p>
-              Or go direct:{' '}
-              <a href={WWW_GTM_URL}>www.rutinhq.com/gtm-os</a>
-            </p>
-          ),
           mailto: MAILTO_GTM,
           mailtoLabel: 'strategy@',
           lpHref: WWW_GTM_URL,
@@ -123,9 +117,7 @@ export default function BlogIcpGatedColdOutboundPage() {
             rel="noopener noreferrer"
           >
             GTM OS catalog
-          </a>{' '}
-          · commercial page:{' '}
-          <a href={WWW_GTM_URL}>www.rutinhq.com/gtm-os</a>
+          </a>
         </p>
 
         <h2>Milestone order (M0–M7 at a glance)</h2>
