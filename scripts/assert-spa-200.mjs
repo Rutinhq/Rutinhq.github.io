@@ -7,7 +7,7 @@ if (fs.existsSync('dist/404.html')) {
   process.exit(1)
 }
 
-for (const route of ['gtm-os', 'store-os', 'nexus-os', 'blog']) {
+for (const route of ['gtm-os', 'store-os', 'nexus-os', 'blog', 'es', 'es/blog']) {
   const folderPage = `dist/${route}/index.html`
   if (fs.existsSync(folderPage)) {
     console.error(
@@ -27,6 +27,10 @@ if (!fs.existsSync('dist/_redirects')) {
 const redirects = fs.readFileSync('dist/_redirects', 'utf8')
 if (!/\/\*\s+\/index\.html\s+200/.test(redirects)) {
   console.error('dist/_redirects must include `/* /index.html 200`.')
+  process.exit(1)
+}
+if (!redirects.includes('/es/blog')) {
+  console.error('dist/_redirects must document /es/blog SPA routing.')
   process.exit(1)
 }
 
@@ -51,31 +55,49 @@ const expectedLocs = [
   'https://www.rutinhq.com/gtm-os',
   'https://www.rutinhq.com/store-os',
   'https://www.rutinhq.com/nexus-os',
+  'https://www.rutinhq.com/blog',
+  'https://www.rutinhq.com/blog/icp-gated-cold-outbound-without-rented-sdr',
+  'https://www.rutinhq.com/es/blog',
+  'https://www.rutinhq.com/es/blog/outbound-frio-con-icp-sin-sdr-rentado',
 ]
 if (
   locs.length !== expectedLocs.length ||
   expectedLocs.some((url) => !locs.includes(url))
 ) {
   console.error(
-    `${sitemap} must list exactly the 4 www URLs (hub + 3 SKUs). /blog stays out until Capo publish.`,
+    `${sitemap} must list hub + 3 SKUs + EN blog + ES blog (8 www URLs).`,
   )
   process.exit(1)
 }
-if (locs.some((url) => url.includes('/blog') || !url.startsWith('https://www.rutinhq.com'))) {
-  console.error(`${sitemap} must stay www-only and must not include /blog.`)
+if (locs.some((url) => !url.startsWith('https://www.rutinhq.com'))) {
+  console.error(`${sitemap} must stay www-only.`)
   process.exit(1)
 }
 
-if (!fs.existsSync('dist/_headers')) {
-  console.error('dist/_headers missing — draft /blog needs X-Robots-Tag: noindex.')
+if (fs.existsSync('dist/_headers')) {
+  const headers = fs.readFileSync('dist/_headers', 'utf8')
+  const active = headers
+    .split('\n')
+    .filter((line) => line.trim() && !line.trim().startsWith('#'))
+    .join('\n')
+  if (/X-Robots-Tag:\s*noindex/i.test(active)) {
+    console.error(
+      'dist/_headers must not noindex published /blog or /es/blog.',
+    )
+    process.exit(1)
+  }
+}
+
+const blogSource = 'src/lib/blog.ts'
+if (!fs.existsSync(blogSource)) {
+  console.error(`${blogSource} missing — published blog flags cannot be checked.`)
   process.exit(1)
 }
-const headers = fs.readFileSync('dist/_headers', 'utf8')
-if (
-  !/\/blog\b[\s\S]*X-Robots-Tag:\s*noindex/i.test(headers) ||
-  !/\/blog\/\*[\s\S]*X-Robots-Tag:\s*noindex/i.test(headers)
-) {
-  console.error('dist/_headers must noindex /blog and /blog/*.')
+const blogFlags = fs.readFileSync(blogSource, 'utf8')
+if (!/draft:\s*false/.test(blogFlags) || !/noindex:\s*false/.test(blogFlags)) {
+  console.error(
+    `${blogSource} must set draft:false and noindex:false for published EN + ES blog.`,
+  )
   process.exit(1)
 }
 
@@ -95,5 +117,5 @@ if (!robotsBody.includes('Sitemap: https://www.rutinhq.com/sitemap.xml')) {
 }
 
 console.log(
-  'SPA 200 fallback: no 404.html; _redirects present; crawl files www-only; /blog noindex.',
+  'SPA 200 fallback: no 404.html; _redirects present; crawl files www-only; EN+ES blog indexed.',
 )

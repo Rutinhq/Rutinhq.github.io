@@ -12,4 +12,7 @@
 /services / 301
 /case-studies / 301
 /blog/why-one-sku /blog 301
+# /es/blog and /es/blog/* are first-class SPA routes. Do not add
+# exact `/es/blog /index.html 200` rewrites (folder/html-handling
+# 308 risk). The catch-all below serves them as HTTP 200.
 /*      /index.html  200

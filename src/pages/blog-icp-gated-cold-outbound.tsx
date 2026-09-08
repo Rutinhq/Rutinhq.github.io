@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { Ctas } from '@/components/Ctas'
 import { MonoTitle, Section, SimpleTable } from '@/components/Section'
 import { Seo, articleJsonLd } from '@/components/Seo'
-import { ARTICLE01 } from '@/lib/blog'
+import { ARTICLE01, ARTICLE01_ALTERNATES, ARTICLE01_ES } from '@/lib/blog'
 import { DOCS_GTM_URL, MAILTO_GTM, WWW_GTM_URL } from '@/lib/links'
 
 const TITLE = `RutinHQ — ${ARTICLE01.title}`
@@ -14,8 +14,10 @@ export default function BlogIcpGatedColdOutboundPage() {
         title={TITLE}
         description={ARTICLE01.description}
         path={ARTICLE01.path}
-        noindex
+        lang="en"
+        noindex={ARTICLE01.noindex}
         ogType="article"
+        alternates={ARTICLE01_ALTERNATES}
         jsonLd={articleJsonLd({
           path: ARTICLE01.path,
           headline: ARTICLE01.title,
@@ -28,7 +30,7 @@ export default function BlogIcpGatedColdOutboundPage() {
 
       <Section first>
         <p className="font-mono text-[12px] uppercase tracking-[0.14em] text-primary">
-          How-to · GTM OS · not indexed
+          How-to · GTM OS
         </p>
         <p className="mt-3 font-mono text-[12px] tracking-[0.04em] text-muted-foreground">
           <Link to="/" className="hover:text-foreground">
@@ -40,6 +42,10 @@ export default function BlogIcpGatedColdOutboundPage() {
           </Link>
           {' / '}
           {ARTICLE01.title}
+          {' · '}
+          <Link to={ARTICLE01_ES.path} className="hover:text-foreground">
+            ES
+          </Link>
         </p>
         <h1
           className="mt-4 max-w-4xl font-heading font-extrabold tracking-[-0.03em]"

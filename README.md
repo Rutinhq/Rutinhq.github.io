@@ -8,8 +8,10 @@ Catálogo público (`/`) y tres landings de un SKU cada una:
 | `/gtm-os` | GTM OS (Pack §2) |
 | `/store-os` | Store OS |
 | `/nexus-os` | NEXUS OS |
-| `/blog` | Filter/radar index (noindex, not in sitemap; canonical `/blog/`) |
-| `/blog/icp-gated-cold-outbound-without-rented-sdr` | Article01 — ICP-gated cold outbound (noindex) |
+| `/blog` | Filter/radar index (EN primary; canonical `https://www.rutinhq.com/blog`) |
+| `/blog/icp-gated-cold-outbound-without-rented-sdr` | Article01 EN — ICP-gated cold outbound |
+| `/es/blog` | Radar/filtro ES·MX (tuteo; hreflang ↔ `/blog`) |
+| `/es/blog/outbound-frio-con-icp-sin-sdr-rentado` | Article01 ES — outbound frío con ICP |
 
 Stack: Vite + React + Tailwind + i18next. Default **EN** (commercial copy). Toggle ES keeps chrome; SKU pages stay EN. Tema oscuro `#0a0a0a` / `#2ecc8f` / radius 0.
 
@@ -28,7 +30,7 @@ Stack: Vite + React + Tailwind + i18next. Default **EN** (commercial copy). Togg
   2. Wildcard: Request URL `https://rutinhq.com/*` → Target `https://www.rutinhq.com/${1}` → **301** → Preserve query string **On**
   3. Enable **Always Use HTTPS** (or a second wildcard for `http://rutinhq.com/*`)
   4. Verify: `curl -sI https://rutinhq.com/gtm-os` → `301` + `location: https://www.rutinhq.com/gtm-os`
-- **Blog:** `/blog` (canonical `https://www.rutinhq.com/blog/`) + Article01 stay `noindex` and **out** of the sitemap (4 www URLs) until a Capo publish card. `public/_headers` sends `X-Robots-Tag: noindex, nofollow` on `/blog` and `/blog/*`. No 3-SKU strip on `/blog`.
+- **Blog:** EN `/blog` (canonical `https://www.rutinhq.com/blog`) + Article01 and ES `/es/blog` + Article01 are **indexable**. Sitemap lists hub + 3 SKUs + 4 blog locs (8 www URLs). `hreflang` EN↔ES on both indexes and Article01. Soft-park Store/NEXUS. `/es/blog/*` is SPA 200 via the catch-all — do not emit folder `index.html`.
 - **No tocar** `docs.rutinhq.com`. CORTEX redeploya `rutinhq-web`.
 
 ## Local

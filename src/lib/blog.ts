@@ -1,12 +1,34 @@
 export const ARTICLE01_PATH =
   '/blog/icp-gated-cold-outbound-without-rented-sdr' as const
+export const ARTICLE01_ES_PATH =
+  '/es/blog/outbound-frio-con-icp-sin-sdr-rentado' as const
 
 export const BLOG_INDEX = {
   title: 'Blog — systems you own',
   description:
     'Radar for founders who install GTM and ops systems — not rented seats.',
-  path: '/blog/',
+  path: '/blog',
+  draft: false,
+  noindex: false,
+  inLanguage: 'en',
 } as const
+
+export const BLOG_INDEX_ES = {
+  title: 'Blog — sistemas que te quedan',
+  description:
+    'Radar para founders que instalan sistemas de GTM y ops — no asientos rentados.',
+  path: '/es/blog',
+  draft: false,
+  noindex: false,
+  inLanguage: 'es',
+  locale: 'es-MX',
+} as const
+
+export const BLOG_INDEX_ALTERNATES = [
+  { hrefLang: 'en', path: BLOG_INDEX.path },
+  { hrefLang: 'es', path: BLOG_INDEX_ES.path },
+  { hrefLang: 'x-default', path: BLOG_INDEX.path },
+] as const
 
 export const ARTICLE01 = {
   title: 'ICP-gated cold outbound without a rented SDR',
@@ -14,12 +36,13 @@ export const ARTICLE01 = {
     'Keep the outbound core fixed—change only ICP, message, and filters—so pipeline stays with your team when the contract ends.',
   slug: 'icp-gated-cold-outbound-without-rented-sdr',
   path: ARTICLE01_PATH,
+  alternateEs: ARTICLE01_ES_PATH,
   type: 'how-to',
   sku: 'gtm-os',
   job: 'Gate cold outbound by ICP before volume.',
   cta: 'strategy@',
-  draft: true,
-  noindex: true,
+  draft: false,
+  noindex: false,
   inLanguage: 'en',
   author: 'RutinHQ',
   datePublished: '2026-09-08',
@@ -39,16 +62,69 @@ export const ARTICLE01 = {
     },
     {
       q: 'Where’s the full system sheet?',
-      a: 'See the GTM OS catalog ficha and the /gtm-os page.',
+      a: 'See the GTM OS catalog ficha at https://docs.rutinhq.com/catalog/gtm-os/ and the https://www.rutinhq.com/gtm-os page.',
     },
   ],
 } as const
+
+export const ARTICLE01_ES = {
+  title: 'Outbound frío con ICP — sin SDR rentado',
+  description:
+    'Mantén fijo el núcleo del outbound; cambia solo ICP, mensaje y filtros — el pipeline se queda con tu equipo cuando termina el contrato.',
+  slug: 'outbound-frio-con-icp-sin-sdr-rentado',
+  path: ARTICLE01_ES_PATH,
+  alternateEn: ARTICLE01_PATH,
+  type: 'how-to',
+  sku: 'gtm-os',
+  job: 'Cierra el outbound frío con puerta de ICP antes del volumen.',
+  cta: 'strategy@',
+  ctaMode: 'discovery',
+  locale: 'es-MX',
+  draft: false,
+  noindex: false,
+  inLanguage: 'es',
+  register: 'tu',
+  author: 'RutinHQ',
+  datePublished: '2026-09-08',
+  dateModified: '2026-09-08',
+  faq: [
+    {
+      q: '¿Esto es contratar un SDR?',
+      a: 'No. Es un sistema de prospección instalado en tu equipo para que el outbound sobreviva cuando la agencia se va.',
+    },
+    {
+      q: '¿Se salta la validación de ICP para ir más rápido?',
+      a: 'No. Sin ICP correcto no hay volumen; sin señal del vertical previo no hay siguiente vertical.',
+    },
+    {
+      q: '¿Qué cambia por vertical?',
+      a: 'Lenguaje, filtros y ángulo — no el núcleo de milestones.',
+    },
+    {
+      q: '¿Dónde está la ficha del sistema?',
+      a: 'Mira la ficha GTM OS en catalog en https://docs.rutinhq.com/catalog/gtm-os/ y la página https://www.rutinhq.com/gtm-os.',
+    },
+  ],
+} as const
+
+export const ARTICLE01_ALTERNATES = [
+  { hrefLang: 'en', path: ARTICLE01.path },
+  { hrefLang: 'es', path: ARTICLE01_ES.path },
+  { hrefLang: 'x-default', path: ARTICLE01.path },
+] as const
 
 export const BLOG_FILTER_SIGNALS = [
   { name: 'ICP fit', thesis: 'Vertical / buyer role' },
   { name: 'Pain', thesis: 'Pipeline, handoff, ICP, lean ops friction' },
   { name: 'SKU interest', thesis: 'Which OS page they open' },
   { name: 'Seniority', thesis: 'Founder / CEO / ops lead language' },
+] as const
+
+export const BLOG_FILTER_SIGNALS_ES = [
+  { name: 'Fit de ICP', thesis: 'Vertical / rol del buyer' },
+  { name: 'Dolor', thesis: 'Pipeline, handoff, ICP, fricción de ops' },
+  { name: 'Interés de SKU', thesis: 'Qué página de OS abren' },
+  { name: 'Seniority', thesis: 'Lenguaje de founder / CEO / lead de ops' },
 ] as const
 
 export const BLOG_FEATURED_COMING = [
@@ -62,6 +138,21 @@ export const BLOG_FEATURED_COMING = [
   },
   {
     title: 'Agency retainer vs outbound OS install',
+    type: 'comparison',
+  },
+] as const
+
+export const BLOG_FEATURED_COMING_ES = [
+  {
+    title: 'Qué significa “sistemas que te quedan” para un founder B2B',
+    type: 'framework',
+  },
+  {
+    title: 'Radar → Blueprint → OS: el cuello antes de comprar build',
+    type: 'how-to',
+  },
+  {
+    title: 'Retainer de agencia vs instalar un OS de outbound',
     type: 'comparison',
   },
 ] as const
