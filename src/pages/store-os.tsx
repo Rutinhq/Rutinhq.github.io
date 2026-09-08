@@ -4,7 +4,7 @@ import { BulletList, MonoTitle, Section } from '@/components/Section'
 import { Seo, skuJsonLd } from '@/components/Seo'
 import { useObjectList } from '@/lib/i18n/lists'
 import { usePageLocale } from '@/lib/i18n/usePageLocale'
-import { DOCS_STORE_URL, MAILTO_STORE } from '@/lib/links'
+import { DOCS_STORE_URL } from '@/lib/links'
 
 export default function StoreOsPage() {
   const { t } = useTranslation()
@@ -40,7 +40,7 @@ export default function StoreOsPage() {
         <p className="mt-6 max-w-2xl text-[17px] text-muted-foreground md:text-[18px]">
           {t('store.hero.subhead')}
         </p>
-        <Ctas className="mt-10" mailto={MAILTO_STORE} docsHref={DOCS_STORE_URL} />
+        <Ctas className="mt-10" docsHref={DOCS_STORE_URL} />
       </Section>
 
       <Section>
@@ -69,7 +69,7 @@ export default function StoreOsPage() {
       <Section>
         <MonoTitle muted>{t('store.notWhat.title')}</MonoTitle>
         <BulletList items={notWhat} muted />
-        <Ctas className="mt-10" mailto={MAILTO_STORE} docsHref={DOCS_STORE_URL} />
+        <Ctas className="mt-10" docsHref={DOCS_STORE_URL} />
       </Section>
     </>
   )

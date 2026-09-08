@@ -3,9 +3,10 @@ import { Link } from 'react-router-dom'
 import { Ctas } from '@/components/Ctas'
 import { Section } from '@/components/Section'
 import { hubJsonLd, Seo } from '@/components/Seo'
-import { Button } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 import { usePageLocale } from '@/lib/i18n/usePageLocale'
-import { DOCS_CATALOG_URL, MAILTO_HUB } from '@/lib/links'
+import { DOCS_CATALOG_URL } from '@/lib/links'
+import { cn } from '@/lib/utils'
 
 const CARDS = [
   { key: 'gtm', href: '/gtm-os' },
@@ -60,16 +61,19 @@ export default function HubPage() {
               <p className="mt-3 flex-1 text-[16px] text-muted-foreground">
                 {t(`cards.${card.key}.thesis`)}
               </p>
-              <Button asChild className="mt-8 self-start" size="lg">
-                <Link to={localized(card.href)}>{t(`cards.${card.key}.cta`)}</Link>
-              </Button>
+              <Link
+                to={localized(card.href)}
+                className={cn(buttonVariants({ size: 'lg' }), 'mt-8 self-start')}
+              >
+                {t(`cards.${card.key}.cta`)}
+              </Link>
             </article>
           ))}
         </div>
       </Section>
 
       <Section>
-        <Ctas mailto={MAILTO_HUB} />
+        <Ctas />
         <p className="mt-6 max-w-2xl text-sm text-muted-foreground">
           {t('hub.catalogNote')}{' '}
           <a

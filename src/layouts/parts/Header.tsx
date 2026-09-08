@@ -1,19 +1,19 @@
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Logo } from '@/components/Logo'
-import { Button } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 import type { SupportedLanguage } from '@/lib/i18n/config'
 import { languageFromPathname, localePath, withLocale } from '@/lib/i18n/paths'
-import { MAILTO_HUB } from '@/lib/links'
+import { CALENDLY_URL } from '@/lib/links'
+import { cn } from '@/lib/utils'
 
 export function Header() {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const location = useLocation()
   const navigate = useNavigate()
   const currentLang: SupportedLanguage = languageFromPathname(location.pathname)
 
   function switchLang(next: SupportedLanguage) {
-    void i18n.changeLanguage(next)
     const mapped = localePath(location.pathname, next)
     if (mapped !== location.pathname) navigate(mapped)
   }
@@ -24,11 +24,11 @@ export function Header() {
         <Link
           to={withLocale('/', currentLang)}
           aria-label="RutinHQ"
-          className="flex shrink-0 items-center text-foreground"
+          className="relative z-10 flex shrink-0 items-center text-foreground"
         >
           <Logo />
         </Link>
-        <div className="flex shrink-0 items-center gap-2 md:gap-4">
+        <div className="relative z-10 flex shrink-0 items-center gap-2 md:gap-4">
           <div
             className="flex shrink-0 items-center gap-2 font-mono text-[11px] tracking-[0.12em]"
             role="group"
@@ -58,12 +58,15 @@ export function Header() {
               EN
             </button>
           </div>
-          <Button asChild size="sm" className="shrink-0 px-3 md:px-4">
-            <a href={MAILTO_HUB}>
-              <span className="md:hidden">{t('common.ctaPrimaryShort')}</span>
-              <span className="hidden md:inline">{t('common.ctaPrimary')}</span>
-            </a>
-          </Button>
+          <a
+            href={CALENDLY_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cn(buttonVariants({ size: 'sm' }), 'relative z-10 shrink-0 px-3 md:px-4')}
+          >
+            <span className="md:hidden">{t('common.ctaPrimaryShort')}</span>
+            <span className="hidden md:inline">{t('common.ctaPrimary')}</span>
+          </a>
         </div>
       </div>
     </header>
