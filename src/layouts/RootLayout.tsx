@@ -1,12 +1,21 @@
 import { Helmet } from '@dr.pogodin/react-helmet'
-import { Outlet } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Outlet, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { languageFromPathname } from '@/lib/i18n/paths'
 import { Footer } from './parts/Footer'
 import { Header } from './parts/Header'
 
 export function RootLayout() {
   const { i18n } = useTranslation()
-  const lang = i18n.language?.startsWith('es') ? 'es' : 'en'
+  const { pathname } = useLocation()
+  const lang = languageFromPathname(pathname)
+
+  useEffect(() => {
+    if (!i18n.language?.startsWith(lang)) {
+      void i18n.changeLanguage(lang)
+    }
+  }, [i18n, lang])
 
   return (
     <div className="flex min-h-svh flex-col bg-background text-foreground">

@@ -24,9 +24,9 @@ async function start() {
         let template = fs.readFileSync(templatePath, 'utf8')
         template = await vite.transformIndexHtml(url, template)
         const { render } = await vite.ssrLoadModule('/src/entry-server.tsx')
-        const cookie = String(req.headers.cookie ?? '')
-        const stored = cookie.match(/i18nextLng=([^;]+)/)?.[1]
-        const lang = stored?.startsWith('es') ? 'es' : 'en'
+        const pathname = url.split('?')[0] ?? '/'
+        const lang =
+          pathname === '/es' || pathname.startsWith('/es/') ? 'es' : 'en'
         const { html, head, htmlAttributes } = await render(url, lang)
         const page = template
           .replace('<html lang="en">', `<html lang="${lang}" ${htmlAttributes}>`)

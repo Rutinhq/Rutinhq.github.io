@@ -3,10 +3,13 @@ import { Ctas } from '@/components/Ctas'
 import { BulletList, MonoTitle, Section } from '@/components/Section'
 import { Seo, skuJsonLd } from '@/components/Seo'
 import { useObjectList } from '@/lib/i18n/lists'
+import { usePageLocale } from '@/lib/i18n/usePageLocale'
 import { DOCS_GTM_URL, MAILTO_GTM } from '@/lib/links'
 
 export default function GtmOsPage() {
   const { t } = useTranslation()
+  const { locale, localized, alternatesFor } = usePageLocale()
+  const path = localized('/gtm-os')
   const who = useObjectList<string>('gtm.who.items')
   const notFor = useObjectList<string>('gtm.notFor.items')
   const how = useObjectList<string>('gtm.how.items')
@@ -20,8 +23,10 @@ export default function GtmOsPage() {
       <Seo
         title={t('seo.gtmTitle')}
         description={t('seo.gtmDescription')}
-        path="/gtm-os"
-        jsonLd={skuJsonLd('/gtm-os', t('seo.gtmTitle'), t('seo.gtmDescription'))}
+        path={path}
+        locale={locale}
+        alternates={alternatesFor('/gtm-os')}
+        jsonLd={skuJsonLd(path, t('seo.gtmTitle'), t('seo.gtmDescription'))}
       />
 
       <Section first>

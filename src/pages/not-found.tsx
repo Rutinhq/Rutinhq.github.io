@@ -3,9 +3,11 @@ import { Link } from 'react-router-dom'
 import { Section } from '@/components/Section'
 import { Seo } from '@/components/Seo'
 import { Button } from '@/components/ui/button'
+import { usePageLocale } from '@/lib/i18n/usePageLocale'
 
 export default function NotFoundPage() {
   const { t } = useTranslation()
+  const { localized } = usePageLocale()
 
   return (
     <>
@@ -25,7 +27,7 @@ export default function NotFoundPage() {
           {t('notFound.body')}
         </p>
         <Button asChild size="lg" className="mt-10">
-          <Link to="/">{t('notFound.back')}</Link>
+          <Link to={localized('/')}>{t('notFound.back')}</Link>
         </Button>
       </Section>
     </>

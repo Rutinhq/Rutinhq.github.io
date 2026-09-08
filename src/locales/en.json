@@ -93,7 +93,7 @@
     }
   },
   "store": {
-    "eyebrow": "Store OS",
+    "eyebrow": "STORE OS",
     "hero": {
       "headline": "Make the store convert before you buy ads.",
       "subhead": "Replicable Shopify Admin audit + config — variants, price, weight, shipping — so ops friction stops killing conversion."
@@ -180,7 +180,7 @@
       "items": [
         "Repeatable content system without invented claims",
         "Paper ready for review before spend",
-        "Clear separation: NEXUS ≠ outbound (GTM OS) ≠ store Admin (Store OS)"
+        "Clear separation: NEXUS ≠ outbound (GTM OS) ≠ store Admin (STORE OS)"
       ]
     },
     "notWhat": {
@@ -200,9 +200,9 @@
       "cta": "View GTM OS"
     },
     "store": {
-      "name": "Store OS",
+      "name": "STORE OS",
       "thesis": "Shopify Admin audit + config so the store converts before you spend on ads.",
-      "cta": "View Store OS"
+      "cta": "View STORE OS"
     },
     "nexus": {
       "name": "NEXUS OS",
@@ -224,7 +224,7 @@
     "hubDescription": "Three installable operating systems. Pick the bottleneck. One page, one SKU.",
     "gtmTitle": "RutinHQ — GTM OS",
     "gtmDescription": "Outbound that stays yours. A cold B2B prospecting system installed in your team.",
-    "storeTitle": "RutinHQ — Store OS",
+    "storeTitle": "RutinHQ — STORE OS",
     "storeDescription": "Make the store convert before you buy ads. Replicable Shopify Admin audit + config.",
     "nexusTitle": "RutinHQ — NEXUS OS",
     "nexusDescription": "Agentic marketing — paper first, Ads only when signed. Strategy → Social → Ads.",

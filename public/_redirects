@@ -9,6 +9,7 @@
 # SPA fallback so /sitemap.xml and /robots.txt are never rewritten to HTML.
 /sitemap.xml /sitemap.xml 200
 /robots.txt /robots.txt 200
+/favicon.ico /favicon.ico 200
 /services / 301
 /case-studies / 301
 /blog/why-one-sku /blog 301
@@ -21,7 +22,20 @@
 /blog/ /prerender/blog 200
 /blog/icp-gated-cold-outbound-without-rented-sdr /prerender/blog-icp-gated-cold-outbound-without-rented-sdr 200
 /blog/icp-gated-cold-outbound-without-rented-sdr/ /prerender/blog-icp-gated-cold-outbound-without-rented-sdr 200
-/es /es/blog 301
+/gtm-os /prerender/gtm-os 200
+/gtm-os/ /prerender/gtm-os 200
+/store-os /prerender/store-os 200
+/store-os/ /prerender/store-os 200
+/nexus-os /prerender/nexus-os 200
+/nexus-os/ /prerender/nexus-os 200
+/es /prerender/es 200
+/es/ /prerender/es 200
+/es/gtm-os /prerender/es-gtm-os 200
+/es/gtm-os/ /prerender/es-gtm-os 200
+/es/store-os /prerender/es-store-os 200
+/es/store-os/ /prerender/es-store-os 200
+/es/nexus-os /prerender/es-nexus-os 200
+/es/nexus-os/ /prerender/es-nexus-os 200
 /es/blog /prerender/es-blog 200
 /es/blog/ /prerender/es-blog 200
 /es/blog/outbound-frio-con-icp-sin-sdr-rentado /prerender/es-blog-outbound-frio-con-icp-sin-sdr-rentado 200

@@ -214,7 +214,7 @@ export default function BlogPage() {
             href={WWW_STORE_URL}
             className="underline underline-offset-4 hover:text-foreground"
           >
-            Store OS
+            STORE OS
           </a>
           {' · '}
           <a

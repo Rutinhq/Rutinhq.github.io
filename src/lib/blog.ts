@@ -145,18 +145,4 @@ export const BLOG_FEATURED_COMING_ES = [
   },
 ] as const
 
-const LOCALE_PAIRS = [
-  { en: BLOG_INDEX.path, es: BLOG_INDEX_ES.path },
-  { en: ARTICLE01_PATH, es: ARTICLE01_ES_PATH },
-] as const
-
-export function localePath(
-  pathname: string,
-  lang: 'en' | 'es',
-): string | null {
-  const normalized = pathname.replace(/\/$/, '') || '/'
-  for (const pair of LOCALE_PAIRS) {
-    if (normalized === pair.en || normalized === pair.es) return pair[lang]
-  }
-  return null
-}
+export { localePath } from './i18n/paths'

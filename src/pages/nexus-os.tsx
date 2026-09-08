@@ -3,10 +3,13 @@ import { Ctas } from '@/components/Ctas'
 import { BulletList, MonoTitle, Section } from '@/components/Section'
 import { Seo, skuJsonLd } from '@/components/Seo'
 import { useObjectList } from '@/lib/i18n/lists'
+import { usePageLocale } from '@/lib/i18n/usePageLocale'
 import { DOCS_NEXUS_URL, MAILTO_NEXUS } from '@/lib/links'
 
 export default function NexusOsPage() {
   const { t } = useTranslation()
+  const { locale, localized, alternatesFor } = usePageLocale()
+  const path = localized('/nexus-os')
   const who = useObjectList<string>('nexus.who.items')
   const notFor = useObjectList<string>('nexus.notFor.items')
   const how = useObjectList<string>('nexus.how.items')
@@ -18,12 +21,10 @@ export default function NexusOsPage() {
       <Seo
         title={t('seo.nexusTitle')}
         description={t('seo.nexusDescription')}
-        path="/nexus-os"
-        jsonLd={skuJsonLd(
-          '/nexus-os',
-          t('seo.nexusTitle'),
-          t('seo.nexusDescription'),
-        )}
+        path={path}
+        locale={locale}
+        alternates={alternatesFor('/nexus-os')}
+        jsonLd={skuJsonLd(path, t('seo.nexusTitle'), t('seo.nexusDescription'))}
       />
 
       <Section first>

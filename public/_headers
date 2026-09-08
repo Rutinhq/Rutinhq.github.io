@@ -1,2 +1,5 @@
 # Published /blog + Article01 are crawlable (sitemap + prerendered HTML).
 # Do not send X-Robots-Tag: noindex on those paths.
+
+/favicon.ico
+  Content-Type: image/x-icon

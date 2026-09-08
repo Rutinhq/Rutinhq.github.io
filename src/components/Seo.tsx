@@ -42,6 +42,8 @@ export function Seo({
       <title>{title}</title>
       <meta name="description" content={description} />
       <link rel="canonical" href={url} />
+      <link rel="icon" href="/favicon.ico" sizes="any" />
+      <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
       <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       {alternates?.map((alt) => (
         <link
@@ -70,7 +72,17 @@ export function Seo({
   )
 }
 
-export function hubJsonLd() {
+const OS_LANDINGS = [
+  { name: 'GTM OS', path: '/gtm-os' },
+  { name: 'STORE OS', path: '/store-os' },
+  { name: 'NEXUS OS', path: '/nexus-os' },
+] as const
+
+export function hubJsonLd(
+  path = '/',
+  name = 'RutinHQ — systems you own',
+) {
+  const pageUrl = `${SITE}${path === '/' ? '/' : path}`
   return {
     '@context': 'https://schema.org',
     '@graph': [
@@ -80,24 +92,42 @@ export function hubJsonLd() {
         url: `${SITE}/`,
         name: 'RutinHQ',
         description:
-          'Three installable operating systems. Pick the bottleneck. One page, one SKU.',
+          'RutinHQ installs B2B operating systems — GTM OS, STORE OS, and NEXUS OS — that founding teams own.',
         inLanguage: ['en', 'es'],
+        publisher: { '@id': `${SITE}/#organization` },
       },
       {
         '@type': 'Organization',
         '@id': `${SITE}/#organization`,
         name: 'RutinHQ',
+        alternateName: 'Rutin HQ',
         url: `${SITE}/`,
         email: 'strategy@rutinhq.com',
         logo: `${SITE}/airo-assets/images/logo/horizontal.svg`,
+        image: `${SITE}/apple-touch-icon.png`,
+        description:
+          'RutinHQ is a B2B systems studio. We install GTM OS, STORE OS, and NEXUS OS — operating systems teams own, not retainers that vanish.',
+        knowsAbout: ['GTM OS', 'STORE OS', 'NEXUS OS', 'B2B outbound'],
       },
       {
         '@type': 'WebPage',
-        '@id': `${SITE}/#webpage`,
-        url: `${SITE}/`,
-        name: 'RutinHQ — systems you own',
+        '@id': `${pageUrl}#webpage`,
+        url: pageUrl,
+        name,
         isPartOf: { '@id': `${SITE}/#website` },
         about: { '@id': `${SITE}/#organization` },
+      },
+      {
+        '@type': 'ItemList',
+        '@id': `${SITE}/#os-landings`,
+        name: 'RutinHQ operating systems',
+        numberOfItems: OS_LANDINGS.length,
+        itemListElement: OS_LANDINGS.map((item, index) => ({
+          '@type': 'ListItem',
+          position: index + 1,
+          name: item.name,
+          url: `${SITE}${item.path}`,
+        })),
       },
     ],
   }
