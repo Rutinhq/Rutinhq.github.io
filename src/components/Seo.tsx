@@ -143,7 +143,7 @@ export function articleJsonLd({
           '@type': 'ListItem',
           position: 2,
           name: 'Blog',
-          item: `${SITE}/blog/`,
+          item: `${SITE}/blog`,
         },
         {
           '@type': 'ListItem',
@@ -179,7 +179,7 @@ export function articleJsonLd({
 export function blogIndexJsonLd(
   featured: readonly { path: string; name: string }[],
 ) {
-  const url = `${SITE}/blog/`
+  const url = `${SITE}/blog`
   return {
     '@context': 'https://schema.org',
     '@graph': [
