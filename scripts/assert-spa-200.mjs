@@ -30,4 +30,36 @@ if (!/\/\*\s+\/index\.html\s+200/.test(redirects)) {
   process.exit(1)
 }
 
-console.log('SPA 200 fallback: no 404.html; _redirects present.')
+const sitemap = 'dist/sitemap.xml'
+if (!fs.existsSync(sitemap)) {
+  console.error(`${sitemap} missing — Google would receive SPA HTML at /sitemap.xml.`)
+  process.exit(1)
+}
+const sitemapBody = fs.readFileSync(sitemap, 'utf8')
+if (/<!doctype html|<html[\s>]/i.test(sitemapBody)) {
+  console.error(`${sitemap} must be XML, not HTML.`)
+  process.exit(1)
+}
+if (!sitemapBody.includes('<urlset') || !sitemapBody.includes('https://www.rutinhq.com/')) {
+  console.error(`${sitemap} must be a urlset with www.rutinhq.com loc entries.`)
+  process.exit(1)
+}
+
+const robots = 'dist/robots.txt'
+if (!fs.existsSync(robots)) {
+  console.error(`${robots} missing — deploy would fall back to SPA HTML at /robots.txt.`)
+  process.exit(1)
+}
+const robotsBody = fs.readFileSync(robots, 'utf8')
+if (/<!doctype html|<html[\s>]/i.test(robotsBody)) {
+  console.error(`${robots} must be text, not HTML.`)
+  process.exit(1)
+}
+if (!robotsBody.includes('Sitemap: https://www.rutinhq.com/sitemap.xml')) {
+  console.error(`${robots} must include the www sitemap line.`)
+  process.exit(1)
+}
+
+console.log(
+  'SPA 200 fallback: no 404.html; _redirects present; crawl files in dist.',
+)
