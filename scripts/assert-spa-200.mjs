@@ -23,6 +23,12 @@ if (fs.existsSync('dist/blog/icp-gated-cold-outbound-without-rented-sdr/index.ht
   )
   process.exit(1)
 }
+if (fs.existsSync('dist/es/blog/index.html')) {
+  console.error(
+    'dist/es/blog/index.html must not ship — pretty /es/blog would 308.',
+  )
+  process.exit(1)
+}
 
 if (!fs.existsSync('dist/_redirects')) {
   console.error(
@@ -50,6 +56,10 @@ if (
   )
   process.exit(1)
 }
+if (!/\/es\/blog\s+\/es\/blog\.html\s+200/.test(redirects)) {
+  console.error('dist/_redirects must 200-rewrite /es/blog to /es/blog.html.')
+  process.exit(1)
+}
 
 const sitemap = 'dist/sitemap.xml'
 if (!fs.existsSync(sitemap)) {
@@ -74,13 +84,15 @@ const expectedLocs = [
   'https://www.rutinhq.com/nexus-os',
   'https://www.rutinhq.com/blog',
   'https://www.rutinhq.com/blog/icp-gated-cold-outbound-without-rented-sdr',
+  'https://www.rutinhq.com/es/blog',
+  'https://www.rutinhq.com/es/blog/outbound-frio-con-icp-sin-sdr-rentado',
 ]
 if (
   locs.length !== expectedLocs.length ||
   expectedLocs.some((url) => !locs.includes(url))
 ) {
   console.error(
-    `${sitemap} must list exactly the 6 www URLs (hub + 3 SKUs + /blog + Article01).`,
+    `${sitemap} must list exactly the 8 www URLs (hub + 3 SKUs + EN/ES blog + Article01).`,
   )
   process.exit(1)
 }
@@ -171,6 +183,32 @@ if (!articleHtml.includes('property="og:title" content="' + articleTitle + '"'))
 }
 if (!/name="robots"\s+content="index, follow"/.test(articleHtml)) {
   console.error(`${articleShell} must robots index, follow.`)
+  process.exit(1)
+}
+if (
+  !articleHtml.includes(
+    'hreflang="es" href="https://www.rutinhq.com/es/blog/outbound-frio-con-icp-sin-sdr-rentado"',
+  )
+) {
+  console.error(`${articleShell} must hreflang to the ES Article01 URL.`)
+  process.exit(1)
+}
+
+const esBlogShell = 'dist/es/blog.html'
+const esArticleShell =
+  'dist/prerender/es-blog-outbound-frio-con-icp-sin-sdr-rentado.html'
+if (!fs.existsSync(esBlogShell) || !fs.existsSync(esArticleShell)) {
+  console.error('ES blog prerender shells missing.')
+  process.exit(1)
+}
+const esArticleHtml = fs.readFileSync(esArticleShell, 'utf8')
+const esArticleTitle = 'RutinHQ — Outbound frío con ICP — sin SDR rentado'
+if (!esArticleHtml.includes(`<title>${esArticleTitle}</title>`)) {
+  console.error(`${esArticleShell} must ship unique ES Article01 <title>.`)
+  process.exit(1)
+}
+if (esArticleHtml.includes(`<title>${homepageTitle}</title>`)) {
+  console.error(`${esArticleShell} must not keep the homepage <title>.`)
   process.exit(1)
 }
 

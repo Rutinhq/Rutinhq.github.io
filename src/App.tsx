@@ -5,7 +5,9 @@ import GtmOsPage from '@/pages/gtm-os'
 import StoreOsPage from '@/pages/store-os'
 import NexusOsPage from '@/pages/nexus-os'
 import BlogPage from '@/pages/blog'
+import BlogEsPage from '@/pages/blog-es'
 import BlogIcpGatedColdOutboundPage from '@/pages/blog-icp-gated-cold-outbound'
+import BlogOutboundFrioPage from '@/pages/blog-outbound-frio'
 import NotFoundPage from '@/pages/not-found'
 
 export default function App() {
@@ -20,6 +22,11 @@ export default function App() {
         <Route
           path="/blog/icp-gated-cold-outbound-without-rented-sdr"
           element={<BlogIcpGatedColdOutboundPage />}
+        />
+        <Route path="/es/blog" element={<BlogEsPage />} />
+        <Route
+          path="/es/blog/outbound-frio-con-icp-sin-sdr-rentado"
+          element={<BlogOutboundFrioPage />}
         />
         <Route path="*" element={<NotFoundPage />} />
       </Route>

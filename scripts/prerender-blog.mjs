@@ -19,6 +19,12 @@ const ROUTES = [
     description:
       'Radar for founders who install GTM and ops systems — not rented seats.',
     ogType: 'website',
+    locale: 'en',
+    alternates: [
+      { hreflang: 'en', href: `${SITE}/blog` },
+      { hreflang: 'es', href: `${SITE}/es/blog` },
+      { hreflang: 'x-default', href: `${SITE}/blog` },
+    ],
     jsonLd: {
       '@context': 'https://schema.org',
       '@graph': [
@@ -55,6 +61,21 @@ const ROUTES = [
     description:
       'Keep the outbound core fixed—change only ICP, message, and filters—so pipeline stays with your team when the contract ends.',
     ogType: 'article',
+    locale: 'en',
+    alternates: [
+      {
+        hreflang: 'en',
+        href: `${SITE}/blog/icp-gated-cold-outbound-without-rented-sdr`,
+      },
+      {
+        hreflang: 'es',
+        href: `${SITE}/es/blog/outbound-frio-con-icp-sin-sdr-rentado`,
+      },
+      {
+        hreflang: 'x-default',
+        href: `${SITE}/blog/icp-gated-cold-outbound-without-rented-sdr`,
+      },
+    ],
     jsonLd: {
       '@context': 'https://schema.org',
       '@graph': [
@@ -119,6 +140,69 @@ const ROUTES = [
       ],
     },
   },
+  {
+    path: '/es/blog',
+    file: 'es/blog.html',
+    title: 'Blog — sistemas que posees',
+    description:
+      'Radar para founders que instalan sistemas de GTM y ops — no asientos rentados.',
+    ogType: 'website',
+    locale: 'es',
+    alternates: [
+      { hreflang: 'en', href: `${SITE}/blog` },
+      { hreflang: 'es', href: `${SITE}/es/blog` },
+      { hreflang: 'x-default', href: `${SITE}/blog` },
+    ],
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@graph': [
+        {
+          '@type': ['CollectionPage', 'Blog'],
+          '@id': `${SITE}/es/blog#blog`,
+          url: `${SITE}/es/blog`,
+          name: 'Blog — sistemas que posees',
+          description:
+            'Radar para founders que instalan sistemas de GTM y ops — no asientos rentados.',
+          inLanguage: 'es',
+        },
+      ],
+    },
+  },
+  {
+    path: '/es/blog/outbound-frio-con-icp-sin-sdr-rentado',
+    file: 'prerender/es-blog-outbound-frio-con-icp-sin-sdr-rentado.html',
+    title: 'RutinHQ — Outbound frío con ICP — sin SDR rentado',
+    description:
+      'Mantén fijo el núcleo del outbound; cambia solo ICP, mensaje y filtros — el pipeline se queda con tu equipo cuando termina el contrato.',
+    ogType: 'article',
+    locale: 'es',
+    alternates: [
+      {
+        hreflang: 'en',
+        href: `${SITE}/blog/icp-gated-cold-outbound-without-rented-sdr`,
+      },
+      {
+        hreflang: 'es',
+        href: `${SITE}/es/blog/outbound-frio-con-icp-sin-sdr-rentado`,
+      },
+      {
+        hreflang: 'x-default',
+        href: `${SITE}/blog/icp-gated-cold-outbound-without-rented-sdr`,
+      },
+    ],
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@graph': [
+        {
+          '@type': 'BlogPosting',
+          '@id': `${SITE}/es/blog/outbound-frio-con-icp-sin-sdr-rentado#article`,
+          headline: 'Outbound frío con ICP — sin SDR rentado',
+          inLanguage: 'es',
+          url: `${SITE}/es/blog/outbound-frio-con-icp-sin-sdr-rentado`,
+        },
+      ],
+    },
+  },
 ]
 
 function esc(value) {
@@ -141,15 +225,21 @@ function stripHomepageSeo(html) {
 
 function seoHead(route) {
   const url = `${SITE}${route.path}`
+  const ogLocale = route.locale === 'es' ? 'es_MX' : 'en_US'
+  const alternates = (route.alternates ?? []).map(
+    (alt) =>
+      `<link rel="alternate" hreflang="${alt.hreflang}" href="${alt.href}" />`,
+  )
   return [
     `<!-- prerender:${route.path} -->`,
     `<title>${esc(route.title)}</title>`,
     `<meta name="description" content="${esc(route.description)}" />`,
     `<link rel="canonical" href="${url}" />`,
+    ...alternates,
     `<meta name="robots" content="index, follow" />`,
     `<meta property="og:type" content="${route.ogType}" />`,
     `<meta property="og:site_name" content="RutinHQ" />`,
-    `<meta property="og:locale" content="en_US" />`,
+    `<meta property="og:locale" content="${ogLocale}" />`,
     `<meta property="og:title" content="${esc(route.title)}" />`,
     `<meta property="og:description" content="${esc(route.description)}" />`,
     `<meta property="og:url" content="${url}" />`,

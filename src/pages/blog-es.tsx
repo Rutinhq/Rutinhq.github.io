@@ -4,9 +4,9 @@ import { MonoTitle, Section } from '@/components/Section'
 import { Seo, blogIndexJsonLd, hreflangPair } from '@/components/Seo'
 import { Button } from '@/components/ui/button'
 import {
-  ARTICLE01,
-  BLOG_FEATURED_COMING,
-  BLOG_FILTER_SIGNALS,
+  ARTICLE01_ES,
+  BLOG_FEATURED_COMING_ES,
+  BLOG_FILTER_SIGNALS_ES,
   BLOG_INDEX,
   BLOG_INDEX_ES,
 } from '@/lib/blog'
@@ -19,45 +19,53 @@ import {
   WWW_STORE_URL,
 } from '@/lib/links'
 
-export default function BlogPage() {
+export default function BlogEsPage() {
   return (
     <>
       <Seo
-        title={BLOG_INDEX.title}
-        description={BLOG_INDEX.description}
-        path={BLOG_INDEX.path}
-        locale="en"
-        noindex={BLOG_INDEX.noindex}
+        title={BLOG_INDEX_ES.title}
+        description={BLOG_INDEX_ES.description}
+        path={BLOG_INDEX_ES.path}
+        locale="es"
+        noindex={BLOG_INDEX_ES.noindex}
         alternates={hreflangPair(BLOG_INDEX.path, BLOG_INDEX_ES.path)}
-        jsonLd={blogIndexJsonLd([{ path: ARTICLE01.path, name: ARTICLE01.title }])}
+        jsonLd={blogIndexJsonLd(
+          [{ path: ARTICLE01_ES.path, name: ARTICLE01_ES.title }],
+          {
+            path: BLOG_INDEX_ES.path,
+            name: BLOG_INDEX_ES.title,
+            description: BLOG_INDEX_ES.description,
+            inLanguage: 'es',
+          },
+        )}
       />
 
       <Section first>
         <p className="font-mono text-[12px] uppercase tracking-[0.14em] text-primary">
-          Radar · filter
+          Radar · filtro
         </p>
         <h1
           className="mt-4 max-w-4xl font-heading font-extrabold tracking-[-0.03em]"
           style={{ fontSize: 'clamp(36px, 6vw, 64px)' }}
         >
-          Systems you own — filtered for founders who install, not rent
+          Sistemas que posees — filtrados para founders que instalan, no rentan
         </h1>
         <p className="mt-6 max-w-2xl text-[17px] text-muted-foreground md:text-[18px]">
-          RutinHQ Blog is a radar: each post surfaces whether you fit our ICP,
-          name a real ops/GTM pain, and want a system that stays with your team.
-          Dual desk — CEO strategy + ops install. Discovery next; educate-forever
-          never.
+          El blog de RutinHQ es un radar: cada post deja ver si encajas en
+          nuestro ICP, si nombras un dolor real de ops/GTM y si quieres un
+          sistema que se quede con tu equipo. Dual desk — estrategia de CEO +
+          install de ops. Siguiente paso: discovery; educate-forever, nunca.
         </p>
       </Section>
 
       <Section>
-        <MonoTitle>Filter frame</MonoTitle>
+        <MonoTitle>Marco de filtro</MonoTitle>
         <p className="mt-6 max-w-2xl text-[16px] text-muted-foreground">
-          This blog tags reader signal. CTA on every path is discovery
-          (strategy@) — not a content rabbit hole.
+          Este blog etiqueta señal del lector. El CTA en cada camino es
+          discovery (strategy@) — no un pozo de contenido.
         </p>
         <div className="mt-10 grid grid-cols-1 lg:grid-cols-4">
-          {BLOG_FILTER_SIGNALS.map((signal, index) => (
+          {BLOG_FILTER_SIGNALS_ES.map((signal, index) => (
             <article
               key={signal.name}
               className={`flex flex-col py-8 ${
@@ -78,23 +86,25 @@ export default function BlogPage() {
       </Section>
 
       <Section>
-        <MonoTitle>Featured</MonoTitle>
+        <MonoTitle>Destacado</MonoTitle>
         <article className="mt-8 max-w-2xl">
           <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-primary">
             How-to · GTM OS
           </p>
           <h2 className="mt-3 text-2xl font-heading font-extrabold tracking-[-0.03em]">
-            <Link to={ARTICLE01.path} className="hover:text-primary">
-              {ARTICLE01.title}
+            <Link to={ARTICLE01_ES.path} className="hover:text-primary">
+              {ARTICLE01_ES.title}
             </Link>
           </h2>
-          <p className="mt-3 text-[16px] text-muted-foreground">{ARTICLE01.job}</p>
+          <p className="mt-3 text-[16px] text-muted-foreground">
+            {ARTICLE01_ES.job}
+          </p>
           <Button asChild className="mt-8" size="lg">
-            <Link to={ARTICLE01.path}>Read the how-to</Link>
+            <Link to={ARTICLE01_ES.path}>Lee el how-to</Link>
           </Button>
         </article>
         <div className="mt-12 grid grid-cols-1 border-t border-border lg:grid-cols-3">
-          {BLOG_FEATURED_COMING.map((item, index) => (
+          {BLOG_FEATURED_COMING_ES.map((item, index) => (
             <article
               key={item.title}
               className={`flex flex-col py-8 ${
@@ -104,7 +114,7 @@ export default function BlogPage() {
               }`}
             >
               <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-                {item.type} · coming
+                {item.type} · próximamente
               </p>
               <h2 className="mt-3 text-2xl font-heading font-extrabold tracking-[-0.03em] text-muted-foreground">
                 {item.title}
@@ -115,18 +125,18 @@ export default function BlogPage() {
       </Section>
 
       <Section>
-        <MonoTitle>If your bottleneck is…</MonoTitle>
+        <MonoTitle>Si tu cuello es…</MonoTitle>
         <div className="mt-8 grid grid-cols-1 lg:grid-cols-3">
           <article className="flex flex-col py-8 lg:pr-8">
             <h2 className="text-2xl font-heading font-extrabold tracking-[-0.03em]">
-              Repeatable cold pipeline / ICP gates
+              Pipeline en frío repetible / puertas de ICP
             </h2>
             <p className="mt-3 flex-1 text-[16px] text-muted-foreground">
-              Start with Article01, then GTM OS.
+              Empieza por Article01, luego GTM OS.
             </p>
             <p className="mt-8 font-mono text-[12px] tracking-[0.04em]">
               <Link
-                to={ARTICLE01.path}
+                to={ARTICLE01_ES.path}
                 className="text-foreground underline underline-offset-4 hover:text-primary"
               >
                 Article01
@@ -142,10 +152,10 @@ export default function BlogPage() {
           </article>
           <article className="flex flex-col border-t border-border py-8 lg:border-t-0 lg:border-l lg:border-border lg:px-8">
             <h2 className="text-2xl font-heading font-extrabold tracking-[-0.03em]">
-              Owning the machine vs retainer
+              Poseer la máquina vs retainer
             </h2>
             <p className="mt-3 flex-1 text-[16px] text-muted-foreground">
-              M1 posts when live. Outbound now is GTM OS.
+              Posts M1 cuando estén live. Outbound hoy es GTM OS.
             </p>
             <p className="mt-8 font-mono text-[12px] tracking-[0.04em]">
               <a
@@ -158,10 +168,10 @@ export default function BlogPage() {
           </article>
           <article className="flex flex-col border-t border-border py-8 lg:border-t-0 lg:border-l lg:border-border lg:px-8">
             <h2 className="text-2xl font-heading font-extrabold tracking-[-0.03em]">
-              Curriculum / systems map
+              Currículo / mapa de sistemas
             </h2>
             <p className="mt-3 flex-1 text-[16px] text-muted-foreground">
-              Catalog proof — not a second offer.
+              Prueba de catálogo — no una segunda oferta.
             </p>
             <p className="mt-8 font-mono text-[12px] tracking-[0.04em]">
               <a
@@ -180,14 +190,14 @@ export default function BlogPage() {
       <Section>
         <Ctas mailto={MAILTO_HUB} />
         <p className="mt-6 max-w-2xl text-sm text-muted-foreground">
-          Proof:{' '}
+          Prueba:{' '}
           <a
             href={DOCS_CATALOG_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="text-foreground underline underline-offset-4 hover:text-primary"
           >
-            systems catalog
+            catálogo de sistemas
           </a>
           {' · '}
           <a
@@ -196,10 +206,10 @@ export default function BlogPage() {
             rel="noopener noreferrer"
             className="text-foreground underline underline-offset-4 hover:text-primary"
           >
-            GTM ficha
+            ficha GTM
           </a>
           {' · '}
-          primary LP{' '}
+          LP primaria{' '}
           <a
             href={WWW_GTM_URL}
             className="text-foreground underline underline-offset-4 hover:text-primary"
@@ -209,7 +219,7 @@ export default function BlogPage() {
           .
         </p>
         <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
-          Soft-park until those desks are GO:{' '}
+          Soft-park hasta que esos desks estén GO:{' '}
           <a
             href={WWW_STORE_URL}
             className="underline underline-offset-4 hover:text-foreground"

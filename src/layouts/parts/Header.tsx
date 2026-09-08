@@ -1,15 +1,24 @@
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Logo } from '@/components/Logo'
 import { Button } from '@/components/ui/button'
+import { localePath } from '@/lib/blog'
 import type { SupportedLanguage } from '@/lib/i18n/config'
 import { MAILTO_HUB } from '@/lib/links'
 
 export function Header() {
   const { t, i18n } = useTranslation()
+  const location = useLocation()
+  const navigate = useNavigate()
   const currentLang: SupportedLanguage = i18n.language?.startsWith('es')
     ? 'es'
     : 'en'
+
+  function switchLang(next: SupportedLanguage) {
+    void i18n.changeLanguage(next)
+    const mapped = localePath(location.pathname, next)
+    if (mapped && mapped !== location.pathname) navigate(mapped)
+  }
 
   return (
     <header className="sticky top-0 isolate z-50 h-16 border-b border-border bg-background">
@@ -29,7 +38,7 @@ export function Header() {
           >
             <button
               type="button"
-              onClick={() => void i18n.changeLanguage('es')}
+              onClick={() => switchLang('es')}
               className={
                 currentLang === 'es' ? 'text-foreground' : 'text-muted-foreground'
               }
@@ -42,7 +51,7 @@ export function Header() {
             </span>
             <button
               type="button"
-              onClick={() => void i18n.changeLanguage('en')}
+              onClick={() => switchLang('en')}
               className={
                 currentLang === 'en' ? 'text-foreground' : 'text-muted-foreground'
               }

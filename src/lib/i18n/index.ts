@@ -7,9 +7,16 @@ import { defaultLanguage, supportedLanguages } from './config'
 
 const isBrowser = typeof window !== 'undefined'
 
+function languageFromPath(): 'es' | undefined {
+  if (!isBrowser) return undefined
+  const path = window.location.pathname
+  if (path === '/es' || path.startsWith('/es/')) return 'es'
+  return undefined
+}
+
 void i18n.use(initReactI18next)
 
-if (isBrowser) {
+if (isBrowser && !languageFromPath()) {
   i18n.use(LanguageDetector)
 }
 
@@ -18,7 +25,7 @@ void i18n.init({
     es: { translation: es },
     en: { translation: en },
   },
-  lng: isBrowser ? undefined : defaultLanguage,
+  lng: languageFromPath() ?? (isBrowser ? undefined : defaultLanguage),
   fallbackLng: defaultLanguage,
   supportedLngs: [...supportedLanguages],
   interpolation: { escapeValue: false },

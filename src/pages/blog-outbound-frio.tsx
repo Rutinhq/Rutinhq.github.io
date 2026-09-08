@@ -5,26 +5,29 @@ import { Seo, articleJsonLd, hreflangPair } from '@/components/Seo'
 import { ARTICLE01, ARTICLE01_ES, articleSeoTitle } from '@/lib/blog'
 import { DOCS_GTM_URL, MAILTO_GTM, WWW_GTM_URL } from '@/lib/links'
 
-const TITLE = articleSeoTitle(ARTICLE01.title)
+const TITLE = articleSeoTitle(ARTICLE01_ES.title)
 
-export default function BlogIcpGatedColdOutboundPage() {
+export default function BlogOutboundFrioPage() {
   return (
     <>
       <Seo
         title={TITLE}
-        description={ARTICLE01.description}
-        path={ARTICLE01.path}
-        locale="en"
-        noindex={ARTICLE01.noindex}
+        description={ARTICLE01_ES.description}
+        path={ARTICLE01_ES.path}
+        locale="es"
+        noindex={ARTICLE01_ES.noindex}
         ogType="article"
         alternates={hreflangPair(ARTICLE01.path, ARTICLE01_ES.path)}
         jsonLd={articleJsonLd({
-          path: ARTICLE01.path,
-          headline: ARTICLE01.title,
-          description: ARTICLE01.description,
-          datePublished: ARTICLE01.datePublished,
-          dateModified: ARTICLE01.dateModified,
-          faq: ARTICLE01.faq,
+          path: ARTICLE01_ES.path,
+          headline: ARTICLE01_ES.title,
+          description: ARTICLE01_ES.description,
+          datePublished: ARTICLE01_ES.datePublished,
+          dateModified: ARTICLE01_ES.dateModified,
+          faq: ARTICLE01_ES.faq,
+          inLanguage: 'es',
+          breadcrumbHome: 'Inicio',
+          breadcrumbBlog: 'Blog',
         })}
       />
 
@@ -34,56 +37,58 @@ export default function BlogIcpGatedColdOutboundPage() {
         </p>
         <p className="mt-3 font-mono text-[12px] tracking-[0.04em] text-muted-foreground">
           <Link to="/" className="hover:text-foreground">
-            Home
+            Inicio
           </Link>
           {' / '}
-          <Link to="/blog" className="hover:text-foreground">
+          <Link to="/es/blog" className="hover:text-foreground">
             Blog
           </Link>
           {' / '}
-          {ARTICLE01.title}
+          {ARTICLE01_ES.title}
         </p>
         <h1
           className="mt-4 max-w-4xl font-heading font-extrabold tracking-[-0.03em]"
           style={{ fontSize: 'clamp(36px, 6vw, 64px)' }}
         >
-          {ARTICLE01.title}
+          {ARTICLE01_ES.title}
         </h1>
         <p className="mt-6 max-w-2xl text-[17px] text-foreground md:text-[18px]">
-          Cold outbound works when the <strong>machine</strong> stays fixed and
-          only language, filters, and angle change. A rented SDR vanishes with
-          the contract. An ICP-gated system stays with your team.
+          El outbound frío funciona cuando la <strong>máquina</strong> se queda
+          fija y solo cambian el lenguaje, los filtros y el ángulo. Un SDR
+          rentado se va con el contrato. Un sistema con <strong>puerta de ICP</strong>{' '}
+          se queda con tu equipo.
         </p>
       </Section>
 
       <Section>
         <h2 className="text-2xl font-heading font-extrabold tracking-[-0.03em]">
-          What “ICP-gated” means
+          Qué significa “con puerta de ICP”
         </h2>
         <p className="mt-6 max-w-2xl text-[16px] leading-7 text-foreground">
-          ICP-gated outbound refuses volume until criteria are{' '}
-          <strong>checkable</strong>. No spray list. No “we’ll refine after
-          replies.” The gate is the product: if the firmographic and motion
-          tests fail, the sequence does not ship.
+          Outbound con puerta de ICP <strong>no abre volumen</strong> hasta que
+          los criterios son <strong>verificables</strong>. Nada de listas spray.
+          Nada de “ya afinamos cuando lleguen replies.” La puerta es el
+          producto: si fallan los tests firmográficos y de motion, la secuencia
+          no sale.
         </p>
         <SimpleTable
-          headers={['Gate', 'Pass signal']}
+          headers={['Puerta', 'Señal de pase']}
           rows={[
-            ['Firmographic fit', 'Vertical + buyer role match the sheet'],
-            ['Motion fit', 'Cold email is acceptable; first run stays cold'],
-            ['Message fit', 'Pain is specific enough to classify replies'],
-            ['Volume fit', 'No scale until the prior vertical showed signal'],
+            ['Fit firmográfico', 'Vertical + rol del buyer coinciden con la hoja'],
+            ['Fit de motion', 'Cold email es aceptable; el primer run se queda en frío'],
+            ['Fit de mensaje', 'El dolor es lo bastante específico para clasificar replies'],
+            ['Fit de volumen', 'No escalas hasta que el vertical previo mostró señal'],
           ]}
         />
       </Section>
 
       <Section>
         <h2 className="text-2xl font-heading font-extrabold tracking-[-0.03em]">
-          Keep the core, change the inputs
+          Núcleo fijo, inputs que cambian
         </h2>
         <p className="mt-6 max-w-2xl text-[16px] leading-7 text-foreground">
-          RutinHQ’s GTM OS treats outbound as a reusable machine. Per vertical
-          you change:
+          El GTM OS de RutinHQ trata el outbound como una máquina reutilizable.
+          Por vertical cambias:
         </p>
         <ul className="mt-6 max-w-2xl space-y-3 text-[16px] text-foreground">
           <li className="flex gap-3">
@@ -91,7 +96,7 @@ export default function BlogIcpGatedColdOutboundPage() {
               ·
             </span>
             <span>
-              <strong>Language</strong> — how the pain is named
+              <strong>Lenguaje</strong> — cómo nombras el dolor
             </span>
           </li>
           <li className="flex gap-3">
@@ -99,7 +104,7 @@ export default function BlogIcpGatedColdOutboundPage() {
               ·
             </span>
             <span>
-              <strong>Filters</strong> — who enters the pool
+              <strong>Filtros</strong> — quién entra al pool
             </span>
           </li>
           <li className="flex gap-3">
@@ -107,26 +112,26 @@ export default function BlogIcpGatedColdOutboundPage() {
               ·
             </span>
             <span>
-              <strong>Angle</strong> — which thesis opens the thread
+              <strong>Ángulo</strong> — qué tesis abre el hilo
             </span>
           </li>
         </ul>
         <p className="mt-6 max-w-2xl text-[16px] leading-7 text-foreground">
-          You do <strong>not</strong> rebuild milestones, reply protocol, or
-          governance for each experiment. That is the difference between
-          installing a system and renting a seat.
+          <strong>No</strong> reconstruyes milestones, protocolo de respuesta ni
+          gobernanza en cada experimento. Esa es la diferencia entre instalar un
+          sistema y rentar un asiento.
         </p>
         <p className="mt-6 max-w-2xl text-[16px] leading-7 text-muted-foreground">
-          Curriculum proof:{' '}
+          Prueba de currículo:{' '}
           <a
             href={DOCS_GTM_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="text-foreground underline underline-offset-4 hover:text-primary"
           >
-            GTM OS catalog
+            ficha GTM OS
           </a>{' '}
-          · commercial page:{' '}
+          · página comercial:{' '}
           <a
             href={WWW_GTM_URL}
             className="text-foreground underline underline-offset-4 hover:text-primary"
@@ -138,68 +143,69 @@ export default function BlogIcpGatedColdOutboundPage() {
 
       <Section>
         <h2 className="text-2xl font-heading font-extrabold tracking-[-0.03em]">
-          Milestone order (M0–M7 at a glance)
+          Orden de milestones (M0–M7 de un vistazo)
         </h2>
         <p className="mt-6 max-w-2xl text-[16px] leading-7 text-foreground">
-          Nothing skipped. Each phase feeds the next. Validate one vertical
-          before the next.
+          Nada se salta. Cada fase alimenta la siguiente. Validas un vertical
+          antes del siguiente.
         </p>
         <SimpleTable
-          headers={['M', 'Step']}
+          headers={['M', 'Paso']}
           rows={[
-            ['M0', 'Sector research'],
-            ['M1', 'ICP + validation'],
-            ['M2', 'Messaging framework'],
-            ['M3', 'Sales playbook + gate'],
-            ['M4', 'Campaign activation'],
-            ['M5', 'Crawl / analysis'],
-            ['M6', 'Weekly KPIs (ongoing)'],
-            ['M7', 'Close + scale to next vertical'],
+            ['M0', 'Research de sector'],
+            ['M1', 'ICP + validación'],
+            ['M2', 'Framework de messaging'],
+            ['M3', 'Playbook de ventas + puerta'],
+            ['M4', 'Activación de campaña'],
+            ['M5', 'Crawl / análisis'],
+            ['M6', 'KPIs semanales (ongoing)'],
+            ['M7', 'Cierre + escala al siguiente vertical'],
           ]}
         />
         <p className="mt-6 max-w-2xl text-[16px] leading-7 text-muted-foreground">
-          Skipping M3 to “get meetings faster” usually means you scaled noise.
+          Saltar M3 para “conseguir juntas más rápido” casi siempre significa
+          que escalaste ruido.
         </p>
       </Section>
 
       <Section>
         <h2 className="text-2xl font-heading font-extrabold tracking-[-0.03em]">
-          Reply before pitch
+          Responder antes de pitch
         </h2>
         <p className="mt-6 max-w-2xl text-[16px] leading-7 text-foreground">
-          Classify before you answer. Discovery calls: the lead describes their
-          process in their words — no feature pitch.
+          Clasifica antes de contestar. En discovery: el lead describe su
+          proceso con sus palabras — sin pitch de features.
         </p>
         <SimpleTable
-          headers={['Type', 'Action']}
+          headers={['Tipo', 'Acción']}
           rows={[
-            ['Open', 'Reply soon; three time slots; short call'],
-            ['Question', 'Research framing; no pitch; confirm call'],
-            ['Referral', 'Thank + contact referred with mention'],
-            ['OOO', 'Mark; follow up on return'],
-            ['Not interested', 'Thank; discard; no chase'],
-            ['Silence (5–7d)', 'One bump in-thread; then discard'],
+            ['Abierto', 'Responde pronto; tres horarios; call corta'],
+            ['Pregunta', 'Framing de research; sin pitch; confirma call'],
+            ['Referral', 'Agradece + contacta al referido mencionando'],
+            ['OOO', 'Marca; follow-up al regreso'],
+            ['No interesado', 'Agradece; descarta; no persigas'],
+            ['Silencio (5–7d)', 'Un bump en el hilo; luego descarta'],
           ]}
         />
       </Section>
 
       <Section>
         <h2 className="text-2xl font-heading font-extrabold tracking-[-0.03em]">
-          Who this is for / not for
+          Para quién / no para quién
         </h2>
         <SimpleTable
-          headers={['For', 'Not for']}
+          headers={['Para', 'No para']}
           rows={[
-            ['Founder / CEO or B2B ops lead', 'Pure ecom/B2C'],
+            ['Founder / CEO o lead de ops B2B (MX)', 'Ecom / B2C puro'],
             [
-              'Already sells; bottleneck is repeatable pipeline',
-              '“Just run ads”',
+              'Ya vendes; el cuello es pipeline repetible',
+              '“Solo corre ads”',
             ],
             [
-              'Willing to own the machine after install',
-              'Enterprise RFP with no outbound owner',
+              'Quieres poseer la máquina después del install',
+              'RFP enterprise sin dueño de outbound',
             ],
-            ['Cold-first motion', 'Buyers demanding guaranteed N meetings'],
+            ['Motion cold-first', 'Compradores que exigen N juntas garantizadas'],
           ]}
         />
       </Section>
@@ -207,30 +213,30 @@ export default function BlogIcpGatedColdOutboundPage() {
       <Section>
         <MonoTitle>FAQ</MonoTitle>
         <div className="mt-8 max-w-2xl space-y-8">
-          {ARTICLE01.faq.map((item) => (
+          {ARTICLE01_ES.faq.map((item) => (
             <div key={item.q}>
               <h3 className="text-xl font-heading font-extrabold tracking-[-0.03em]">
                 {item.q}
               </h3>
-              {item.q === 'Where’s the full system sheet?' ? (
+              {item.q === '¿Dónde está la ficha del sistema?' ? (
                 <p className="mt-3 text-[16px] leading-7 text-muted-foreground">
-                  See the{' '}
+                  Mira la{' '}
                   <a
                     href={DOCS_GTM_URL}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-foreground underline underline-offset-4 hover:text-primary"
                   >
-                    GTM OS catalog ficha
+                    ficha GTM OS en catalog
                   </a>{' '}
-                  and the{' '}
+                  y la página{' '}
                   <a
                     href={WWW_GTM_URL}
                     className="text-foreground underline underline-offset-4 hover:text-primary"
                   >
                     www.rutinhq.com/gtm-os
-                  </a>{' '}
-                  page.
+                  </a>
+                  .
                 </p>
               ) : (
                 <p className="mt-3 text-[16px] leading-7 text-muted-foreground">
@@ -243,10 +249,10 @@ export default function BlogIcpGatedColdOutboundPage() {
       </Section>
 
       <Section>
-        <MonoTitle>One SKU. One next step.</MonoTitle>
+        <MonoTitle>Un SKU. Un siguiente paso.</MonoTitle>
         <Ctas className="mt-8" mailto={MAILTO_GTM} />
         <p className="mt-6 max-w-2xl text-[16px] leading-7 text-muted-foreground">
-          Or go direct:{' '}
+          O ve directo:{' '}
           <a
             href={WWW_GTM_URL}
             className="text-foreground underline underline-offset-4 hover:text-primary"
