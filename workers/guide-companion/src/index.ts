@@ -85,22 +85,28 @@ export default {
     }
 
     let reply = `${pick('degraded')}\n\n${pick('unsure')}`
-    let mode: 'live' | 'degraded' = 'degraded'
+    let mode: 'llm' | 'degraded' = 'degraded'
     const key = env.GUIDE_LLM_API_KEY?.trim()
     if (key && kb?.policy) {
-      const base = (env.GUIDE_LLM_BASE_URL || 'https://api.openai.com/v1').replace(/\/$/, '')
-      const model = env.GUIDE_LLM_MODEL || 'gpt-4o-mini'
+      const base = (env.GUIDE_LLM_BASE_URL || 'https://api.openai.com/v1').replace(/\/+$/, '')
+      const model = (env.GUIDE_LLM_MODEL || 'gpt-4o-mini').replace(/^models\//, '')
       const knowledge = (kb.documents || [])
         .map((d) => `### ${d.title}\n${d.text}`)
         .join('\n\n')
         .slice(0, 14000)
+      const mandate =
+        'You are GEMINI ENGINE operating as RutinHQ Guide — not a generic assistant. Public catalog only: GTM OS, STORE OS, NEXUS OS. Never invent prices, legal terms, or credentials. CTA: https://calendly.com/rutinhq/30min + strategy@rutinhq.com.'
       try {
+        const headers: Record<string, string> = {
+          authorization: `Bearer ${key}`,
+          'content-type': 'application/json',
+        }
+        if (base.includes('generativelanguage.googleapis.com')) {
+          headers['x-goog-api-key'] = key
+        }
         const llm = await fetch(`${base}/chat/completions`, {
           method: 'POST',
-          headers: {
-            authorization: `Bearer ${key}`,
-            'content-type': 'application/json',
-          },
+          headers,
           body: JSON.stringify({
             model,
             temperature: 0.2,
@@ -108,7 +114,7 @@ export default {
             messages: [
               {
                 role: 'system',
-                content: `${kb.policy.systemPrompt}\n\nVisitor locale: ${locale}. Reply entirely in ${locale === 'es' ? 'Spanish' : 'English'}.\n\n${knowledge}`,
+                content: `${mandate}\n\n${kb.policy.systemPrompt}\n\nVisitor locale: ${locale}. Reply entirely in ${locale === 'es' ? 'Spanish' : 'English'}.\n\n${knowledge}`,
               },
               ...messages.map((m) => ({
                 role: m.role,
@@ -118,11 +124,14 @@ export default {
           }),
         })
         if (llm.ok) {
-          const data = (await llm.json()) as { choices?: { message?: { content?: string } }[] }
-          const text = data.choices?.[0]?.message?.content?.trim()
+          const data = (await llm.json()) as {
+            choices?: { message?: { content?: string | { text?: string }[] } }[]
+          }
+          const raw = data.choices?.[0]?.message?.content
+          const text = (typeof raw === 'string' ? raw : raw?.map((p) => p.text || '').join(''))?.trim()
           if (text) {
             reply = text
-            mode = 'live'
+            mode = 'llm'
           }
         }
       } catch {

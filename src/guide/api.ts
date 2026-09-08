@@ -8,6 +8,7 @@ import {
 } from './config'
 import { localGuideReply } from './fallback'
 import { buildLeadBrief } from './lead'
+import { callGuideLlm, composeGuideSystemPrompt } from './llm'
 import { enforceSafeReply, isSecurityProbe, securityReply } from './security'
 import type {
   GuideApiRequest,
@@ -77,35 +78,18 @@ async function callLlm(
   const apiKey = env.GUIDE_LLM_API_KEY?.trim()
   if (!apiKey) return null
 
-  const base = (env.GUIDE_LLM_BASE_URL || 'https://api.openai.com/v1').replace(/\/$/, '')
-  const model = env.GUIDE_LLM_MODEL || 'gpt-4o-mini'
-  const docs = kb?.documents ?? []
-  const system = [
-    GUIDE_SYSTEM_PROMPT,
-    `Visitor locale: ${locale}. Reply entirely in ${locale === 'es' ? 'Spanish' : 'English'}. Do not mix languages. SKU names stay in English.`,
-    'Allowlisted knowledge:',
-    knowledgeBlock(docs),
-  ].join('\n\n')
-
-  const res = await fetch(`${base}/chat/completions`, {
-    method: 'POST',
-    headers: {
-      authorization: `Bearer ${apiKey}`,
-      'content-type': 'application/json',
-    },
-    body: JSON.stringify({
-      model,
-      temperature: 0.2,
-      max_tokens: GUIDE_LIMITS.maxReplyTokens,
-      messages: [{ role: 'system', content: system }, ...messages],
-    }),
+  return callGuideLlm({
+    apiKey,
+    baseUrl: env.GUIDE_LLM_BASE_URL,
+    model: env.GUIDE_LLM_MODEL,
+    maxTokens: GUIDE_LIMITS.maxReplyTokens,
+    system: composeGuideSystemPrompt(
+      GUIDE_SYSTEM_PROMPT,
+      locale,
+      knowledgeBlock(kb?.documents ?? []),
+    ),
+    messages,
   })
-  if (!res.ok) return null
-  const data = (await res.json()) as {
-    choices?: { message?: { content?: string } }[]
-  }
-  const text = data.choices?.[0]?.message?.content?.trim()
-  return text || null
 }
 
 async function notifyWebhook(env: GuideEnv, payload: unknown): Promise<void> {
@@ -163,7 +147,7 @@ export async function handleGuideRequest(
   if (classifyIntent(messages) === 'pricing') {
     const body: GuideApiResponse = {
       reply: fallbackReply('pricing', locale),
-      mode: env.GUIDE_LLM_API_KEY ? 'live' : 'degraded',
+      mode: env.GUIDE_LLM_API_KEY ? 'llm' : 'degraded',
       calendlyUrl: guidePolicy.calendlyUrl,
     }
     if (shouldCaptureLead(messages)) {
@@ -176,7 +160,7 @@ export async function handleGuideRequest(
     const reply = fallbackReply('offTopic', locale)
     const body: GuideApiResponse = {
       reply,
-      mode: env.GUIDE_LLM_API_KEY ? 'live' : 'degraded',
+      mode: env.GUIDE_LLM_API_KEY ? 'llm' : 'degraded',
       calendlyUrl: guidePolicy.calendlyUrl,
     }
     return json(200, body)
@@ -188,7 +172,7 @@ export async function handleGuideRequest(
     const live = await callLlm(env, messages, kb, locale)
     if (live) {
       reply = enforceSafeReply(live, locale)
-      mode = reply === live ? 'live' : 'degraded'
+      mode = reply === live ? 'llm' : 'degraded'
     } else {
       reply = localGuideReply(messages, locale)
     }

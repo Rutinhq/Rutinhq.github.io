@@ -6,7 +6,11 @@ pages_build_output_dir = "dist"
 # Dashboard secrets (Production + Preview):
 #   GUIDE_LLM_API_KEY
 #   GUIDE_LEAD_WEBHOOK_URL
-# Optional vars:
-#   GUIDE_LLM_BASE_URL = "https://api.openai.com/v1"
-#   GUIDE_LLM_MODEL = "gpt-4o-mini"
-# See GUIDE.md
+# GUIDE_LLM_API_KEY stays a Pages secret (dashboard / wrangler pages secret put).
+# BASE_URL + MODEL must be [vars] here: Direct Upload wipes dashboard plaintext,
+# and wrangler pages secret put for these names did not land on production
+# deployment_configs. Do not also secret-put the same names (binding clash).
+
+[vars]
+GUIDE_LLM_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai"
+GUIDE_LLM_MODEL = "gemini-2.0-flash"

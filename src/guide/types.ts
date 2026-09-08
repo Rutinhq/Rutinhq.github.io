@@ -76,7 +76,7 @@ export type GuideApiRequest = {
 
 export type GuideApiResponse = {
   reply: string
-  mode: 'live' | 'degraded'
+  mode: 'llm' | 'degraded'
   leadBrief?: LeadBrief
   calendlyUrl: string
 }
