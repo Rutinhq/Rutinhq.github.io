@@ -180,6 +180,23 @@ if (locs.some((url) => !url.startsWith('https://www.rutinhq.com'))) {
   process.exit(1)
 }
 
+const crawlHtml = [
+  'dist/index.html',
+  'dist/prerender/gtm-os.html',
+  'dist/prerender/store-os.html',
+  'dist/prerender/nexus-os.html',
+  'dist/prerender/es.html',
+  'dist/sitemap.xml',
+]
+for (const file of crawlHtml) {
+  if (!fs.existsSync(file)) continue
+  const body = fs.readFileSync(file, 'utf8')
+  if (/http:\/\/(?:www\.)?rutinhq\.com/.test(body) || /https:\/\/rutinhq\.com/.test(body)) {
+    console.error(`${file} must not emit apex or http:// rutinhq.com URLs.`)
+    process.exit(1)
+  }
+}
+
 if (fs.existsSync('dist/_headers')) {
   const headers = fs.readFileSync('dist/_headers', 'utf8')
   const active = headers
