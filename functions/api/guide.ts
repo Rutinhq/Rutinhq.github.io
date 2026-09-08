@@ -3,7 +3,7 @@
  * Secrets (Pages → Settings → Environment variables):
  *   GUIDE_LLM_API_KEY (or OpenAI-compatible key)
  *   GUIDE_LLM_BASE_URL (optional, Gemini: https://generativelanguage.googleapis.com/v1beta/openai)
- *   GUIDE_LLM_MODEL (optional, recommended gemini-3.6-flash)
+ *   GUIDE_LLM_MODEL (optional, recommended gemini-2.0-flash — do not pin thinking 2.5/3.6)
  *   GUIDE_LEAD_WEBHOOK_URL (optional JSON POST of lead briefs)
  *
  * Gemini runs with the full RutinHQ Guide mandate (not a bare model).
@@ -13,6 +13,7 @@
 import {
   callGuideLlmDetailed,
   composeGuideSystemPrompt,
+  isUnusableGuideReply,
   type GuideLlmMode,
 } from '../../src/guide/llm'
 
@@ -296,14 +297,15 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
         host: result.host,
         lastStatus: result.lastStatus,
         lastError: result.lastError,
+        lastFinishReason: result.lastFinishReason,
         modelsTried: result.modelsTried,
       }
       const text = result.text
-      if (text && !LEAK_RE.test(text)) {
+      if (text && LEAK_RE.test(text)) {
+        reply = pick('security')
+      } else if (text && !isUnusableGuideReply(text, result.lastFinishReason)) {
         reply = text
         mode = 'llm'
-      } else if (text && LEAK_RE.test(text)) {
-        reply = pick('security')
       }
     } catch {
       llmDebug = { hasKey: true, lastError: 'call_threw' }

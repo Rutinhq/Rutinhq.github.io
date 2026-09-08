@@ -1,7 +1,9 @@
 import {
+  extractFinishReason,
   extractLlmText,
   guideLlmModelCandidates,
   guideLlmOnProviderError,
+  isUnusableGuideReply,
   normalizeGuideLlmBaseUrl,
   normalizeGuideLlmModel,
   resolveGuideLlmBaseUrl,
@@ -52,11 +54,11 @@ assert(
   'AQ.-shaped AI Studio key must default to Gemini OpenAI-compat base',
 )
 assert(
-  resolveGuideLlmModel(undefined, 'AQ.FakeStudioKeyForShapeOnly') === 'gemini-3.6-flash',
-  'AQ.-shaped key must default to gemini-3.6-flash',
+  resolveGuideLlmModel(undefined, 'AQ.FakeStudioKeyForShapeOnly') === 'gemini-2.0-flash',
+  'AQ.-shaped key must default to gemini-2.0-flash (non-thinking)',
 )
 assert(
-  resolveGuideLlmModel('gemini-3.6-flash', 'AQ.FakeStudioKeyForShapeOnly') === 'gemini-3.6-flash',
+  resolveGuideLlmModel('gemini-2.0-flash', 'AQ.FakeStudioKeyForShapeOnly') === 'gemini-2.0-flash',
   'GUIDE_LLM_MODEL is the single primary',
 )
 assert(
@@ -66,20 +68,26 @@ assert(
 
 assert(normalizeGuideLlmModel('models/gemini-2.0-flash') === 'gemini-2.0-flash', 'strip models/')
 assert(
-  guideLlmModelCandidates('gemini-2.0-flash').includes('gemini-2.5-flash'),
-  'gemini-2.0-flash must have a working alias fallback',
-)
-assert(
-  guideLlmModelCandidates('gemini-3.6-flash')[0] === 'gemini-3.6-flash',
+  guideLlmModelCandidates('gemini-2.0-flash')[0] === 'gemini-2.0-flash',
   'candidates must start with the configured primary',
 )
 assert(
-  guideLlmModelCandidates('gemini-3.6-flash').length <= GUIDE_LLM_CANDIDATE_CAP,
-  'candidates must stay at primary + at most 2 fallbacks',
+  guideLlmModelCandidates('gemini-2.0-flash').includes('gemini-2.0-flash-001') ||
+    guideLlmModelCandidates('gemini-2.0-flash').includes('gemini-flash-latest'),
+  'gemini-2.0-flash 404 fallbacks stay on the 2.0 family',
+)
+assert(
+  !guideLlmModelCandidates('gemini-2.0-flash').includes('gemini-2.5-flash') &&
+    !guideLlmModelCandidates('gemini-2.0-flash').includes('gemini-3.6-flash'),
+  'must never cascade onto thinking 2.5/3.6 models',
 )
 assert(
   guideLlmModelCandidates('gemini-2.0-flash').length <= GUIDE_LLM_CANDIDATE_CAP,
-  'legacy flash aliases must not cascade 5 models',
+  'must not cascade 5 models',
+)
+assert(
+  guideLlmModelCandidates('gemini-3.6-flash').length === 1,
+  'thinking primary has no extra thinking fallbacks',
 )
 assert(
   guideLlmOnProviderError(429, 'rate_limit', true, false) === 'retry',
@@ -119,6 +127,19 @@ assert(
 assert(
   extractLlmText({ candidates: [{ content: { parts: [{ text: 'native' }] } }] }) === 'native',
   'Gemini native candidates',
+)
+assert(
+  extractFinishReason({ choices: [{ finish_reason: 'length' }] }) === 'length',
+  'OpenAI finish_reason',
+)
+assert(isUnusableGuideReply(null), 'empty completion is unusable')
+assert(isUnusableGuideReply('GTM OS es el sistema de outbound'), 'sub-80 mid-cut is unusable')
+assert(isUnusableGuideReply('x'.repeat(90), 'length'), 'finish_reason=length is unusable')
+assert(
+  isUnusableGuideReply(
+    'GTM OS is the B2B outbound system we install in your team — cold, ICP-filtered, milestone-gated.',
+  ) === false,
+  'complete multi-clause reply is usable',
 )
 
 assert(/RutinHQ Guide/.test(GUIDE_MANDATE), 'mandate names public UI')

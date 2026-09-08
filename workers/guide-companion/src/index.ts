@@ -110,7 +110,7 @@ export default {
           body: JSON.stringify({
             model,
             temperature: 0.2,
-            max_tokens: kb.policy.limits?.maxReplyTokens || 900,
+            max_tokens: kb.policy.limits?.maxReplyTokens || 1024,
             messages: [
               {
                 role: 'system',

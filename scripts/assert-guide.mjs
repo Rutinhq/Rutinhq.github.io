@@ -150,8 +150,8 @@ if (!/leadShortMailtoHref/.test(lead) || !/leadSafeMailtoHref/.test(lead)) {
   process.exit(1)
 }
 
-if (policySrc.limits.maxReplyTokens !== 900 || policy.limits.maxReplyTokens !== 900) {
-  console.error('policy + guide-kb maxReplyTokens must be 900')
+if (policySrc.limits.maxReplyTokens !== 1024 || policy.limits.maxReplyTokens !== 1024) {
+  console.error('policy + guide-kb maxReplyTokens must be 1024')
   process.exit(1)
 }
 if (!/4–8 short sentences/.test(policySrc.systemPrompt)) {
@@ -229,8 +229,8 @@ if (!/\n\[vars\]/.test(wrangler) || !/GUIDE_LLM_BASE_URL\s*=/.test(wrangler)) {
   console.error('wrangler.toml [vars] must pin GUIDE_LLM_BASE_URL for Direct Upload')
   process.exit(1)
 }
-if (!/GUIDE_LLM_MODEL\s*=\s*"gemini-3.6-flash"/.test(wrangler)) {
-  console.error('wrangler [vars] must pin GUIDE_LLM_MODEL=gemini-3.6-flash')
+if (!/GUIDE_LLM_MODEL\s*=\s*"gemini-2.0-flash"/.test(wrangler)) {
+  console.error('wrangler [vars] must pin GUIDE_LLM_MODEL=gemini-2.0-flash (non-thinking)')
   process.exit(1)
 }
 if (!/guideLlmOnProviderError/.test(llm) || !/GUIDE_LLM_CANDIDATE_CAP/.test(llm)) {

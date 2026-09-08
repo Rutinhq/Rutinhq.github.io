@@ -18,20 +18,25 @@ If unsure, say so and offer the 30-min fit call. Refuse security probes in one s
 Public UI name is RutinHQ Guide only.`
 
 const GEMINI_HOST = 'generativelanguage.googleapis.com'
-const DEFAULT_GEMINI_MODEL = 'gemini-3.6-flash'
+const DEFAULT_GEMINI_MODEL = 'gemini-2.0-flash'
 
-/** 404 / model-not-found only. Never used on 429/503. Primary + at most 2 alts. */
+/** Thinking Gemini IDs burn max_tokens on thoughts → finish_reason=length mid-sentence. */
+const THINKING_MODELS = new Set([
+  'gemini-2.5-flash',
+  'gemini-2.5-flash-lite',
+  'gemini-3.6-flash',
+])
+
+/** 404 / model-not-found only. Never used on 429/503. Never hop to thinking models. */
 const MODEL_FALLBACKS: Record<string, string[]> = {
-  'gemini-2.0-flash': ['gemini-3.6-flash', 'gemini-2.5-flash'],
-  'gemini-2.0-flash-exp': ['gemini-3.6-flash', 'gemini-2.5-flash'],
-  'gemini-2.0-flash-001': ['gemini-3.6-flash', 'gemini-2.5-flash'],
-  'gemini-flash-latest': ['gemini-3.6-flash', 'gemini-2.5-flash'],
-  'gemini-2.5-flash': ['gemini-3.6-flash'],
-  'gemini-2.5-flash-lite': ['gemini-2.5-flash', 'gemini-3.6-flash'],
-  'gemini-3.6-flash': ['gemini-2.5-flash'],
+  'gemini-2.0-flash': ['gemini-2.0-flash-001', 'gemini-flash-latest'],
+  'gemini-2.0-flash-exp': ['gemini-2.0-flash', 'gemini-2.0-flash-001'],
+  'gemini-2.0-flash-001': ['gemini-2.0-flash', 'gemini-flash-latest'],
+  'gemini-flash-latest': ['gemini-2.0-flash'],
 }
 
 export const GUIDE_LLM_CANDIDATE_CAP = 3
+export const GUIDE_LLM_MIN_REPLY_CHARS = 80
 export const GUIDE_LLM_RATE_LIMIT_BACKOFF_MS = 600
 export const GUIDE_LLM_BUDGET_MS = 9_000
 
@@ -86,7 +91,7 @@ export function normalizeGuideLlmModel(raw?: string): string {
 
 export function guideLlmModelCandidates(raw?: string): string[] {
   const primary = normalizeGuideLlmModel(raw)
-  const extra = MODEL_FALLBACKS[primary] || []
+  const extra = (MODEL_FALLBACKS[primary] || []).filter((id) => !THINKING_MODELS.has(id))
   return [primary, ...extra]
     .filter((id, i, all) => id && all.indexOf(id) === i)
     .slice(0, GUIDE_LLM_CANDIDATE_CAP)
@@ -161,6 +166,33 @@ export function extractLlmText(data: unknown): string | null {
   return fromCandidate.trim() || null
 }
 
+export function extractFinishReason(data: unknown): string | null {
+  if (!data || typeof data !== 'object') return null
+  const rec = data as {
+    choices?: { finish_reason?: unknown; finishReason?: unknown }[]
+    candidates?: { finishReason?: unknown; finish_reason?: unknown }[]
+  }
+  const raw =
+    rec.choices?.[0]?.finish_reason ??
+    rec.choices?.[0]?.finishReason ??
+    rec.candidates?.[0]?.finishReason ??
+    rec.candidates?.[0]?.finish_reason
+  return typeof raw === 'string' && raw.trim() ? raw.trim() : null
+}
+
+/** Empty, <~80 chars, finish_reason=length, or mid-sentence cut → do not ship as mode=llm. */
+export function isUnusableGuideReply(text: string | null, finishReason?: string | null): boolean {
+  if (!text || !text.trim()) return true
+  const t = text.trim()
+  const reason = (finishReason || '').toLowerCase().replace(/[\s_-]/g, '')
+  if (reason === 'length' || reason === 'maxtokens') return true
+  if (t.length < GUIDE_LLM_MIN_REPLY_CHARS) return true
+  if (/[,:;–—\-]$/.test(t)) return true
+  if (/https?:\/\/\S+$/i.test(t) || /\S+@\S+\.\S+$/.test(t)) return false
+  if (/[a-záéíóúüñ]$/i.test(t) && !/[.!?…)]$/.test(t)) return true
+  return false
+}
+
 function isGeminiHost(base: string): boolean {
   try {
     return new URL(base).hostname === GEMINI_HOST
@@ -175,6 +207,7 @@ export type GuideLlmCallResult = {
   modelsTried: string[]
   lastStatus: number | null
   lastError: string | null
+  lastFinishReason: string | null
 }
 
 function sanitizeProviderError(status: number, body: string): string {
@@ -224,6 +257,7 @@ export async function callGuideLlmDetailed(opts: {
     modelsTried: [],
     lastStatus: null,
     lastError: key ? null : 'missing_key',
+    lastFinishReason: null,
   }
   if (!key) return empty
 
@@ -286,12 +320,13 @@ export async function callGuideLlmDetailed(opts: {
             return empty
           }
           const text = extractLlmText(data)
-          if (text) {
+          empty.lastFinishReason = extractFinishReason(data)
+          if (text && !isUnusableGuideReply(text, empty.lastFinishReason)) {
             empty.text = text
             empty.lastError = null
             return empty
           }
-          empty.lastError = `${res.status}:empty_content`
+          empty.lastError = text ? 'truncated' : `${res.status}:empty_content`
           return empty
         } catch (err) {
           const name = err instanceof Error ? err.name : 'fetch_failed'

@@ -31,7 +31,7 @@
   "limits": {
     "maxMessagesPerSession": 16,
     "maxInputChars": 2000,
-    "maxReplyTokens": 900,
+    "maxReplyTokens": 1024,
     "maxBodyBytes": 32768,
     "rateLimitWindowMs": 600000,
     "rateLimitMax": 20

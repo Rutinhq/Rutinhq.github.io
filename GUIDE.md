@@ -46,17 +46,17 @@ If the LLM key is absent or the provider fails, both Function and client return 
 
 Gemini is not a bare model: `functions/api/guide.ts` always prefixes the **GEMINI ENGINE** public mandate (catalog-only GTM OS / STORE OS / NEXUS OS, no prices/legal/credentials, 4–8 short sentences, Calendly + `strategy@rutinhq.com`, locale EN/ES) plus `policy.systemPrompt` and the allowlisted KB.
 
-On **429/503** the client retries the **primary** model once (~600ms) then degrades — it does not walk fallbacks. Model-missing (404) may try at most two alternatives (`gemini-3.6-flash` / `gemini-2.5-flash`). Overall LLM budget is ~9s.
+On **429/503** the client retries the **primary** model once (~600ms) then degrades — it does not walk fallbacks and **never** falls through to thinking models (`gemini-2.5-flash` / `gemini-3.6-flash`; they burn `max_tokens` on thoughts and return `finish_reason=length`). Model-missing (404) may try at most two **2.0-family** aliases. Empty, under ~80 char, or mid-cut completions are treated as failure (`mode: degraded`). Overall LLM budget is ~9s.
 
 ## Env vars (Pages → Settings → Environment variables)
 
-Recommended path: **Gemini OpenAI-compatible** (`GUIDE_LLM_BASE_URL` + Gemini key/model). The Function normalizes trailing slashes, Gemini `/openai` vs `/openai/v1`, `models/` prefixes, Bearer + `x-goog-api-key`, and parses both string and parts-array content. `GUIDE_LLM_MODEL` is the single primary (Pages `[vars]` pin `gemini-3.6-flash`). Rate-limits retry that primary once; 404-only fallbacks stay at most two aliases. OpenAI remains a drop-in alternative (code default if `BASE_URL` / `MODEL` are unset).
+Recommended path: **Gemini OpenAI-compatible** (`GUIDE_LLM_BASE_URL` + Gemini key/model). The Function normalizes trailing slashes, Gemini `/openai` vs `/openai/v1`, `models/` prefixes, Bearer + `x-goog-api-key`, and parses both string and parts-array content. `GUIDE_LLM_MODEL` is the single primary (Pages `[vars]` pin `gemini-2.0-flash` — do not pin 2.5/3.6 unless thinking is disabled). Rate-limits retry that primary once; 404-only fallbacks stay on the 2.0 family. OpenAI remains a drop-in alternative (code default if `BASE_URL` / `MODEL` are unset).
 
 | Name | Required | Purpose |
 | --- | --- | --- |
 | `GUIDE_LLM_API_KEY` | for `mode: llm` | Gemini API key (recommended) or other OpenAI-compatible bearer token |
 | `GUIDE_LLM_BASE_URL` | no | Recommended Gemini: `https://generativelanguage.googleapis.com/v1beta/openai`. Alternative OpenAI: `https://api.openai.com/v1` (code default) |
-| `GUIDE_LLM_MODEL` | no | Recommended Gemini: `gemini-3.6-flash` (404 fallback: `gemini-2.5-flash`). Alternative OpenAI: `gpt-4o-mini` (code default) |
+| `GUIDE_LLM_MODEL` | no | Recommended Gemini: `gemini-2.0-flash` (404 fallback: `gemini-2.0-flash-001` / `gemini-flash-latest`). Alternative OpenAI: `gpt-4o-mini` (code default) |
 | `GUIDE_LEAD_WEBHOOK_URL` | no | `POST { type: "lead_brief", leadBrief }` |
 
 Local: copy `.env.example` → `.env` (Vite + the guide middleware read `process.env`).
@@ -67,7 +67,7 @@ Local: copy `.env.example` → `.env` (Vite + the guide middleware read `process
 2. Cloudflare Pages project `rutinhq-web` → Settings → Environment variables (Production **and** Preview):
    - `GUIDE_LLM_API_KEY` = Gemini API key (Encrypt / secret)
    - `GUIDE_LLM_BASE_URL` = `https://generativelanguage.googleapis.com/v1beta/openai`
-   - `GUIDE_LLM_MODEL` = `gemini-3.6-flash`
+   - `GUIDE_LLM_MODEL` = `gemini-2.0-flash`
 3. `GUIDE_LLM_API_KEY` = Pages **secret**. `GUIDE_LLM_BASE_URL` + `GUIDE_LLM_MODEL` live in `wrangler.toml` `[vars]` (Direct Upload wipes dashboard plaintext; `secret put` for those names did not attach to production `deployment_configs`). Do not secret-put the same names as `[vars]` (binding already in use). Then fresh `wrangler pages deploy` — Direct Upload cannot Retry. The Function also routes Google-shaped keys (legacy `AIza…` or current AI Studio `AQ.…`) to the Gemini OpenAI-compat base so a wiped plaintext var cannot send the key to `api.openai.com`.
 4. Smoke: `POST https://www.rutinhq.com/api/guide` with locale `es` and a catalog question → response `mode` should be `llm` (not `degraded`).
 5. Security probes still refuse credentials and pricing (same as `scripts/assert-guide.mjs`).
@@ -81,7 +81,7 @@ Payload: topic, questions asked, objections, recommended SKU, next step, transcr
 v1 delivery:
 
 - Widget button: copy full markdown brief → short `mailto:strategy@rutinhq.com` (paste the clipboard). If clipboard fails, a mailto capped at ~1200 href chars.
-- Optional: `POST /api/guide/lead` → `GUIDE_LEAD_WEBHOOK_URL` when set (`{ ok: true, delivered }`). Unset webhook is not an error.
+- Optional: `POST /api/guide/lead` → `GUIDE_LEAD_WEBHOOK_URL` when set (`{ ok: true, delivered }`). Unset webhook is not an error. Real “send to team” delivery needs Capo/CORTEX to set `GUIDE_LEAD_WEBHOOK_URL` on Pages (likely unset today).
 
 To wire a webhook later: create any HTTPS listener, set the secret on `rutinhq-web`, redeploy.
 
