@@ -16,7 +16,7 @@ Answers like a briefed commercial lead, grounded in allowlisted SoT only:
 
 It must not invent pricing, legal guarantees, or private ops. Off-topic is refused. Unsure → Calendly `https://calendly.com/rutinhq/30min` or `strategy@rutinhq.com`.
 
-Security layer (degraded and llm): credential / password / API key / bank / FAA / Banorte / internal-nickname / Notion probes are pre-filtered. They return a fixed locale refuse + Calendly — never a SKU pitch. Pricing questions refuse specifics and point to the fit call. `scripts/assert-guide.mjs` encodes those probes.
+Security layer (degraded and llm): credential / password / API key / bank / FAA / Banorte / internal-nickname / Notion probes are pre-filtered. They return a fixed locale refuse + Calendly — never a SKU pitch. Pricing questions refuse specifics and point to the fit call. **Classify pricing and booking on the latest user turn only** — assistant catalog copy (e.g. STORE OS “precio”) must not trip `pricingHints` on cita/agenda/schedule/Calendly/fit/leads/qué más. Those turns return the conversation SKU + Calendly CTA. `scripts/assert-guide.mjs` encodes those probes.
 
 Primary CTA in chat: book Calendly.
 

@@ -102,13 +102,27 @@ function guideApiPlugin(): Plugin {
   }
 }
 
+function lastUserContent(messages: { role: string; content: string }[]): string {
+  for (let i = messages.length - 1; i >= 0; i--) {
+    if (messages[i].role === 'user') return messages[i].content
+  }
+  return ''
+}
+
+function previewHintHit(text: string, hints: string[]): boolean {
+  const hay = text.toLowerCase()
+  return hints.some((hint) => hint && hay.includes(hint.toLowerCase()))
+}
+
 async function degradeGuidePreview(request: Request, kb: unknown): Promise<Response> {
   const policy = (
     kb as {
       policy?: {
         calendlyUrl?: string
         fallbackReplies?: Record<string, { en: string; es: string }>
+        intentHints?: Record<string, string[]>
         pricingHints?: string[]
+        bookingHints?: string[]
         securityHints?: string[]
       }
     } | null
@@ -124,7 +138,10 @@ async function degradeGuidePreview(request: Request, kb: unknown): Promise<Respo
     /* empty */
   }
   const locale = parsed.locale === 'es' ? 'es' : 'en'
-  const hay = (parsed.messages || []).map((m) => m.content).join('\n').toLowerCase()
+  const messages = parsed.messages || []
+  const last = lastUserContent(messages)
+  const users = messages.filter((m) => m.role === 'user').map((m) => m.content).join('\n')
+  const hay = messages.map((m) => m.content).join('\n')
   const securityHints = policy?.securityHints || [
     'password',
     'api key',
@@ -135,44 +152,70 @@ async function degradeGuidePreview(request: Request, kb: unknown): Promise<Respo
     'notion',
     'contraseña',
   ]
-  const isSecurity = securityHints.some((h) => hay.includes(h.toLowerCase()))
+  const bookingHints = policy?.bookingHints || [
+    'cita',
+    'agenda',
+    'schedule',
+    'calendly',
+    'fit',
+    'leads',
+    'qué más',
+    'que mas',
+  ]
   const pricingHints = policy?.pricingHints || ['price', 'pricing', 'precio', 'cobro']
-  const isPricing = pricingHints.some((h) => hay.includes(h.toLowerCase()))
+  const isSecurity = previewHintHit(last, securityHints)
+  const isBooking = previewHintHit(last, bookingHints)
+  const isPricing = !isBooking && previewHintHit(last, pricingHints)
+  const skuKeys = ['gtm-os', 'store-os', 'nexus-os'] as const
+  const ranked = skuKeys
+    .map((key) => ({
+      key,
+      n: (policy?.intentHints?.[key] || []).filter((h) => users.toLowerCase().includes(h.toLowerCase()))
+        .length,
+    }))
+    .sort((a, b) => b.n - a.n)
+  const recommendedSku =
+    ranked[0] && ranked[0].n > 0 && ranked[0].n !== ranked[1]?.n ? ranked[0].key : 'unclear'
   const pick = (key: string, fallback: { en: string; es: string }) => {
     const pack = policy?.fallbackReplies?.[key] || fallback
     return locale === 'es' ? pack.es : pack.en
   }
-  let reply: string
-  if (isSecurity) {
-    reply = pick('security', {
-      en: 'I cannot share credentials, passwords, API keys, bank details, or private operations. Book a 30-min fit call.',
-      es: 'No comparto credenciales, contraseñas, claves de API, datos bancarios ni operaciones privadas. Agenda 30 min.',
-    })
-  } else if (isPricing) {
-    reply = pick('pricing', {
-      en: 'I do not quote prices in chat. Book a 30-min fit call.',
-      es: 'No cito precios en el chat. Agenda 30 min.',
-    })
-  } else {
-    reply = pick('degraded', {
-      en: 'Book a 30-min fit call — https://calendly.com/rutinhq/30min',
-      es: 'Agenda 30 min — https://calendly.com/rutinhq/30min',
-    })
+  const calendly = policy?.calendlyUrl || 'https://calendly.com/rutinhq/30min'
+  let replyKey = 'degraded'
+  if (isSecurity) replyKey = 'security'
+  else if (isPricing) replyKey = 'pricing'
+  else if (recommendedSku !== 'unclear') replyKey = recommendedSku
+  else if (isBooking) replyKey = 'fit'
+  let reply = pick(replyKey, {
+    en: 'GTM OS, STORE OS, and NEXUS OS are the public catalog. Book 30 min — https://calendly.com/rutinhq/30min',
+    es: 'GTM OS, STORE OS y NEXUS OS son el catálogo público. Agenda 30 min — https://calendly.com/rutinhq/30min',
+  })
+  if (!/calendly\.com\/rutinhq\/30min/i.test(reply)) {
+    reply = `${reply.trim()} ${
+      locale === 'es' ? `Siguiente paso: agenda 30 min — ${calendly}` : `Next step: book 30 min — ${calendly}`
+    }`
   }
   let leadBrief: unknown
-  if (!isSecurity && (/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i.test(hay) || /book|price|hire|precio|agendar|cobro/i.test(hay))) {
+  if (!isSecurity && (/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i.test(hay) || isBooking || isPricing)) {
     leadBrief = {
-      topic: locale === 'es' ? 'Fit RutinHQ (SKU por confirmar)' : 'RutinHQ fit (SKU TBD)',
-      questionsAsked: (parsed.messages || [])
+      topic:
+        recommendedSku === 'unclear'
+          ? locale === 'es'
+            ? 'Fit RutinHQ (SKU por confirmar)'
+            : 'RutinHQ fit (SKU TBD)'
+          : locale === 'es'
+            ? `Fit ${recommendedSku}`
+            : `${recommendedSku} fit`,
+      questionsAsked: messages
         .filter((m) => m.role === 'user')
         .map((m) => m.content)
         .slice(-6),
       objections: [],
-      recommendedSku: 'unclear',
+      recommendedSku,
       nextStep:
         locale === 'es'
-          ? 'Agendar 30 min de fit — https://calendly.com/rutinhq/30min'
-          : 'Book 30-min fit call — https://calendly.com/rutinhq/30min',
+          ? `Agendar 30 min de fit — ${calendly}`
+          : `Book 30-min fit call — ${calendly}`,
       transcriptExcerpt: hay.slice(0, 900),
       page: parsed.page || '/',
       locale,

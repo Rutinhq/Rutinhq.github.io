@@ -283,25 +283,56 @@ function scoreHints(text, hints) {
   return (hints || []).reduce((n, h) => (hintMatches(text, h) ? n + 1 : n), 0)
 }
 
-function classifyProbe(text) {
-  const hay = text.toLowerCase()
-  if ((policySrc.securityHints || []).some((h) => hintMatches(hay, h))) return 'security'
-  if (scoreHints(hay, policySrc.offTopicHints) && !scoreHints(hay, [
-    ...(policySrc.intentHints['gtm-os'] || []),
-    ...(policySrc.intentHints['store-os'] || []),
-    ...(policySrc.intentHints['nexus-os'] || []),
-  ])) {
+function lastUser(messages) {
+  for (let i = messages.length - 1; i >= 0; i--) {
+    if (messages[i].role === 'user') return messages[i].content
+  }
+  return ''
+}
+
+function userHay(messages) {
+  return messages.filter((m) => m.role === 'user').map((m) => m.content).join('\n')
+}
+
+function classifyConversation(messages) {
+  const last = lastUser(messages)
+  const users = userHay(messages)
+  if ((policySrc.securityHints || []).some((h) => hintMatches(last, h))) return 'security'
+  if (
+    scoreHints(last, policySrc.offTopicHints) &&
+    !scoreHints(last, [
+      ...(policySrc.intentHints['gtm-os'] || []),
+      ...(policySrc.intentHints['store-os'] || []),
+      ...(policySrc.intentHints['nexus-os'] || []),
+    ])
+  ) {
     return 'offTopic'
   }
-  if (scoreHints(hay, policySrc.pricingHints)) return 'pricing'
+  if (scoreHints(last, policySrc.bookingHints)) {
+    const prior = userHay(messages.slice(0, -1)) || users
+    const rankedSku = ['gtm-os', 'store-os', 'nexus-os'].map((key) => ({
+      key,
+      n: scoreHints(prior, policySrc.intentHints[key] || []),
+    }))
+    rankedSku.sort((a, b) => b.n - a.n)
+    if (rankedSku[0] && rankedSku[0].n > 0 && rankedSku[0].n !== rankedSku[1]?.n) {
+      return rankedSku[0].key
+    }
+    return 'fit'
+  }
+  if (scoreHints(last, policySrc.pricingHints)) return 'pricing'
   const ranked = ['gtm-os', 'store-os', 'nexus-os', 'catalog'].map((key) => ({
     key,
-    n: scoreHints(hay, policySrc.intentHints[key] || []),
+    n: scoreHints(users, policySrc.intentHints[key] || []),
   }))
   ranked.sort((a, b) => b.n - a.n)
   if (!ranked[0] || ranked[0].n === 0) return 'unsure'
   if (ranked[1] && ranked[0].n === ranked[1].n && ranked[0].n < 2) return 'unsure'
   return ranked[0].key
+}
+
+function classifyProbe(text) {
+  return classifyConversation([{ role: 'user', content: text }])
 }
 
 const securityProbes = [
@@ -371,6 +402,68 @@ const classifySrc = fs.readFileSync(path.join(root, 'src/guide/classify.ts'), 'u
 if (!/isSecurityProbe/.test(classifySrc)) {
   console.error('classifyIntent must call isSecurityProbe first')
   process.exit(1)
+}
+if (!/classifyIntentWithPolicy/.test(classifySrc)) {
+  console.error('classify.ts must delegate to classifyIntentWithPolicy (last-user booking/pricing)')
+  process.exit(1)
+}
+if (!/classifyIntentWithPolicy/.test(fn) || !/resolveFallbackKey/.test(fn)) {
+  console.error('Function must use shared last-user classify + SKU fallback key')
+  process.exit(1)
+}
+
+if (!Array.isArray(policySrc.bookingHints) || !policySrc.bookingHints.includes('cita')) {
+  console.error('policy.bookingHints must include cita/agenda/schedule/fit/leads')
+  process.exit(1)
+}
+
+const storeCopy = `${policySrc.fallbackReplies['store-os'].en}\n${policySrc.fallbackReplies['store-os'].es}`
+if (/\bprice\b|\bprecio\b/i.test(storeCopy)) {
+  console.error('STORE OS fallback must not contain price/precio (poisons later pricingHints)')
+  process.exit(1)
+}
+
+const storeThread = (follow) => [
+  { role: 'user', content: 'que es STORE OS?' },
+  { role: 'assistant', content: policySrc.fallbackReplies['store-os'].es },
+  { role: 'user', content: follow },
+]
+const bookingFollows = ['cita', 'agenda', 'schedule', 'Calendly', 'fit', 'leads', 'GTM-fit', 'qué más']
+for (const follow of bookingFollows) {
+  const intent = classifyConversation(storeThread(follow))
+  if (intent === 'pricing') {
+    console.error(`cita≠pricing failed: STORE OS + "${follow}" classified as pricing`)
+    process.exit(1)
+  }
+  if (intent !== 'store-os' && intent !== 'fit') {
+    console.error(`STORE OS + "${follow}" expected store-os/fit, got ${intent}`)
+    process.exit(1)
+  }
+}
+
+const degradedKeys = ['store-os', 'gtm-os', 'nexus-os', 'catalog', 'fit', 'degraded', 'unsure']
+for (const key of degradedKeys) {
+  const pack = policySrc.fallbackReplies[key]
+  if (!pack?.en || !pack?.es) {
+    console.error(`degraded SKU copy missing for ${key}`)
+    process.exit(1)
+  }
+  const blob = `${pack.en}\n${pack.es}`
+  if (!/calendly.com\/rutinhq\/30min/.test(blob)) {
+    console.error(`degraded SKU copy ${key} must include the Calendly URL`)
+    process.exit(1)
+  }
+  if (!/GTM OS/.test(blob) || !/STORE OS/.test(blob) || !/NEXUS OS/.test(blob)) {
+    if (key === 'store-os' || key === 'gtm-os' || key === 'nexus-os') {
+      if (!new RegExp(key === 'store-os' ? 'STORE OS' : key === 'gtm-os' ? 'GTM OS' : 'NEXUS OS').test(blob)) {
+        console.error(`degraded SKU copy ${key} must name its SKU`)
+        process.exit(1)
+      }
+    } else {
+      console.error(`degraded SKU copy ${key} must name GTM OS, STORE OS, and NEXUS OS`)
+      process.exit(1)
+    }
+  }
 }
 
 console.log('guide-kb + UI name + locale + security probe checks passed')

@@ -4,6 +4,7 @@ export type RecommendedSku = GuideSku | 'unclear'
 export type GuideIntent =
   | GuideSku
   | 'catalog'
+  | 'fit'
   | 'pricing'
   | 'security'
   | 'offTopic'
@@ -61,6 +62,7 @@ export type GuidePolicy = {
   skus: GuideSku[]
   intentHints: Record<string, string[]>
   buyingIntentHints: string[]
+  bookingHints: string[]
   offTopicHints: string[]
   pricingHints: string[]
   securityHints: string[]

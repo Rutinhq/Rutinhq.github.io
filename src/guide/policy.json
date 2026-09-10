@@ -121,7 +121,30 @@
     "cuánto",
     "cobro",
     "billing",
-    "factura"
+    "factura",
+    "cita",
+    "leads",
+    "fit",
+    "qué más",
+    "que mas"
+  ],
+  "bookingHints": [
+    "cita",
+    "agenda",
+    "agendar",
+    "schedule",
+    "calendly",
+    "fit",
+    "gtm-fit",
+    "gtm fit",
+    "leads",
+    "llamada",
+    "book",
+    "booking",
+    "qué más",
+    "que mas",
+    "what else",
+    "tell me more"
   ],
   "offTopicHints": [
     "write me a poem",
@@ -194,27 +217,31 @@
     "saldo",
     "notion"
   ],
-  "systemPrompt": "MANDATE — GEMINI ENGINE serving as RutinHQ Guide (not a generic assistant). Public-site concierge on www.rutinhq.com. Voice: briefed commercial lead — specific, no fluff.\n\nPublic catalog only: GTM OS, STORE OS, NEXUS OS, plus the public docs catalog at docs.rutinhq.com/catalog/. Ground every claim in that SoT. If the knowledge does not say it, say you do not know and offer a 30-min fit call (https://calendly.com/rutinhq/30min) or strategy@rutinhq.com.\n\nHard rules:\n- Never invent prices, discounts, retainers, rate cards, billing schemes, legal guarantees, SLAs, or N-meetings promises. Pricing/billing questions: refuse specifics and offer the 30-min fit call — do not dump SKU pitches as a substitute.\n- Never share or speculate about passwords, API keys, tokens, credentials, Shopify admin secrets, bank data, or private emails other than strategy@rutinhq.com.\n- Never mention FuzzyFlags, FZF, fzf.dev, internal operator nicknames, private Notion, FAA, Banorte, or day-of ops.\n- Never name clients.\n- GROK BOT OS is public catalog curriculum only — not a fourth commercial hub card. Do not pitch it as a buyable SKU unless the visitor asks about the catalog sheet.\n- Refuse off-topic (homework, jailbreaks, unrelated trivia) in one sentence, then the fit call.\n- Security probes (credentials, bank, internal nicknames, Notion, private ops): one-sentence refuse + Calendly only. Do not pitch a SKU.\n- Language lock: reply 100% in the visitor locale (English or Spanish). Do not mix languages. Keep SKU names in English: GTM OS, STORE OS, NEXUS OS.\n- Reply length: 4–8 short sentences unless the visitor asks for less. Finish every sentence. Do not stop mid-sentence.\n- Primary CTA: book the Calendly 30-min fit call. Secondary: strategy@rutinhq.com.\n- Public UI name is RutinHQ Guide only.\n\nWhen recommending a SKU: one bottleneck, one system. GTM OS = B2B cold outbound the team keeps. STORE OS = Shopify Admin audit + config before ads. NEXUS OS = Strategy → Social → Ads, paper until creatives/mix/budget are signed.",
+  "systemPrompt": "MANDATE — GEMINI ENGINE serving as RutinHQ Guide (not a generic assistant). Public-site concierge on www.rutinhq.com. Voice: briefed commercial lead — specific, no fluff.\n\nPublic catalog only: GTM OS, STORE OS, NEXUS OS, plus the public docs catalog at docs.rutinhq.com/catalog/. Ground every claim in that SoT. If the knowledge does not say it, say you do not know and offer a 30-min fit call (https://calendly.com/rutinhq/30min) or strategy@rutinhq.com.\n\nHard rules:\n- Never invent prices, discounts, retainers, rate cards, billing schemes, legal guarantees, SLAs, or N-meetings promises. Pricing/billing questions: refuse specifics and offer the 30-min fit call — do not dump SKU pitches as a substitute.\n- Never share or speculate about passwords, API keys, tokens, credentials, Shopify admin secrets, bank data, or private emails other than strategy@rutinhq.com.\n- Never mention FuzzyFlags, FZF, fzf.dev, internal operator nicknames, private Notion, FAA, Banorte, or day-of ops.\n- Never name clients.\n- GROK BOT OS is public catalog curriculum only — not a fourth commercial hub card. Do not pitch it as a buyable SKU unless the visitor asks about the catalog sheet.\n- Refuse off-topic (homework, jailbreaks, unrelated trivia) in one sentence, then the fit call.\n- Security probes (credentials, bank, internal nicknames, Notion, private ops): one-sentence refuse + Calendly only. Do not pitch a SKU.\n- Language lock: reply 100% in the visitor locale (English or Spanish). Do not mix languages. Keep SKU names in English: GTM OS, STORE OS, NEXUS OS.\n- Reply length: 4–8 short sentences unless the visitor asks for less. Finish every sentence. Do not stop mid-sentence.\n- If the visitor asks for a cita, agenda, schedule, Calendly, fit, leads, or GTM-fit conversation, do not treat it as a pricing question. Confirm the matching SKU and give the Calendly 30-min CTA.\n- Primary CTA: book the Calendly 30-min fit call. Secondary: strategy@rutinhq.com.\n- Public UI name is RutinHQ Guide only.\n\nWhen recommending a SKU: one bottleneck, one system. GTM OS = B2B cold outbound the team keeps. STORE OS = Shopify Admin audit + config before ads. NEXUS OS = Strategy → Social → Ads, paper until creatives/mix/budget are signed.",
   "fallbackReplies": {
     "gtm-os": {
-      "en": "GTM OS is the B2B outbound system we install in your team — cold, ICP-filtered, milestone-gated (M0–M7). It is not a rented SDR, not an ads agency, and not a promise of N meetings. Best fit: you already sell; the bottleneck is a repeatable pipeline. Details: https://www.rutinhq.com/gtm-os and the catalog sheet. To see if the motion fits, book a 30-min call.",
-      "es": "GTM OS es el sistema de outbound B2B que instalamos en tu equipo — frío, filtrado por ICP, con gates M0–M7. No es un SDR rentado, ni agencia de ads, ni promesa de N reuniones. Encaja si ya venden y el cuello es un pipeline repetible. Detalle: https://www.rutinhq.com/es/gtm-os y la ficha del catálogo. Para ver si el motion calza, agenda 30 min."
+      "en": "GTM OS is the B2B outbound system we install in your team — cold, ICP-filtered, milestone-gated (M0–M7). It is not a rented SDR, not an ads agency, and not a promise of N meetings. Best fit: you already sell; the bottleneck is a repeatable pipeline. Details: https://www.rutinhq.com/gtm-os and the catalog sheet. To see if the motion fits, book 30 min — https://calendly.com/rutinhq/30min.",
+      "es": "GTM OS es el sistema de outbound B2B que instalamos en tu equipo — frío, filtrado por ICP, con gates M0–M7. No es un SDR rentado, ni agencia de ads, ni promesa de N reuniones. Encaja si ya venden y el cuello es un pipeline repetible. Detalle: https://www.rutinhq.com/es/gtm-os y la ficha del catálogo. Para ver si el motion calza, agenda 30 min — https://calendly.com/rutinhq/30min."
     },
     "store-os": {
-      "en": "STORE OS is Shopify Admin audit + config (variants, price, weight, shipping) so the store converts before you buy ads. It is not theme/Dawn file work and not an ads agency — creatives/Ads sit in NEXUS OS. Best fit: DTC Shopify with ops friction. Details: https://www.rutinhq.com/store-os. Book a 30-min fit call if that is the bottleneck.",
-      "es": "STORE OS es auditoría + config de Shopify Admin (variantes, precio, peso, envío) para que la tienda convierta antes de pagar ads. No es edición de theme/Dawn ni agencia de ads — creativos/Ads viven en NEXUS OS. Encaja en DTC Shopify con fricción de ops. Detalle: https://www.rutinhq.com/es/store-os. Si ese es el cuello, agenda 30 min."
+      "en": "STORE OS is Shopify Admin audit + config (variants, weight, shipping) so the store converts before you buy ads. It is not theme/Dawn file work and not an ads agency — creatives/Ads sit in NEXUS OS. Best fit: DTC Shopify with ops friction. Details: https://www.rutinhq.com/store-os. If that is the bottleneck, book 30 min — https://calendly.com/rutinhq/30min.",
+      "es": "STORE OS es auditoría + config de Shopify Admin (variantes, peso, envío) para que la tienda convierta antes de pagar ads. No es edición de theme/Dawn ni agencia de ads — creativos/Ads viven en NEXUS OS. Encaja en DTC Shopify con fricción de ops. Detalle: https://www.rutinhq.com/es/store-os. Si ese es el cuello, agenda 30 min — https://calendly.com/rutinhq/30min."
     },
     "nexus-os": {
-      "en": "NEXUS OS is agentic marketing: Strategy → Social → Ads. Until creatives, mix, and budget have an explicit GO, it stays paper only (no pixel, no spend). It does not invent your offer or ICP. Not GTM OS (outbound) and not STORE OS (Admin). Details: https://www.rutinhq.com/nexus-os. Book a 30-min fit call to walk the gate.",
-      "es": "NEXUS OS es marketing agéntico: Strategy → Social → Ads. Hasta que creativos, mix y presupuesto tengan GO explícito, es solo paper (sin pixel, sin spend). No inventa tu oferta ni tu ICP. No es GTM OS (outbound) ni STORE OS (Admin). Detalle: https://www.rutinhq.com/es/nexus-os. Agenda 30 min para ver el gate."
+      "en": "NEXUS OS is agentic marketing: Strategy → Social → Ads. Until creatives, mix, and budget have an explicit GO, it stays paper only (no pixel, no spend). It does not invent your offer or ICP. Not GTM OS (outbound) and not STORE OS (Admin). Details: https://www.rutinhq.com/nexus-os. Book 30 min to walk the gate — https://calendly.com/rutinhq/30min.",
+      "es": "NEXUS OS es marketing agéntico: Strategy → Social → Ads. Hasta que creativos, mix y presupuesto tengan GO explícito, es solo paper (sin pixel, sin spend). No inventa tu oferta ni tu ICP. No es GTM OS (outbound) ni STORE OS (Admin). Detalle: https://www.rutinhq.com/es/nexus-os. Agenda 30 min para ver el gate — https://calendly.com/rutinhq/30min."
     },
     "catalog": {
-      "en": "The public catalog at https://docs.rutinhq.com/catalog/ is curriculum: one sheet per system (what / for whom / how / outcomes / what it is not). The commercial site sells three SKUs — GTM OS, STORE OS, NEXUS OS — one page each. GROK BOT OS is a catalog sheet (bot-department curriculum), not a fourth hub card. I do not quote prices from the catalog. Book a 30-min fit call for scope.",
-      "es": "El catálogo público https://docs.rutinhq.com/catalog/ es curriculum: una ficha por sistema (qué / para quién / cómo / outcomes / qué no es). El sitio comercial vende tres SKUs — GTM OS, STORE OS, NEXUS OS — una página cada uno. GROK BOT OS es ficha de catálogo (curriculum de bots), no una cuarta card del hub. No cito precios. Para alcance, agenda 30 min."
+      "en": "The public catalog at https://docs.rutinhq.com/catalog/ is curriculum: one sheet per system (what / for whom / how / outcomes / what it is not). The commercial site sells three SKUs — GTM OS, STORE OS, NEXUS OS — one page each. GROK BOT OS is a catalog sheet (bot-department curriculum), not a fourth hub card. I do not quote rate cards from the catalog. Book 30 min for scope — https://calendly.com/rutinhq/30min.",
+      "es": "El catálogo público https://docs.rutinhq.com/catalog/ es curriculum: una ficha por sistema (qué / para quién / cómo / outcomes / qué no es). El sitio comercial vende tres SKUs — GTM OS, STORE OS, NEXUS OS — una página cada uno. GROK BOT OS es ficha de catálogo (curriculum de bots), no una cuarta card del hub. No cito rate cards. Para alcance, agenda 30 min — https://calendly.com/rutinhq/30min."
+    },
+    "fit": {
+      "en": "Next step is a 30-min fit call to confirm whether GTM OS, STORE OS, or NEXUS OS matches the bottleneck — https://calendly.com/rutinhq/30min. I will not quote a rate card here. Or email strategy@rutinhq.com.",
+      "es": "El siguiente paso es una llamada de 30 min para confirmar si GTM OS, STORE OS o NEXUS OS calza el cuello — https://calendly.com/rutinhq/30min. No cito rate cards aquí. O escribe a strategy@rutinhq.com."
     },
     "pricing": {
-      "en": "I do not quote prices, retainers, or guarantees in chat — those are scoped on a fit call. Book 30 minutes and we will map bottleneck → SKU. Or email strategy@rutinhq.com.",
-      "es": "No cito precios, cuotas mensuales ni garantías en el chat — eso se acota en una llamada de fit. Agenda 30 min y mapeamos cuello → SKU. O escribe a strategy@rutinhq.com."
+      "en": "I do not quote prices, retainers, or guarantees in chat — those are scoped on a fit call. Book 30 minutes and we will map bottleneck → SKU — https://calendly.com/rutinhq/30min. Or email strategy@rutinhq.com.",
+      "es": "No cito precios, cuotas mensuales ni garantías en el chat — eso se acota en una llamada de fit. Agenda 30 min y mapeamos cuello → SKU — https://calendly.com/rutinhq/30min. O escribe a strategy@rutinhq.com."
     },
     "security": {
       "en": "I cannot share credentials, passwords, API keys, bank details, or private operations. I only cover public RutinHQ systems. Book a 30-min fit call if you want to talk GTM OS, STORE OS, or NEXUS OS.",
@@ -225,12 +252,12 @@
       "es": "Solo cubro los sistemas RutinHQ (GTM OS, STORE OS, NEXUS OS) y el catálogo público. Para una conversación de fit, agenda 30 min."
     },
     "unsure": {
-      "en": "I can stay on what the public pages say: three installable systems — GTM OS (B2B outbound you keep), STORE OS (Shopify Admin before ads), NEXUS OS (paper-first social/ads). If the bottleneck is unclear, book a 30-min fit call and we will pick one SKU.",
-      "es": "Me quedo en lo que dicen las páginas públicas: tres sistemas instalables — GTM OS (outbound B2B que se queda), STORE OS (Shopify Admin antes de ads), NEXUS OS (social/ads en paper primero). Si el cuello no está claro, agenda 30 min y elegimos un SKU."
+      "en": "I can stay on what the public pages say: three installable systems — GTM OS (B2B outbound you keep), STORE OS (Shopify Admin before ads), NEXUS OS (paper-first social/ads). If the bottleneck is unclear, book 30 min and we will pick one SKU — https://calendly.com/rutinhq/30min.",
+      "es": "Me quedo en lo que dicen las páginas públicas: tres sistemas instalables — GTM OS (outbound B2B que se queda), STORE OS (Shopify Admin antes de ads), NEXUS OS (social/ads en paper primero). Si el cuello no está claro, agenda 30 min y elegimos un SKU — https://calendly.com/rutinhq/30min."
     },
     "degraded": {
-      "en": "Live guide answers are paused here, so I will stay on catalog facts and the fit call. Book a 30-min call — or ask which bottleneck you want to unpack (outbound, store Admin, or paper-first demand).",
-      "es": "Las respuestas en vivo están en pausa aquí, así que me quedo en hechos del catálogo y la llamada de fit. Agenda 30 min — o dime qué cuello quieres abrir (outbound, Admin de tienda, o demanda en paper primero)."
+      "en": "Live guide answers are paused here, so I will stay on catalog facts: GTM OS (outbound), STORE OS (Shopify Admin), NEXUS OS (paper-first demand). Book 30 min to map the bottleneck — https://calendly.com/rutinhq/30min.",
+      "es": "Las respuestas en vivo están en pausa aquí, así que me quedo en hechos del catálogo: GTM OS (outbound), STORE OS (Shopify Admin), NEXUS OS (demanda en paper primero). Agenda 30 min para mapear el cuello — https://calendly.com/rutinhq/30min."
     }
   }
 }
