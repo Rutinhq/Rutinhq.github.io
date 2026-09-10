@@ -3,3 +3,10 @@
 
 /favicon.ico
   Content-Type: image/x-icon
+
+# GEO/LLM discovery files. Must stay text/plain — never the SPA HTML shell.
+/llms.txt
+  Content-Type: text/plain; charset=utf-8
+
+/llms-full.txt
+  Content-Type: text/plain; charset=utf-8

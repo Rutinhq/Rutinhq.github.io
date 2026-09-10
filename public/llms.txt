@@ -1,0 +1,36 @@
+# RutinHQ
+
+> Systems you own — not retainers that vanish.
+
+Canonical host: https://www.rutinhq.com/
+
+RutinHQ installs operating systems teams own. Three commercial SKUs. One page, one SKU. Pick the bottleneck.
+
+## Products
+
+- [GTM OS](https://www.rutinhq.com/gtm-os): B2B outbound that stays with your team — cold, ICP-filtered, milestone-gated.
+- [STORE OS](https://www.rutinhq.com/store-os): Shopify Admin audit + config so the store converts before you spend on ads.
+- [NEXUS OS](https://www.rutinhq.com/nexus-os): Agentic marketing — Strategy → Social → Ads (Ads gated until creatives, mix, and budget are signed).
+
+## Blog
+
+- [Blog](https://www.rutinhq.com/blog): Radar for founders who install GTM and ops systems — not rented seats.
+- [ICP-gated cold outbound without a rented SDR](https://www.rutinhq.com/blog/icp-gated-cold-outbound-without-rented-sdr)
+
+Spanish index and article:
+
+- https://www.rutinhq.com/es/blog
+- https://www.rutinhq.com/es/blog/outbound-frio-con-icp-sin-sdr-rentado
+
+## Docs
+
+Public catalog curriculum (English): https://docs.rutinhq.com/catalog/
+
+## Contact
+
+- Email: strategy@rutinhq.com
+- 30-min fit call: https://calendly.com/rutinhq/30min
+
+This site does not publish prices.
+
+Full text: https://www.rutinhq.com/llms-full.txt
