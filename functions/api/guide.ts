@@ -11,6 +11,14 @@
  */
 
 import {
+  classifyIntentWithPolicy,
+  ensureCalendlyCta,
+  hasBuyingIntentWithPolicy,
+  hintMatches,
+  recommendSkuWithPolicy,
+  resolveFallbackKey,
+} from '../../src/guide/classify-core'
+import {
   callGuideLlmDetailed,
   composeGuideSystemPrompt,
   GUIDE_LLM_BUDGET_MS,
@@ -75,7 +83,7 @@ const LEAK_RE =
 const COPY = {
   en: {
     degraded:
-      'Live guide answers are paused here, so I will stay on catalog facts and the fit call. Book a 30-min call — or ask which bottleneck you want to unpack (outbound, store Admin, or paper-first demand). https://calendly.com/rutinhq/30min',
+      'Live guide answers are paused here, so I will stay on catalog facts: GTM OS (outbound), STORE OS (Shopify Admin), NEXUS OS (paper-first demand). Book 30 min — https://calendly.com/rutinhq/30min',
     security:
       'I cannot share credentials, passwords, API keys, bank details, or private operations. I only cover public RutinHQ systems. Book a 30-min fit call if you want to talk GTM OS, STORE OS, or NEXUS OS.',
     nextStep: (url: string) => `Book 30-min fit call — ${url}`,
@@ -84,7 +92,7 @@ const COPY = {
   },
   es: {
     degraded:
-      'Las respuestas en vivo están en pausa aquí, así que me quedo en hechos del catálogo y la llamada de fit. Agenda 30 min — o dime qué cuello quieres abrir (outbound, Admin de tienda, o demanda en paper primero). https://calendly.com/rutinhq/30min',
+      'Las respuestas en vivo están en pausa aquí, así que me quedo en hechos del catálogo: GTM OS (outbound), STORE OS (Shopify Admin), NEXUS OS (demanda en paper primero). Agenda 30 min — https://calendly.com/rutinhq/30min',
     security:
       'No comparto credenciales, contraseñas, claves de API, datos bancarios ni operaciones privadas. Solo cubro los sistemas públicos de RutinHQ. Agenda 30 min si quieres hablar de GTM OS, STORE OS o NEXUS OS.',
     nextStep: (url: string) => `Agendar 30 min de fit — ${url}`,
@@ -98,23 +106,6 @@ function json(status: number, body: unknown) {
     status,
     headers: { 'content-type': 'application/json; charset=utf-8' },
   })
-}
-
-function escapeRe(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-}
-
-function hintMatches(hay: string, hint: string): boolean {
-  const text = hay.toLowerCase()
-  const h = hint.toLowerCase()
-  if (!h) return false
-  if (h.includes(' ')) return text.includes(h)
-  return new RegExp(`(?:^|[^a-z0-9_])${escapeRe(h)}(?:[^a-z0-9_]|$)`).test(text)
-}
-
-function score(text: string, hints: string[]) {
-  const hay = text.toLowerCase()
-  return hints.reduce((n, h) => (hintMatches(hay, h) ? n + 1 : n), 0)
 }
 
 function isSecurityHay(hay: string, extra: string[] = []): boolean {
@@ -176,6 +167,7 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
       }
       intentHints: Record<string, string[]>
       buyingIntentHints: string[]
+      bookingHints?: string[]
       pricingHints: string[]
       offTopicHints: string[]
       securityHints?: string[]
@@ -224,41 +216,11 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
     return locale === 'es' ? pack.es : pack.en
   }
 
-  function intent() {
-    if (isSecurityHay(hay, policy.securityHints || [])) return 'security'
-    if (
-      score(hay, policy.offTopicHints) &&
-      !score(hay, [
-        ...(policy.intentHints['gtm-os'] || []),
-        ...(policy.intentHints['store-os'] || []),
-        ...(policy.intentHints['nexus-os'] || []),
-      ])
-    ) {
-      return 'offTopic'
-    }
-    if (score(hay, policy.pricingHints)) return 'pricing'
-    const ranked = (['gtm-os', 'store-os', 'nexus-os', 'catalog'] as const).map((key) => ({
-      key,
-      n: score(hay, policy.intentHints[key] || []),
-    }))
-    ranked.sort((a, b) => b.n - a.n)
-    if (!ranked[0] || ranked[0].n === 0) return 'unsure'
-    if (ranked[1] && ranked[0].n === ranked[1].n && ranked[0].n < 2) return 'unsure'
-    return ranked[0].key
-  }
-
   const emailMatch = hay.match(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i)
-  const buying = score(hay, policy.buyingIntentHints) >= 1
-  const skuIntent = intent()
-  const skuRank = (['gtm-os', 'store-os', 'nexus-os'] as const).map((key) => ({
-    key,
-    n: score(hay, policy.intentHints[key] || []),
-  }))
-  skuRank.sort((a, b) => b.n - a.n)
-  const recommendedSku =
-    skuRank[0] && skuRank[0].n > 0 && skuRank[0].n !== skuRank[1]?.n
-      ? skuRank[0].key
-      : 'unclear'
+  const buying = hasBuyingIntentWithPolicy(messages, policy)
+  const skuIntent = classifyIntentWithPolicy(messages, policy)
+  const recommendedSku = recommendSkuWithPolicy(messages, policy)
+  const replyKey = resolveFallbackKey(skuIntent, recommendedSku)
 
   if (skuIntent === 'security') {
     return json(200, {
@@ -268,7 +230,7 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
     })
   }
 
-  let reply = pick(skuIntent)
+  let reply = ensureCalendlyCta(pick(replyKey), locale, policy.calendlyUrl)
   let mode: GuideLlmMode = 'degraded'
   const key = context.env.GUIDE_LLM_API_KEY?.trim()
   const skipLlm = skuIntent === 'pricing' || skuIntent === 'offTopic'

@@ -1,10 +1,12 @@
-import { classifyIntent } from './classify'
-import { fallbackReply } from './config'
+import { classifyIntent, recommendSku } from './classify'
+import { ensureCalendlyCta, resolveFallbackKey } from './classify-core'
+import { fallbackReply, guidePolicy } from './config'
 import type { GuideChatMessage, GuideLocale } from './types'
 
 export function localGuideReply(
   messages: GuideChatMessage[],
   locale: GuideLocale,
 ): string {
-  return fallbackReply(classifyIntent(messages), locale)
+  const key = resolveFallbackKey(classifyIntent(messages), recommendSku(messages))
+  return ensureCalendlyCta(fallbackReply(key, locale), locale, guidePolicy.calendlyUrl)
 }

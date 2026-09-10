@@ -1,3 +1,12 @@
+import { readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
+import {
+  classifyIntentWithPolicy,
+  ensureCalendlyCta,
+  recommendSkuWithPolicy,
+  resolveFallbackKey,
+  type ClassifyPolicy,
+} from '../src/guide/classify-core.ts'
 import {
   extractFinishReason,
   extractLlmText,
@@ -181,5 +190,44 @@ assert(
   'mandate CTAs',
 )
 assert(!/capo|fuzzyflags|\bfzf\b/i.test(GUIDE_MANDATE), 'mandate must stay public-safe')
+
+const guidePolicy = JSON.parse(
+  readFileSync(fileURLToPath(new URL('../src/guide/policy.json', import.meta.url)), 'utf8'),
+) as ClassifyPolicy
+const poisonStore =
+  'STORE OS es auditoría + config de Shopify Admin (variantes, precio, peso, envío). Agenda 30 min.'
+const storeThen = (follow: string) => [
+  { role: 'user' as const, content: 'que es STORE OS?' },
+  { role: 'assistant' as const, content: poisonStore },
+  { role: 'user' as const, content: follow },
+]
+for (const follow of ['cita', 'agenda', 'schedule', 'Calendly', 'fit', 'leads', 'GTM-fit', 'qué más']) {
+  const thread = storeThen(follow)
+  const intent = classifyIntentWithPolicy(thread, guidePolicy)
+  const sku = recommendSkuWithPolicy(thread, guidePolicy)
+  assert(intent !== 'pricing', `cita≠pricing: STORE OS + "${follow}" must not be pricing (got ${intent})`)
+  assert(
+    intent === 'store-os' || intent === 'fit',
+    `STORE OS + "${follow}" should be store-os/fit, got ${intent}`,
+  )
+  assert(sku === 'store-os', `STORE OS + "${follow}" recommends store-os`)
+  assert(
+    resolveFallbackKey(intent, sku) === 'store-os',
+    `degraded key for "${follow}" must stay STORE OS, not pricing/catalog`,
+  )
+}
+assert(
+  classifyIntentWithPolicy([{ role: 'user', content: 'how much does GTM OS cost?' }], guidePolicy) ===
+    'pricing',
+  'explicit pricing still refuses',
+)
+const degradedSku = ensureCalendlyCta(
+  'STORE OS is Shopify Admin audit + config. GTM OS and NEXUS OS stay out of Admin.',
+  'en',
+)
+assert(
+  /calendly.com\/rutinhq\/30min/.test(degradedSku) && /STORE OS/.test(degradedSku),
+  'degraded SKU copy must keep STORE OS + Calendly URL',
+)
 
 console.log('guide LLM client + mandate checks passed')

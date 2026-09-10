@@ -1,59 +1,23 @@
+import {
+  classifyIntentWithPolicy,
+  hasBuyingIntentWithPolicy,
+  recommendSkuWithPolicy,
+} from './classify-core'
 import { guidePolicy } from './config'
 import { isSecurityProbe } from './security'
-import type { GuideChatMessage, GuideIntent, GuideSku, RecommendedSku } from './types'
-
-function haystack(messages: GuideChatMessage[]): string {
-  return messages.map((m) => m.content).join('\n').toLowerCase()
-}
-
-function scoreHints(text: string, hints: string[]): number {
-  return hints.reduce((score, hint) => {
-    return text.includes(hint.toLowerCase()) ? score + 1 : score
-  }, 0)
-}
+import type { GuideChatMessage, GuideIntent, RecommendedSku } from './types'
 
 export function classifyIntent(messages: GuideChatMessage[]): GuideIntent {
   if (isSecurityProbe(messages)) return 'security'
-  const text = haystack(messages)
-  const onTopicHits =
-    scoreHints(text, guidePolicy.intentHints['gtm-os'] ?? []) +
-    scoreHints(text, guidePolicy.intentHints['store-os'] ?? []) +
-    scoreHints(text, guidePolicy.intentHints['nexus-os'] ?? []) +
-    scoreHints(text, guidePolicy.intentHints.catalog ?? [])
-  if (scoreHints(text, guidePolicy.offTopicHints) >= 1 && onTopicHits === 0) {
-    return 'offTopic'
-  }
-  if (scoreHints(text, guidePolicy.pricingHints) >= 1) return 'pricing'
-
-  const ranked: { key: GuideSku | 'catalog'; score: number }[] = (
-    ['gtm-os', 'store-os', 'nexus-os', 'catalog'] as const
-  ).map((key) => ({
-    key,
-    score: scoreHints(text, guidePolicy.intentHints[key] ?? []),
-  }))
-  ranked.sort((a, b) => b.score - a.score)
-  const top = ranked[0]
-  if (!top || top.score === 0) return 'unsure'
-  if (ranked[1] && top.score === ranked[1].score && top.score < 2) return 'unsure'
-  return top.key
+  return classifyIntentWithPolicy(messages, guidePolicy)
 }
 
 export function recommendSku(messages: GuideChatMessage[]): RecommendedSku {
-  const text = haystack(messages)
-  const ranked = (['gtm-os', 'store-os', 'nexus-os'] as const).map((key) => ({
-    key,
-    score: scoreHints(text, guidePolicy.intentHints[key] ?? []),
-  }))
-  ranked.sort((a, b) => b.score - a.score)
-  const top = ranked[0]
-  if (!top || top.score === 0) return 'unclear'
-  if (ranked[1] && top.score === ranked[1].score) return 'unclear'
-  return top.key
+  return recommendSkuWithPolicy(messages, guidePolicy)
 }
 
 export function hasBuyingIntent(messages: GuideChatMessage[]): boolean {
-  const text = haystack(messages)
-  return scoreHints(text, guidePolicy.buyingIntentHints) >= 1
+  return hasBuyingIntentWithPolicy(messages, guidePolicy)
 }
 
 const EMAIL_RE = /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i
