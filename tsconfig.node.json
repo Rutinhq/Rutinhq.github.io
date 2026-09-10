@@ -7,9 +7,8 @@
     "skipLibCheck": true,
     "ignoreDeprecations": "6.0",
 
-    /* Bundler mode — vite.config may import src/guide classifiers */
-    "module": "esnext",
-    "moduleResolution": "bundler",
+    /* Bundler mode — relative imports need explicit .ts under nodenext */
+    "module": "nodenext",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
