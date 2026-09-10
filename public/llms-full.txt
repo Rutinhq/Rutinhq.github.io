@@ -1,0 +1,82 @@
+# RutinHQ — full text for LLMs
+
+Canonical host: https://www.rutinhq.com/
+Optional locale prefix: /es (hub, SKU landings, blog). English is the commercial base.
+
+RutinHQ installs operating systems teams own — not retainers that vanish.
+Three installable operating systems. Pick the bottleneck. One page, one SKU.
+
+This file is factual public copy. It does not publish prices, retainers, or rate cards.
+GROK BOT OS is a public catalog curriculum sheet, not a fourth commercial hub card.
+
+Contact:
+- Email: strategy@rutinhq.com
+- 30-min fit call: https://calendly.com/rutinhq/30min
+
+Short summary: https://www.rutinhq.com/llms.txt
+Sitemap: https://www.rutinhq.com/sitemap.xml
+Robots: https://www.rutinhq.com/robots.txt
+
+## Products (live hub / LP one-liners)
+
+### GTM OS
+URL: https://www.rutinhq.com/gtm-os
+Hub thesis: B2B outbound that stays with your team — cold, ICP-filtered, milestone-gated.
+Headline: Outbound that stays yours.
+Subhead: A cold B2B prospecting system installed in your team — not a rented SDR that dies when the contract ends. Change language, filters, and angle; keep the core.
+Catalog: https://docs.rutinhq.com/catalog/gtm-os/
+
+### STORE OS
+URL: https://www.rutinhq.com/store-os
+Hub thesis: Shopify Admin audit + config so the store converts before you spend on ads.
+Headline: Make the store convert before you buy ads.
+Subhead: Replicable Shopify Admin audit + config — variants, price, weight, shipping — so ops friction stops killing conversion.
+Catalog: https://docs.rutinhq.com/catalog/store-os/
+
+### NEXUS OS
+URL: https://www.rutinhq.com/nexus-os
+Hub thesis: Agentic marketing — Strategy → Social → Ads (Ads gated until creatives, mix, and budget are signed).
+Headline: Agentic marketing — paper first, Ads only when signed.
+Subhead: Strategy → Social → Ads. Until creatives, mix, and budget have an explicit GO: paper only (no pixel, no spend).
+Catalog: https://docs.rutinhq.com/catalog/nexus-os/
+
+## Public www URLs (current sitemap)
+
+- https://www.rutinhq.com/
+- https://www.rutinhq.com/gtm-os
+- https://www.rutinhq.com/store-os
+- https://www.rutinhq.com/nexus-os
+- https://www.rutinhq.com/es
+- https://www.rutinhq.com/es/gtm-os
+- https://www.rutinhq.com/es/store-os
+- https://www.rutinhq.com/es/nexus-os
+- https://www.rutinhq.com/blog
+- https://www.rutinhq.com/blog/icp-gated-cold-outbound-without-rented-sdr
+- https://www.rutinhq.com/es/blog
+- https://www.rutinhq.com/es/blog/outbound-frio-con-icp-sin-sdr-rentado
+
+## Docs catalog URLs
+
+Public curriculum — what each system does, who it is for, how it works, outcomes, and what it is not. Not an ops wiki.
+
+- https://docs.rutinhq.com/catalog/
+- https://docs.rutinhq.com/catalog/gtm-os/
+- https://docs.rutinhq.com/catalog/store-os/
+- https://docs.rutinhq.com/catalog/nexus-os/
+- https://docs.rutinhq.com/catalog/grok-bot-os/ (bot-department curriculum; not sold as a fourth card on www.rutinhq.com)
+
+## Blog (EN + ES, from sitemap)
+
+Index EN: https://www.rutinhq.com/blog
+Title: Blog — systems you own
+Description: Radar for founders who install GTM and ops systems — not rented seats.
+
+Article EN: https://www.rutinhq.com/blog/icp-gated-cold-outbound-without-rented-sdr
+Title: ICP-gated cold outbound without a rented SDR
+Description: Keep the outbound core fixed—change only ICP, message, and filters—so pipeline stays with your team when the contract ends.
+
+Index ES: https://www.rutinhq.com/es/blog
+Title: Blog — sistemas que posees
+
+Article ES: https://www.rutinhq.com/es/blog/outbound-frio-con-icp-sin-sdr-rentado
+Title: Outbound frío con ICP — sin SDR rentado

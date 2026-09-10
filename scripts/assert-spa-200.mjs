@@ -155,6 +155,18 @@ if (!/\/es\/blog\/\s+\/prerender\/es-blog\s+200/.test(redirects)) {
   )
   process.exit(1)
 }
+if (!/\/llms\.txt\s+\/llms\.txt\s+200/.test(redirects)) {
+  console.error(
+    'dist/_redirects must 200-rewrite /llms.txt onto itself so SPA fallback cannot swallow it.',
+  )
+  process.exit(1)
+}
+if (!/\/llms-full\.txt\s+\/llms-full\.txt\s+200/.test(redirects)) {
+  console.error(
+    'dist/_redirects must 200-rewrite /llms-full.txt onto itself so SPA fallback cannot swallow it.',
+  )
+  process.exit(1)
+}
 
 const sitemap = 'dist/sitemap.xml'
 if (!fs.existsSync(sitemap)) {
@@ -223,6 +235,14 @@ if (fs.existsSync('dist/_headers')) {
     .split('\n')
     .filter((line) => line.trim() && !line.trim().startsWith('#'))
     .join('\n')
+  if (!/\/llms\.txt[\s\S]*?Content-Type:\s*text\/plain/i.test(headers)) {
+    console.error('dist/_headers must set text/plain on /llms.txt.')
+    process.exit(1)
+  }
+  if (!/\/llms-full\.txt[\s\S]*?Content-Type:\s*text\/plain/i.test(headers)) {
+    console.error('dist/_headers must set text/plain on /llms-full.txt.')
+    process.exit(1)
+  }
   if (/X-Robots-Tag:\s*noindex/i.test(active)) {
     console.error(
       'dist/_headers must not noindex published /blog or Article01.',
@@ -516,6 +536,61 @@ if (/<!doctype html|<html[\s>]/i.test(robotsBody)) {
 if (!robotsBody.includes('Sitemap: https://www.rutinhq.com/sitemap.xml')) {
   console.error(`${robots} must include the www sitemap line.`)
   process.exit(1)
+}
+
+const htmlShell = /<!doctype html|<html[\s>]/i
+const forbiddenLlms = /fzf\.dev|fuzzyflags|\bfzf\b|\bcapo\b|\$\d[\d,]*/i
+const llmsRequired = [
+  'https://www.rutinhq.com/',
+  'https://www.rutinhq.com/gtm-os',
+  'https://www.rutinhq.com/store-os',
+  'https://www.rutinhq.com/nexus-os',
+  'https://www.rutinhq.com/blog',
+  'https://www.rutinhq.com/blog/icp-gated-cold-outbound-without-rented-sdr',
+  'https://docs.rutinhq.com/catalog/',
+  'strategy@rutinhq.com',
+  'https://calendly.com/rutinhq/30min',
+]
+const llmsFullRequired = [
+  ...llmsRequired,
+  'https://www.rutinhq.com/es/blog',
+  'https://www.rutinhq.com/es/blog/outbound-frio-con-icp-sin-sdr-rentado',
+  'https://docs.rutinhq.com/catalog/gtm-os/',
+  'https://docs.rutinhq.com/catalog/store-os/',
+  'https://docs.rutinhq.com/catalog/nexus-os/',
+  'https://www.rutinhq.com/llms.txt',
+]
+
+for (const spec of [
+  {
+    file: 'dist/llms.txt',
+    required: [...llmsRequired, 'https://www.rutinhq.com/llms-full.txt'],
+  },
+  { file: 'dist/llms-full.txt', required: llmsFullRequired },
+]) {
+  if (!fs.existsSync(spec.file)) {
+    console.error(
+      `${spec.file} missing — deploy would fall back to SPA HTML at that path.`,
+    )
+    process.exit(1)
+  }
+  const body = fs.readFileSync(spec.file, 'utf8')
+  if (htmlShell.test(body)) {
+    console.error(`${spec.file} must be plain text, not HTML.`)
+    process.exit(1)
+  }
+  if (forbiddenLlms.test(body)) {
+    console.error(
+      `${spec.file} must not invent prices or mention fzf / FuzzyFlags / Capo.`,
+    )
+    process.exit(1)
+  }
+  for (const needle of spec.required) {
+    if (!body.includes(needle)) {
+      console.error(`${spec.file} must include ${needle}.`)
+      process.exit(1)
+    }
+  }
 }
 
 const skuShells = [

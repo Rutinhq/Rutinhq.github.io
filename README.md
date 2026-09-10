@@ -26,7 +26,7 @@ Stack: Vite + React + Tailwind + i18next. Default **EN** (commercial copy). Togg
 - **Do not ship `404.html`.** Cloudflare Pages would serve valid SPA routes (`/gtm-os`, `/store-os`, `/nexus-os`) with HTTP 404 even when the body is the Vite shell.
 - **Do not emit `dist/<sku>/index.html` or exact `/{sku} /index.html 200` rewrites.** Both make Pages/wrangler html-handling 308 `/gtm-os` → `/` instead of 200.
 - **Pretty URLs:** live SKU routes have **no trailing slash** (`/gtm-os`, not `/gtm-os/`). Do not add `_redirects` slash-normalization — folder `index.html` + html-handling already 308'd `/gtm-os` away from the pretty URL.
-- **Canonical host:** `https://www.rutinhq.com`. `sitemap.xml` + `robots.txt` are www-only.
+- **Canonical host:** `https://www.rutinhq.com`. `sitemap.xml` + `robots.txt` + `llms.txt` + `llms-full.txt` are www-only static files (explicit `_redirects` 200s above the SPA fallback so they are never rewritten to HTML).
 - **Apex → www 301:** **not possible in `public/_redirects`.** Cloudflare Pages marks domain-level (host) redirects as unsupported. A path-only `/* https://www.rutinhq.com/:splat 301` would also 301 www onto itself. Capo applies a **zone Single Redirect** (or Bulk Redirect) — see PR / steps below. Confirm `@` is Proxied. Do **not** enable Include subdomains (would catch `docs.rutinhq.com`).
   1. Dashboard → zone `rutinhq.com` → **Rules → Redirect Rules → Create rule**
   2. Wildcard: Request URL `https://rutinhq.com/*` → Target `https://www.rutinhq.com/${1}` → **301** → Preserve query string **On**
