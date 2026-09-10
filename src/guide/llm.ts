@@ -39,6 +39,27 @@ export const GUIDE_LLM_CANDIDATE_CAP = 3
 export const GUIDE_LLM_MIN_REPLY_CHARS = 80
 export const GUIDE_LLM_RATE_LIMIT_BACKOFF_MS = 600
 export const GUIDE_LLM_BUDGET_MS = 9_000
+/** First Gemini call. Leaves room for one 429 retry inside GUIDE_LLM_BUDGET_MS. */
+export const GUIDE_LLM_PRIMARY_ATTEMPT_MS = 6_800
+/** Single primary retry after 429/503. Timeouts never retry. */
+export const GUIDE_LLM_RETRY_ATTEMPT_MS = 2_000
+export const GUIDE_LLM_MIN_ATTEMPT_MS = 400
+
+/** Per-attempt wall time so a hung primary cannot eat the 429 retry window. */
+export function guideLlmAttemptMs(opts: { isRetry: boolean; remainingMs: number }): number {
+  const cap = opts.isRetry ? GUIDE_LLM_RETRY_ATTEMPT_MS : GUIDE_LLM_PRIMARY_ATTEMPT_MS
+  return Math.max(0, Math.min(cap, opts.remainingMs))
+}
+
+/** 429/503 retry only when leftover time can finish the backoff + a short attempt. */
+export function guideLlmHasRetryBudget(remainingMs: number): boolean {
+  return (
+    guideLlmAttemptMs({
+      isRetry: true,
+      remainingMs: remainingMs - GUIDE_LLM_RATE_LIMIT_BACKOFF_MS,
+    }) >= GUIDE_LLM_MIN_ATTEMPT_MS
+  )
+}
 
 function looksLikeGeminiKey(apiKey?: string): boolean {
   const key = apiKey?.trim() || ''
@@ -234,6 +255,25 @@ function sleep(ms: number, signal?: AbortSignal): Promise<void> {
   })
 }
 
+/** Child abort: per-attempt cap, still cancelled if the overall budget fires. */
+function abortAfter(
+  ms: number,
+  parent: AbortSignal,
+): { signal: AbortSignal; cancel: () => void } {
+  const child = new AbortController()
+  const timer = setTimeout(() => child.abort(), ms)
+  const onParent = () => child.abort()
+  if (parent.aborted) child.abort()
+  else parent.addEventListener('abort', onParent, { once: true })
+  return {
+    signal: child.signal,
+    cancel: () => {
+      clearTimeout(timer)
+      parent.removeEventListener('abort', onParent)
+    },
+  }
+}
+
 export async function callGuideLlmDetailed(opts: {
   apiKey: string
   baseUrl?: string
@@ -272,13 +312,18 @@ export async function callGuideLlmDetailed(opts: {
   const models = guideLlmModelCandidates(primary)
   const controller = new AbortController()
   const budgetMs = opts.timeoutMs ?? GUIDE_LLM_BUDGET_MS
+  const startedAt = Date.now()
+  const remainingMs = () => Math.max(0, budgetMs - (Date.now() - startedAt))
   const budget = setTimeout(() => controller.abort(), budgetMs)
 
-  const postOnce = async (model: string): Promise<{ status: number; raw: string; ok: boolean }> => {
+  const postOnce = async (
+    model: string,
+    signal: AbortSignal,
+  ): Promise<{ status: number; raw: string; ok: boolean }> => {
     const res = await fetch(`${base}/chat/completions`, {
       method: 'POST',
       headers,
-      signal: controller.signal,
+      signal,
       body: JSON.stringify({
         model,
         temperature: 0.2,
@@ -298,15 +343,27 @@ export async function callGuideLlmDetailed(opts: {
       let retriedPrimary = false
 
       while (true) {
+        const attemptMs = guideLlmAttemptMs({
+          isRetry: retriedPrimary,
+          remainingMs: remainingMs(),
+        })
+        if (attemptMs < GUIDE_LLM_MIN_ATTEMPT_MS) {
+          empty.lastError = empty.lastError || 'timeout'
+          return empty
+        }
+        const attempt = abortAfter(attemptMs, controller.signal)
         try {
-          const res = await postOnce(model)
+          const res = await postOnce(model, attempt.signal)
           empty.lastStatus = res.status
           if (!res.ok) {
             empty.lastError = sanitizeProviderError(res.status, res.raw)
             const action = guideLlmOnProviderError(res.status, res.raw, isPrimary, retriedPrimary)
-            if (action === 'retry') {
+            if (action === 'retry' && guideLlmHasRetryBudget(remainingMs())) {
               retriedPrimary = true
-              await sleep(GUIDE_LLM_RATE_LIMIT_BACKOFF_MS, controller.signal)
+              await sleep(
+                Math.min(GUIDE_LLM_RATE_LIMIT_BACKOFF_MS, remainingMs()),
+                controller.signal,
+              )
               continue
             }
             if (action === 'fallback' && gemini) break
@@ -336,6 +393,8 @@ export async function callGuideLlmDetailed(opts: {
           }
           empty.lastError = name
           return empty
+        } finally {
+          attempt.cancel()
         }
       }
     }
@@ -352,6 +411,7 @@ export async function callGuideLlm(opts: {
   system: string
   messages: GuideLlmMessage[]
   maxTokens: number
+  timeoutMs?: number
 }): Promise<string | null> {
   const result = await callGuideLlmDetailed(opts)
   return result.text

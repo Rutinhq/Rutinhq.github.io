@@ -5,6 +5,7 @@ import { useLocation } from 'react-router-dom'
 import { shouldCaptureLead } from '@/guide/classify'
 import {
   GUIDE_CALENDLY_URL,
+  GUIDE_CLIENT_FETCH_MS,
   GUIDE_LIMITS,
   GUIDE_UI_NAME,
 } from '@/guide/config'
@@ -45,6 +46,7 @@ export function GuideWidget() {
   const [open, setOpen] = useState(false)
   const [input, setInput] = useState('')
   const [pending, setPending] = useState(false)
+  const [livePaused, setLivePaused] = useState(false)
   const [leadBrief, setLeadBrief] = useState<LeadBrief | null>(null)
   const [leadStatus, setLeadStatus] = useState<string | null>(null)
   const [messages, setMessages] = useState<UiMessage[]>([])
@@ -93,14 +95,17 @@ export function GuideWidget() {
     setInput('')
     setMessages(nextMessages)
     setPending(true)
+    setLivePaused(false)
 
     let reply = localGuideReply(conversation, locale)
     let brief: LeadBrief | undefined
+    let paused = false
 
     try {
       const res = await fetch('/api/guide', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
+        signal: AbortSignal.timeout(GUIDE_CLIENT_FETCH_MS),
         body: JSON.stringify({
           messages: conversation,
           locale,
@@ -111,14 +116,19 @@ export function GuideWidget() {
         const data = (await res.json()) as GuideApiResponse
         if (data.reply) reply = data.reply
         brief = data.leadBrief
+        paused = data.mode === 'degraded' && !isSecurityProbe(conversation)
+      } else {
+        paused = true
       }
     } catch {
-      // Degrade locally — same SoT replies + Calendly.
+      // Timeout / network — catalog fallback + Calendly, not a hanging spinner.
+      paused = true
     }
 
     if (isSecurityProbe(conversation)) {
       reply = securityReply(locale)
       brief = undefined
+      paused = false
     } else {
       reply = enforceSafeReply(reply, locale)
     }
@@ -135,6 +145,7 @@ export function GuideWidget() {
       setLeadBrief(brief)
       setLeadStatus(null)
     }
+    setLivePaused(paused)
     setPending(false)
   }
 
@@ -218,6 +229,10 @@ export function GuideWidget() {
             {pending ? (
               <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
                 {copy('guide.thinking')}
+              </p>
+            ) : livePaused ? (
+              <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
+                {copy('guide.degradedNote')}
               </p>
             ) : null}
           </div>
