@@ -12,7 +12,7 @@ import {
   recommendSkuWithPolicy,
   resolveFallbackKey,
   type ClassifyPolicy,
-} from './src/guide/classify-core'
+} from './src/guide/classify-core.ts'
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url))
 

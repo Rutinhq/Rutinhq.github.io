@@ -1,4 +1,4 @@
-import type { GuideChatMessage, GuideIntent, GuideLocale, RecommendedSku } from './types'
+import type { GuideChatMessage, GuideIntent, GuideLocale, RecommendedSku } from './types.ts'
 
 export type ClassifyPolicy = {
   intentHints: Record<string, string[]>
