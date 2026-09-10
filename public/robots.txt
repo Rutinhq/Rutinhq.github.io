@@ -1,3 +1,14 @@
 User-agent: *
 Allow: /
+Content-Signal: search=yes,ai-train=no,use=reference
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
 Sitemap: https://www.rutinhq.com/sitemap.xml
