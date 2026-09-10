@@ -7,7 +7,7 @@
     "skipLibCheck": true,
     "ignoreDeprecations": "6.0",
 
-    /* Bundler mode */
+    /* Bundler mode — relative imports need explicit .ts under nodenext */
     "module": "nodenext",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,

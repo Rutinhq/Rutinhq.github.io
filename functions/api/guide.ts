@@ -168,6 +168,7 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
       intentHints: Record<string, string[]>
       buyingIntentHints: string[]
       bookingHints?: string[]
+      leadsHints?: string[]
       pricingHints: string[]
       offTopicHints: string[]
       securityHints?: string[]
