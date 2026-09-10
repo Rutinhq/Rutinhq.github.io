@@ -5,11 +5,12 @@ export type ClassifyPolicy = {
   offTopicHints: string[]
   pricingHints: string[]
   bookingHints?: string[]
+  leadsHints?: string[]
   buyingIntentHints?: string[]
   securityHints?: string[]
 }
 
-/** cita/agenda/fit/leads must beat pricingHints even if the thread mentioned price. */
+/** cita/agenda/fit must beat pricingHints even if the thread mentioned price. */
 export const DEFAULT_BOOKING_HINTS = [
   'cita',
   'agenda',
@@ -19,7 +20,6 @@ export const DEFAULT_BOOKING_HINTS = [
   'fit',
   'gtm-fit',
   'gtm fit',
-  'leads',
   'llamada',
   'book',
   'booking',
@@ -27,6 +27,24 @@ export const DEFAULT_BOOKING_HINTS = [
   'que mas',
   'what else',
   'tell me more',
+] as const
+
+/** outbound / ICP-filtered cold leads → GTM OS (not a generic fit-only CTA). */
+export const DEFAULT_LEADS_HINTS = [
+  'leads',
+  'lead',
+  'outbound',
+  'prospecting',
+  'prospectos',
+  'prospeccion',
+  'prospección',
+  'cold email',
+  'cold outbound',
+  'correo frio',
+  'correo frío',
+  'lead gen',
+  'generacion de leads',
+  'generación de leads',
 ] as const
 
 export function escapeRe(value: string): string {
@@ -73,8 +91,25 @@ export function bookingHintsOf(policy: ClassifyPolicy): string[] {
   return policy.bookingHints?.length ? policy.bookingHints : [...DEFAULT_BOOKING_HINTS]
 }
 
+export function leadsHintsOf(policy: ClassifyPolicy): string[] {
+  return policy.leadsHints?.length ? policy.leadsHints : [...DEFAULT_LEADS_HINTS]
+}
+
+export function isLeadsTurn(messages: GuideChatMessage[], policy: ClassifyPolicy): boolean {
+  return scoreHints(lastUserText(messages), leadsHintsOf(policy)) >= 1
+}
+
 export function isBookingTurn(messages: GuideChatMessage[], policy: ClassifyPolicy): boolean {
   return scoreHints(lastUserText(messages), bookingHintsOf(policy)) >= 1
+}
+
+function uniqueSku(
+  ranked: { key: 'gtm-os' | 'store-os' | 'nexus-os'; n: number }[],
+): RecommendedSku {
+  const top = ranked[0]
+  if (!top || top.n === 0) return 'unclear'
+  if (ranked[1] && top.n === ranked[1].n) return 'unclear'
+  return top.key
 }
 
 function rankKeys<K extends string>(
@@ -91,13 +126,12 @@ export function recommendSkuWithPolicy(
   messages: GuideChatMessage[],
   policy: ClassifyPolicy,
 ): RecommendedSku {
-  const prior = isBookingTurn(messages, policy) ? messages.slice(0, -1) : messages
-  const hay = userHaystack(prior).trim() ? userHaystack(prior) : userHaystack(messages)
-  const ranked = rankKeys(hay, policy, ['gtm-os', 'store-os', 'nexus-os'] as const)
-  const top = ranked[0]
-  if (!top || top.n === 0) return 'unclear'
-  if (ranked[1] && top.n === ranked[1].n) return 'unclear'
-  return top.key
+  if (isLeadsTurn(messages, policy)) return 'gtm-os'
+  const lastSku = uniqueSku(rankKeys(lastUserText(messages), policy, ['gtm-os', 'store-os', 'nexus-os']))
+  if (lastSku !== 'unclear') return lastSku
+  // cita/agenda without a last-turn SKU: fit+Calendly — do not inherit STORE from earlier turns.
+  if (isBookingTurn(messages, policy)) return 'unclear'
+  return uniqueSku(rankKeys(userHaystack(messages), policy, ['gtm-os', 'store-os', 'nexus-os']))
 }
 
 export function classifyIntentWithPolicy(
@@ -110,11 +144,18 @@ export function classifyIntentWithPolicy(
   if (scoreHints(last, policy.offTopicHints) >= 1 && scoreHints(last, catalogHints(policy)) === 0) {
     return 'offTopic'
   }
+  // Last user turn wins: leads/outbound/prospecting is GTM OS, not a generic fit CTA.
+  if (isLeadsTurn(messages, policy)) return 'gtm-os'
   if (isBookingTurn(messages, policy)) {
-    const sku = recommendSkuWithPolicy(messages, policy)
+    const sku = uniqueSku(rankKeys(last, policy, ['gtm-os', 'store-os', 'nexus-os']))
     return sku === 'unclear' ? 'fit' : sku
   }
   if (scoreHints(last, policy.pricingHints) >= 1) return 'pricing'
+  const lastRanked = rankKeys(last, policy, ['gtm-os', 'store-os', 'nexus-os', 'catalog'] as const)
+  if (lastRanked[0] && lastRanked[0].n > 0) {
+    if (lastRanked[1] && lastRanked[0].n === lastRanked[1].n && lastRanked[0].n < 2) return 'unsure'
+    return lastRanked[0].key
+  }
   const ranked = rankKeys(users, policy, ['gtm-os', 'store-os', 'nexus-os', 'catalog'] as const)
   const top = ranked[0]
   if (!top || top.n === 0) return 'unsure'
@@ -127,12 +168,19 @@ export function hasBuyingIntentWithPolicy(
   policy: ClassifyPolicy,
 ): boolean {
   const last = lastUserText(messages)
-  return isBookingTurn(messages, policy) || scoreHints(last, policy.buyingIntentHints) >= 1
+  return (
+    isLeadsTurn(messages, policy) ||
+    isBookingTurn(messages, policy) ||
+    scoreHints(last, policy.buyingIntentHints) >= 1
+  )
 }
 
-/** Degraded reply key: booking/unsure keep the conversation SKU instead of a price/catalog loop. */
+/** Degraded reply key: last-turn intent wins. fit/unsure stay generic unless last turn named a SKU. */
 export function resolveFallbackKey(intent: GuideIntent, recommended: RecommendedSku): string {
   if (intent === 'pricing' || intent === 'offTopic' || intent === 'security') return intent
+  if (intent === 'gtm-os' || intent === 'store-os' || intent === 'nexus-os' || intent === 'catalog') {
+    return intent
+  }
   if (intent === 'fit' || intent === 'unsure') {
     return recommended === 'unclear' ? intent : recommended
   }

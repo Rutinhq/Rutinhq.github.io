@@ -63,6 +63,7 @@ export type GuidePolicy = {
   intentHints: Record<string, string[]>
   buyingIntentHints: string[]
   bookingHints: string[]
+  leadsHints: string[]
   offTopicHints: string[]
   pricingHints: string[]
   securityHints: string[]

@@ -6,6 +6,13 @@ import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import type { Connect, Plugin, ViteDevServer } from 'vite'
 import { defineConfig } from 'vite'
+import {
+  classifyIntentWithPolicy,
+  ensureCalendlyCta,
+  recommendSkuWithPolicy,
+  resolveFallbackKey,
+  type ClassifyPolicy,
+} from './src/guide/classify-core'
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url))
 
@@ -102,33 +109,17 @@ function guideApiPlugin(): Plugin {
   }
 }
 
-function lastUserContent(messages: { role: string; content: string }[]): string {
-  for (let i = messages.length - 1; i >= 0; i--) {
-    if (messages[i].role === 'user') return messages[i].content
-  }
-  return ''
-}
-
-function previewHintHit(text: string, hints: string[]): boolean {
-  const hay = text.toLowerCase()
-  return hints.some((hint) => hint && hay.includes(hint.toLowerCase()))
-}
-
 async function degradeGuidePreview(request: Request, kb: unknown): Promise<Response> {
   const policy = (
     kb as {
-      policy?: {
+      policy?: ClassifyPolicy & {
         calendlyUrl?: string
         fallbackReplies?: Record<string, { en: string; es: string }>
-        intentHints?: Record<string, string[]>
-        pricingHints?: string[]
-        bookingHints?: string[]
-        securityHints?: string[]
       }
     } | null
   )?.policy
   let parsed: {
-    messages?: { role: string; content: string }[]
+    messages?: { role: 'user' | 'assistant'; content: string }[]
     page?: string
     locale?: string
   } = {}
@@ -139,64 +130,46 @@ async function degradeGuidePreview(request: Request, kb: unknown): Promise<Respo
   }
   const locale = parsed.locale === 'es' ? 'es' : 'en'
   const messages = parsed.messages || []
-  const last = lastUserContent(messages)
-  const users = messages.filter((m) => m.role === 'user').map((m) => m.content).join('\n')
   const hay = messages.map((m) => m.content).join('\n')
-  const securityHints = policy?.securityHints || [
-    'password',
-    'api key',
-    'apikey',
-    'capo',
-    'banorte',
-    'faa',
-    'notion',
-    'contraseña',
-  ]
-  const bookingHints = policy?.bookingHints || [
-    'cita',
-    'agenda',
-    'schedule',
-    'calendly',
-    'fit',
-    'leads',
-    'qué más',
-    'que mas',
-  ]
-  const pricingHints = policy?.pricingHints || ['price', 'pricing', 'precio', 'cobro']
-  const isSecurity = previewHintHit(last, securityHints)
-  const isBooking = previewHintHit(last, bookingHints)
-  const isPricing = !isBooking && previewHintHit(last, pricingHints)
-  const skuKeys = ['gtm-os', 'store-os', 'nexus-os'] as const
-  const ranked = skuKeys
-    .map((key) => ({
-      key,
-      n: (policy?.intentHints?.[key] || []).filter((h) => users.toLowerCase().includes(h.toLowerCase()))
-        .length,
-    }))
-    .sort((a, b) => b.n - a.n)
-  const recommendedSku =
-    ranked[0] && ranked[0].n > 0 && ranked[0].n !== ranked[1]?.n ? ranked[0].key : 'unclear'
+  const classifyPolicy: ClassifyPolicy = {
+    intentHints: policy?.intentHints || {},
+    offTopicHints: policy?.offTopicHints || [],
+    pricingHints: policy?.pricingHints || ['price', 'pricing', 'precio', 'cobro'],
+    bookingHints: policy?.bookingHints,
+    leadsHints: policy?.leadsHints,
+    buyingIntentHints: policy?.buyingIntentHints,
+    securityHints: policy?.securityHints || [
+      'password',
+      'api key',
+      'apikey',
+      'capo',
+      'banorte',
+      'faa',
+      'notion',
+      'contraseña',
+    ],
+  }
+  const skuIntent = classifyIntentWithPolicy(messages, classifyPolicy)
+  const recommendedSku = recommendSkuWithPolicy(messages, classifyPolicy)
+  const replyKey = resolveFallbackKey(skuIntent, recommendedSku)
   const pick = (key: string, fallback: { en: string; es: string }) => {
     const pack = policy?.fallbackReplies?.[key] || fallback
     return locale === 'es' ? pack.es : pack.en
   }
   const calendly = policy?.calendlyUrl || 'https://calendly.com/rutinhq/30min'
-  let replyKey = 'degraded'
-  if (isSecurity) replyKey = 'security'
-  else if (isPricing) replyKey = 'pricing'
-  else if (recommendedSku !== 'unclear') replyKey = recommendedSku
-  else if (isBooking) replyKey = 'fit'
   let reply = pick(replyKey, {
     en: 'GTM OS, STORE OS, and NEXUS OS are the public catalog. Book 30 min — https://calendly.com/rutinhq/30min',
     es: 'GTM OS, STORE OS y NEXUS OS son el catálogo público. Agenda 30 min — https://calendly.com/rutinhq/30min',
   })
-  if (!/calendly\.com\/rutinhq\/30min/i.test(reply)) {
-    reply = `${reply.trim()} ${
-      locale === 'es' ? `Siguiente paso: agenda 30 min — ${calendly}` : `Next step: book 30 min — ${calendly}`
-    }`
-  }
+  reply = ensureCalendlyCta(reply, locale, calendly)
   let leadBrief: unknown
-  if (!isSecurity && (/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i.test(hay) || isBooking || isPricing)) {
+  if (
+    skuIntent !== 'security' &&
+    (/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i.test(hay) ||
+      skuIntent === 'fit' ||
+      skuIntent === 'pricing' ||
+      skuIntent === 'gtm-os')
+  ) {
     leadBrief = {
       topic:
         recommendedSku === 'unclear'

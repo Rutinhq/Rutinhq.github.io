@@ -7,6 +7,7 @@ import {
   resolveFallbackKey,
   type ClassifyPolicy,
 } from '../src/guide/classify-core.ts'
+import { localGuideReply } from '../src/guide/fallback.ts'
 import {
   extractFinishReason,
   extractLlmText,
@@ -201,21 +202,75 @@ const storeThen = (follow: string) => [
   { role: 'assistant' as const, content: poisonStore },
   { role: 'user' as const, content: follow },
 ]
-for (const follow of ['cita', 'agenda', 'schedule', 'Calendly', 'fit', 'leads', 'GTM-fit', 'qué más']) {
+
+const leadsAlone = [{ role: 'user' as const, content: 'leads' }]
+assert(
+  classifyIntentWithPolicy(leadsAlone, guidePolicy) === 'gtm-os',
+  'single-turn leads must be GTM OS, not generic fit',
+)
+assert(recommendSkuWithPolicy(leadsAlone, guidePolicy) === 'gtm-os', 'leads recommends GTM OS')
+assert(
+  resolveFallbackKey(
+    classifyIntentWithPolicy(leadsAlone, guidePolicy),
+    recommendSkuWithPolicy(leadsAlone, guidePolicy),
+  ) === 'gtm-os',
+  'degraded leads key must be gtm-os',
+)
+const leadsReply = localGuideReply(leadsAlone, 'es')
+assert(/GTM OS/.test(leadsReply), 'leads reply must name GTM OS')
+assert(/outbound|ICP/i.test(leadsReply), 'leads reply must name outbound / ICP-filtered')
+assert(/calendly.com\/rutinhq\/30min/i.test(leadsReply), 'leads reply must include Calendly')
+assert(
+  !/^El siguiente paso es una llamada/i.test(leadsReply),
+  'leads must not be a generic fit-only Calendly with no GTM SKU',
+)
+
+assert(
+  classifyIntentWithPolicy([{ role: 'user', content: 'quiero cita' }], guidePolicy) === 'fit',
+  'single-turn cita without SKU is fit+Calendly',
+)
+
+for (const follow of ['cita', 'agenda', 'schedule', 'Calendly', 'fit', 'qué más', 'quiero cita']) {
   const thread = storeThen(follow)
   const intent = classifyIntentWithPolicy(thread, guidePolicy)
   const sku = recommendSkuWithPolicy(thread, guidePolicy)
   assert(intent !== 'pricing', `cita≠pricing: STORE OS + "${follow}" must not be pricing (got ${intent})`)
+  assert(intent !== 'store-os', `STORE OS + "${follow}" must not stick on STORE (got ${intent})`)
+  assert(intent === 'fit', `STORE OS + "${follow}" should be fit+Calendly, got ${intent}`)
+  assert(sku === 'unclear', `STORE OS + "${follow}" must not inherit store-os`)
   assert(
-    intent === 'store-os' || intent === 'fit',
-    `STORE OS + "${follow}" should be store-os/fit, got ${intent}`,
+    resolveFallbackKey(intent, sku) === 'fit',
+    `degraded key for "${follow}" must be fit, not STORE copy`,
   )
-  assert(sku === 'store-os', `STORE OS + "${follow}" recommends store-os`)
+  const reply = localGuideReply(thread, 'es')
+  assert(/calendly.com\/rutinhq\/30min/i.test(reply), `"${follow}" must keep Calendly`)
   assert(
-    resolveFallbackKey(intent, sku) === 'store-os',
-    `degraded key for "${follow}" must stay STORE OS, not pricing/catalog`,
+    !/STORE OS es auditoría/i.test(reply),
+    `STORE OS + "${follow}" must not return STORE reply body`,
   )
 }
+
+for (const follow of ['leads', 'outbound', 'prospecting', 'necesito leads']) {
+  const thread = storeThen(follow)
+  const intent = classifyIntentWithPolicy(thread, guidePolicy)
+  const sku = recommendSkuWithPolicy(thread, guidePolicy)
+  assert(intent === 'gtm-os', `STORE OS + "${follow}" must be GTM OS, got ${intent}`)
+  assert(sku === 'gtm-os', `STORE OS + "${follow}" recommends GTM OS`)
+  assert(resolveFallbackKey(intent, sku) === 'gtm-os', `degraded key for "${follow}" must be gtm-os`)
+  const reply = localGuideReply(thread, 'es')
+  assert(/GTM OS/.test(reply) && /ICP|outbound/i.test(reply), `"${follow}" after STORE must be GTM copy`)
+  assert(/calendly.com\/rutinhq\/30min/i.test(reply), `"${follow}" must keep Calendly`)
+  assert(!/STORE OS es auditoría/i.test(reply), `STORE OS + "${follow}" must not return STORE reply body`)
+}
+
+assert(
+  classifyIntentWithPolicy(storeThen('quiero cita para shopify'), guidePolicy) === 'store-os',
+  'cita that names Shopify on the last turn may keep STORE + Calendly',
+)
+assert(
+  classifyIntentWithPolicy(storeThen('GTM-fit'), guidePolicy) === 'gtm-os',
+  'GTM-fit on the last turn is GTM OS + Calendly',
+)
 assert(
   classifyIntentWithPolicy([{ role: 'user', content: 'how much does GTM OS cost?' }], guidePolicy) ===
     'pricing',

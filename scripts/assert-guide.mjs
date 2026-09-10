@@ -294,6 +294,12 @@ function userHay(messages) {
   return messages.filter((m) => m.role === 'user').map((m) => m.content).join('\n')
 }
 
+function rankOn(text, keys) {
+  return keys
+    .map((key) => ({ key, n: scoreHints(text, policySrc.intentHints[key] || []) }))
+    .sort((a, b) => b.n - a.n)
+}
+
 function classifyConversation(messages) {
   const last = lastUser(messages)
   const users = userHay(messages)
@@ -308,24 +314,22 @@ function classifyConversation(messages) {
   ) {
     return 'offTopic'
   }
+  const leadsHints = policySrc.leadsHints || ['leads', 'lead', 'outbound', 'prospecting', 'prospectos']
+  if (scoreHints(last, leadsHints)) return 'gtm-os'
   if (scoreHints(last, policySrc.bookingHints)) {
-    const prior = userHay(messages.slice(0, -1)) || users
-    const rankedSku = ['gtm-os', 'store-os', 'nexus-os'].map((key) => ({
-      key,
-      n: scoreHints(prior, policySrc.intentHints[key] || []),
-    }))
-    rankedSku.sort((a, b) => b.n - a.n)
+    const rankedSku = rankOn(last, ['gtm-os', 'store-os', 'nexus-os'])
     if (rankedSku[0] && rankedSku[0].n > 0 && rankedSku[0].n !== rankedSku[1]?.n) {
       return rankedSku[0].key
     }
     return 'fit'
   }
   if (scoreHints(last, policySrc.pricingHints)) return 'pricing'
-  const ranked = ['gtm-os', 'store-os', 'nexus-os', 'catalog'].map((key) => ({
-    key,
-    n: scoreHints(users, policySrc.intentHints[key] || []),
-  }))
-  ranked.sort((a, b) => b.n - a.n)
+  const lastRanked = rankOn(last, ['gtm-os', 'store-os', 'nexus-os', 'catalog'])
+  if (lastRanked[0] && lastRanked[0].n > 0) {
+    if (lastRanked[1] && lastRanked[0].n === lastRanked[1].n && lastRanked[0].n < 2) return 'unsure'
+    return lastRanked[0].key
+  }
+  const ranked = rankOn(users, ['gtm-os', 'store-os', 'nexus-os', 'catalog'])
   if (!ranked[0] || ranked[0].n === 0) return 'unsure'
   if (ranked[1] && ranked[0].n === ranked[1].n && ranked[0].n < 2) return 'unsure'
   return ranked[0].key
@@ -413,7 +417,19 @@ if (!/classifyIntentWithPolicy/.test(fn) || !/resolveFallbackKey/.test(fn)) {
 }
 
 if (!Array.isArray(policySrc.bookingHints) || !policySrc.bookingHints.includes('cita')) {
-  console.error('policy.bookingHints must include cita/agenda/schedule/fit/leads')
+  console.error('policy.bookingHints must include cita/agenda/schedule/fit')
+  process.exit(1)
+}
+if (policySrc.bookingHints.includes('leads')) {
+  console.error('leads is a GTM OS intent, not a generic booking hint')
+  process.exit(1)
+}
+if (!Array.isArray(policySrc.leadsHints) || !policySrc.leadsHints.includes('leads')) {
+  console.error('policy.leadsHints must include leads/outbound/prospecting')
+  process.exit(1)
+}
+if (!(policySrc.intentHints['gtm-os'] || []).includes('leads')) {
+  console.error('gtm-os intentHints must include leads')
   process.exit(1)
 }
 
@@ -428,15 +444,32 @@ const storeThread = (follow) => [
   { role: 'assistant', content: policySrc.fallbackReplies['store-os'].es },
   { role: 'user', content: follow },
 ]
-const bookingFollows = ['cita', 'agenda', 'schedule', 'Calendly', 'fit', 'leads', 'GTM-fit', 'qué más']
+if (classifyProbe('leads') !== 'gtm-os') {
+  console.error('single-turn leads must classify as gtm-os (GTM SKU + Calendly), not fit')
+  process.exit(1)
+}
+
+const bookingFollows = ['cita', 'agenda', 'schedule', 'Calendly', 'fit', 'qué más', 'quiero cita']
 for (const follow of bookingFollows) {
   const intent = classifyConversation(storeThread(follow))
   if (intent === 'pricing') {
     console.error(`cita≠pricing failed: STORE OS + "${follow}" classified as pricing`)
     process.exit(1)
   }
-  if (intent !== 'store-os' && intent !== 'fit') {
-    console.error(`STORE OS + "${follow}" expected store-os/fit, got ${intent}`)
+  if (intent === 'store-os') {
+    console.error(`STORE OS + "${follow}" stuck on STORE — last user turn must be fit+Calendly`)
+    process.exit(1)
+  }
+  if (intent !== 'fit') {
+    console.error(`STORE OS + "${follow}" expected fit, got ${intent}`)
+    process.exit(1)
+  }
+}
+
+for (const follow of ['leads', 'outbound', 'prospecting']) {
+  const intent = classifyConversation(storeThread(follow))
+  if (intent !== 'gtm-os') {
+    console.error(`STORE OS + "${follow}" expected gtm-os, got ${intent}`)
     process.exit(1)
   }
 }

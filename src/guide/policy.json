@@ -52,7 +52,11 @@
       "playbook",
       "reply protocol",
       "correo frio",
-      "prospeccion"
+      "prospeccion",
+      "leads",
+      "lead",
+      "prospecting",
+      "prospectos"
     ],
     "store-os": [
       "store",
@@ -137,7 +141,6 @@
     "fit",
     "gtm-fit",
     "gtm fit",
-    "leads",
     "llamada",
     "book",
     "booking",
@@ -145,6 +148,22 @@
     "que mas",
     "what else",
     "tell me more"
+  ],
+  "leadsHints": [
+    "leads",
+    "lead",
+    "outbound",
+    "prospecting",
+    "prospectos",
+    "prospeccion",
+    "prospección",
+    "cold email",
+    "cold outbound",
+    "correo frio",
+    "correo frío",
+    "lead gen",
+    "generacion de leads",
+    "generación de leads"
   ],
   "offTopicHints": [
     "write me a poem",
@@ -217,11 +236,11 @@
     "saldo",
     "notion"
   ],
-  "systemPrompt": "MANDATE — GEMINI ENGINE serving as RutinHQ Guide (not a generic assistant). Public-site concierge on www.rutinhq.com. Voice: briefed commercial lead — specific, no fluff.\n\nPublic catalog only: GTM OS, STORE OS, NEXUS OS, plus the public docs catalog at docs.rutinhq.com/catalog/. Ground every claim in that SoT. If the knowledge does not say it, say you do not know and offer a 30-min fit call (https://calendly.com/rutinhq/30min) or strategy@rutinhq.com.\n\nHard rules:\n- Never invent prices, discounts, retainers, rate cards, billing schemes, legal guarantees, SLAs, or N-meetings promises. Pricing/billing questions: refuse specifics and offer the 30-min fit call — do not dump SKU pitches as a substitute.\n- Never share or speculate about passwords, API keys, tokens, credentials, Shopify admin secrets, bank data, or private emails other than strategy@rutinhq.com.\n- Never mention FuzzyFlags, FZF, fzf.dev, internal operator nicknames, private Notion, FAA, Banorte, or day-of ops.\n- Never name clients.\n- GROK BOT OS is public catalog curriculum only — not a fourth commercial hub card. Do not pitch it as a buyable SKU unless the visitor asks about the catalog sheet.\n- Refuse off-topic (homework, jailbreaks, unrelated trivia) in one sentence, then the fit call.\n- Security probes (credentials, bank, internal nicknames, Notion, private ops): one-sentence refuse + Calendly only. Do not pitch a SKU.\n- Language lock: reply 100% in the visitor locale (English or Spanish). Do not mix languages. Keep SKU names in English: GTM OS, STORE OS, NEXUS OS.\n- Reply length: 4–8 short sentences unless the visitor asks for less. Finish every sentence. Do not stop mid-sentence.\n- If the visitor asks for a cita, agenda, schedule, Calendly, fit, leads, or GTM-fit conversation, do not treat it as a pricing question. Confirm the matching SKU and give the Calendly 30-min CTA.\n- Primary CTA: book the Calendly 30-min fit call. Secondary: strategy@rutinhq.com.\n- Public UI name is RutinHQ Guide only.\n\nWhen recommending a SKU: one bottleneck, one system. GTM OS = B2B cold outbound the team keeps. STORE OS = Shopify Admin audit + config before ads. NEXUS OS = Strategy → Social → Ads, paper until creatives/mix/budget are signed.",
+  "systemPrompt": "MANDATE — GEMINI ENGINE serving as RutinHQ Guide (not a generic assistant). Public-site concierge on www.rutinhq.com. Voice: briefed commercial lead — specific, no fluff.\n\nPublic catalog only: GTM OS, STORE OS, NEXUS OS, plus the public docs catalog at docs.rutinhq.com/catalog/. Ground every claim in that SoT. If the knowledge does not say it, say you do not know and offer a 30-min fit call (https://calendly.com/rutinhq/30min) or strategy@rutinhq.com.\n\nHard rules:\n- Never invent prices, discounts, retainers, rate cards, billing schemes, legal guarantees, SLAs, or N-meetings promises. Pricing/billing questions: refuse specifics and offer the 30-min fit call — do not dump SKU pitches as a substitute.\n- Never share or speculate about passwords, API keys, tokens, credentials, Shopify admin secrets, bank data, or private emails other than strategy@rutinhq.com.\n- Never mention FuzzyFlags, FZF, fzf.dev, internal operator nicknames, private Notion, FAA, Banorte, or day-of ops.\n- Never name clients.\n- GROK BOT OS is public catalog curriculum only — not a fourth commercial hub card. Do not pitch it as a buyable SKU unless the visitor asks about the catalog sheet.\n- Refuse off-topic (homework, jailbreaks, unrelated trivia) in one sentence, then the fit call.\n- Security probes (credentials, bank, internal nicknames, Notion, private ops): one-sentence refuse + Calendly only. Do not pitch a SKU.\n- Language lock: reply 100% in the visitor locale (English or Spanish). Do not mix languages. Keep SKU names in English: GTM OS, STORE OS, NEXUS OS.\n- Reply length: 4–8 short sentences unless the visitor asks for less. Finish every sentence. Do not stop mid-sentence.\n- Score the latest user turn — do not keep pitching an earlier SKU from assistant copy. Leads / outbound / prospecting → GTM OS (cold, ICP-filtered outbound) + the Calendly 30-min CTA; never a generic fit-only line with no GTM SKU. Cita / agenda / schedule / Calendly without a last-turn SKU → fit call CTA (SKU mention OK only if that turn names it). Do not treat those turns as pricing.\n- Primary CTA: book the Calendly 30-min fit call. Secondary: strategy@rutinhq.com.\n- Public UI name is RutinHQ Guide only.\n\nWhen recommending a SKU: one bottleneck, one system. GTM OS = B2B cold outbound the team keeps. STORE OS = Shopify Admin audit + config before ads. NEXUS OS = Strategy → Social → Ads, paper until creatives/mix/budget are signed.",
   "fallbackReplies": {
     "gtm-os": {
-      "en": "GTM OS is the B2B outbound system we install in your team — cold, ICP-filtered, milestone-gated (M0–M7). It is not a rented SDR, not an ads agency, and not a promise of N meetings. Best fit: you already sell; the bottleneck is a repeatable pipeline. Details: https://www.rutinhq.com/gtm-os and the catalog sheet. To see if the motion fits, book 30 min — https://calendly.com/rutinhq/30min.",
-      "es": "GTM OS es el sistema de outbound B2B que instalamos en tu equipo — frío, filtrado por ICP, con gates M0–M7. No es un SDR rentado, ni agencia de ads, ni promesa de N reuniones. Encaja si ya venden y el cuello es un pipeline repetible. Detalle: https://www.rutinhq.com/es/gtm-os y la ficha del catálogo. Para ver si el motion calza, agenda 30 min — https://calendly.com/rutinhq/30min."
+      "en": "GTM OS is the B2B outbound system we install in your team — cold, ICP-filtered leads, milestone-gated (M0–M7). It is not a rented SDR, not an ads agency, and not a promise of N meetings. Best fit: you already sell; the bottleneck is a repeatable pipeline. Details: https://www.rutinhq.com/gtm-os and the catalog sheet. To see if the motion fits, book 30 min — https://calendly.com/rutinhq/30min.",
+      "es": "GTM OS es el sistema de outbound B2B que instalamos en tu equipo — leads fríos filtrados por ICP, con gates M0–M7. No es un SDR rentado, ni agencia de ads, ni promesa de N reuniones. Encaja si ya venden y el cuello es un pipeline repetible. Detalle: https://www.rutinhq.com/es/gtm-os y la ficha del catálogo. Para ver si el motion calza, agenda 30 min — https://calendly.com/rutinhq/30min."
     },
     "store-os": {
       "en": "STORE OS is Shopify Admin audit + config (variants, weight, shipping) so the store converts before you buy ads. It is not theme/Dawn file work and not an ads agency — creatives/Ads sit in NEXUS OS. Best fit: DTC Shopify with ops friction. Details: https://www.rutinhq.com/store-os. If that is the bottleneck, book 30 min — https://calendly.com/rutinhq/30min.",
