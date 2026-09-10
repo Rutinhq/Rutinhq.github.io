@@ -1,6 +1,8 @@
 import {
   extractFinishReason,
   extractLlmText,
+  guideLlmAttemptMs,
+  guideLlmHasRetryBudget,
   guideLlmModelCandidates,
   guideLlmOnProviderError,
   isUnusableGuideReply,
@@ -8,7 +10,12 @@ import {
   normalizeGuideLlmModel,
   resolveGuideLlmBaseUrl,
   resolveGuideLlmModel,
+  GUIDE_LLM_BUDGET_MS,
   GUIDE_LLM_CANDIDATE_CAP,
+  GUIDE_LLM_MIN_ATTEMPT_MS,
+  GUIDE_LLM_PRIMARY_ATTEMPT_MS,
+  GUIDE_LLM_RATE_LIMIT_BACKOFF_MS,
+  GUIDE_LLM_RETRY_ATTEMPT_MS,
   GUIDE_MANDATE,
 } from '../src/guide/llm.ts'
 
@@ -112,6 +119,31 @@ assert(
 assert(
   /4–8 short sentences/.test(GUIDE_MANDATE) && /Do not stop mid-sentence/.test(GUIDE_MANDATE),
   'mandate asks for multi-sentence replies that finish',
+)
+assert(
+  GUIDE_LLM_PRIMARY_ATTEMPT_MS < GUIDE_LLM_BUDGET_MS,
+  'primary attempt must leave room inside the overall budget',
+)
+assert(
+  GUIDE_LLM_PRIMARY_ATTEMPT_MS + GUIDE_LLM_RATE_LIMIT_BACKOFF_MS + GUIDE_LLM_RETRY_ATTEMPT_MS <=
+    GUIDE_LLM_BUDGET_MS + 500,
+  'one primary + one 429 retry must fit the ~9s budget (no cascade)',
+)
+assert(
+  guideLlmAttemptMs({ isRetry: false, remainingMs: GUIDE_LLM_BUDGET_MS }) ===
+    GUIDE_LLM_PRIMARY_ATTEMPT_MS,
+  'first attempt is capped below the overall budget',
+)
+assert(
+  guideLlmAttemptMs({ isRetry: true, remainingMs: 2_500 }) === GUIDE_LLM_RETRY_ATTEMPT_MS,
+  '429 retry attempt is capped',
+)
+assert(guideLlmAttemptMs({ isRetry: true, remainingMs: 300 }) === 300, 'retry uses leftover budget')
+assert(guideLlmAttemptMs({ isRetry: false, remainingMs: 0 }) === 0, 'zero remaining is zero attempt')
+assert(guideLlmHasRetryBudget(GUIDE_LLM_BUDGET_MS), 'fresh budget can retry primary once')
+assert(
+  !guideLlmHasRetryBudget(GUIDE_LLM_MIN_ATTEMPT_MS + GUIDE_LLM_RATE_LIMIT_BACKOFF_MS - 1),
+  'do not start a 429 retry when leftover time is too small',
 )
 
 assert(

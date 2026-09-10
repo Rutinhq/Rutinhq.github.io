@@ -12,6 +12,8 @@ export const GUIDE_LIMITS = guidePolicy.limits
 export const GUIDE_SYSTEM_PROMPT = guidePolicy.systemPrompt
 export const GUIDE_ALLOWLIST_URLS = guidePolicy.allowlistUrls
 export const GUIDE_WIDGET_PATHS = guidePolicy.widgetPaths
+/** Client wait: slightly above the Function LLM budget so a clean degrade can return. */
+export const GUIDE_CLIENT_FETCH_MS = 12_000
 
 export function isGuideWidgetPath(pathname: string): boolean {
   return guidePolicy.widgetPaths.includes(normalizePathname(pathname))

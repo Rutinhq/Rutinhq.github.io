@@ -77,6 +77,7 @@ const guideKeys = [
   'send',
   'close',
   'thinking',
+  'degradedNote',
   'greeting',
   'ctaBook',
   'emailCta',
@@ -92,7 +93,7 @@ for (const key of guideKeys) {
   }
   if (en.guide[key] === es.guide[key] && key !== 'leadCta') {
     // brand-stable strings may match; greeting/launcher/chrome must differ
-    if (['launcher', 'greeting', 'subtitle', 'placeholder', 'ctaBook', 'emailCta', 'disclaimer'].includes(key)) {
+    if (['launcher', 'greeting', 'subtitle', 'placeholder', 'ctaBook', 'emailCta', 'disclaimer', 'thinking', 'degradedNote'].includes(key)) {
       console.error(`guide.${key} is identical in EN and ES — locale leak`)
       process.exit(1)
     }
@@ -156,6 +157,18 @@ if (policySrc.limits.maxReplyTokens !== 1024 || policy.limits.maxReplyTokens !==
 }
 if (!/4–8 short sentences/.test(policySrc.systemPrompt)) {
   console.error('systemPrompt must ask for 4–8 short sentences')
+  process.exit(1)
+}
+if (
+  !/retainers/.test(policySrc.systemPrompt) ||
+  !/SLAs/.test(policySrc.systemPrompt) ||
+  !/credentials/.test(policySrc.systemPrompt)
+) {
+  console.error('systemPrompt must refuse prices/retainers/legal/SLAs/credentials')
+  process.exit(1)
+}
+if (!/fzf\.dev/.test(policySrc.systemPrompt) || !/FuzzyFlags/.test(policySrc.systemPrompt)) {
+  console.error('systemPrompt must refuse fzf.dev / FuzzyFlags')
   process.exit(1)
 }
 
@@ -235,6 +248,22 @@ if (!/GUIDE_LLM_MODEL\s*=\s*"gemini-2.0-flash"/.test(wrangler)) {
 }
 if (!/guideLlmOnProviderError/.test(llm) || !/GUIDE_LLM_CANDIDATE_CAP/.test(llm)) {
   console.error('LLM client must fail-fast on 429 and cap model candidates')
+  process.exit(1)
+}
+if (!/guideLlmAttemptMs/.test(llm) || !/GUIDE_LLM_PRIMARY_ATTEMPT_MS/.test(llm)) {
+  console.error('LLM client must cap per-attempt time so a hang cannot eat the 429 retry')
+  process.exit(1)
+}
+if (!/timeoutMs:\s*GUIDE_LLM_BUDGET_MS/.test(fn)) {
+  console.error('Function must pass the shared LLM budget as timeoutMs')
+  process.exit(1)
+}
+if (!/AbortSignal\.timeout/.test(widget) || !/GUIDE_CLIENT_FETCH_MS/.test(widget)) {
+  console.error('Guide widget must abort a hung /api/guide fetch')
+  process.exit(1)
+}
+if (!/guide.degradedNote/.test(widget)) {
+  console.error('Guide widget must surface degraded/paused catalog messaging')
   process.exit(1)
 }
 

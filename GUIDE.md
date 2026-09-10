@@ -46,7 +46,7 @@ If the LLM key is absent or the provider fails, both Function and client return 
 
 Gemini is not a bare model: `functions/api/guide.ts` always prefixes the **GEMINI ENGINE** public mandate (catalog-only GTM OS / STORE OS / NEXUS OS, no prices/legal/credentials, 4–8 short sentences, Calendly + `strategy@rutinhq.com`, locale EN/ES) plus `policy.systemPrompt` and the allowlisted KB.
 
-On **429/503** the client retries the **primary** model once (~600ms) then degrades — it does not walk fallbacks and **never** falls through to thinking models (`gemini-2.5-flash` / `gemini-3.6-flash`; they burn `max_tokens` on thoughts and return `finish_reason=length`). Model-missing (404) may try at most two **2.0-family** aliases. Empty, under ~80 char, or mid-cut completions are treated as failure (`mode: degraded`). Overall LLM budget is ~9s.
+On **429/503** the client retries the **primary** model once (~600ms) then degrades — it does not walk fallbacks and **never** falls through to thinking models (`gemini-2.5-flash` / `gemini-3.6-flash`; they burn `max_tokens` on thoughts and return `finish_reason=length`). Timeouts do **not** retry (they would burn quota on a hung call). Model-missing (404) may try at most two **2.0-family** aliases. Empty, under ~80 char, or mid-cut completions are treated as failure (`mode: degraded`). Overall LLM budget is ~9s: first attempt ~6.8s so a fast 429 still has room for the one retry; the widget aborts `/api/guide` at ~12s and shows catalog fallback plus a paused note.
 
 ## Env vars (Pages → Settings → Environment variables)
 
@@ -57,7 +57,7 @@ Recommended path: **Gemini OpenAI-compatible** (`GUIDE_LLM_BASE_URL` + Gemini ke
 | `GUIDE_LLM_API_KEY` | for `mode: llm` | Gemini API key (recommended) or other OpenAI-compatible bearer token |
 | `GUIDE_LLM_BASE_URL` | no | Recommended Gemini: `https://generativelanguage.googleapis.com/v1beta/openai`. Alternative OpenAI: `https://api.openai.com/v1` (code default) |
 | `GUIDE_LLM_MODEL` | no | Recommended Gemini: `gemini-2.0-flash` (404 fallback: `gemini-2.0-flash-001` / `gemini-flash-latest`). Alternative OpenAI: `gpt-4o-mini` (code default) |
-| `GUIDE_LEAD_WEBHOOK_URL` | no | `POST { type: "lead_brief", leadBrief }` |
+| `GUIDE_LEAD_WEBHOOK_URL` | no | `POST { type: "lead_brief", leadBrief }`. Capo sets this Pages secret; do not invent a local webhook URL. Unset is valid (`delivered: false`). |
 
 Local: copy `.env.example` → `.env` (Vite + the guide middleware read `process.env`).
 

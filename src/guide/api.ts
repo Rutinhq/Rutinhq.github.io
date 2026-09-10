@@ -8,7 +8,7 @@ import {
 } from './config'
 import { localGuideReply } from './fallback'
 import { buildLeadBrief } from './lead'
-import { callGuideLlm, composeGuideSystemPrompt } from './llm'
+import { callGuideLlm, composeGuideSystemPrompt, GUIDE_LLM_BUDGET_MS } from './llm'
 import { enforceSafeReply, isSecurityProbe, securityReply } from './security'
 import type {
   GuideApiRequest,
@@ -84,6 +84,7 @@ async function callLlm(
     baseUrl: env.GUIDE_LLM_BASE_URL,
     model: env.GUIDE_LLM_MODEL,
     maxTokens: GUIDE_LIMITS.maxReplyTokens,
+    timeoutMs: GUIDE_LLM_BUDGET_MS,
     system: composeGuideSystemPrompt(
       GUIDE_SYSTEM_PROMPT,
       locale,

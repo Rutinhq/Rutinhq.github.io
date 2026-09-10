@@ -13,6 +13,7 @@
 import {
   callGuideLlmDetailed,
   composeGuideSystemPrompt,
+  GUIDE_LLM_BUDGET_MS,
   isUnusableGuideReply,
   type GuideLlmMode,
 } from '../../src/guide/llm'
@@ -74,7 +75,7 @@ const LEAK_RE =
 const COPY = {
   en: {
     degraded:
-      'Book a 30-min fit call and we will map the bottleneck to GTM OS, STORE OS, or NEXUS OS. https://calendly.com/rutinhq/30min',
+      'Live guide answers are paused here, so I will stay on catalog facts and the fit call. Book a 30-min call — or ask which bottleneck you want to unpack (outbound, store Admin, or paper-first demand). https://calendly.com/rutinhq/30min',
     security:
       'I cannot share credentials, passwords, API keys, bank details, or private operations. I only cover public RutinHQ systems. Book a 30-min fit call if you want to talk GTM OS, STORE OS, or NEXUS OS.',
     nextStep: (url: string) => `Book 30-min fit call — ${url}`,
@@ -83,7 +84,7 @@ const COPY = {
   },
   es: {
     degraded:
-      'Agenda 30 min y mapeamos el cuello a GTM OS, STORE OS o NEXUS OS. https://calendly.com/rutinhq/30min',
+      'Las respuestas en vivo están en pausa aquí, así que me quedo en hechos del catálogo y la llamada de fit. Agenda 30 min — o dime qué cuello quieres abrir (outbound, Admin de tienda, o demanda en paper primero). https://calendly.com/rutinhq/30min',
     security:
       'No comparto credenciales, contraseñas, claves de API, datos bancarios ni operaciones privadas. Solo cubro los sistemas públicos de RutinHQ. Agenda 30 min si quieres hablar de GTM OS, STORE OS o NEXUS OS.',
     nextStep: (url: string) => `Agendar 30 min de fit — ${url}`,
@@ -284,6 +285,7 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
         baseUrl: context.env.GUIDE_LLM_BASE_URL,
         model: context.env.GUIDE_LLM_MODEL,
         maxTokens: limits.maxReplyTokens,
+        timeoutMs: GUIDE_LLM_BUDGET_MS,
         system: composeGuideSystemPrompt(policy.systemPrompt, locale, knowledge),
         messages: messages.map((m) => ({
           role: m.role,
