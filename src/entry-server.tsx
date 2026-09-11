@@ -1,6 +1,6 @@
 import { HelmetProvider, type HelmetServerState } from '@dr.pogodin/react-helmet'
 import { StrictMode } from 'react'
-import { renderToString } from 'react-dom/server'
+import { renderToReadableStream } from 'react-dom/server'
 import { I18nextProvider } from 'react-i18next'
 import { MemoryRouter } from 'react-router-dom'
 import App from './App'
@@ -12,7 +12,7 @@ export async function render(url: string, lang?: string) {
   await i18n.changeLanguage(lang || defaultLanguage)
 
   let helmetState: HelmetServerState | undefined
-  const html = renderToString(
+  const stream = await renderToReadableStream(
     <StrictMode>
       <HelmetProvider
         onServerState={(state) => {
@@ -27,6 +27,8 @@ export async function render(url: string, lang?: string) {
       </HelmetProvider>
     </StrictMode>,
   )
+  await stream.allReady
+  const html = await new Response(stream).text()
 
   const head = [
     helmetState?.title.toString() ?? '',

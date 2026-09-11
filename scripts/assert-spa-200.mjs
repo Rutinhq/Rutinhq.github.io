@@ -823,6 +823,49 @@ if (notFoundHtml.includes('<!--ssr-outlet-->')) {
   process.exit(1)
 }
 
+const MONOLITH_BYTES = 400_000
+const assetJs = fs
+  .readdirSync('dist/assets')
+  .filter((name) => name.endsWith('.js'))
+  .map((name) => ({
+    name,
+    size: fs.statSync(`dist/assets/${name}`).size,
+  }))
+  .sort((a, b) => b.size - a.size)
+
+if (assetJs.length < 4) {
+  console.error(
+    `dist/assets must ship route-level JS chunks (found ${assetJs.length}: ${assetJs
+      .map((f) => f.name)
+      .join(', ')}).`,
+  )
+  process.exit(1)
+}
+
+const assetNames = assetJs.map((f) => f.name).join(' ')
+for (const needle of ['gtm-os', 'store-os', 'nexus-os', 'GuideWidget']) {
+  if (!assetNames.includes(needle)) {
+    console.error(
+      `dist/assets must include a ${needle} chunk after route/guide code-split. Files: ${assetNames}`,
+    )
+    process.exit(1)
+  }
+}
+
+const oversized = assetJs.filter((f) => f.size >= MONOLITH_BYTES)
+if (oversized.length) {
+  console.error(
+    `JS monolith still present: ${oversized
+      .map((f) => `${f.name} (${f.size} B)`)
+      .join(', ')}. Expected chunks below ${MONOLITH_BYTES} B.`,
+  )
+  process.exit(1)
+}
+
+console.log(
+  `code-split: ${assetJs.length} JS chunks; largest ${assetJs[0].name} ${assetJs[0].size} B`,
+)
+
 console.log(
   'SSR bodies in #root; 404.html ships (no SPA catch-all); blog + SKU + ES shells unique; favicon.ico real; Calendly primary CTA.',
 )
