@@ -26,7 +26,9 @@ export default function GtmOsPage() {
         path={path}
         locale={locale}
         alternates={alternatesFor('/gtm-os')}
-        jsonLd={skuJsonLd(path, t('seo.gtmTitle'), t('seo.gtmDescription'))}
+        jsonLd={skuJsonLd(path, t('seo.gtmTitle'), t('seo.gtmDescription'), {
+          serviceType: 'GTM OS',
+        })}
       />
 
       <Section first>

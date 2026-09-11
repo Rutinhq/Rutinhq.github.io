@@ -1,7 +1,7 @@
 import { Helmet } from '@dr.pogodin/react-helmet'
 
 export const SITE = 'https://www.rutinhq.com'
-const OG = `${SITE}/airo-assets/images/logo/horizontal.svg`
+const LOGO_SVG = `${SITE}/airo-assets/images/logo/horizontal.svg`
 
 export type HreflangLink = { hreflang: string; href: string }
 
@@ -14,6 +14,8 @@ type SeoProps = {
   ogType?: 'website' | 'article'
   locale?: 'en' | 'es'
   alternates?: readonly HreflangLink[]
+  /** Absolute PNG 1200×630 only. Capo D14 pack is not in-repo — do not pass SVG. */
+  image?: string
 }
 
 export function hreflangPair(enPath: string, esPath: string): HreflangLink[] {
@@ -33,6 +35,7 @@ export function Seo({
   ogType = 'website',
   locale = 'en',
   alternates,
+  image,
 }: SeoProps) {
   const url = `${SITE}${path}`
   const ogLocale = locale === 'es' ? 'es_MX' : 'en_US'
@@ -60,11 +63,11 @@ export function Seo({
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
       <meta property="og:url" content={url} />
-      <meta property="og:image" content={OG} />
-      <meta name="twitter:card" content="summary" />
+      {image ? <meta property="og:image" content={image} /> : null}
+      <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
-      <meta name="twitter:image" content={OG} />
+      {image ? <meta name="twitter:image" content={image} /> : null}
       {jsonLd ? (
         <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
       ) : null}
@@ -103,7 +106,7 @@ export function hubJsonLd(
         alternateName: 'Rutin HQ',
         url: `${SITE}/`,
         email: 'strategy@rutinhq.com',
-        logo: `${SITE}/airo-assets/images/logo/horizontal.svg`,
+        logo: LOGO_SVG,
         image: `${SITE}/apple-touch-icon.png`,
         description:
           'RutinHQ is a B2B systems studio. We install GTM OS, STORE OS, and NEXUS OS — operating systems teams own, not retainers that vanish.',
@@ -133,16 +136,45 @@ export function hubJsonLd(
   }
 }
 
-export function skuJsonLd(path: string, name: string, description: string) {
-  return {
-    '@context': 'https://schema.org',
+export function skuJsonLd(
+  path: string,
+  name: string,
+  description: string,
+  service?: { serviceType: string },
+) {
+  const pageUrl = `${SITE}${path}`
+  const webpage = {
     '@type': 'WebPage',
-    '@id': `${SITE}${path}#webpage`,
-    url: `${SITE}${path}`,
+    '@id': `${pageUrl}#webpage`,
+    url: pageUrl,
     name,
     description,
     isPartOf: { '@id': `${SITE}/#website` },
     about: { '@id': `${SITE}/#organization` },
+    ...(service ? { mainEntity: { '@id': `${pageUrl}#service` } } : {}),
+  }
+
+  if (!service) {
+    return {
+      '@context': 'https://schema.org',
+      ...webpage,
+    }
+  }
+
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      webpage,
+      {
+        '@type': 'Service',
+        '@id': `${pageUrl}#service`,
+        name: service.serviceType,
+        description,
+        url: pageUrl,
+        provider: { '@id': `${SITE}/#organization` },
+        serviceType: service.serviceType,
+      },
+    ],
   }
 }
 

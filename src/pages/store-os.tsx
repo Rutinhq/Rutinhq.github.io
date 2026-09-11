@@ -24,7 +24,9 @@ export default function StoreOsPage() {
         path={path}
         locale={locale}
         alternates={alternatesFor('/store-os')}
-        jsonLd={skuJsonLd(path, t('seo.storeTitle'), t('seo.storeDescription'))}
+        jsonLd={skuJsonLd(path, t('seo.storeTitle'), t('seo.storeDescription'), {
+          serviceType: 'STORE OS',
+        })}
       />
 
       <Section first>

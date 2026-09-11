@@ -24,7 +24,9 @@ export default function NexusOsPage() {
         path={path}
         locale={locale}
         alternates={alternatesFor('/nexus-os')}
-        jsonLd={skuJsonLd(path, t('seo.nexusTitle'), t('seo.nexusDescription'))}
+        jsonLd={skuJsonLd(path, t('seo.nexusTitle'), t('seo.nexusDescription'), {
+          serviceType: 'NEXUS OS',
+        })}
       />
 
       <Section first>
