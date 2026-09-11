@@ -239,6 +239,21 @@ if (locs.some((url) => !url.startsWith('https://www.rutinhq.com'))) {
   console.error(`${sitemap} must stay www-only.`)
   process.exit(1)
 }
+const lastmods = [...sitemapBody.matchAll(/<lastmod>([^<]+)<\/lastmod>/g)].map(
+  (m) => m[1],
+)
+if (lastmods.length !== expectedLocs.length) {
+  console.error(`${sitemap} must include <lastmod> on every URL.`)
+  process.exit(1)
+}
+if (lastmods.some((value) => !/^\d{4}-\d{2}-\d{2}$/.test(value))) {
+  console.error(`${sitemap} lastmod values must be YYYY-MM-DD.`)
+  process.exit(1)
+}
+if (!sitemapBody.includes('<lastmod>2026-09-08</lastmod>')) {
+  console.error(`${sitemap} must keep Article01 lastmod from dateModified.`)
+  process.exit(1)
+}
 
 const crawlHtml = [
   'dist/index.html',
@@ -274,6 +289,28 @@ if (fs.existsSync('dist/_headers')) {
   if (/X-Robots-Tag:\s*noindex/i.test(active)) {
     console.error(
       'dist/_headers must not noindex published /blog or Article01.',
+    )
+    process.exit(1)
+  }
+  if (!/\/\*[\s\S]*?Cache-Control:\s*public,\s*max-age=0/i.test(headers)) {
+    console.error('dist/_headers must short-cache HTML (max-age=0).')
+    process.exit(1)
+  }
+  if (
+    !/\/assets\/\*[\s\S]*?Cache-Control:\s*public,\s*max-age=31536000,\s*immutable/i.test(
+      headers,
+    )
+  ) {
+    console.error('dist/_headers must long-cache hashed /assets/* as immutable.')
+    process.exit(1)
+  }
+  if (
+    !/Link:\s*<\/sitemap\.xml>;\s*rel="sitemap".*<\/llms\.txt>;\s*rel="describedby"/i.test(
+      headers,
+    )
+  ) {
+    console.error(
+      'dist/_headers must keep Soft P1 RFC 8288 Link to sitemap + llms.txt.',
     )
     process.exit(1)
   }
@@ -859,6 +896,93 @@ if (oversized.length) {
       .map((f) => `${f.name} (${f.size} B)`)
       .join(', ')}. Expected chunks below ${MONOLITH_BYTES} B.`,
   )
+  process.exit(1)
+}
+
+const twitterShells = [
+  'dist/index.html',
+  'dist/prerender/gtm-os.html',
+  'dist/prerender/store-os.html',
+  'dist/prerender/nexus-os.html',
+  'dist/prerender/es.html',
+  'dist/prerender/es-gtm-os.html',
+  'dist/prerender/es-store-os.html',
+  'dist/prerender/es-nexus-os.html',
+  'dist/prerender/blog.html',
+  'dist/prerender/es-blog.html',
+  articleShell,
+  'dist/prerender/es-blog-outbound-frio-con-icp-sin-sdr-rentado.html',
+]
+const ogSvg = 'airo-assets/images/logo/horizontal.svg'
+for (const file of twitterShells) {
+  if (!fs.existsSync(file)) {
+    console.error(`${file} missing — twitter:card cannot be checked.`)
+    process.exit(1)
+  }
+  const html = fs.readFileSync(file, 'utf8')
+  if (!html.includes('name="twitter:card" content="summary_large_image"')) {
+    console.error(`${file} must set twitter:card=summary_large_image.`)
+    process.exit(1)
+  }
+  if (html.includes('name="twitter:card" content="summary"')) {
+    console.error(`${file} must not keep twitter:card=summary.`)
+    process.exit(1)
+  }
+  if (html.includes(`property="og:image" content="https://www.rutinhq.com/${ogSvg}"`)) {
+    console.error(`${file} must not wire SVG as og:image (blocked on Capo D14 PNG).`)
+    process.exit(1)
+  }
+  if (html.includes(`name="twitter:image" content="https://www.rutinhq.com/${ogSvg}"`)) {
+    console.error(`${file} must not wire SVG as twitter:image (blocked on Capo D14 PNG).`)
+    process.exit(1)
+  }
+  if (
+    html.includes('fonts.googleapis.com') ||
+    html.includes('fonts.gstatic.com')
+  ) {
+    console.error(`${file} must not render-block Google Fonts.`)
+    process.exit(1)
+  }
+}
+
+if (
+  !homepage.includes('href="/fonts/inter-latin.woff2"') ||
+  !homepage.includes('href="/fonts/space-grotesk-latin-700.woff2"')
+) {
+  console.error('dist/index.html must preload self-hosted Inter + Space Grotesk.')
+  process.exit(1)
+}
+
+const osServiceShells = [
+  { file: 'dist/prerender/gtm-os.html', type: 'GTM OS' },
+  { file: 'dist/prerender/store-os.html', type: 'STORE OS' },
+  { file: 'dist/prerender/nexus-os.html', type: 'NEXUS OS' },
+  { file: 'dist/prerender/es-gtm-os.html', type: 'GTM OS' },
+  { file: 'dist/prerender/es-store-os.html', type: 'STORE OS' },
+  { file: 'dist/prerender/es-nexus-os.html', type: 'NEXUS OS' },
+]
+for (const shell of osServiceShells) {
+  const html = fs.readFileSync(shell.file, 'utf8')
+  if (!html.includes('"@type":"Service"') || !html.includes(shell.type)) {
+    console.error(`${shell.file} must emit JSON-LD Service for ${shell.type}.`)
+    process.exit(1)
+  }
+  if (/"@type":"FAQPage"/.test(html)) {
+    console.error(`${shell.file} must not invent FAQPage (no on-page FAQ).`)
+    process.exit(1)
+  }
+  if (/price|precio|offers/i.test(html.match(/<script type="application\/ld\+json">[\s\S]*?<\/script>/)?.[0] || '')) {
+    console.error(`${shell.file} Service JSON-LD must not invent pricing.`)
+    process.exit(1)
+  }
+}
+
+if (/"@type":"FAQPage"/.test(homepage) || /"@type":"FAQPage"/.test(blogHtml)) {
+  console.error('Hub/blog index must not invent FAQPage (no on-page FAQ).')
+  process.exit(1)
+}
+if (!articleHtml.includes('"@type":"FAQPage"')) {
+  console.error(`${articleShell} must keep FAQPage for the real Article01 FAQ.`)
   process.exit(1)
 }
 

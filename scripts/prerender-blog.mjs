@@ -6,7 +6,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const root = path.resolve(__dirname, '..')
 const dist = path.join(root, 'dist')
 const SITE = 'https://www.rutinhq.com'
-const OG = `${SITE}/airo-assets/images/logo/horizontal.svg`
+// Capo D14 PNG 1200×630 pack is not in repo. Do not invent OG art or wire SVG.
 
 // Do NOT emit dist/blog.html, dist/es/blog.html, dist/blog/index.html, or
 // dist/blog/<slug>/index.html. Pages html-handling 308s pretty URLs:
@@ -207,20 +207,41 @@ const ROUTES = [
   },
 ]
 
-function skuJsonLd(path, name, description) {
-  return {
-    '@context': 'https://schema.org',
+function skuJsonLd(path, name, description, serviceType) {
+  const pageUrl = `${SITE}${path}`
+  const webpage = {
     '@type': 'WebPage',
-    '@id': `${SITE}${path}#webpage`,
-    url: `${SITE}${path}`,
+    '@id': `${pageUrl}#webpage`,
+    url: pageUrl,
     name,
     description,
     isPartOf: { '@id': `${SITE}/#website` },
     about: { '@id': `${SITE}/#organization` },
   }
+  if (!serviceType) {
+    return {
+      '@context': 'https://schema.org',
+      ...webpage,
+    }
+  }
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      { ...webpage, mainEntity: { '@id': `${pageUrl}#service` } },
+      {
+        '@type': 'Service',
+        '@id': `${pageUrl}#service`,
+        name: serviceType,
+        description,
+        url: pageUrl,
+        provider: { '@id': `${SITE}/#organization` },
+        serviceType,
+      },
+    ],
+  }
 }
 
-function skuRoute({ path, file, title, description, locale }) {
+function skuRoute({ path, file, title, description, locale, serviceType }) {
   const enPath = path === '/es' ? '/' : path.replace(/^\/es/, '') || '/'
   const esPath = enPath === '/' ? '/es' : `/es${enPath}`
   return {
@@ -235,7 +256,7 @@ function skuRoute({ path, file, title, description, locale }) {
       { hreflang: 'es', href: `${SITE}${esPath}` },
       { hreflang: 'x-default', href: `${SITE}${enPath}` },
     ],
-    jsonLd: skuJsonLd(path, title, description),
+    jsonLd: skuJsonLd(path, title, description, serviceType),
   }
 }
 
@@ -247,6 +268,7 @@ const MARKETING_ROUTES = [
     description:
       'Outbound that stays yours. A cold B2B prospecting system installed in your team.',
     locale: 'en',
+    serviceType: 'GTM OS',
   }),
   skuRoute({
     path: '/store-os',
@@ -255,6 +277,7 @@ const MARKETING_ROUTES = [
     description:
       'Make the store convert before you buy ads. Replicable Shopify Admin audit + config.',
     locale: 'en',
+    serviceType: 'STORE OS',
   }),
   skuRoute({
     path: '/nexus-os',
@@ -263,6 +286,7 @@ const MARKETING_ROUTES = [
     description:
       'Agentic marketing — paper first, Ads only when signed. Strategy → Social → Ads.',
     locale: 'en',
+    serviceType: 'NEXUS OS',
   }),
   skuRoute({
     path: '/es',
@@ -279,6 +303,7 @@ const MARKETING_ROUTES = [
     description:
       'Outbound que se queda contigo. Un sistema de prospección B2B en frío instalado en tu equipo.',
     locale: 'es',
+    serviceType: 'GTM OS',
   }),
   skuRoute({
     path: '/es/store-os',
@@ -287,6 +312,7 @@ const MARKETING_ROUTES = [
     description:
       'Haz que la tienda convierta antes de comprar ads. Auditoría y config replicable del Admin de Shopify.',
     locale: 'es',
+    serviceType: 'STORE OS',
   }),
   skuRoute({
     path: '/es/nexus-os',
@@ -295,6 +321,7 @@ const MARKETING_ROUTES = [
     description:
       'Marketing agéntico — primero en papel, Ads solo con GO. Estrategia → Social → Ads.',
     locale: 'es',
+    serviceType: 'NEXUS OS',
   }),
 ]
 
@@ -419,11 +446,9 @@ function seoHead(route) {
     `<meta property="og:title" content="${esc(route.title)}" />`,
     `<meta property="og:description" content="${esc(route.description)}" />`,
     `<meta property="og:url" content="${url}" />`,
-    `<meta property="og:image" content="${OG}" />`,
-    `<meta name="twitter:card" content="summary" />`,
+    `<meta name="twitter:card" content="summary_large_image" />`,
     `<meta name="twitter:title" content="${esc(route.title)}" />`,
     `<meta name="twitter:description" content="${esc(route.description)}" />`,
-    `<meta name="twitter:image" content="${OG}" />`,
     `<script type="application/ld+json">${JSON.stringify(route.jsonLd)}</script>`,
   ].join('\n    ')
 }
