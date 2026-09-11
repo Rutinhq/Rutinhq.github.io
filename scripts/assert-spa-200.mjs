@@ -1,7 +1,7 @@
 import fs from 'node:fs'
 
 function rootInner(html) {
-  const match = html.match(/<div id="root">([\s\S]*?)<\/div>\s*<script/i)
+  const match = html.match(/<div id="root">([\s\S]*)<\/div>\s*<\/body>/i)
   return match ? match[1] : ''
 }
 
