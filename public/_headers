@@ -10,3 +10,13 @@
 
 /llms-full.txt
   Content-Type: text/plain; charset=utf-8
+
+# Soft P1 DRAFT — RFC 8288 Link Headers for agent discoverability (www only).
+# Do not add api-catalog until a real public API exists (parked Soft P1).
+# Prefer Capo CF Response Header Transform when available; this is fallback.
+/
+  Link: </sitemap.xml>; rel="sitemap", </llms.txt>; rel="describedby"; type="text/plain"
+  Content-Signal: search=yes, ai-train=no, use=reference
+
+/*
+  Link: </sitemap.xml>; rel="sitemap", </llms.txt>; rel="describedby"; type="text/plain"
