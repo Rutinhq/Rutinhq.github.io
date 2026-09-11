@@ -16,6 +16,7 @@ export default function NotFoundPage() {
         title={t('seo.notFoundTitle')}
         description={t('notFound.body')}
         path="/404"
+        noindex
       />
       <Section first>
         <h1
