@@ -412,7 +412,7 @@ function seoHead(route) {
     `<meta name="description" content="${esc(route.description)}" />`,
     `<link rel="canonical" href="${url}" />`,
     ...alternates,
-    `<meta name="robots" content="index, follow" />`,
+    `<meta name="robots" content="${route.noindex ? 'noindex, nofollow' : 'index, follow'}" />`,
     `<meta property="og:type" content="${route.ogType}" />`,
     `<meta property="og:site_name" content="RutinHQ" />`,
     `<meta property="og:locale" content="${ogLocale}" />`,
@@ -428,39 +428,118 @@ function seoHead(route) {
   ].join('\n    ')
 }
 
-const templatePath = path.join(dist, 'index.html')
-if (!fs.existsSync(templatePath)) {
-  console.error('dist/index.html missing — run vite build first.')
-  process.exit(1)
+const NOT_FOUND_ROUTE = {
+  path: '/404',
+  renderPath: '/this-path-should-404',
+  file: '404.html',
+  title: 'RutinHQ — 404',
+  description: 'That route does not exist.',
+  ogType: 'website',
+  locale: 'en',
+  noindex: true,
+  alternates: [],
+  jsonLd: {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: 'RutinHQ — 404',
+    description: 'That route does not exist.',
+  },
 }
 
-const template = fs.readFileSync(templatePath, 'utf8')
-
-if (!template.includes('application/ld+json')) {
-  const hubHead = `<script type="application/ld+json">${JSON.stringify(HUB_JSON_LD)}</script>`
-  if (!template.includes('</head>')) {
-    console.error('dist/index.html has no </head> — cannot inject hub JSON-LD.')
+function injectSsrBody(page, markup, label) {
+  if (!page.includes('<!--ssr-outlet-->')) {
+    console.error(`${label}: template missing <!--ssr-outlet--> — cannot inject SSR body.`)
     process.exit(1)
   }
-  const withLd = template.replace('</head>', `    ${hubHead}\n  </head>`)
-  fs.writeFileSync(templatePath, withLd)
-  console.log('prerender / → index.html (hub JSON-LD)')
+  if (!markup || !markup.trim()) {
+    console.error(`${label}: SSR render produced an empty body.`)
+    process.exit(1)
+  }
+  return page.replace('<!--ssr-outlet-->', markup).replace('<!--ssr-head-->', '')
 }
 
-const pageTemplate = fs.readFileSync(templatePath, 'utf8')
-
-for (const route of ROUTES) {
-  let page = stripHomepageSeo(pageTemplate)
-  if (!page.includes('</head>')) {
-    console.error('dist/index.html has no </head> — cannot inject blog SEO.')
+async function loadRender() {
+  const { createServer } = await import('vite')
+  const vite = await createServer({
+    root,
+    server: { middlewareMode: true },
+    appType: 'custom',
+    logLevel: 'error',
+  })
+  const mod = await vite.ssrLoadModule('/src/entry-server.tsx')
+  if (typeof mod.render !== 'function') {
+    await vite.close()
+    console.error('src/entry-server.tsx must export render().')
     process.exit(1)
   }
-  if (route.locale === 'es') {
-    page = page.replace('<html lang="en">', '<html lang="es">')
+  return {
+    render: (url, lang) => mod.render(url, lang),
+    close: () => vite.close(),
   }
-  page = page.replace('</head>', `    ${seoHead(route)}\n  </head>`)
-  const outPath = path.join(dist, route.file)
+}
+
+function writePage(relFile, page, label) {
+  const outPath = path.join(dist, relFile)
   fs.mkdirSync(path.dirname(outPath), { recursive: true })
   fs.writeFileSync(outPath, page)
-  console.log(`prerender ${route.path} → ${route.file}`)
+  console.log(`prerender ${label} → ${relFile}`)
 }
+
+async function main() {
+  const templatePath = path.join(dist, 'index.html')
+  if (!fs.existsSync(templatePath)) {
+    console.error('dist/index.html missing — run vite build first.')
+    process.exit(1)
+  }
+
+  const template = fs.readFileSync(templatePath, 'utf8')
+
+  if (!template.includes('application/ld+json')) {
+    const hubHead = `<script type="application/ld+json">${JSON.stringify(HUB_JSON_LD)}</script>`
+    if (!template.includes('</head>')) {
+      console.error('dist/index.html has no </head> — cannot inject hub JSON-LD.')
+      process.exit(1)
+    }
+    const withLd = template.replace('</head>', `    ${hubHead}\n  </head>`)
+    fs.writeFileSync(templatePath, withLd)
+    console.log('prerender / → index.html (hub JSON-LD)')
+  }
+
+  const pageTemplate = fs.readFileSync(templatePath, 'utf8')
+  const { render, close } = await loadRender()
+
+  try {
+    for (const route of ROUTES) {
+      let page = stripHomepageSeo(pageTemplate)
+      if (!page.includes('</head>')) {
+        console.error('dist/index.html has no </head> — cannot inject blog SEO.')
+        process.exit(1)
+      }
+      if (route.locale === 'es') {
+        page = page.replace('<html lang="en">', '<html lang="es">')
+      }
+      page = page.replace('</head>', `    ${seoHead(route)}\n  </head>`)
+      const { html } = await render(route.path, route.locale)
+      page = injectSsrBody(page, html, route.path)
+      writePage(route.file, page, route.path)
+    }
+
+    const hubPage = injectSsrBody(
+      fs.readFileSync(templatePath, 'utf8'),
+      (await render('/', 'en')).html,
+      '/',
+    )
+    fs.writeFileSync(templatePath, hubPage)
+    console.log('prerender / → index.html (SSR body)')
+
+    let notFound = stripHomepageSeo(pageTemplate)
+    notFound = notFound.replace('</head>', `    ${seoHead(NOT_FOUND_ROUTE)}\n  </head>`)
+    const notFoundSsr = await render(NOT_FOUND_ROUTE.renderPath, 'en')
+    notFound = injectSsrBody(notFound, notFoundSsr.html, NOT_FOUND_ROUTE.renderPath)
+    writePage(NOT_FOUND_ROUTE.file, notFound, NOT_FOUND_ROUTE.renderPath)
+  } finally {
+    await close()
+  }
+}
+
+await main()

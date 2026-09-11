@@ -1,4 +1,5 @@
 import { HelmetProvider, type HelmetServerState } from '@dr.pogodin/react-helmet'
+import { StrictMode } from 'react'
 import { renderToString } from 'react-dom/server'
 import { I18nextProvider } from 'react-i18next'
 import { MemoryRouter } from 'react-router-dom'
@@ -12,17 +13,19 @@ export async function render(url: string, lang?: string) {
 
   let helmetState: HelmetServerState | undefined
   const html = renderToString(
-    <HelmetProvider
-      onServerState={(state) => {
-        helmetState = state
-      }}
-    >
-      <I18nextProvider i18n={i18n}>
-        <MemoryRouter initialEntries={[url]}>
-          <App />
-        </MemoryRouter>
-      </I18nextProvider>
-    </HelmetProvider>,
+    <StrictMode>
+      <HelmetProvider
+        onServerState={(state) => {
+          helmetState = state
+        }}
+      >
+        <I18nextProvider i18n={i18n}>
+          <MemoryRouter initialEntries={[url]}>
+            <App />
+          </MemoryRouter>
+        </I18nextProvider>
+      </HelmetProvider>
+    </StrictMode>,
   )
 
   const head = [

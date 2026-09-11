@@ -5,9 +5,8 @@
 # 301 www onto itself (no hostname match). Apex → www is a zone
 # Single Redirect / Bulk Redirect (Capo / Dashboard). Steps in README.
 #
-# Crawl files ship from public/ into dist/. These lines stay above the
-# SPA fallback so /sitemap.xml, /robots.txt, and /llms*.txt are never
-# rewritten to HTML.
+# Crawl files ship from public/ into dist/. These identity 200s keep
+# /sitemap.xml, /robots.txt, and /llms*.txt from ever being treated as HTML.
 /sitemap.xml /sitemap.xml 200
 /robots.txt /robots.txt 200
 /llms.txt /llms.txt 200
@@ -44,4 +43,5 @@
 /es/blog/ /prerender/es-blog 200
 /es/blog/outbound-frio-con-icp-sin-sdr-rentado /prerender/es-blog-outbound-frio-con-icp-sin-sdr-rentado 200
 /es/blog/outbound-frio-con-icp-sin-sdr-rentado/ /prerender/es-blog-outbound-frio-con-icp-sin-sdr-rentado 200
-/*      /index.html  200
+# No SPA catch-all. Unknown paths must hit dist/404.html (HTTP 404).
+# Every sitemap / client route above already has an exact 200 rewrite.

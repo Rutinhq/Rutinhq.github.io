@@ -205,12 +205,11 @@ async function degradeGuidePreview(request: Request, kb: unknown): Promise<Respo
   )
 }
 
-// Do not emit dist/404.html. On Cloudflare Pages a present 404.html
-// serves missing paths (including valid SPA routes) with HTTP 404 even
-// when the body is the SPA shell.
-// Do not emit dist/<sku>/index.html either — that folder form makes
-// Pages/wrangler 308 /gtm-os away from the pretty URL. Deep links use
-// public/_redirects exact 200 rewrites + `/* /index.html 200`.
+// Ship dist/404.html so Cloudflare Pages returns HTTP 404 for unknown
+// paths. Safe because every valid pretty URL has an exact `_redirects`
+// 200 rewrite — do NOT add `/* /index.html 200` (that is the soft-404).
+// Do not emit dist/<sku>/index.html — that folder form makes
+// Pages/wrangler 308 /gtm-os away from the pretty URL.
 
 export default defineConfig({
   plugins: [react(), tailwindcss(), guideApiPlugin()],

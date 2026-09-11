@@ -1,8 +1,34 @@
 import fs from 'node:fs'
 
-if (fs.existsSync('dist/404.html')) {
+function rootInner(html) {
+  const match = html.match(/<div id="root">([\s\S]*?)<\/div>\s*<script/i)
+  return match ? match[1] : ''
+}
+
+function assertRealBody(file, needles) {
+  if (!fs.existsSync(file)) {
+    console.error(`${file} missing — crawlers would get an empty SPA shell.`)
+    process.exit(1)
+  }
+  const html = fs.readFileSync(file, 'utf8')
+  const inner = rootInner(html)
+  if (!inner.trim() || inner.includes('<!--ssr-outlet-->')) {
+    console.error(
+      `${file} #root must contain SSR marketing HTML, not <!--ssr-outlet-->.`,
+    )
+    process.exit(1)
+  }
+  for (const needle of needles) {
+    if (!inner.includes(needle)) {
+      console.error(`${file} #root must include existing copy: ${needle}`)
+      process.exit(1)
+    }
+  }
+}
+
+if (!fs.existsSync('dist/404.html')) {
   console.error(
-    'dist/404.html must not ship — Cloudflare Pages would serve SPA routes as HTTP 404.',
+    'dist/404.html must ship — Cloudflare Pages serves it with HTTP 404 for unknown paths.',
   )
   process.exit(1)
 }
@@ -71,14 +97,16 @@ for (const sku of ['gtm-os', 'store-os', 'nexus-os']) {
 
 if (!fs.existsSync('dist/_redirects')) {
   console.error(
-    'dist/_redirects missing — SPA fallback `/* /index.html 200` is required.',
+    'dist/_redirects missing — exact 200 rewrites for known routes are required.',
   )
   process.exit(1)
 }
 
 const redirects = fs.readFileSync('dist/_redirects', 'utf8')
-if (!/\/\*\s+\/index\.html\s+200/.test(redirects)) {
-  console.error('dist/_redirects must include `/* /index.html 200`.')
+if (/\/\*\s+\/index\.html\s+200/.test(redirects)) {
+  console.error(
+    'dist/_redirects must not include `/* /index.html 200` — that is the soft-404.',
+  )
   process.exit(1)
 }
 if (/\/blog\s+\/blog\.html\s+200/.test(redirects)) {
@@ -157,13 +185,13 @@ if (!/\/es\/blog\/\s+\/prerender\/es-blog\s+200/.test(redirects)) {
 }
 if (!/\/llms\.txt\s+\/llms\.txt\s+200/.test(redirects)) {
   console.error(
-    'dist/_redirects must 200-rewrite /llms.txt onto itself so SPA fallback cannot swallow it.',
+    'dist/_redirects must 200-rewrite /llms.txt onto itself so it cannot be served as HTML.',
   )
   process.exit(1)
 }
 if (!/\/llms-full\.txt\s+\/llms-full\.txt\s+200/.test(redirects)) {
   console.error(
-    'dist/_redirects must 200-rewrite /llms-full.txt onto itself so SPA fallback cannot swallow it.',
+    'dist/_redirects must 200-rewrite /llms-full.txt onto itself so it cannot be served as HTML.',
   )
   process.exit(1)
 }
@@ -726,6 +754,75 @@ if (
   process.exit(1)
 }
 
+const bodyRoutes = [
+  {
+    file: 'dist/index.html',
+    needles: ['Systems you own — not retainers that vanish.', 'GTM OS', 'STORE OS', 'NEXUS OS'],
+  },
+  {
+    file: 'dist/prerender/gtm-os.html',
+    needles: ['Outbound that stays yours.'],
+  },
+  {
+    file: 'dist/prerender/store-os.html',
+    needles: ['Make the store convert before you buy ads.'],
+  },
+  {
+    file: 'dist/prerender/nexus-os.html',
+    needles: ['Agentic marketing — paper first, Ads only when signed.'],
+  },
+  {
+    file: 'dist/prerender/es.html',
+    needles: ['Sistemas que posees — no retainers que desaparecen.'],
+  },
+  {
+    file: 'dist/prerender/es-gtm-os.html',
+    needles: ['Outbound que se queda contigo.'],
+  },
+  {
+    file: 'dist/prerender/es-store-os.html',
+    needles: ['Haz que la tienda convierta antes de comprar ads.'],
+  },
+  {
+    file: 'dist/prerender/es-nexus-os.html',
+    needles: ['Marketing agéntico — primero en papel, Ads solo con GO.'],
+  },
+  {
+    file: 'dist/prerender/blog.html',
+    needles: ['Systems you own — filtered for founders who install, not rent'],
+  },
+  {
+    file: 'dist/prerender/blog-icp-gated-cold-outbound-without-rented-sdr.html',
+    needles: ['ICP-gated cold outbound without a rented SDR'],
+  },
+  {
+    file: 'dist/prerender/es-blog.html',
+    needles: ['Sistemas que posees — filtrados para founders que instalan, no rentan'],
+  },
+  {
+    file: 'dist/prerender/es-blog-outbound-frio-con-icp-sin-sdr-rentado.html',
+    needles: ['Outbound frío con ICP — sin SDR rentado'],
+  },
+  {
+    file: 'dist/404.html',
+    needles: ['Page not found', 'That route does not exist.'],
+  },
+]
+
+for (const route of bodyRoutes) {
+  assertRealBody(route.file, route.needles)
+}
+
+const notFoundHtml = fs.readFileSync('dist/404.html', 'utf8')
+if (!/name="robots"\s+content="noindex, nofollow"/.test(notFoundHtml)) {
+  console.error('dist/404.html must robots noindex, nofollow.')
+  process.exit(1)
+}
+if (notFoundHtml.includes('<!--ssr-outlet-->')) {
+  console.error('dist/404.html must not keep the empty ssr-outlet.')
+  process.exit(1)
+}
+
 console.log(
-  'SPA 200 fallback: no 404.html; blog + SKU + ES hub/LP prerender shells unique; favicon.ico real; Calendly primary CTA.',
+  'SSR bodies in #root; 404.html ships (no SPA catch-all); blog + SKU + ES shells unique; favicon.ico real; Calendly primary CTA.',
 )
