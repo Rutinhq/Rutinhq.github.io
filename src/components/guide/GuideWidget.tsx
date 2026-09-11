@@ -328,3 +328,5 @@ export function GuideWidget() {
     </div>
   )
 }
+
+export default GuideWidget

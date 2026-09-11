@@ -218,6 +218,20 @@ export default defineConfig({
       '@': path.resolve(rootDir, './src'),
     },
   },
+  build: {
+    rolldownOptions: {
+      output: {
+        codeSplitting: {
+          groups: [
+            {
+              name: 'vendor',
+              test: /node_modules[\\/](react|react-dom|scheduler|react-router|react-router-dom|i18next|react-i18next|@dr\.pogodin[\\/]react-helmet)/,
+            },
+          ],
+        },
+      },
+    },
+  },
   server: {
     host: '0.0.0.0',
     port: 4321,
