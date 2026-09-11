@@ -1,6 +1,14 @@
 # Published /blog + Article01 are crawlable (sitemap + prerendered HTML).
 # Do not send X-Robots-Tag: noindex on those paths.
 
+# RFC 8288 Link (Agent Readiness Soft P1). Cloudflare Pages splat `/*`
+# matches every request URL, including SPA pretty routes rewritten to
+# index.html / prerender shells. Link is safe on static assets; do not
+# add Content-Type here. Content-Type rules below stay path-specific.
+# Do not enable CF Markdown Negotiation or Zero Trust bypass from this file.
+/*
+  Link: </sitemap.xml>; rel="sitemap", </llms.txt>; rel="describedby"; type="text/plain"
+
 /favicon.ico
   Content-Type: image/x-icon
 
