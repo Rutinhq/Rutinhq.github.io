@@ -202,6 +202,44 @@ const ROUTES = [
           inLanguage: 'es',
           url: `${SITE}/es/blog/outbound-frio-con-icp-sin-sdr-rentado`,
         },
+        {
+          '@type': 'FAQPage',
+          '@id': `${SITE}/es/blog/outbound-frio-con-icp-sin-sdr-rentado#faq`,
+          mainEntity: [
+            {
+              '@type': 'Question',
+              name: '¿Esto es contratar un SDR?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'No. Es un sistema de prospección instalado en tu equipo para que el outbound sobreviva cuando la agencia se va.',
+              },
+            },
+            {
+              '@type': 'Question',
+              name: '¿Se salta la validación de ICP para ir más rápido?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'No. Sin ICP correcto no hay volumen; sin señal del vertical previo no hay siguiente vertical.',
+              },
+            },
+            {
+              '@type': 'Question',
+              name: '¿Qué cambia por vertical?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Lenguaje, filtros y ángulo — no el núcleo de milestones.',
+              },
+            },
+            {
+              '@type': 'Question',
+              name: '¿Dónde está la ficha del sistema?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Mira la ficha GTM OS en catalog y la página /gtm-os.',
+              },
+            },
+          ],
+        },
       ],
     },
   },

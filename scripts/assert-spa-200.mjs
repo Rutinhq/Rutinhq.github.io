@@ -985,6 +985,10 @@ if (!articleHtml.includes('"@type":"FAQPage"')) {
   console.error(`${articleShell} must keep FAQPage for the real Article01 FAQ.`)
   process.exit(1)
 }
+if (!esArticleHtml.includes('"@type":"FAQPage"')) {
+  console.error(`${esArticleShell} must keep FAQPage for the real Article01 ES FAQ.`)
+  process.exit(1)
+}
 
 console.log(
   `code-split: ${assetJs.length} JS chunks; largest ${assetJs[0].name} ${assetJs[0].size} B`,
