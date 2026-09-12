@@ -1,5 +1,5 @@
 import { BlogPostLayout, BlogTable } from '@/components/blog'
-import { Seo, articleJsonLd, hreflangPair } from '@/components/Seo'
+import { OG_IMAGE, Seo, articleJsonLd, hreflangPair } from '@/components/Seo'
 import { ARTICLE01, ARTICLE01_ES, articleSeoTitle } from '@/lib/blog'
 import { DOCS_GTM_URL, MAILTO_GTM, WWW_GTM_URL } from '@/lib/links'
 
@@ -16,6 +16,7 @@ export default function BlogIcpGatedColdOutboundPage() {
         noindex={ARTICLE01.noindex}
         ogType="article"
         alternates={hreflangPair(ARTICLE01.path, ARTICLE01_ES.path)}
+        image={OG_IMAGE.blog}
         jsonLd={articleJsonLd({
           path: ARTICLE01.path,
           headline: ARTICLE01.title,

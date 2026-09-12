@@ -6,7 +6,14 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const root = path.resolve(__dirname, '..')
 const dist = path.join(root, 'dist')
 const SITE = 'https://www.rutinhq.com'
-// Capo D14 PNG 1200×630 pack is not in repo. Do not invent OG art or wire SVG.
+
+const OG_IMAGE = {
+  hub: `${SITE}/og/og-hub.png`,
+  gtm: `${SITE}/og/og-gtm.png`,
+  store: `${SITE}/og/og-store.png`,
+  nexus: `${SITE}/og/og-nexus.png`,
+  blog: `${SITE}/og/og-blog.png`,
+}
 
 // Do NOT emit dist/blog.html, dist/es/blog.html, dist/blog/index.html, or
 // dist/blog/<slug>/index.html. Pages html-handling 308s pretty URLs:
@@ -22,6 +29,7 @@ const ROUTES = [
       'Radar for founders who install GTM and ops systems — not rented seats.',
     ogType: 'website',
     locale: 'en',
+    image: OG_IMAGE.blog,
     alternates: [
       { hreflang: 'en', href: `${SITE}/blog` },
       { hreflang: 'es', href: `${SITE}/es/blog` },
@@ -64,6 +72,7 @@ const ROUTES = [
       'Keep the outbound core fixed—change only ICP, message, and filters—so pipeline stays with your team when the contract ends.',
     ogType: 'article',
     locale: 'en',
+    image: OG_IMAGE.blog,
     alternates: [
       {
         hreflang: 'en',
@@ -150,6 +159,7 @@ const ROUTES = [
       'Radar para founders que instalan sistemas de GTM y ops — no asientos rentados.',
     ogType: 'website',
     locale: 'es',
+    image: OG_IMAGE.blog,
     alternates: [
       { hreflang: 'en', href: `${SITE}/blog` },
       { hreflang: 'es', href: `${SITE}/es/blog` },
@@ -178,6 +188,7 @@ const ROUTES = [
       'Mantén fijo el núcleo del outbound; cambia solo ICP, mensaje y filtros — el pipeline se queda con tu equipo cuando termina el contrato.',
     ogType: 'article',
     locale: 'es',
+    image: OG_IMAGE.blog,
     alternates: [
       {
         hreflang: 'en',
@@ -279,7 +290,7 @@ function skuJsonLd(path, name, description, serviceType) {
   }
 }
 
-function skuRoute({ path, file, title, description, locale, serviceType }) {
+function skuRoute({ path, file, title, description, locale, serviceType, image }) {
   const enPath = path === '/es' ? '/' : path.replace(/^\/es/, '') || '/'
   const esPath = enPath === '/' ? '/es' : `/es${enPath}`
   return {
@@ -289,6 +300,7 @@ function skuRoute({ path, file, title, description, locale, serviceType }) {
     description,
     ogType: 'website',
     locale,
+    image,
     alternates: [
       { hreflang: 'en', href: `${SITE}${enPath}` },
       { hreflang: 'es', href: `${SITE}${esPath}` },
@@ -307,6 +319,7 @@ const MARKETING_ROUTES = [
       'Outbound that stays yours. A cold B2B prospecting system installed in your team.',
     locale: 'en',
     serviceType: 'GTM OS',
+    image: OG_IMAGE.gtm,
   }),
   skuRoute({
     path: '/store-os',
@@ -316,6 +329,7 @@ const MARKETING_ROUTES = [
       'Make the store convert before you buy ads. Replicable Shopify Admin audit + config.',
     locale: 'en',
     serviceType: 'STORE OS',
+    image: OG_IMAGE.store,
   }),
   skuRoute({
     path: '/nexus-os',
@@ -325,6 +339,7 @@ const MARKETING_ROUTES = [
       'Agentic marketing — paper first, Ads only when signed. Strategy → Social → Ads.',
     locale: 'en',
     serviceType: 'NEXUS OS',
+    image: OG_IMAGE.nexus,
   }),
   skuRoute({
     path: '/es',
@@ -333,6 +348,7 @@ const MARKETING_ROUTES = [
     description:
       'Tres sistemas operativos instalables. Elige el cuello de botella. Una página, un SKU.',
     locale: 'es',
+    image: OG_IMAGE.hub,
   }),
   skuRoute({
     path: '/es/gtm-os',
@@ -342,6 +358,7 @@ const MARKETING_ROUTES = [
       'Outbound que se queda contigo. Un sistema de prospección B2B en frío instalado en tu equipo.',
     locale: 'es',
     serviceType: 'GTM OS',
+    image: OG_IMAGE.gtm,
   }),
   skuRoute({
     path: '/es/store-os',
@@ -351,6 +368,7 @@ const MARKETING_ROUTES = [
       'Haz que la tienda convierta antes de comprar ads. Auditoría y config replicable del Admin de Shopify.',
     locale: 'es',
     serviceType: 'STORE OS',
+    image: OG_IMAGE.store,
   }),
   skuRoute({
     path: '/es/nexus-os',
@@ -360,6 +378,7 @@ const MARKETING_ROUTES = [
       'Marketing agéntico — primero en papel, Ads solo con GO. Estrategia → Social → Ads.',
     locale: 'es',
     serviceType: 'NEXUS OS',
+    image: OG_IMAGE.nexus,
   }),
 ]
 
@@ -484,6 +503,12 @@ function seoHead(route) {
     `<meta property="og:title" content="${esc(route.title)}" />`,
     `<meta property="og:description" content="${esc(route.description)}" />`,
     `<meta property="og:url" content="${url}" />`,
+    ...(route.image
+      ? [
+          `<meta property="og:image" content="${route.image}" />`,
+          `<meta name="twitter:image" content="${route.image}" />`,
+        ]
+      : []),
     `<meta name="twitter:card" content="summary_large_image" />`,
     `<meta name="twitter:title" content="${esc(route.title)}" />`,
     `<meta name="twitter:description" content="${esc(route.description)}" />`,

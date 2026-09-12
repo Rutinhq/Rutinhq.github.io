@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { Ctas } from '@/components/Ctas'
 import { BulletList, MonoTitle, Section } from '@/components/Section'
-import { Seo, skuJsonLd } from '@/components/Seo'
+import { OG_IMAGE, Seo, skuJsonLd } from '@/components/Seo'
 import { useObjectList } from '@/lib/i18n/lists'
 import { usePageLocale } from '@/lib/i18n/usePageLocale'
 import { DOCS_GTM_URL } from '@/lib/links'
@@ -26,6 +26,7 @@ export default function GtmOsPage() {
         path={path}
         locale={locale}
         alternates={alternatesFor('/gtm-os')}
+        image={OG_IMAGE.gtm}
         jsonLd={skuJsonLd(path, t('seo.gtmTitle'), t('seo.gtmDescription'), {
           serviceType: 'GTM OS',
         })}
