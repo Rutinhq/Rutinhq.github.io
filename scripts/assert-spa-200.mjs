@@ -314,6 +314,16 @@ if (fs.existsSync('dist/_headers')) {
     )
     process.exit(1)
   }
+  if (
+    !/\/\*[\s\S]*?Content-Signal:\s*search=yes,\s*ai-train=no,\s*use=reference/i.test(
+      headers,
+    )
+  ) {
+    console.error(
+      'dist/_headers must set Content-Signal search=yes, ai-train=no, use=reference on /*.',
+    )
+    process.exit(1)
+  }
 }
 
 const blogSource = 'src/lib/blog.ts'
