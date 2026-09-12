@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { Ctas } from '@/components/Ctas'
 import { BulletList, MonoTitle, Section } from '@/components/Section'
-import { Seo, skuJsonLd } from '@/components/Seo'
+import { OG_IMAGE, Seo, skuJsonLd } from '@/components/Seo'
 import { useObjectList } from '@/lib/i18n/lists'
 import { usePageLocale } from '@/lib/i18n/usePageLocale'
 import { DOCS_NEXUS_URL } from '@/lib/links'
@@ -24,6 +24,7 @@ export default function NexusOsPage() {
         path={path}
         locale={locale}
         alternates={alternatesFor('/nexus-os')}
+        image={OG_IMAGE.nexus}
         jsonLd={skuJsonLd(path, t('seo.nexusTitle'), t('seo.nexusDescription'), {
           serviceType: 'NEXUS OS',
         })}

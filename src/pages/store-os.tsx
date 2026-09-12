@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { Ctas } from '@/components/Ctas'
 import { BulletList, MonoTitle, Section } from '@/components/Section'
-import { Seo, skuJsonLd } from '@/components/Seo'
+import { OG_IMAGE, Seo, skuJsonLd } from '@/components/Seo'
 import { useObjectList } from '@/lib/i18n/lists'
 import { usePageLocale } from '@/lib/i18n/usePageLocale'
 import { DOCS_STORE_URL } from '@/lib/links'
@@ -24,6 +24,7 @@ export default function StoreOsPage() {
         path={path}
         locale={locale}
         alternates={alternatesFor('/store-os')}
+        image={OG_IMAGE.store}
         jsonLd={skuJsonLd(path, t('seo.storeTitle'), t('seo.storeDescription'), {
           serviceType: 'STORE OS',
         })}

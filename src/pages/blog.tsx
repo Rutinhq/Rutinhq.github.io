@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Ctas } from '@/components/Ctas'
 import { MonoTitle, Section } from '@/components/Section'
-import { Seo, blogIndexJsonLd, hreflangPair } from '@/components/Seo'
+import { OG_IMAGE, Seo, blogIndexJsonLd, hreflangPair } from '@/components/Seo'
 import { Button } from '@/components/ui/button'
 import {
   ARTICLE01,
@@ -28,6 +28,7 @@ export default function BlogPage() {
         locale="en"
         noindex={BLOG_INDEX.noindex}
         alternates={hreflangPair(BLOG_INDEX.path, BLOG_INDEX_ES.path)}
+        image={OG_IMAGE.blog}
         jsonLd={blogIndexJsonLd([{ path: ARTICLE01.path, name: ARTICLE01.title }])}
       />
 

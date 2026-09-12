@@ -3,6 +3,15 @@ import { Helmet } from '@dr.pogodin/react-helmet'
 export const SITE = 'https://www.rutinhq.com'
 const LOGO_SVG = `${SITE}/airo-assets/images/logo/horizontal.svg`
 
+/** Absolute PNG 1200×630 rasterized from `public/favicon.svg` onto `#0A0A0A`. */
+export const OG_IMAGE = {
+  hub: `${SITE}/og/og-hub.png`,
+  gtm: `${SITE}/og/og-gtm.png`,
+  store: `${SITE}/og/og-store.png`,
+  nexus: `${SITE}/og/og-nexus.png`,
+  blog: `${SITE}/og/og-blog.png`,
+} as const
+
 export type HreflangLink = { hreflang: string; href: string }
 
 type SeoProps = {
@@ -14,7 +23,7 @@ type SeoProps = {
   ogType?: 'website' | 'article'
   locale?: 'en' | 'es'
   alternates?: readonly HreflangLink[]
-  /** Absolute PNG 1200×630 only. Capo D14 pack is not in-repo — do not pass SVG. */
+  /** Absolute PNG 1200×630 from `OG_IMAGE`. Do not pass SVG. */
   image?: string
 }
 

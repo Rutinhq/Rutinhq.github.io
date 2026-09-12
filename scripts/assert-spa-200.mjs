@@ -939,11 +939,11 @@ for (const file of twitterShells) {
     process.exit(1)
   }
   if (html.includes(`property="og:image" content="https://www.rutinhq.com/${ogSvg}"`)) {
-    console.error(`${file} must not wire SVG as og:image (blocked on Capo D14 PNG).`)
+    console.error(`${file} must not wire SVG as og:image (PNG pack only).`)
     process.exit(1)
   }
   if (html.includes(`name="twitter:image" content="https://www.rutinhq.com/${ogSvg}"`)) {
-    console.error(`${file} must not wire SVG as twitter:image (blocked on Capo D14 PNG).`)
+    console.error(`${file} must not wire SVG as twitter:image (PNG pack only).`)
     process.exit(1)
   }
   if (
@@ -998,6 +998,82 @@ if (!articleHtml.includes('"@type":"FAQPage"')) {
 if (!esArticleHtml.includes('"@type":"FAQPage"')) {
   console.error(`${esArticleShell} must keep FAQPage for the real Article01 ES FAQ.`)
   process.exit(1)
+}
+
+const OG_PACK = [
+  'og-hub.png',
+  'og-gtm.png',
+  'og-store.png',
+  'og-nexus.png',
+  'og-blog.png',
+]
+for (const name of OG_PACK) {
+  const file = `dist/og/${name}`
+  if (!fs.existsSync(file)) {
+    console.error(`${file} missing — OG PNG pack must ship from public/og/.`)
+    process.exit(1)
+  }
+  const buf = fs.readFileSync(file)
+  if (buf[0] !== 0x89 || buf[1] !== 0x50 || buf[2] !== 0x4e || buf[3] !== 0x47) {
+    console.error(`${file} must be a PNG.`)
+    process.exit(1)
+  }
+  const width = buf.readUInt32BE(16)
+  const height = buf.readUInt32BE(20)
+  if (width !== 1200 || height !== 630) {
+    console.error(`${file} must be 1200×630 (got ${width}×${height}).`)
+    process.exit(1)
+  }
+}
+
+const ogShells = [
+  { file: 'dist/index.html', image: 'https://www.rutinhq.com/og/og-hub.png' },
+  { file: 'dist/prerender/es.html', image: 'https://www.rutinhq.com/og/og-hub.png' },
+  { file: 'dist/prerender/gtm-os.html', image: 'https://www.rutinhq.com/og/og-gtm.png' },
+  {
+    file: 'dist/prerender/es-gtm-os.html',
+    image: 'https://www.rutinhq.com/og/og-gtm.png',
+  },
+  {
+    file: 'dist/prerender/store-os.html',
+    image: 'https://www.rutinhq.com/og/og-store.png',
+  },
+  {
+    file: 'dist/prerender/es-store-os.html',
+    image: 'https://www.rutinhq.com/og/og-store.png',
+  },
+  {
+    file: 'dist/prerender/nexus-os.html',
+    image: 'https://www.rutinhq.com/og/og-nexus.png',
+  },
+  {
+    file: 'dist/prerender/es-nexus-os.html',
+    image: 'https://www.rutinhq.com/og/og-nexus.png',
+  },
+  { file: 'dist/prerender/blog.html', image: 'https://www.rutinhq.com/og/og-blog.png' },
+  {
+    file: 'dist/prerender/es-blog.html',
+    image: 'https://www.rutinhq.com/og/og-blog.png',
+  },
+  {
+    file: articleShell,
+    image: 'https://www.rutinhq.com/og/og-blog.png',
+  },
+  {
+    file: 'dist/prerender/es-blog-outbound-frio-con-icp-sin-sdr-rentado.html',
+    image: 'https://www.rutinhq.com/og/og-blog.png',
+  },
+]
+for (const shell of ogShells) {
+  const html = fs.readFileSync(shell.file, 'utf8')
+  if (!html.includes(`property="og:image" content="${shell.image}"`)) {
+    console.error(`${shell.file} must set og:image to ${shell.image}.`)
+    process.exit(1)
+  }
+  if (!html.includes(`name="twitter:image" content="${shell.image}"`)) {
+    console.error(`${shell.file} must set twitter:image to ${shell.image}.`)
+    process.exit(1)
+  }
 }
 
 console.log(

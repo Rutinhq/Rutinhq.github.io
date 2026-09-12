@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { Ctas } from '@/components/Ctas'
 import { Section } from '@/components/Section'
-import { hubJsonLd, Seo } from '@/components/Seo'
+import { hubJsonLd, OG_IMAGE, Seo } from '@/components/Seo'
 import { buttonVariants } from '@/components/ui/button'
 import { usePageLocale } from '@/lib/i18n/usePageLocale'
 import { DOCS_CATALOG_URL } from '@/lib/links'
@@ -26,6 +26,7 @@ export default function HubPage() {
         path={localized('/')}
         locale={locale}
         alternates={alternatesFor('/')}
+        image={OG_IMAGE.hub}
         jsonLd={hubJsonLd(localized('/'), t('seo.hubTitle'))}
       />
 
