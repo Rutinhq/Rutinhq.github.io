@@ -6,10 +6,16 @@
 # matches every request URL, including SPA pretty routes rewritten to
 # index.html / prerender shells. Link is safe on static assets; do not
 # add Content-Type here. Content-Type rules below stay path-specific.
-# Do not enable CF Markdown Negotiation or Zero Trust bypass from this file.
+# Content-Signal complements robots.txt (LIVE). Capo lock is ai-train=no;
+# an origin HTTP header stops CF Markdown converter from injecting
+# ai-train=yes. Pages applies every indented name:value under the same
+# path block as separate headers (not a comma-join unless the same name
+# is repeated). Do not enable CF Markdown Negotiation or Zero Trust
+# bypass from this file.
 /*
   Cache-Control: public, max-age=0, must-revalidate
   Link: </sitemap.xml>; rel="sitemap", </llms.txt>; rel="describedby"; type="text/plain"
+  Content-Signal: search=yes, ai-train=no, use=reference
 
 # Vite hashed bundles (/assets/*.js).
 /assets/*
