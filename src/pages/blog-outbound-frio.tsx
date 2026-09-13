@@ -15,6 +15,8 @@ export default function BlogOutboundFrioPage() {
         locale="es"
         noindex={ARTICLE01_ES.noindex}
         ogType="article"
+        datePublished={ARTICLE01_ES.datePublished}
+        dateModified={ARTICLE01_ES.dateModified}
         alternates={hreflangPair(ARTICLE01.path, ARTICLE01_ES.path)}
         image={OG_IMAGE.blog}
         jsonLd={articleJsonLd({

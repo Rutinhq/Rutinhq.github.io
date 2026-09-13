@@ -1,5 +1,7 @@
 User-agent: *
 Allow: /
+Disallow: /prerender/
+Disallow: /guide-kb.json
 Content-Signal: search=yes,ai-train=no,use=reference
 
 User-agent: GPTBot

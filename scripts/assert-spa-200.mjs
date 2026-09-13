@@ -226,6 +226,16 @@ if (!sitemapBody.includes('<urlset') || !sitemapBody.includes('https://www.rutin
   console.error(`${sitemap} must be a urlset with www.rutinhq.com loc entries.`)
   process.exit(1)
 }
+if (!sitemapBody.includes('xmlns:xhtml="http://www.w3.org/1999/xhtml"')) {
+  console.error(`${sitemap} must declare the xhtml namespace for hreflang links.`)
+  process.exit(1)
+}
+if ((sitemapBody.match(/xhtml:link rel="alternate"/g) || []).length < 36) {
+  console.error(
+    `${sitemap} must emit xhtml:link hreflang (en + es + x-default) on every URL.`,
+  )
+  process.exit(1)
+}
 
 const locs = [...sitemapBody.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1])
 const expectedLocs = [
@@ -270,6 +280,10 @@ if (!sitemapBody.includes('<lastmod>2026-09-08</lastmod>')) {
   console.error(`${sitemap} must keep Article01 lastmod from dateModified.`)
   process.exit(1)
 }
+if (!sitemapBody.includes('<lastmod>2026-09-13</lastmod>')) {
+  console.error(`${sitemap} must lastmod hub/OS after the FAQPage residual.`)
+  process.exit(1)
+}
 
 const crawlHtml = [
   'dist/index.html',
@@ -302,10 +316,40 @@ if (fs.existsSync('dist/_headers')) {
     console.error('dist/_headers must set text/plain on /llms-full.txt.')
     process.exit(1)
   }
-  if (/X-Robots-Tag:\s*noindex/i.test(active)) {
+  const splat = active.match(/^\/\*[\s\S]*?(?=\n\/[^*\n]|\n#[^\n]*\n\/|$)/)
+  const splatBlock = splat ? splat[0] : active
+  if (/X-Robots-Tag:\s*noindex/i.test(splatBlock)) {
     console.error(
-      'dist/_headers must not noindex published /blog or Article01.',
+      'dist/_headers /* must not noindex published hub, OS, /blog, or Article01.',
     )
+    process.exit(1)
+  }
+  if (
+    !/\/prerender\/\*[\s\S]*?X-Robots-Tag:\s*noindex,\s*nofollow/i.test(headers)
+  ) {
+    console.error(
+      'dist/_headers must noindex /prerender/* (internal crawl shells only).',
+    )
+    process.exit(1)
+  }
+  if (
+    !/\/guide-kb\.json[\s\S]*?X-Robots-Tag:\s*noindex,\s*nofollow/i.test(headers)
+  ) {
+    console.error('dist/_headers must noindex /guide-kb.json.')
+    process.exit(1)
+  }
+  if (!/X-Content-Type-Options:\s*nosniff/i.test(headers)) {
+    console.error('dist/_headers must set X-Content-Type-Options: nosniff.')
+    process.exit(1)
+  }
+  if (!/Referrer-Policy:\s*strict-origin-when-cross-origin/i.test(headers)) {
+    console.error(
+      'dist/_headers must set Referrer-Policy: strict-origin-when-cross-origin.',
+    )
+    process.exit(1)
+  }
+  if (/Strict-Transport-Security/i.test(active)) {
+    console.error('dist/_headers must not enable HSTS (still park).')
     process.exit(1)
   }
   if (!/\/\*[\s\S]*?Cache-Control:\s*public,\s*max-age=0/i.test(headers)) {
@@ -601,6 +645,7 @@ const mustDiffer = [
   'gtm.faq.title',
   'store.faq.title',
   'nexus.faq.title',
+  'common.skipToContent',
 ]
 for (const key of mustDiffer) {
   if (lookup(enJson, key) === lookup(esJson, key)) {
@@ -648,6 +693,14 @@ if (/<!doctype html|<html[\s>]/i.test(robotsBody)) {
 }
 if (!robotsBody.includes('Sitemap: https://www.rutinhq.com/sitemap.xml')) {
   console.error(`${robots} must include the www sitemap line.`)
+  process.exit(1)
+}
+if (!robotsBody.includes('Disallow: /prerender/')) {
+  console.error(`${robots} must Disallow /prerender/ (internal crawl shells).`)
+  process.exit(1)
+}
+if (!robotsBody.includes('Disallow: /guide-kb.json')) {
+  console.error(`${robots} must Disallow /guide-kb.json.`)
   process.exit(1)
 }
 
@@ -783,6 +836,23 @@ if (!homepage.includes('rel="canonical" href="https://www.rutinhq.com/"')) {
 }
 if (!homepage.includes('"@type":"Organization"') || !homepage.includes('strategy@rutinhq.com')) {
   console.error('dist/index.html must emit Organization JSON-LD with strategy@rutinhq.com.')
+  process.exit(1)
+}
+if (
+  !homepage.includes('"@type":"ImageObject"') ||
+  !homepage.includes(`${'https://www.rutinhq.com'}/apple-touch-icon.png`)
+) {
+  console.error(
+    'dist/index.html Organization.logo must be the HQ PNG ImageObject, not SVG.',
+  )
+  process.exit(1)
+}
+if (/"logo":"https:\/\/www\.rutinhq\.com\/airo-assets/.test(homepage)) {
+  console.error('dist/index.html Organization.logo must not be the wordmark SVG.')
+  process.exit(1)
+}
+if (!homepage.includes('"@type":"ContactPoint"')) {
+  console.error('dist/index.html Organization must emit ContactPoint.')
   process.exit(1)
 }
 if (!homepage.includes('GTM OS') || !homepage.includes('STORE OS') || !homepage.includes('NEXUS OS')) {
@@ -1051,6 +1121,16 @@ for (const needle of [
 
 const layoutSource = fs.readFileSync('src/layouts/RootLayout.tsx', 'utf8')
 if (
+  !layoutSource.includes('href="#main-content"') ||
+  !layoutSource.includes('id="main-content"') ||
+  !layoutSource.includes("t('common.skipToContent')")
+) {
+  console.error(
+    'RootLayout must keep a skip-to-content link targeting #main-content.',
+  )
+  process.exit(1)
+}
+if (
   !layoutSource.includes('<Suspense') ||
   !layoutSource.includes('<Outlet />')
 ) {
@@ -1217,6 +1297,32 @@ if (!esArticleHtml.includes('"@type":"FAQPage"')) {
   console.error(`${esArticleShell} must keep FAQPage for the real Article01 ES FAQ.`)
   process.exit(1)
 }
+if (!articleHtml.includes('"@type":"BreadcrumbList"')) {
+  console.error(`${articleShell} must emit BreadcrumbList matching the visible crumbs.`)
+  process.exit(1)
+}
+if (!esArticleHtml.includes('"@type":"BreadcrumbList"')) {
+  console.error(`${esArticleShell} must emit BreadcrumbList matching the visible crumbs.`)
+  process.exit(1)
+}
+if (!esArticleHtml.includes('"datePublished":"2026-09-08"')) {
+  console.error(`${esArticleShell} BlogPosting must include datePublished.`)
+  process.exit(1)
+}
+if (!esArticleHtml.includes('"@type":"Organization"')) {
+  console.error(`${esArticleShell} must emit the Organization publisher node.`)
+  process.exit(1)
+}
+if (!articleHtml.includes('property="article:published_time" content="2026-09-08"')) {
+  console.error(`${articleShell} must emit article:published_time.`)
+  process.exit(1)
+}
+if (
+  !esArticleHtml.includes('property="article:published_time" content="2026-09-08"')
+) {
+  console.error(`${esArticleShell} must emit article:published_time.`)
+  process.exit(1)
+}
 
 const OG_PACK = [
   'og-hub.png',
@@ -1290,6 +1396,18 @@ for (const shell of ogShells) {
   }
   if (!html.includes(`name="twitter:image" content="${shell.image}"`)) {
     console.error(`${shell.file} must set twitter:image to ${shell.image}.`)
+    process.exit(1)
+  }
+  if (!html.includes('property="og:image:width" content="1200"')) {
+    console.error(`${shell.file} must set og:image:width=1200.`)
+    process.exit(1)
+  }
+  if (!html.includes('property="og:image:height" content="630"')) {
+    console.error(`${shell.file} must set og:image:height=630.`)
+    process.exit(1)
+  }
+  if (!html.includes('property="og:image:type" content="image/png"')) {
+    console.error(`${shell.file} must set og:image:type=image/png.`)
     process.exit(1)
   }
 }

@@ -12,7 +12,7 @@ function RouteFallback() {
 }
 
 export function RootLayout() {
-  const { i18n } = useTranslation()
+  const { i18n, t } = useTranslation()
   const { pathname } = useLocation()
   const lang = languageFromPathname(pathname)
 
@@ -28,8 +28,14 @@ export function RootLayout() {
         <html lang={lang} />
         <meta name="theme-color" content="#0A0A0A" />
       </Helmet>
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:bg-background focus:px-3 focus:py-2 focus:font-mono focus:text-sm focus:text-foreground"
+      >
+        {t('common.skipToContent')}
+      </a>
       <Header />
-      <main className="flex-1">
+      <main id="main-content" className="flex-1" tabIndex={-1}>
         <Suspense fallback={<RouteFallback />}>
           <Outlet />
         </Suspense>

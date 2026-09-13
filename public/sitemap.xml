@@ -1,51 +1,88 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://www.rutinhq.com/</loc>
-    <lastmod>2026-09-11</lastmod>
+    <lastmod>2026-09-13</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.rutinhq.com/" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.rutinhq.com/es" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.rutinhq.com/" />
   </url>
   <url>
     <loc>https://www.rutinhq.com/gtm-os</loc>
-    <lastmod>2026-09-11</lastmod>
+    <lastmod>2026-09-13</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.rutinhq.com/gtm-os" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.rutinhq.com/es/gtm-os" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.rutinhq.com/gtm-os" />
   </url>
   <url>
     <loc>https://www.rutinhq.com/store-os</loc>
-    <lastmod>2026-09-11</lastmod>
+    <lastmod>2026-09-13</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.rutinhq.com/store-os" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.rutinhq.com/es/store-os" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.rutinhq.com/store-os" />
   </url>
   <url>
     <loc>https://www.rutinhq.com/nexus-os</loc>
-    <lastmod>2026-09-11</lastmod>
+    <lastmod>2026-09-13</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.rutinhq.com/nexus-os" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.rutinhq.com/es/nexus-os" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.rutinhq.com/nexus-os" />
   </url>
   <url>
     <loc>https://www.rutinhq.com/es</loc>
-    <lastmod>2026-09-11</lastmod>
+    <lastmod>2026-09-13</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.rutinhq.com/" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.rutinhq.com/es" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.rutinhq.com/" />
   </url>
   <url>
     <loc>https://www.rutinhq.com/es/gtm-os</loc>
-    <lastmod>2026-09-11</lastmod>
+    <lastmod>2026-09-13</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.rutinhq.com/gtm-os" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.rutinhq.com/es/gtm-os" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.rutinhq.com/gtm-os" />
   </url>
   <url>
     <loc>https://www.rutinhq.com/es/store-os</loc>
-    <lastmod>2026-09-11</lastmod>
+    <lastmod>2026-09-13</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.rutinhq.com/store-os" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.rutinhq.com/es/store-os" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.rutinhq.com/store-os" />
   </url>
   <url>
     <loc>https://www.rutinhq.com/es/nexus-os</loc>
-    <lastmod>2026-09-11</lastmod>
+    <lastmod>2026-09-13</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.rutinhq.com/nexus-os" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.rutinhq.com/es/nexus-os" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.rutinhq.com/nexus-os" />
   </url>
   <url>
     <loc>https://www.rutinhq.com/blog</loc>
     <lastmod>2026-09-08</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.rutinhq.com/blog" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.rutinhq.com/es/blog" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.rutinhq.com/blog" />
   </url>
   <url>
     <loc>https://www.rutinhq.com/blog/icp-gated-cold-outbound-without-rented-sdr</loc>
     <lastmod>2026-09-08</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.rutinhq.com/blog/icp-gated-cold-outbound-without-rented-sdr" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.rutinhq.com/es/blog/outbound-frio-con-icp-sin-sdr-rentado" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.rutinhq.com/blog/icp-gated-cold-outbound-without-rented-sdr" />
   </url>
   <url>
     <loc>https://www.rutinhq.com/es/blog</loc>
     <lastmod>2026-09-08</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.rutinhq.com/blog" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.rutinhq.com/es/blog" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.rutinhq.com/blog" />
   </url>
   <url>
     <loc>https://www.rutinhq.com/es/blog/outbound-frio-con-icp-sin-sdr-rentado</loc>
     <lastmod>2026-09-08</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.rutinhq.com/blog/icp-gated-cold-outbound-without-rented-sdr" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.rutinhq.com/es/blog/outbound-frio-con-icp-sin-sdr-rentado" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.rutinhq.com/blog/icp-gated-cold-outbound-without-rented-sdr" />
   </url>
 </urlset>

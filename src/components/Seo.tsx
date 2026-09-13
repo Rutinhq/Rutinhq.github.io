@@ -1,7 +1,6 @@
 import { Helmet } from '@dr.pogodin/react-helmet'
 
 export const SITE = 'https://www.rutinhq.com'
-const LOGO_SVG = `${SITE}/airo-assets/images/logo/horizontal.svg`
 /** HQ brand mark (green square + arrow). PNG/ICO before SVG for Google SERP. */
 const FAVICON_PNG_48 = `${SITE}/favicon-48x48.png`
 const FAVICON_PNG_192 = `${SITE}/favicon-192x192.png`
@@ -9,6 +8,10 @@ const FAVICON_ICO = `${SITE}/favicon.ico`
 const FAVICON_SVG = `${SITE}/favicon.svg`
 const APPLE_TOUCH_ICON = `${SITE}/apple-touch-icon.png`
 const WEB_MANIFEST = `${SITE}/site.webmanifest`
+/** Existing HQ mark raster (180×180). Google Organization.logo wants a square PNG, not SVG. */
+export const LOGO_PNG = APPLE_TOUCH_ICON
+const LOGO_WIDTH = 180
+const LOGO_HEIGHT = 180
 
 /** Absolute PNG 1200×630 rasterized from `public/favicon.svg` onto `#0A0A0A`. */
 export const OG_IMAGE = {
@@ -18,6 +21,33 @@ export const OG_IMAGE = {
   nexus: `${SITE}/og/og-nexus.png`,
   blog: `${SITE}/og/og-blog.png`,
 } as const
+
+export function organizationNode() {
+  return {
+    '@type': 'Organization',
+    '@id': `${SITE}/#organization`,
+    name: 'RutinHQ',
+    alternateName: 'Rutin HQ',
+    url: `${SITE}/`,
+    email: 'strategy@rutinhq.com',
+    logo: {
+      '@type': 'ImageObject',
+      url: LOGO_PNG,
+      width: LOGO_WIDTH,
+      height: LOGO_HEIGHT,
+    },
+    image: LOGO_PNG,
+    description:
+      'RutinHQ is a B2B systems studio. We install GTM OS, STORE OS, and NEXUS OS — operating systems teams own, not retainers that vanish.',
+    knowsAbout: ['GTM OS', 'STORE OS', 'NEXUS OS', 'B2B outbound'],
+    contactPoint: {
+      '@type': 'ContactPoint',
+      email: 'strategy@rutinhq.com',
+      contactType: 'sales',
+      availableLanguage: ['English', 'Spanish'],
+    },
+  }
+}
 
 export type HreflangLink = { hreflang: string; href: string }
 
@@ -32,6 +62,8 @@ type SeoProps = {
   alternates?: readonly HreflangLink[]
   /** Absolute PNG 1200×630 from `OG_IMAGE`. Do not pass SVG. */
   image?: string
+  datePublished?: string
+  dateModified?: string
 }
 
 export function hreflangPair(enPath: string, esPath: string): HreflangLink[] {
@@ -52,9 +84,13 @@ export function Seo({
   locale = 'en',
   alternates,
   image,
+  datePublished,
+  dateModified,
 }: SeoProps) {
   const url = `${SITE}${path}`
   const ogLocale = locale === 'es' ? 'es_MX' : 'en_US'
+  const ogLocaleAlternate = locale === 'es' ? 'en_US' : 'es_MX'
+  const modified = dateModified ?? datePublished
   return (
     <Helmet>
       <html lang={locale} />
@@ -75,18 +111,35 @@ export function Seo({
           href={alt.href}
         />
       ))}
-      {noindex ? <meta name="robots" content="noindex, nofollow" /> : null}
+      <meta
+        name="robots"
+        content={noindex ? 'noindex, nofollow' : 'index, follow'}
+      />
       <meta property="og:type" content={ogType} />
       <meta property="og:site_name" content="RutinHQ" />
       <meta property="og:locale" content={ogLocale} />
+      {alternates?.length ? (
+        <meta property="og:locale:alternate" content={ogLocaleAlternate} />
+      ) : null}
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
       <meta property="og:url" content={url} />
       {image ? <meta property="og:image" content={image} /> : null}
+      {image ? <meta property="og:image:width" content="1200" /> : null}
+      {image ? <meta property="og:image:height" content="630" /> : null}
+      {image ? <meta property="og:image:type" content="image/png" /> : null}
+      {image ? <meta property="og:image:alt" content={title} /> : null}
+      {ogType === 'article' && datePublished ? (
+        <meta property="article:published_time" content={datePublished} />
+      ) : null}
+      {ogType === 'article' && modified ? (
+        <meta property="article:modified_time" content={modified} />
+      ) : null}
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
       {image ? <meta name="twitter:image" content={image} /> : null}
+      {image ? <meta name="twitter:image:alt" content={title} /> : null}
       {jsonLd ? (
         <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
       ) : null}
@@ -136,19 +189,7 @@ export function hubJsonLd(
       inLanguage: ['en', 'es'],
       publisher: { '@id': `${SITE}/#organization` },
     },
-    {
-      '@type': 'Organization',
-      '@id': `${SITE}/#organization`,
-      name: 'RutinHQ',
-      alternateName: 'Rutin HQ',
-      url: `${SITE}/`,
-      email: 'strategy@rutinhq.com',
-      logo: LOGO_SVG,
-      image: APPLE_TOUCH_ICON,
-      description:
-        'RutinHQ is a B2B systems studio. We install GTM OS, STORE OS, and NEXUS OS — operating systems teams own, not retainers that vanish.',
-      knowsAbout: ['GTM OS', 'STORE OS', 'NEXUS OS', 'B2B outbound'],
-    },
+    organizationNode(),
     {
       '@type': 'WebPage',
       '@id': `${pageUrl}#webpage`,
@@ -255,13 +296,7 @@ export function articleJsonLd({
   const url = `${SITE}${path}`
   const blogPath = inLanguage === 'es' ? '/es/blog' : '/blog'
   const graph: Record<string, unknown>[] = [
-    {
-      '@type': 'Organization',
-      '@id': `${SITE}/#organization`,
-      name: 'RutinHQ',
-      url: `${SITE}/`,
-      email: 'strategy@rutinhq.com',
-    },
+    organizationNode(),
     {
       '@type': 'BlogPosting',
       '@id': `${url}#article`,
