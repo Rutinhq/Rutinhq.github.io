@@ -40,7 +40,7 @@ Headline: Agentic marketing — paper first, Ads only when signed.
 Subhead: Strategy → Social → Ads. Until creatives, mix, and budget have an explicit GO: paper only (no pixel, no spend).
 Catalog: https://docs.rutinhq.com/catalog/nexus-os/
 
-## Public www URLs (current sitemap)
+## Public www URLs (current sitemap — indexable hub + SKUs only)
 
 - https://www.rutinhq.com/
 - https://www.rutinhq.com/gtm-os
@@ -50,10 +50,6 @@ Catalog: https://docs.rutinhq.com/catalog/nexus-os/
 - https://www.rutinhq.com/es/gtm-os
 - https://www.rutinhq.com/es/store-os
 - https://www.rutinhq.com/es/nexus-os
-- https://www.rutinhq.com/blog
-- https://www.rutinhq.com/blog/icp-gated-cold-outbound-without-rented-sdr
-- https://www.rutinhq.com/es/blog
-- https://www.rutinhq.com/es/blog/outbound-frio-con-icp-sin-sdr-rentado
 
 ## Docs catalog URLs
 
@@ -65,7 +61,7 @@ Public curriculum — what each system does, who it is for, how it works, outcom
 - https://docs.rutinhq.com/catalog/nexus-os/
 - https://docs.rutinhq.com/catalog/grok-bot-os/ (bot-department curriculum; not sold as a fourth card on www.rutinhq.com)
 
-## Blog (EN + ES, from sitemap)
+## Blog (EN + ES, draft / noindex — omitted from sitemap)
 
 Index EN: https://www.rutinhq.com/blog
 Title: Blog — systems you own
@@ -74,6 +70,10 @@ Description: Radar for founders who install GTM and ops systems — not rented s
 Article EN: https://www.rutinhq.com/blog/icp-gated-cold-outbound-without-rented-sdr
 Title: ICP-gated cold outbound without a rented SDR
 Description: Keep the outbound core fixed—change only ICP, message, and filters—so pipeline stays with your team when the contract ends.
+
+Article EN (DRAFT outline): https://www.rutinhq.com/blog/shopify-admin-audit-before-ads
+Title: Shopify Admin audit before you buy ads
+Description: Replicable Shopify Admin audit + config — variants, price, weight, shipping — so ops friction stops killing conversion.
 
 Index ES: https://www.rutinhq.com/es/blog
 Title: Blog — sistemas que posees

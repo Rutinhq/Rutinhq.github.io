@@ -2,6 +2,10 @@ export const ARTICLE01_PATH =
   '/blog/icp-gated-cold-outbound-without-rented-sdr' as const
 export const ARTICLE01_ES_PATH =
   '/es/blog/outbound-frio-con-icp-sin-sdr-rentado' as const
+export const ARTICLE02_PATH = '/blog/shopify-admin-audit-before-ads' as const
+
+/** Sprint 2 hold: blog stays draft until Capo publish GO. */
+export const BLOG_ROBOTS = 'noindex, follow' as const
 
 export const BLOG_INDEX = {
   title: 'Blog — systems you own',
@@ -9,8 +13,8 @@ export const BLOG_INDEX = {
     'Radar for founders who install GTM and ops systems — not rented seats.',
   path: '/blog',
   alternatePath: '/es/blog',
-  draft: false,
-  noindex: false,
+  draft: true,
+  noindex: true,
 } as const
 
 export const BLOG_INDEX_ES = {
@@ -19,8 +23,8 @@ export const BLOG_INDEX_ES = {
     'Radar para founders que instalan sistemas de GTM y ops — no asientos rentados.',
   path: '/es/blog',
   alternatePath: '/blog',
-  draft: false,
-  noindex: false,
+  draft: true,
+  noindex: true,
 } as const
 
 export function articleSeoTitle(title: string) {
@@ -38,8 +42,8 @@ export const ARTICLE01 = {
   sku: 'gtm-os',
   job: 'Gate cold outbound by ICP before volume.',
   cta: 'strategy@',
-  draft: false,
-  noindex: false,
+  draft: true,
+  noindex: true,
   inLanguage: 'en',
   author: 'RutinHQ',
   datePublished: '2026-09-08',
@@ -75,8 +79,8 @@ export const ARTICLE01_ES = {
   sku: 'gtm-os',
   job: 'Cierra el outbound frío con ICP antes del volumen.',
   cta: 'strategy@',
-  draft: false,
-  noindex: false,
+  draft: true,
+  noindex: true,
   inLanguage: 'es',
   author: 'RutinHQ',
   datePublished: '2026-09-08',
@@ -100,6 +104,55 @@ export const ARTICLE01_ES = {
     },
   ],
 } as const
+
+export const ARTICLE02 = {
+  title: 'Shopify Admin audit before you buy ads',
+  description:
+    'Replicable Shopify Admin audit + config — variants, price, weight, shipping — so ops friction stops killing conversion.',
+  slug: 'shopify-admin-audit-before-ads',
+  path: ARTICLE02_PATH,
+  type: 'how-to',
+  sku: 'store-os',
+  job: 'Audit Admin friction before ad spend.',
+  cta: 'strategy@',
+  draft: true,
+  noindex: true,
+  inLanguage: 'en',
+  author: 'RutinHQ',
+  datePublished: '2026-09-13',
+  dateModified: '2026-09-13',
+  outline: [
+    {
+      heading: 'Why Admin before ads',
+      note: 'DRAFT — catalog language only. Store converts before ad spend.',
+    },
+    {
+      heading: 'Scorecard / Admin friction diagnosis',
+      note: 'DRAFT — name ops friction; no invented scores or case studies.',
+    },
+    {
+      heading: 'Audit: variants, price, weight, shipping',
+      note: 'DRAFT — replicable Shopify Admin audit from the STORE OS sheet.',
+    },
+    {
+      heading: 'Admin config to the mold',
+      note: 'DRAFT — config only; no theme / Dawn file edits.',
+    },
+    {
+      heading: 'Delivery checklist + handoff',
+      note: 'DRAFT — team owns the Admin after install.',
+    },
+    {
+      heading: 'Out of scope',
+      note: 'DRAFT — Ads / creatives = NEXUS OS. Theme-only work is not STORE OS.',
+    },
+  ],
+} as const
+
+export const BLOG_FEATURED = [
+  { path: ARTICLE01.path, name: ARTICLE01.title },
+  { path: ARTICLE02.path, name: ARTICLE02.title },
+] as const
 
 export const BLOG_FILTER_SIGNALS = [
   { name: 'ICP fit', thesis: 'Vertical / buyer role' },

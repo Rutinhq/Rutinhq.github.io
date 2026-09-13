@@ -25,6 +25,8 @@
 /blog/ /prerender/blog 200
 /blog/icp-gated-cold-outbound-without-rented-sdr /prerender/blog-icp-gated-cold-outbound-without-rented-sdr 200
 /blog/icp-gated-cold-outbound-without-rented-sdr/ /prerender/blog-icp-gated-cold-outbound-without-rented-sdr 200
+/blog/shopify-admin-audit-before-ads /prerender/blog-shopify-admin-audit-before-ads 200
+/blog/shopify-admin-audit-before-ads/ /prerender/blog-shopify-admin-audit-before-ads 200
 /gtm-os /prerender/gtm-os 200
 /gtm-os/ /prerender/gtm-os 200
 /store-os /prerender/store-os 200

@@ -56,6 +56,12 @@ if (fs.existsSync('dist/blog/icp-gated-cold-outbound-without-rented-sdr/index.ht
   )
   process.exit(1)
 }
+if (fs.existsSync('dist/blog/shopify-admin-audit-before-ads/index.html')) {
+  console.error(
+    'dist/blog/<slug>/index.html must not ship — pretty /blog/<slug> would 308.',
+  )
+  process.exit(1)
+}
 if (fs.existsSync('dist/es/blog/index.html')) {
   console.error(
     'dist/es/blog/index.html must not ship — pretty /es/blog would 308.',
@@ -171,6 +177,16 @@ if (
   )
   process.exit(1)
 }
+if (
+  !/\/blog\/shopify-admin-audit-before-ads\s+\/prerender\/blog-shopify-admin-audit-before-ads\s+200/.test(
+    redirects,
+  )
+) {
+  console.error(
+    'dist/_redirects must 200-rewrite Article02 to /prerender/<slug> (not .html).',
+  )
+  process.exit(1)
+}
 if (!/\/es\/blog\s+\/prerender\/es-blog\s+200/.test(redirects)) {
   console.error(
     'dist/_redirects must 200-rewrite /es/blog to /prerender/es-blog.',
@@ -221,17 +237,13 @@ const expectedLocs = [
   'https://www.rutinhq.com/es/gtm-os',
   'https://www.rutinhq.com/es/store-os',
   'https://www.rutinhq.com/es/nexus-os',
-  'https://www.rutinhq.com/blog',
-  'https://www.rutinhq.com/blog/icp-gated-cold-outbound-without-rented-sdr',
-  'https://www.rutinhq.com/es/blog',
-  'https://www.rutinhq.com/es/blog/outbound-frio-con-icp-sin-sdr-rentado',
 ]
 if (
   locs.length !== expectedLocs.length ||
   expectedLocs.some((url) => !locs.includes(url))
 ) {
   console.error(
-    `${sitemap} must list exactly the 12 www URLs (EN+ES hub + 3 SKUs + EN/ES blog + Article01).`,
+    `${sitemap} must list exactly the 8 indexable www URLs (EN+ES hub + 3 SKUs). Blog is draft/noindex.`,
   )
   process.exit(1)
 }
@@ -250,8 +262,8 @@ if (lastmods.some((value) => !/^\d{4}-\d{2}-\d{2}$/.test(value))) {
   console.error(`${sitemap} lastmod values must be YYYY-MM-DD.`)
   process.exit(1)
 }
-if (!sitemapBody.includes('<lastmod>2026-09-08</lastmod>')) {
-  console.error(`${sitemap} must keep Article01 lastmod from dateModified.`)
+if (/\/blog/.test(sitemapBody)) {
+  console.error(`${sitemap} must omit blog URLs while the Sprint 2 hold is noindex.`)
   process.exit(1)
 }
 
@@ -288,7 +300,7 @@ if (fs.existsSync('dist/_headers')) {
   }
   if (/X-Robots-Tag:\s*noindex/i.test(active)) {
     console.error(
-      'dist/_headers must not noindex published /blog or Article01.',
+      'dist/_headers must not noindex the whole site via X-Robots-Tag (blog uses page robots meta).',
     )
     process.exit(1)
   }
@@ -332,9 +344,13 @@ if (!fs.existsSync(blogSource)) {
   process.exit(1)
 }
 const blogFlags = fs.readFileSync(blogSource, 'utf8')
-if (!/draft:\s*false/.test(blogFlags) || !/noindex:\s*false/.test(blogFlags)) {
+if (
+  /draft:\s*false/.test(blogFlags) ||
+  /noindex:\s*false/.test(blogFlags) ||
+  !blogFlags.includes("BLOG_ROBOTS = 'noindex, follow'")
+) {
   console.error(
-    `${blogSource} must set draft:false and noindex:false for the published index + Article01.`,
+    `${blogSource} must hold the blog as draft:true / noindex:true with BLOG_ROBOTS noindex, follow.`,
   )
   process.exit(1)
 }
@@ -392,8 +408,12 @@ if (!articleHtml.includes('property="og:title" content="' + articleTitle + '"'))
   console.error(`${articleShell} must ship unique og:title for Article01.`)
   process.exit(1)
 }
-if (!/name="robots"\s+content="index, follow"/.test(articleHtml)) {
-  console.error(`${articleShell} must robots index, follow.`)
+if (!/name="robots"\s+content="noindex, follow"/.test(articleHtml)) {
+  console.error(`${articleShell} must robots noindex, follow until publish GO.`)
+  process.exit(1)
+}
+if (!/name="robots"\s+content="noindex, follow"/.test(blogHtml)) {
+  console.error(`${blogShell} must robots noindex, follow until publish GO.`)
   process.exit(1)
 }
 if (
@@ -424,6 +444,10 @@ if (esBlogHtml.includes(`<title>${homepageTitle}</title>`)) {
 }
 if (!esBlogHtml.includes('rel="canonical" href="https://www.rutinhq.com/es/blog"')) {
   console.error(`${esBlogShell} must canonical https://www.rutinhq.com/es/blog.`)
+  process.exit(1)
+}
+if (!/name="robots"\s+content="noindex, follow"/.test(esBlogHtml)) {
+  console.error(`${esBlogShell} must robots noindex, follow until publish GO.`)
   process.exit(1)
 }
 const esArticleHtml = fs.readFileSync(esArticleShell, 'utf8')
@@ -626,6 +650,7 @@ const llmsRequired = [
   'https://www.rutinhq.com/nexus-os',
   'https://www.rutinhq.com/blog',
   'https://www.rutinhq.com/blog/icp-gated-cold-outbound-without-rented-sdr',
+  'https://www.rutinhq.com/blog/shopify-admin-audit-before-ads',
   'https://docs.rutinhq.com/catalog/',
   'strategy@rutinhq.com',
   'https://calendly.com/rutinhq/30min',
@@ -865,6 +890,15 @@ const bodyRoutes = [
     needles: ['ICP-gated cold outbound without a rented SDR'],
   },
   {
+    file: 'dist/prerender/blog-shopify-admin-audit-before-ads.html',
+    needles: [
+      'Shopify Admin audit before you buy ads',
+      'DRAFT',
+      'strategy@rutinhq.com',
+      'calendly.com/rutinhq/30min',
+    ],
+  },
+  {
     file: 'dist/prerender/es-blog.html',
     needles: ['Sistemas que posees — filtrados para founders que instalan, no rentan'],
   },
@@ -965,6 +999,7 @@ const twitterShells = [
   'dist/prerender/blog.html',
   'dist/prerender/es-blog.html',
   articleShell,
+  'dist/prerender/blog-shopify-admin-audit-before-ads.html',
   'dist/prerender/es-blog-outbound-frio-con-icp-sin-sdr-rentado.html',
 ]
 const ogSvg = 'airo-assets/images/logo/horizontal.svg'
@@ -1097,6 +1132,29 @@ if (!esArticleHtml.includes('"@type":"FAQPage"')) {
   process.exit(1)
 }
 
+const article02Shell = 'dist/prerender/blog-shopify-admin-audit-before-ads.html'
+if (!fs.existsSync(article02Shell)) {
+  console.error(`${article02Shell} missing — Article02 draft shell must prerender.`)
+  process.exit(1)
+}
+const article02Html = fs.readFileSync(article02Shell, 'utf8')
+if (/"@type":"FAQPage"/.test(article02Html)) {
+  console.error('Article02 draft shell must not invent FAQPage.')
+  process.exit(1)
+}
+if (!/name="robots"\s+content="noindex, follow"/.test(article02Html)) {
+  console.error(`${article02Shell} must robots noindex, follow.`)
+  process.exit(1)
+}
+if (
+  !article02Html.includes(
+    'rel="canonical" href="https://www.rutinhq.com/blog/shopify-admin-audit-before-ads"',
+  )
+) {
+  console.error(`${article02Shell} must canonical the Article02 www URL.`)
+  process.exit(1)
+}
+
 const OG_PACK = [
   'og-hub.png',
   'og-gtm.png',
@@ -1154,6 +1212,10 @@ const ogShells = [
   },
   {
     file: articleShell,
+    image: 'https://www.rutinhq.com/og/og-blog.png',
+  },
+  {
+    file: 'dist/prerender/blog-shopify-admin-audit-before-ads.html',
     image: 'https://www.rutinhq.com/og/og-blog.png',
   },
   {
