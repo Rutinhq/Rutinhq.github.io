@@ -2,6 +2,13 @@ import { Helmet } from '@dr.pogodin/react-helmet'
 
 export const SITE = 'https://www.rutinhq.com'
 const LOGO_SVG = `${SITE}/airo-assets/images/logo/horizontal.svg`
+/** HQ brand mark (green square + arrow). PNG/ICO before SVG for Google SERP. */
+const FAVICON_PNG_48 = `${SITE}/favicon-48x48.png`
+const FAVICON_PNG_192 = `${SITE}/favicon-192x192.png`
+const FAVICON_ICO = `${SITE}/favicon.ico`
+const FAVICON_SVG = `${SITE}/favicon.svg`
+const APPLE_TOUCH_ICON = `${SITE}/apple-touch-icon.png`
+const WEB_MANIFEST = `${SITE}/site.webmanifest`
 
 /** Absolute PNG 1200×630 rasterized from `public/favicon.svg` onto `#0A0A0A`. */
 export const OG_IMAGE = {
@@ -54,9 +61,12 @@ export function Seo({
       <title>{title}</title>
       <meta name="description" content={description} />
       <link rel="canonical" href={url} />
-      <link rel="icon" href="/favicon.ico" sizes="any" />
-      <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-      <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+      <link rel="icon" type="image/png" sizes="48x48" href={FAVICON_PNG_48} />
+      <link rel="icon" type="image/png" sizes="192x192" href={FAVICON_PNG_192} />
+      <link rel="icon" href={FAVICON_ICO} sizes="any" />
+      <link rel="icon" type="image/svg+xml" href={FAVICON_SVG} />
+      <link rel="apple-touch-icon" href={APPLE_TOUCH_ICON} />
+      <link rel="manifest" href={WEB_MANIFEST} />
       {alternates?.map((alt) => (
         <link
           key={alt.hreflang}
@@ -134,7 +144,7 @@ export function hubJsonLd(
       url: `${SITE}/`,
       email: 'strategy@rutinhq.com',
       logo: LOGO_SVG,
-      image: `${SITE}/apple-touch-icon.png`,
+      image: APPLE_TOUCH_ICON,
       description:
         'RutinHQ is a B2B systems studio. We install GTM OS, STORE OS, and NEXUS OS — operating systems teams own, not retainers that vanish.',
       knowsAbout: ['GTM OS', 'STORE OS', 'NEXUS OS', 'B2B outbound'],

@@ -6,12 +6,18 @@
 # Single Redirect / Bulk Redirect (Capo / Dashboard). Steps in README.
 #
 # Crawl files ship from public/ into dist/. These identity 200s keep
-# /sitemap.xml, /robots.txt, and /llms*.txt from ever being treated as HTML.
+# /sitemap.xml, /robots.txt, /llms*.txt, and favicon/manifest files
+# from ever being treated as HTML.
 /sitemap.xml /sitemap.xml 200
 /robots.txt /robots.txt 200
 /llms.txt /llms.txt 200
 /llms-full.txt /llms-full.txt 200
 /favicon.ico /favicon.ico 200
+/favicon.svg /favicon.svg 200
+/favicon-48x48.png /favicon-48x48.png 200
+/favicon-192x192.png /favicon-192x192.png 200
+/apple-touch-icon.png /apple-touch-icon.png 200
+/site.webmanifest /site.webmanifest 200
 /guide-kb.json /guide-kb.json 200
 /services / 301
 /case-studies / 301
