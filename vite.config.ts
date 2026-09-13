@@ -256,6 +256,10 @@ export default defineConfig({
               test: /src[\\/]pages[\\/]blog-icp-gated-cold-outbound\.tsx$/,
             },
             {
+              name: 'page-article-store',
+              test: /src[\\/]pages[\\/]blog-store-os-admin-audit\.tsx$/,
+            },
+            {
               name: 'page-article-es',
               test: /src[\\/]pages[\\/]blog-outbound-frio\.tsx$/,
             },

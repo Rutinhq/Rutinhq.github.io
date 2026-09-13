@@ -1,7 +1,12 @@
 import { BlogPostLayout, BlogTable } from '@/components/blog'
 import { OG_IMAGE, Seo, articleJsonLd, hreflangPair } from '@/components/Seo'
-import { ARTICLE01, ARTICLE01_ES, articleSeoTitle } from '@/lib/blog'
-import { DOCS_GTM_URL, MAILTO_GTM, WWW_GTM_URL } from '@/lib/links'
+import { ARTICLE01, ARTICLE01_ES, BLOG_ROBOTS, articleSeoTitle } from '@/lib/blog'
+import {
+  CALENDLY_URL,
+  DOCS_GTM_URL,
+  MAILTO_GTM,
+  WWW_GTM_URL,
+} from '@/lib/links'
 
 const TITLE = articleSeoTitle(ARTICLE01.title)
 
@@ -14,6 +19,7 @@ export default function BlogIcpGatedColdOutboundPage() {
         path={ARTICLE01.path}
         locale="en"
         noindex={ARTICLE01.noindex}
+        robots={BLOG_ROBOTS}
         ogType="article"
         alternates={hreflangPair(ARTICLE01.path, ARTICLE01_ES.path)}
         image={OG_IMAGE.blog}
@@ -29,6 +35,7 @@ export default function BlogIcpGatedColdOutboundPage() {
 
       <BlogPostLayout
         typeLabel="How-to · GTM OS"
+        draft={ARTICLE01.draft}
         breadcrumbs={[
           { label: 'Home', to: '/' },
           { label: 'Blog', to: '/blog' },
@@ -67,7 +74,9 @@ export default function BlogIcpGatedColdOutboundPage() {
         cta={{
           title: 'One SKU. One next step.',
           mailto: MAILTO_GTM,
-          mailtoLabel: 'strategy@',
+          mailtoLabel: 'strategy@rutinhq.com',
+          calendly: CALENDLY_URL,
+          calendlyLabel: 'Book 30 min',
           lpHref: WWW_GTM_URL,
           lpLabel: 'www.rutinhq.com/gtm-os',
         }}

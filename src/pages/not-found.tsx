@@ -17,6 +17,7 @@ export default function NotFoundPage() {
         description={t('notFound.body')}
         path="/404"
         noindex
+        robots="noindex, nofollow"
       />
       <Section first>
         <h1

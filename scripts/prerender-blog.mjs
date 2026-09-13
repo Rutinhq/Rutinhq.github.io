@@ -52,6 +52,7 @@ const ROUTES = [
       'Radar for founders who install GTM and ops systems — not rented seats.',
     ogType: 'website',
     locale: 'en',
+    noindex: true,
     image: OG_IMAGE.blog,
     alternates: [
       { hreflang: 'en', href: `${SITE}/blog` },
@@ -74,13 +75,19 @@ const ROUTES = [
           '@type': 'ItemList',
           '@id': `${SITE}/blog#featured`,
           name: 'Featured',
-          numberOfItems: 1,
+          numberOfItems: 2,
           itemListElement: [
             {
               '@type': 'ListItem',
               position: 1,
               name: 'ICP-gated cold outbound without a rented SDR',
               url: `${SITE}/blog/icp-gated-cold-outbound-without-rented-sdr`,
+            },
+            {
+              '@type': 'ListItem',
+              position: 2,
+              name: 'Shopify Admin audit before you buy ads',
+              url: `${SITE}/blog/shopify-admin-audit-before-ads`,
             },
           ],
         },
@@ -95,6 +102,7 @@ const ROUTES = [
       'Keep the outbound core fixed—change only ICP, message, and filters—so pipeline stays with your team when the contract ends.',
     ogType: 'article',
     locale: 'en',
+    noindex: true,
     image: OG_IMAGE.blog,
     alternates: [
       {
@@ -175,6 +183,42 @@ const ROUTES = [
     },
   },
   {
+    path: '/blog/shopify-admin-audit-before-ads',
+    file: 'prerender/blog-shopify-admin-audit-before-ads.html',
+    title: 'RutinHQ — Shopify Admin audit before you buy ads',
+    description:
+      'Replicable Shopify Admin audit + config — variants, price, weight, shipping — so ops friction stops killing conversion.',
+    ogType: 'article',
+    locale: 'en',
+    noindex: true,
+    image: OG_IMAGE.blog,
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@graph': [
+        {
+          '@type': 'Organization',
+          '@id': `${SITE}/#organization`,
+          name: 'RutinHQ',
+          url: `${SITE}/`,
+          email: 'strategy@rutinhq.com',
+        },
+        {
+          '@type': 'BlogPosting',
+          '@id': `${SITE}/blog/shopify-admin-audit-before-ads#article`,
+          headline: 'Shopify Admin audit before you buy ads',
+          description:
+            'Replicable Shopify Admin audit + config — variants, price, weight, shipping — so ops friction stops killing conversion.',
+          datePublished: '2026-09-13',
+          dateModified: '2026-09-13',
+          inLanguage: 'en',
+          url: `${SITE}/blog/shopify-admin-audit-before-ads`,
+          author: { '@id': `${SITE}/#organization` },
+          publisher: { '@id': `${SITE}/#organization` },
+        },
+      ],
+    },
+  },
+  {
     path: '/es/blog',
     file: 'prerender/es-blog.html',
     title: 'Blog — sistemas que posees',
@@ -182,6 +226,7 @@ const ROUTES = [
       'Radar para founders que instalan sistemas de GTM y ops — no asientos rentados.',
     ogType: 'website',
     locale: 'es',
+    noindex: true,
     image: OG_IMAGE.blog,
     alternates: [
       { hreflang: 'en', href: `${SITE}/blog` },
@@ -211,6 +256,7 @@ const ROUTES = [
       'Mantén fijo el núcleo del outbound; cambia solo ICP, mensaje y filtros — el pipeline se queda con tu equipo cuando termina el contrato.',
     ogType: 'article',
     locale: 'es',
+    noindex: true,
     image: OG_IMAGE.blog,
     alternates: [
       {
@@ -541,7 +587,7 @@ function seoHead(route) {
     `<meta name="description" content="${esc(route.description)}" />`,
     `<link rel="canonical" href="${url}" />`,
     ...alternates,
-    `<meta name="robots" content="${route.noindex ? 'noindex, nofollow' : 'index, follow'}" />`,
+    `<meta name="robots" content="${route.robots ?? (route.noindex ? 'noindex, follow' : 'index, follow')}" />`,
     `<meta property="og:type" content="${route.ogType}" />`,
     `<meta property="og:site_name" content="RutinHQ" />`,
     `<meta property="og:locale" content="${ogLocale}" />`,
@@ -570,6 +616,7 @@ const NOT_FOUND_ROUTE = {
   ogType: 'website',
   locale: 'en',
   noindex: true,
+  robots: 'noindex, nofollow',
   alternates: [],
   jsonLd: {
     '@context': 'https://schema.org',

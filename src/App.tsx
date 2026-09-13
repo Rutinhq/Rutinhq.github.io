@@ -11,6 +11,9 @@ const BlogEsPage = lazy(() => import('@/pages/blog-es'))
 const BlogIcpGatedColdOutboundPage = lazy(
   () => import('@/pages/blog-icp-gated-cold-outbound'),
 )
+const BlogStoreOsAdminAuditPage = lazy(
+  () => import('@/pages/blog-store-os-admin-audit'),
+)
 const BlogOutboundFrioPage = lazy(() => import('@/pages/blog-outbound-frio'))
 const NotFoundPage = lazy(() => import('@/pages/not-found'))
 
@@ -30,6 +33,10 @@ export default function App() {
         <Route
           path="/blog/icp-gated-cold-outbound-without-rented-sdr"
           element={<BlogIcpGatedColdOutboundPage />}
+        />
+        <Route
+          path="/blog/shopify-admin-audit-before-ads"
+          element={<BlogStoreOsAdminAuditPage />}
         />
         <Route path="/es/blog" element={<BlogEsPage />} />
         <Route

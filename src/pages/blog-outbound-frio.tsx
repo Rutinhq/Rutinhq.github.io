@@ -1,7 +1,12 @@
 import { BlogPostLayout, BlogTable } from '@/components/blog'
 import { OG_IMAGE, Seo, articleJsonLd, hreflangPair } from '@/components/Seo'
-import { ARTICLE01, ARTICLE01_ES, articleSeoTitle } from '@/lib/blog'
-import { DOCS_GTM_URL, MAILTO_GTM, WWW_GTM_URL } from '@/lib/links'
+import { ARTICLE01, ARTICLE01_ES, BLOG_ROBOTS, articleSeoTitle } from '@/lib/blog'
+import {
+  CALENDLY_URL,
+  DOCS_GTM_URL,
+  MAILTO_GTM,
+  WWW_GTM_URL,
+} from '@/lib/links'
 
 const TITLE = articleSeoTitle(ARTICLE01_ES.title)
 
@@ -14,6 +19,7 @@ export default function BlogOutboundFrioPage() {
         path={ARTICLE01_ES.path}
         locale="es"
         noindex={ARTICLE01_ES.noindex}
+        robots={BLOG_ROBOTS}
         ogType="article"
         alternates={hreflangPair(ARTICLE01.path, ARTICLE01_ES.path)}
         image={OG_IMAGE.blog}
@@ -32,6 +38,7 @@ export default function BlogOutboundFrioPage() {
 
       <BlogPostLayout
         typeLabel="How-to · GTM OS"
+        draft={ARTICLE01_ES.draft}
         breadcrumbs={[
           { label: 'Inicio', to: '/' },
           { label: 'Blog', to: '/es/blog' },
@@ -71,7 +78,9 @@ export default function BlogOutboundFrioPage() {
         cta={{
           title: 'Un SKU. Un siguiente paso.',
           mailto: MAILTO_GTM,
-          mailtoLabel: 'strategy@',
+          mailtoLabel: 'strategy@rutinhq.com',
+          calendly: CALENDLY_URL,
+          calendlyLabel: 'Agendar 30 min',
           lpHref: WWW_GTM_URL,
           lpLabel: 'www.rutinhq.com/gtm-os',
         }}
