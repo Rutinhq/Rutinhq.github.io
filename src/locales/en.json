@@ -19,7 +19,28 @@
     "subhead": "Three installable operating systems. Pick the bottleneck. One page, one SKU.",
     "catalogNote": "Catalog curriculum also lives at",
     "catalogNoteAfter": "— this site sells one SKU at a time.",
-    "blogNote": "Writing lives on the"
+    "blogNote": "Writing lives on the",
+    "faq": {
+      "title": "FAQ",
+      "items": [
+        {
+          "q": "What does RutinHQ install?",
+          "a": "Three installable operating systems. Pick the bottleneck. One page, one SKU."
+        },
+        {
+          "q": "What are the three operating systems?",
+          "a": "GTM OS — B2B outbound that stays with your team, cold, ICP-filtered, milestone-gated. STORE OS — Shopify Admin audit + config so the store converts before you spend on ads. NEXUS OS — agentic marketing, Strategy → Social → Ads (Ads gated until creatives, mix, and budget are signed)."
+        },
+        {
+          "q": "Are these retainers?",
+          "a": "Systems you own — not retainers that vanish."
+        },
+        {
+          "q": "Where else does the catalog live?",
+          "a": "Catalog curriculum also lives at docs.rutinhq.com/catalog — this site sells one SKU at a time."
+        }
+      ]
+    }
   },
   "gtm": {
     "eyebrow": "GTM OS",
@@ -91,6 +112,27 @@
         "A dump of lead lists / CRM / APIs",
         "A promise of N meetings"
       ]
+    },
+    "faq": {
+      "title": "FAQ",
+      "items": [
+        {
+          "q": "What is GTM OS?",
+          "a": "Outbound that stays yours. A cold B2B prospecting system installed in your team — not a rented SDR that dies when the contract ends. Change language, filters, and angle; keep the core."
+        },
+        {
+          "q": "Who is GTM OS for?",
+          "a": "Founder / CEO or ops lead in B2B. Already sell; bottleneck is repeatable pipeline. ICP-filtered cold email. First run always cold."
+        },
+        {
+          "q": "How does GTM OS work?",
+          "a": "Milestone-gated: M0 Sector research, M1 ICP + validation, M2 Messaging framework, M3 Sales playbook + gate, M4 Campaign activation, M5 Crawl / analysis, M6 Weekly KPIs (ongoing), M7 Close + scale to next vertical."
+        },
+        {
+          "q": "What is GTM OS not?",
+          "a": "An ads or social agency. A wiki for someone else’s SaaS. A dump of lead lists / CRM / APIs. A promise of N meetings."
+        }
+      ]
     }
   },
   "store": {
@@ -142,6 +184,27 @@
         "Someone else’s catalog defaults or shipping rates",
         "Bots placing purchase orders"
       ]
+    },
+    "faq": {
+      "title": "FAQ",
+      "items": [
+        {
+          "q": "What is STORE OS?",
+          "a": "Make the store convert before you buy ads. Replicable Shopify Admin audit + config — variants, price, weight, shipping — so ops friction stops killing conversion."
+        },
+        {
+          "q": "Who is STORE OS for?",
+          "a": "Founder / ecom lead on DTC Shopify. Ops friction. Wants ads but store doesn’t convert yet."
+        },
+        {
+          "q": "How does STORE OS work?",
+          "a": "1) Scorecard / Admin friction diagnosis. 2) Audit: variants, price, weight, shipping. 3) Admin config to the mold (no theme file edits). 4) Delivery checklist + handoff. 5) Ads / creatives = out of scope (NEXUS OS)."
+        },
+        {
+          "q": "What is STORE OS not?",
+          "a": "Theme / Dawn file editing. An ads agency. Someone else’s catalog defaults or shipping rates. Bots placing purchase orders."
+        }
+      ]
     }
   },
   "nexus": {
@@ -191,6 +254,27 @@
         "Owner of the client’s ICP or offer",
         "GTM OS",
         "Shopify theme editing"
+      ]
+    },
+    "faq": {
+      "title": "FAQ",
+      "items": [
+        {
+          "q": "What is NEXUS OS?",
+          "a": "Agentic marketing — paper first, Ads only when signed. Strategy → Social → Ads. Until creatives, mix, and budget have an explicit GO: paper only (no pixel, no spend)."
+        },
+        {
+          "q": "Who is NEXUS OS for?",
+          "a": "Retailer / ecom with clear offer and SKUs. Wants demand from social as a system. Brand voice owned by client’s ops/marketing (NEXUS does not invent ICP or offer)."
+        },
+        {
+          "q": "How does NEXUS OS work?",
+          "a": "1) Brief + content pillars (one problem, one object). 2) Weekly paper batch: message · organic post · product story. 3) Voice approval by client’s brand owner. 4) Pillar rotation. 5) Ads parked until photos + mix + budget signed."
+        },
+        {
+          "q": "What is NEXUS OS not?",
+          "a": "Live Ads / pixel / spend without GO. Owner of the client’s ICP or offer. GTM OS. Shopify theme editing."
+        }
       ]
     }
   },

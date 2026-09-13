@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { Ctas } from '@/components/Ctas'
+import { FaqSection } from '@/components/Faq'
 import { BulletList, MonoTitle, Section } from '@/components/Section'
 import { OG_IMAGE, Seo, skuJsonLd } from '@/components/Seo'
 import { useObjectList } from '@/lib/i18n/lists'
@@ -15,6 +16,7 @@ export default function StoreOsPage() {
   const how = useObjectList<string>('store.how.items')
   const outcomes = useObjectList<string>('store.outcomes.items')
   const notWhat = useObjectList<string>('store.notWhat.items')
+  const faq = useObjectList<{ q: string; a: string }>('store.faq.items')
 
   return (
     <>
@@ -25,9 +27,13 @@ export default function StoreOsPage() {
         locale={locale}
         alternates={alternatesFor('/store-os')}
         image={OG_IMAGE.store}
-        jsonLd={skuJsonLd(path, t('seo.storeTitle'), t('seo.storeDescription'), {
-          serviceType: 'STORE OS',
-        })}
+        jsonLd={skuJsonLd(
+          path,
+          t('seo.storeTitle'),
+          t('seo.storeDescription'),
+          { serviceType: 'STORE OS' },
+          faq,
+        )}
       />
 
       <Section first>
@@ -74,6 +80,8 @@ export default function StoreOsPage() {
         <BulletList items={notWhat} muted />
         <Ctas className="mt-10" docsHref={DOCS_STORE_URL} />
       </Section>
+
+      <FaqSection title={t('store.faq.title')} items={faq} />
     </>
   )
 }

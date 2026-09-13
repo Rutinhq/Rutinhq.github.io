@@ -1,11 +1,15 @@
 import { Helmet } from '@dr.pogodin/react-helmet'
-import { useEffect } from 'react'
+import { Suspense, useEffect } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { languageFromPathname } from '@/lib/i18n/paths'
 import { GuideHost } from '@/components/guide/GuideHost'
 import { Footer } from './parts/Footer'
 import { Header } from './parts/Header'
+
+function RouteFallback() {
+  return <div className="min-h-[40vh]" aria-busy="true" />
+}
 
 export function RootLayout() {
   const { i18n } = useTranslation()
@@ -26,7 +30,9 @@ export function RootLayout() {
       </Helmet>
       <Header />
       <main className="flex-1">
-        <Outlet />
+        <Suspense fallback={<RouteFallback />}>
+          <Outlet />
+        </Suspense>
       </main>
       <Footer />
       <GuideHost />

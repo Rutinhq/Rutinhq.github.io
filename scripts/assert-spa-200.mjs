@@ -563,6 +563,10 @@ const mustDiffer = [
   'seo.storeDescription',
   'seo.nexusTitle',
   'seo.nexusDescription',
+  'hub.faq.title',
+  'gtm.faq.title',
+  'store.faq.title',
+  'nexus.faq.title',
 ]
 for (const key of mustDiffer) {
   if (lookup(enJson, key) === lookup(esJson, key)) {
@@ -804,35 +808,53 @@ if (
 const bodyRoutes = [
   {
     file: 'dist/index.html',
-    needles: ['Systems you own — not retainers that vanish.', 'GTM OS', 'STORE OS', 'NEXUS OS'],
+    needles: [
+      'Systems you own — not retainers that vanish.',
+      'GTM OS',
+      'STORE OS',
+      'NEXUS OS',
+      'What does RutinHQ install?',
+    ],
   },
   {
     file: 'dist/prerender/gtm-os.html',
-    needles: ['Outbound that stays yours.'],
+    needles: ['Outbound that stays yours.', 'What is GTM OS?'],
   },
   {
     file: 'dist/prerender/store-os.html',
-    needles: ['Make the store convert before you buy ads.'],
+    needles: ['Make the store convert before you buy ads.', 'What is STORE OS?'],
   },
   {
     file: 'dist/prerender/nexus-os.html',
-    needles: ['Agentic marketing — paper first, Ads only when signed.'],
+    needles: [
+      'Agentic marketing — paper first, Ads only when signed.',
+      'What is NEXUS OS?',
+    ],
   },
   {
     file: 'dist/prerender/es.html',
-    needles: ['Sistemas que posees — no retainers que desaparecen.'],
+    needles: [
+      'Sistemas que posees — no retainers que desaparecen.',
+      '¿Qué instala RutinHQ?',
+    ],
   },
   {
     file: 'dist/prerender/es-gtm-os.html',
-    needles: ['Outbound que se queda contigo.'],
+    needles: ['Outbound que se queda contigo.', '¿Qué es GTM OS?'],
   },
   {
     file: 'dist/prerender/es-store-os.html',
-    needles: ['Haz que la tienda convierta antes de comprar ads.'],
+    needles: [
+      'Haz que la tienda convierta antes de comprar ads.',
+      '¿Qué es STORE OS?',
+    ],
   },
   {
     file: 'dist/prerender/es-nexus-os.html',
-    needles: ['Marketing agéntico — primero en papel, Ads solo con GO.'],
+    needles: [
+      'Marketing agéntico — primero en papel, Ads solo con GO.',
+      '¿Qué es NEXUS OS?',
+    ],
   },
   {
     file: 'dist/prerender/blog.html',
@@ -890,13 +912,35 @@ if (assetJs.length < 4) {
 }
 
 const assetNames = assetJs.map((f) => f.name).join(' ')
-for (const needle of ['gtm-os', 'store-os', 'nexus-os', 'GuideWidget']) {
+for (const needle of [
+  'page-hub',
+  'page-gtm-os',
+  'page-store-os',
+  'page-nexus-os',
+  'page-blog',
+  'GuideWidget',
+]) {
   if (!assetNames.includes(needle)) {
     console.error(
       `dist/assets must include a ${needle} chunk after route/guide code-split. Files: ${assetNames}`,
     )
     process.exit(1)
   }
+}
+
+const layoutSource = fs.readFileSync('src/layouts/RootLayout.tsx', 'utf8')
+if (
+  !layoutSource.includes('<Suspense') ||
+  !layoutSource.includes('<Outlet />')
+) {
+  console.error(
+    'RootLayout must wrap <Outlet /> in Suspense so header/footer stay mounted while route chunks load.',
+  )
+  process.exit(1)
+}
+if (!appSource.includes('lazy(() => import')) {
+  console.error('src/App.tsx must keep route-level React.lazy imports.')
+  process.exit(1)
 }
 
 const oversized = assetJs.filter((f) => f.size >= MONOLITH_BYTES)
@@ -971,26 +1015,79 @@ const osServiceShells = [
   { file: 'dist/prerender/es-store-os.html', type: 'STORE OS' },
   { file: 'dist/prerender/es-nexus-os.html', type: 'NEXUS OS' },
 ]
+function ldNodes(html) {
+  return [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
+    .flatMap((match) => {
+      try {
+        const data = JSON.parse(match[1])
+        return data['@graph'] || [data]
+      } catch {
+        return []
+      }
+    })
+}
+
+function faqEntities(html) {
+  return ldNodes(html).filter((node) => node['@type'] === 'FAQPage')
+}
+
+function assertFaqPageMatchesVisible(file, html) {
+  const pages = faqEntities(html)
+  if (pages.length === 0) {
+    console.error(`${file} must emit FAQPage JSON-LD for the on-page FAQ.`)
+    process.exit(1)
+  }
+  const inner = rootInner(html)
+  for (const page of pages) {
+    const entities = page.mainEntity || []
+    if (entities.length < 3 || entities.length > 5) {
+      console.error(
+        `${file} FAQPage must have 3–5 questions (found ${entities.length}).`,
+      )
+      process.exit(1)
+    }
+    for (const entity of entities) {
+      const question = entity.name
+      const answer = entity.acceptedAnswer?.text
+      if (!question || !answer) {
+        console.error(`${file} FAQPage Question is missing name or acceptedAnswer.text.`)
+        process.exit(1)
+      }
+      if (!inner.includes(question) || !inner.includes(answer)) {
+        console.error(
+          `${file} FAQPage must match visible FAQ 1:1: ${question}`,
+        )
+        process.exit(1)
+      }
+    }
+  }
+}
+
 for (const shell of osServiceShells) {
   const html = fs.readFileSync(shell.file, 'utf8')
   if (!html.includes('"@type":"Service"') || !html.includes(shell.type)) {
     console.error(`${shell.file} must emit JSON-LD Service for ${shell.type}.`)
     process.exit(1)
   }
-  if (/"@type":"FAQPage"/.test(html)) {
-    console.error(`${shell.file} must not invent FAQPage (no on-page FAQ).`)
-    process.exit(1)
-  }
-  if (/price|precio|offers/i.test(html.match(/<script type="application\/ld\+json">[\s\S]*?<\/script>/)?.[0] || '')) {
+  const serviceBlob = JSON.stringify(
+    ldNodes(html).filter((node) => node['@type'] === 'Service'),
+  )
+  if (/"price"|offers/i.test(serviceBlob)) {
     console.error(`${shell.file} Service JSON-LD must not invent pricing.`)
     process.exit(1)
   }
+  assertFaqPageMatchesVisible(shell.file, html)
 }
 
-if (/"@type":"FAQPage"/.test(homepage) || /"@type":"FAQPage"/.test(blogHtml)) {
-  console.error('Hub/blog index must not invent FAQPage (no on-page FAQ).')
+if (/"@type":"FAQPage"/.test(blogHtml)) {
+  console.error('Blog index must not invent FAQPage (no on-page FAQ).')
   process.exit(1)
 }
+assertFaqPageMatchesVisible('dist/index.html', homepage)
+assertFaqPageMatchesVisible(
+  'dist/prerender/es.html',
+  fs.readFileSync('dist/prerender/es.html', 'utf8'),
+)
 if (!articleHtml.includes('"@type":"FAQPage"')) {
   console.error(`${articleShell} must keep FAQPage for the real Article01 FAQ.`)
   process.exit(1)

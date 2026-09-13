@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { Ctas } from '@/components/Ctas'
+import { FaqSection } from '@/components/Faq'
 import { BulletList, MonoTitle, Section } from '@/components/Section'
 import { OG_IMAGE, Seo, skuJsonLd } from '@/components/Seo'
 import { useObjectList } from '@/lib/i18n/lists'
@@ -17,6 +18,7 @@ export default function GtmOsPage() {
   const reply = useObjectList<string>('gtm.reply.items')
   const outcomes = useObjectList<string>('gtm.outcomes.items')
   const notWhat = useObjectList<string>('gtm.notWhat.items')
+  const faq = useObjectList<{ q: string; a: string }>('gtm.faq.items')
 
   return (
     <>
@@ -27,9 +29,13 @@ export default function GtmOsPage() {
         locale={locale}
         alternates={alternatesFor('/gtm-os')}
         image={OG_IMAGE.gtm}
-        jsonLd={skuJsonLd(path, t('seo.gtmTitle'), t('seo.gtmDescription'), {
-          serviceType: 'GTM OS',
-        })}
+        jsonLd={skuJsonLd(
+          path,
+          t('seo.gtmTitle'),
+          t('seo.gtmDescription'),
+          { serviceType: 'GTM OS' },
+          faq,
+        )}
       />
 
       <Section first>
@@ -86,6 +92,8 @@ export default function GtmOsPage() {
         <BulletList items={notWhat} muted />
         <Ctas className="mt-10" docsHref={DOCS_GTM_URL} />
       </Section>
+
+      <FaqSection title={t('gtm.faq.title')} items={faq} />
     </>
   )
 }
