@@ -14,7 +14,7 @@
 # bypass from this file.
 /*
   Cache-Control: public, max-age=0, must-revalidate
-  Link: </sitemap.xml>; rel="sitemap", </llms.txt>; rel="describedby"; type="text/plain"
+  Link: </sitemap.xml>; rel="sitemap", </llms.txt>; rel="describedby"; type="text/plain", </.well-known/api-catalog>; rel="api-catalog"; type="application/linkset+json", </auth.md>; rel="describedby"; type="text/markdown"
   Content-Signal: search=yes, ai-train=no, use=reference
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
@@ -61,3 +61,12 @@
 
 /llms-full.txt
   Content-Type: text/plain; charset=utf-8
+
+# RFC 9727 catalog + WorkOS-style auth.md. Keep non-HTML so Pages
+# never serves the SPA shell. Free CF Pages headers only — no Pro
+# vanity host, pay-per-crawl, or x402 from this file.
+/.well-known/api-catalog
+  Content-Type: application/linkset+json; profile="https://www.rfc-editor.org/info/rfc9727"
+
+/auth.md
+  Content-Type: text/markdown; charset=utf-8

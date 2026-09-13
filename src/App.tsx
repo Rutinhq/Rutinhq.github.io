@@ -12,6 +12,8 @@ const BlogIcpGatedColdOutboundPage = lazy(
   () => import('@/pages/blog-icp-gated-cold-outbound'),
 )
 const BlogOutboundFrioPage = lazy(() => import('@/pages/blog-outbound-frio'))
+const AgentsPage = lazy(() => import('@/pages/agents'))
+const AgentsAuthPage = lazy(() => import('@/pages/agents-auth'))
 const NotFoundPage = lazy(() => import('@/pages/not-found'))
 
 export default function App() {
@@ -36,6 +38,10 @@ export default function App() {
           path="/es/blog/outbound-frio-con-icp-sin-sdr-rentado"
           element={<BlogOutboundFrioPage />}
         />
+        <Route path="/agents" element={<AgentsPage />} />
+        <Route path="/es/agents" element={<AgentsPage />} />
+        <Route path="/agents/auth" element={<AgentsAuthPage />} />
+        <Route path="/es/agents/auth" element={<AgentsAuthPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

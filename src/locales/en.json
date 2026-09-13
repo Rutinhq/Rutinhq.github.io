@@ -9,6 +9,7 @@
     "hubLink": "Catalog",
     "blog": "Blog",
     "docs": "Docs",
+    "agents": "Agents",
     "skipToContent": "Skip to content"
   },
   "nav": {
@@ -314,6 +315,10 @@
     "storeDescription": "Make the store convert before you buy ads. Replicable Shopify Admin audit + config.",
     "nexusTitle": "RutinHQ — NEXUS OS",
     "nexusDescription": "Agentic marketing — paper first, Ads only when signed. Strategy → Social → Ads.",
+    "agentsTitle": "RutinHQ — agent catalog",
+    "agentsDescription": "Public endpoints and discovery files for agents: catalog, llms.txt, sitemap, and auth surfaces.",
+    "agentsAuthTitle": "RutinHQ — agent auth surfaces",
+    "agentsAuthDescription": "What is public vs Access-gated. No secrets. Contact strategy@rutinhq.com.",
     "notFoundTitle": "RutinHQ — 404"
   },
   "guide": {
@@ -331,5 +336,77 @@
     "leadCopied": "Brief copied. Paste it into the email to strategy@",
     "limit": "That's the turn cap for this chat. Book a 30-min fit call and we'll pick it up there.",
     "disclaimer": "Answers stay on public catalog facts. No pricing or legal terms in chat."
+  },
+  "agents": {
+    "eyebrow": "Agent catalog",
+    "headline": "Public surfaces agents can read.",
+    "subhead": "Thin index of public endpoints and discovery files. No secrets. Commercial pages stay one SKU at a time.",
+    "resourcesTitle": "Public resources",
+    "resources": {
+      "docs": {
+        "name": "Systems catalog",
+        "blurb": "Public curriculum — what each system does, who it is for, how it works."
+      },
+      "contact": {
+        "name": "Contact",
+        "blurb": "Human inbox for fit questions. No automated credential exchange."
+      },
+      "llms": {
+        "name": "llms.txt",
+        "blurb": "Short machine-readable summary of the public site."
+      },
+      "llmsFull": {
+        "name": "llms-full.txt",
+        "blurb": "Full public copy for agents that want more than the short file."
+      },
+      "sitemap": {
+        "name": "Sitemap",
+        "blurb": "Canonical www URLs for crawl and index."
+      },
+      "apiCatalog": {
+        "name": "RFC 9727 api-catalog",
+        "blurb": "Linkset of public resources at /.well-known/api-catalog."
+      },
+      "authMd": {
+        "name": "auth.md",
+        "blurb": "Public vs authenticated surfaces. No keys."
+      }
+    },
+    "authTitle": "Auth",
+    "authBody": "www and the public catalog need no credentials. docs.rutinhq.com Access home is for humans, not agents.",
+    "authCta": "Read auth surfaces"
+  },
+  "agentsAuth": {
+    "eyebrow": "Auth surfaces",
+    "headline": "Public vs authenticated.",
+    "subhead": "Agents stay on public files. Cloudflare Access on docs home is not a public API.",
+    "rawNote": "Machine-readable copy lives at",
+    "public": {
+      "title": "Public — no credentials",
+      "items": [
+        "www.rutinhq.com — hub, three OS landings, blog",
+        "docs.rutinhq.com/catalog — public curriculum only",
+        "llms.txt, llms-full.txt, sitemap.xml, robots.txt",
+        "/.well-known/api-catalog and /auth.md",
+        "POST /api/guide — catalog-grounded concierge, no secrets"
+      ]
+    },
+    "gated": {
+      "title": "Authenticated — not for agents",
+      "items": [
+        "docs.rutinhq.com home and other Access-gated operator docs",
+        "Do not probe Access login, cookies, or bypass paths",
+        "The public catalog is the only docs surface to read"
+      ]
+    },
+    "notOffered": {
+      "title": "Not offered on www",
+      "items": [
+        "No agent OAuth or registration flow",
+        "No pay-per-crawl or machine-payable marketing pages",
+        "No API keys, tokens, or secrets in these files"
+      ]
+    },
+    "catalogNote": "Resource list lives on"
   }
 }

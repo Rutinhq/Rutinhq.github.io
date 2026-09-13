@@ -512,7 +512,42 @@ const MARKETING_ROUTES = [
   }),
 ]
 
-ROUTES.push(...MARKETING_ROUTES)
+const AGENT_ROUTES = [
+  skuRoute({
+    path: '/agents',
+    file: 'prerender/agents.html',
+    title: enLocale.seo.agentsTitle,
+    description: enLocale.seo.agentsDescription,
+    locale: 'en',
+    image: OG_IMAGE.hub,
+  }),
+  skuRoute({
+    path: '/agents/auth',
+    file: 'prerender/agents-auth.html',
+    title: enLocale.seo.agentsAuthTitle,
+    description: enLocale.seo.agentsAuthDescription,
+    locale: 'en',
+    image: OG_IMAGE.hub,
+  }),
+  skuRoute({
+    path: '/es/agents',
+    file: 'prerender/es-agents.html',
+    title: esLocale.seo.agentsTitle,
+    description: esLocale.seo.agentsDescription,
+    locale: 'es',
+    image: OG_IMAGE.hub,
+  }),
+  skuRoute({
+    path: '/es/agents/auth',
+    file: 'prerender/es-agents-auth.html',
+    title: esLocale.seo.agentsAuthTitle,
+    description: esLocale.seo.agentsAuthDescription,
+    locale: 'es',
+    image: OG_IMAGE.hub,
+  }),
+]
+
+ROUTES.push(...MARKETING_ROUTES, ...AGENT_ROUTES)
 
 const HUB_JSON_LD = {
   '@context': 'https://schema.org',
@@ -601,6 +636,9 @@ function stripHomepageSeo(html) {
     .replace(/<title>[\s\S]*?<\/title>/i, '')
     .replace(/<meta\s+name="description"[\s\S]*?\/?>/gi, '')
     .replace(/<link\s+rel="canonical"[\s\S]*?\/?>/gi, '')
+    .replace(/<link\s+rel="api-catalog"[\s\S]*?\/?>/gi, '')
+    .replace(/<link\s+rel="describedby"[\s\S]*?\/?>/gi, '')
+    .replace(/<link\s+rel="sitemap"[\s\S]*?\/?>/gi, '')
     .replace(/<meta\s+property="og:[^"]+"[\s\S]*?\/?>/gi, '')
     .replace(/<meta\s+name="twitter:[^"]+"[\s\S]*?\/?>/gi, '')
     .replace(/<meta\s+name="robots"[\s\S]*?\/?>/gi, '')
@@ -621,6 +659,10 @@ function seoHead(route) {
     `<title>${esc(route.title)}</title>`,
     `<meta name="description" content="${esc(route.description)}" />`,
     `<link rel="canonical" href="${url}" />`,
+    `<link rel="api-catalog" href="${SITE}/.well-known/api-catalog" type="application/linkset+json" />`,
+    `<link rel="describedby" href="${SITE}/llms.txt" type="text/plain" />`,
+    `<link rel="describedby" href="${SITE}/auth.md" type="text/markdown" />`,
+    `<link rel="sitemap" href="${SITE}/sitemap.xml" type="application/xml" />`,
     ...alternates,
     `<meta name="robots" content="${route.noindex ? 'noindex, nofollow' : 'index, follow'}" />`,
     `<meta property="og:type" content="${route.ogType}" />`,

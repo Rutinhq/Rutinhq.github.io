@@ -33,7 +33,7 @@ if (!fs.existsSync('dist/404.html')) {
   process.exit(1)
 }
 
-for (const route of ['gtm-os', 'store-os', 'nexus-os', 'blog', 'es']) {
+for (const route of ['gtm-os', 'store-os', 'nexus-os', 'blog', 'es', 'agents']) {
   const folderPage = `dist/${route}/index.html`
   if (fs.existsSync(folderPage)) {
     console.error(
@@ -59,6 +59,24 @@ if (fs.existsSync('dist/blog/icp-gated-cold-outbound-without-rented-sdr/index.ht
 if (fs.existsSync('dist/es/blog/index.html')) {
   console.error(
     'dist/es/blog/index.html must not ship — pretty /es/blog would 308.',
+  )
+  process.exit(1)
+}
+if (fs.existsSync('dist/agents/auth/index.html')) {
+  console.error(
+    'dist/agents/auth/index.html must not ship — pretty /agents/auth would 308.',
+  )
+  process.exit(1)
+}
+if (fs.existsSync('dist/es/agents/index.html')) {
+  console.error(
+    'dist/es/agents/index.html must not ship — pretty /es/agents would 308.',
+  )
+  process.exit(1)
+}
+if (fs.existsSync('dist/es/agents/auth/index.html')) {
+  console.error(
+    'dist/es/agents/auth/index.html must not ship — pretty /es/agents/auth would 308.',
   )
   process.exit(1)
 }
@@ -195,6 +213,29 @@ if (!/\/llms-full\.txt\s+\/llms-full\.txt\s+200/.test(redirects)) {
   )
   process.exit(1)
 }
+if (!/\/\.well-known\/api-catalog\s+\/\.well-known\/api-catalog\s+200/.test(redirects)) {
+  console.error(
+    'dist/_redirects must 200-rewrite /.well-known/api-catalog onto itself.',
+  )
+  process.exit(1)
+}
+if (!/\/auth\.md\s+\/auth\.md\s+200/.test(redirects)) {
+  console.error('dist/_redirects must 200-rewrite /auth.md onto itself.')
+  process.exit(1)
+}
+for (const pair of [
+  ['/agents', '/prerender/agents'],
+  ['/agents/auth', '/prerender/agents-auth'],
+  ['/es/agents', '/prerender/es-agents'],
+  ['/es/agents/auth', '/prerender/es-agents-auth'],
+]) {
+  const [from, to] = pair
+  const escaped = `${from.replaceAll('/', '\\/')}\\s+${to.replaceAll('/', '\\/')}\\s+200`
+  if (!new RegExp(escaped).test(redirects)) {
+    console.error(`dist/_redirects must 200-rewrite ${from} to ${to}.`)
+    process.exit(1)
+  }
+}
 for (const identity of [
   '/favicon.ico',
   '/favicon.svg',
@@ -230,7 +271,7 @@ if (!sitemapBody.includes('xmlns:xhtml="http://www.w3.org/1999/xhtml"')) {
   console.error(`${sitemap} must declare the xhtml namespace for hreflang links.`)
   process.exit(1)
 }
-if ((sitemapBody.match(/xhtml:link rel="alternate"/g) || []).length < 36) {
+if ((sitemapBody.match(/xhtml:link rel="alternate"/g) || []).length < 48) {
   console.error(
     `${sitemap} must emit xhtml:link hreflang (en + es + x-default) on every URL.`,
   )
@@ -251,13 +292,17 @@ const expectedLocs = [
   'https://www.rutinhq.com/blog/icp-gated-cold-outbound-without-rented-sdr',
   'https://www.rutinhq.com/es/blog',
   'https://www.rutinhq.com/es/blog/outbound-frio-con-icp-sin-sdr-rentado',
+  'https://www.rutinhq.com/agents',
+  'https://www.rutinhq.com/agents/auth',
+  'https://www.rutinhq.com/es/agents',
+  'https://www.rutinhq.com/es/agents/auth',
 ]
 if (
   locs.length !== expectedLocs.length ||
   expectedLocs.some((url) => !locs.includes(url))
 ) {
   console.error(
-    `${sitemap} must list exactly the 12 www URLs (EN+ES hub + 3 SKUs + EN/ES blog + Article01).`,
+    `${sitemap} must list exactly the 16 www URLs (EN+ES hub + 3 SKUs + EN/ES blog + Article01 + agents/auth).`,
   )
   process.exit(1)
 }
@@ -365,13 +410,27 @@ if (fs.existsSync('dist/_headers')) {
     process.exit(1)
   }
   if (
-    !/Link:\s*<\/sitemap\.xml>;\s*rel="sitemap".*<\/llms\.txt>;\s*rel="describedby"/i.test(
+    !/Link:\s*<\/sitemap\.xml>;\s*rel="sitemap".*<\/llms\.txt>;\s*rel="describedby".*api-catalog.*<\/auth\.md>;\s*rel="describedby"/i.test(
       headers,
     )
   ) {
     console.error(
-      'dist/_headers must keep Soft P1 RFC 8288 Link to sitemap + llms.txt.',
+      'dist/_headers must keep RFC 8288 Link to sitemap + llms.txt + api-catalog + auth.md.',
     )
+    process.exit(1)
+  }
+  if (
+    !/\/\.well-known\/api-catalog[\s\S]*?Content-Type:\s*application\/linkset\+json/i.test(
+      headers,
+    )
+  ) {
+    console.error(
+      'dist/_headers must set application/linkset+json on /.well-known/api-catalog.',
+    )
+    process.exit(1)
+  }
+  if (!/\/auth\.md[\s\S]*?Content-Type:\s*text\/markdown/i.test(headers)) {
+    console.error('dist/_headers must set text/markdown on /auth.md.')
     process.exit(1)
   }
   if (
@@ -646,6 +705,12 @@ const mustDiffer = [
   'store.faq.title',
   'nexus.faq.title',
   'common.skipToContent',
+  'common.agents',
+  'seo.agentsTitle',
+  'seo.agentsDescription',
+  'seo.agentsAuthTitle',
+  'agents.headline',
+  'agentsAuth.headline',
 ]
 for (const key of mustDiffer) {
   if (lookup(enJson, key) === lookup(esJson, key)) {
@@ -703,6 +768,20 @@ if (!robotsBody.includes('Disallow: /guide-kb.json')) {
   console.error(`${robots} must Disallow /guide-kb.json.`)
   process.exit(1)
 }
+if (!robotsBody.includes('Content-Signal: search=yes,ai-train=no,use=reference')) {
+  console.error(`${robots} must keep Content-Signal search=yes,ai-train=no,use=reference.`)
+  process.exit(1)
+}
+for (const bot of ['GPTBot', 'ClaudeBot', 'Google-Extended']) {
+  if (!new RegExp(`User-agent:\\s*${bot}\\s*Allow:\\s*/`, 'i').test(robotsBody)) {
+    console.error(`${robots} must Allow: / for ${bot} (AI Crawl Allow).`)
+    process.exit(1)
+  }
+  if (new RegExp(`User-agent:\\s*${bot}\\s*Disallow:\\s*/\\s*$`, 'im').test(robotsBody)) {
+    console.error(`${robots} must not Disallow: / for ${bot}.`)
+    process.exit(1)
+  }
+}
 
 const htmlShell = /<!doctype html|<html[\s>]/i
 const forbiddenLlms = /fzf\.dev|fuzzyflags|\bfzf\b|\bcapo\b|\$\d[\d,]*/i
@@ -716,6 +795,9 @@ const llmsRequired = [
   'https://docs.rutinhq.com/catalog/',
   'strategy@rutinhq.com',
   'https://calendly.com/rutinhq/30min',
+  'https://www.rutinhq.com/agents',
+  'https://www.rutinhq.com/auth.md',
+  'https://www.rutinhq.com/.well-known/api-catalog',
 ]
 const llmsFullRequired = [
   ...llmsRequired,
@@ -725,6 +807,7 @@ const llmsFullRequired = [
   'https://docs.rutinhq.com/catalog/store-os/',
   'https://docs.rutinhq.com/catalog/nexus-os/',
   'https://www.rutinhq.com/llms.txt',
+  'https://www.rutinhq.com/agents/auth',
 ]
 
 for (const spec of [
@@ -967,7 +1050,16 @@ assertGoogleFaviconLinks('dist/index.html')
 assertGoogleFaviconLinks('index.html')
 
 const appSource = fs.readFileSync('src/App.tsx', 'utf8')
-for (const route of ['/es', '/es/gtm-os', '/es/store-os', '/es/nexus-os']) {
+for (const route of [
+  '/es',
+  '/es/gtm-os',
+  '/es/store-os',
+  '/es/nexus-os',
+  '/agents',
+  '/es/agents',
+  '/agents/auth',
+  '/es/agents/auth',
+]) {
   if (!appSource.includes(`path="${route}"`)) {
     console.error(`src/App.tsx must route ${route} for the EN/ES toggle.`)
     process.exit(1)
@@ -987,11 +1079,12 @@ if (footerSource.includes('ONE_PAGER_URL') || /\bDOCS_URL\b/.test(footerSource))
 if (
   !footerSource.includes('DOCS_CATALOG_URL') ||
   !footerSource.includes("localized('/blog')") ||
+  !footerSource.includes("localized('/agents')") ||
   !footerSource.includes('CALENDLY_URL') ||
   !footerSource.includes('MAILTO_EMAIL')
 ) {
   console.error(
-    'Footer must keep Catalog (docs), locale Blog, Calendly Talk, and mailto email.',
+    'Footer must keep Catalog (docs), locale Blog, Agents, Calendly Talk, and mailto email.',
   )
   process.exit(1)
 }
@@ -1067,6 +1160,26 @@ const bodyRoutes = [
     file: 'dist/404.html',
     needles: ['Page not found', 'That route does not exist.'],
   },
+  {
+    file: 'dist/prerender/agents.html',
+    needles: [
+      'Public surfaces agents can read.',
+      'docs.rutinhq.com/catalog',
+      'strategy@rutinhq.com',
+    ],
+  },
+  {
+    file: 'dist/prerender/agents-auth.html',
+    needles: ['Public vs authenticated.', '/auth.md'],
+  },
+  {
+    file: 'dist/prerender/es-agents.html',
+    needles: ['Superficies públicas que un agente puede leer.'],
+  },
+  {
+    file: 'dist/prerender/es-agents-auth.html',
+    needles: ['Público vs autenticado.'],
+  },
 ]
 
 for (const route of bodyRoutes) {
@@ -1109,6 +1222,7 @@ for (const needle of [
   'page-store-os',
   'page-nexus-os',
   'page-blog',
+  'page-agents',
   'GuideWidget',
 ]) {
   if (!assetNames.includes(needle)) {
@@ -1167,6 +1281,10 @@ const twitterShells = [
   'dist/prerender/es-blog.html',
   articleShell,
   'dist/prerender/es-blog-outbound-frio-con-icp-sin-sdr-rentado.html',
+  'dist/prerender/agents.html',
+  'dist/prerender/agents-auth.html',
+  'dist/prerender/es-agents.html',
+  'dist/prerender/es-agents-auth.html',
 ]
 const ogSvg = 'airo-assets/images/logo/horizontal.svg'
 for (const file of twitterShells) {
@@ -1387,6 +1505,19 @@ const ogShells = [
     file: 'dist/prerender/es-blog-outbound-frio-con-icp-sin-sdr-rentado.html',
     image: 'https://www.rutinhq.com/og/og-blog.png',
   },
+  { file: 'dist/prerender/agents.html', image: 'https://www.rutinhq.com/og/og-hub.png' },
+  {
+    file: 'dist/prerender/agents-auth.html',
+    image: 'https://www.rutinhq.com/og/og-hub.png',
+  },
+  {
+    file: 'dist/prerender/es-agents.html',
+    image: 'https://www.rutinhq.com/og/og-hub.png',
+  },
+  {
+    file: 'dist/prerender/es-agents-auth.html',
+    image: 'https://www.rutinhq.com/og/og-hub.png',
+  },
 ]
 for (const shell of ogShells) {
   const html = fs.readFileSync(shell.file, 'utf8')
@@ -1410,6 +1541,122 @@ for (const shell of ogShells) {
     console.error(`${shell.file} must set og:image:type=image/png.`)
     process.exit(1)
   }
+}
+
+const catalogFile = 'dist/.well-known/api-catalog'
+if (!fs.existsSync(catalogFile)) {
+  console.error(`${catalogFile} missing — RFC 9727 catalog must ship from public/.`)
+  process.exit(1)
+}
+const catalogBody = fs.readFileSync(catalogFile, 'utf8')
+if (htmlShell.test(catalogBody)) {
+  console.error(`${catalogFile} must be linkset JSON, not HTML.`)
+  process.exit(1)
+}
+let catalogJson
+try {
+  catalogJson = JSON.parse(catalogBody)
+} catch {
+  console.error(`${catalogFile} must be valid JSON.`)
+  process.exit(1)
+}
+if (!Array.isArray(catalogJson.linkset) || catalogJson.linkset.length === 0) {
+  console.error(`${catalogFile} must be an RFC 9264 linkset with a linkset array.`)
+  process.exit(1)
+}
+for (const needle of [
+  'https://docs.rutinhq.com/catalog/',
+  'https://www.rutinhq.com/llms.txt',
+  'https://www.rutinhq.com/sitemap.xml',
+  'https://www.rutinhq.com/auth.md',
+]) {
+  if (!catalogBody.includes(needle)) {
+    console.error(`${catalogFile} must list ${needle}.`)
+    process.exit(1)
+  }
+}
+if (forbiddenLlms.test(catalogBody)) {
+  console.error(`${catalogFile} must not invent prices or mention fzf / FuzzyFlags / Capo.`)
+  process.exit(1)
+}
+
+const authMd = 'dist/auth.md'
+if (!fs.existsSync(authMd)) {
+  console.error(`${authMd} missing — agents need a public auth.md.`)
+  process.exit(1)
+}
+const authBody = fs.readFileSync(authMd, 'utf8')
+if (htmlShell.test(authBody)) {
+  console.error(`${authMd} must be markdown, not HTML.`)
+  process.exit(1)
+}
+for (const needle of [
+  'https://docs.rutinhq.com/catalog/',
+  'strategy@rutinhq.com',
+  'Cloudflare Access',
+  'https://www.rutinhq.com/.well-known/api-catalog',
+]) {
+  if (!authBody.includes(needle)) {
+    console.error(`${authMd} must include ${needle}.`)
+    process.exit(1)
+  }
+}
+if (forbiddenLlms.test(authBody)) {
+  console.error(`${authMd} must not invent prices or mention fzf / FuzzyFlags / Capo.`)
+  process.exit(1)
+}
+if (/sk-[A-Za-z0-9]|api[_-]?key\s*[:=]|Bearer\s+[A-Za-z0-9]/i.test(authBody)) {
+  console.error(`${authMd} must not publish secrets.`)
+  process.exit(1)
+}
+
+const agentShells = [
+  {
+    file: 'dist/prerender/agents.html',
+    title: 'RutinHQ — agent catalog',
+    canonical: 'https://www.rutinhq.com/agents',
+  },
+  {
+    file: 'dist/prerender/agents-auth.html',
+    title: 'RutinHQ — agent auth surfaces',
+    canonical: 'https://www.rutinhq.com/agents/auth',
+  },
+  {
+    file: 'dist/prerender/es-agents.html',
+    title: 'RutinHQ — catálogo para agentes',
+    canonical: 'https://www.rutinhq.com/es/agents',
+  },
+  {
+    file: 'dist/prerender/es-agents-auth.html',
+    title: 'RutinHQ — auth para agentes',
+    canonical: 'https://www.rutinhq.com/es/agents/auth',
+  },
+]
+for (const shell of agentShells) {
+  const html = fs.readFileSync(shell.file, 'utf8')
+  if (!html.includes(`<title>${shell.title}</title>`)) {
+    console.error(`${shell.file} must ship unique <title>${shell.title}</title>.`)
+    process.exit(1)
+  }
+  if (!html.includes(`rel="canonical" href="${shell.canonical}"`)) {
+    console.error(`${shell.file} must canonical ${shell.canonical}.`)
+    process.exit(1)
+  }
+  if (!html.includes('rel="api-catalog" href="https://www.rutinhq.com/.well-known/api-catalog"')) {
+    console.error(`${shell.file} must advertise api-catalog in HTML link tags.`)
+    process.exit(1)
+  }
+  if (/"@type":"FAQPage"/.test(html)) {
+    console.error(`${shell.file} must not invent FAQPage.`)
+    process.exit(1)
+  }
+}
+
+if (
+  !homepage.includes('rel="api-catalog" href="https://www.rutinhq.com/.well-known/api-catalog"')
+) {
+  console.error('dist/index.html must advertise api-catalog in HTML link tags.')
+  process.exit(1)
 }
 
 console.log(

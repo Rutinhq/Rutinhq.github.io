@@ -54,6 +54,12 @@ Catalog: https://docs.rutinhq.com/catalog/nexus-os/
 - https://www.rutinhq.com/blog/icp-gated-cold-outbound-without-rented-sdr
 - https://www.rutinhq.com/es/blog
 - https://www.rutinhq.com/es/blog/outbound-frio-con-icp-sin-sdr-rentado
+- https://www.rutinhq.com/agents
+- https://www.rutinhq.com/agents/auth
+- https://www.rutinhq.com/es/agents
+- https://www.rutinhq.com/es/agents/auth
+- https://www.rutinhq.com/auth.md
+- https://www.rutinhq.com/.well-known/api-catalog
 
 ## Docs catalog URLs
 
@@ -64,6 +70,12 @@ Public curriculum — what each system does, who it is for, how it works, outcom
 - https://docs.rutinhq.com/catalog/store-os/
 - https://docs.rutinhq.com/catalog/nexus-os/
 - https://docs.rutinhq.com/catalog/grok-bot-os/ (bot-department curriculum; not sold as a fourth card on www.rutinhq.com)
+
+## Agent discovery
+
+Public vs authenticated surfaces: https://www.rutinhq.com/auth.md
+RFC 9727 api-catalog: https://www.rutinhq.com/.well-known/api-catalog
+Human catalog: https://www.rutinhq.com/agents
 
 ## Blog (EN + ES, from sitemap)
 

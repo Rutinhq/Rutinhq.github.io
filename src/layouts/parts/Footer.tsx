@@ -28,6 +28,9 @@ export function Footer() {
           <Link to={localized('/blog')} className="hover:text-foreground">
             {t('common.blog')}
           </Link>
+          <Link to={localized('/agents')} className="hover:text-foreground">
+            {t('common.agents')}
+          </Link>
           <a
             href={CALENDLY_URL}
             target="_blank"
