@@ -9,6 +9,7 @@
     "hubLink": "Catálogo",
     "blog": "Blog",
     "docs": "Docs",
+    "agents": "Agentes",
     "skipToContent": "Saltar al contenido"
   },
   "nav": {
@@ -314,6 +315,10 @@
     "storeDescription": "Haz que la tienda convierta antes de comprar ads. Auditoría y config replicable del Admin de Shopify.",
     "nexusTitle": "RutinHQ — NEXUS OS — marketing agéntico en papel primero",
     "nexusDescription": "Marketing agéntico — primero en papel, Ads solo con GO. Estrategia → Social → Ads.",
+    "agentsTitle": "RutinHQ — catálogo para agentes",
+    "agentsDescription": "Endpoints y archivos de discovery públicos: catálogo, llms.txt, sitemap y superficies de auth.",
+    "agentsAuthTitle": "RutinHQ — auth para agentes",
+    "agentsAuthDescription": "Qué es público y qué va detrás de Access. Sin secretos. Contacto strategy@rutinhq.com.",
     "notFoundTitle": "RutinHQ — 404"
   },
   "guide": {
@@ -331,5 +336,77 @@
     "leadCopied": "Brief copiado. Pégalo en el mail a strategy@",
     "limit": "Llegamos al tope de turnos de este chat. Agenda 30 min y lo seguimos ahí.",
     "disclaimer": "Las respuestas se quedan en hechos del catálogo público. Sin precios ni términos legales en el chat."
+  },
+  "agents": {
+    "eyebrow": "Catálogo para agentes",
+    "headline": "Superficies públicas que un agente puede leer.",
+    "subhead": "Índice corto de endpoints y archivos de discovery. Sin secretos. El sitio comercial sigue vendiendo un SKU a la vez.",
+    "resourcesTitle": "Recursos públicos",
+    "resources": {
+      "docs": {
+        "name": "Catálogo de sistemas",
+        "blurb": "Curriculum público — qué hace cada sistema, para quién y cómo."
+      },
+      "contact": {
+        "name": "Contacto",
+        "blurb": "Inbox humano para preguntas de fit. Sin intercambio automático de credenciales."
+      },
+      "llms": {
+        "name": "llms.txt",
+        "blurb": "Resumen corto del sitio público, pensado para máquinas."
+      },
+      "llmsFull": {
+        "name": "llms-full.txt",
+        "blurb": "Copia pública completa para agentes que quieren más que el archivo corto."
+      },
+      "sitemap": {
+        "name": "Sitemap",
+        "blurb": "URLs canónicas www para crawl e índice."
+      },
+      "apiCatalog": {
+        "name": "api-catalog RFC 9727",
+        "blurb": "Linkset de recursos públicos en /.well-known/api-catalog."
+      },
+      "authMd": {
+        "name": "auth.md",
+        "blurb": "Superficies públicas vs autenticadas. Sin claves."
+      }
+    },
+    "authTitle": "Auth",
+    "authBody": "www y el catálogo público no pedirán credenciales. El Access home de docs.rutinhq.com es para humanos, no para agentes.",
+    "authCta": "Leer superficies de auth"
+  },
+  "agentsAuth": {
+    "eyebrow": "Superficies de auth",
+    "headline": "Público vs autenticado.",
+    "subhead": "Los agentes se quedan en archivos públicos. Cloudflare Access en el home de docs no es una API pública.",
+    "rawNote": "La copia para máquinas vive en",
+    "public": {
+      "title": "Público — sin credenciales",
+      "items": [
+        "www.rutinhq.com — hub, tres landings OS, blog",
+        "docs.rutinhq.com/catalog — solo curriculum público",
+        "llms.txt, llms-full.txt, sitemap.xml, robots.txt",
+        "/.well-known/api-catalog y /auth.md",
+        "POST /api/guide — concierge anclado al catálogo, sin secretos"
+      ]
+    },
+    "gated": {
+      "title": "Autenticado — no para agentes",
+      "items": [
+        "Home de docs.rutinhq.com y otros docs de operador detrás de Access",
+        "No sondes login de Access, cookies ni rutas de bypass",
+        "El catálogo público es la única superficie de docs a leer"
+      ]
+    },
+    "notOffered": {
+      "title": "No se ofrece en www",
+      "items": [
+        "No hay OAuth ni registro de agentes",
+        "No hay pay-per-crawl ni páginas de marketing de pago por máquina",
+        "No hay API keys, tokens ni secretos en estos archivos"
+      ]
+    },
+    "catalogNote": "La lista de recursos vive en"
   }
 }

@@ -1,0 +1,75 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://www.rutinhq.com/.well-known/api-catalog",
+      "item": [
+        {
+          "href": "https://docs.rutinhq.com/catalog/",
+          "title": "Public systems catalog (curriculum)"
+        },
+        {
+          "href": "https://www.rutinhq.com/llms.txt",
+          "title": "llms.txt"
+        },
+        {
+          "href": "https://www.rutinhq.com/sitemap.xml",
+          "title": "Sitemap"
+        },
+        {
+          "href": "https://www.rutinhq.com/auth.md",
+          "title": "Public vs authenticated surfaces"
+        },
+        {
+          "href": "https://www.rutinhq.com/agents",
+          "title": "Human agent catalog"
+        }
+      ]
+    },
+    {
+      "anchor": "https://docs.rutinhq.com/catalog/",
+      "service-doc": [
+        {
+          "href": "https://docs.rutinhq.com/catalog/",
+          "type": "text/html"
+        }
+      ]
+    },
+    {
+      "anchor": "https://www.rutinhq.com/llms.txt",
+      "service-desc": [
+        {
+          "href": "https://www.rutinhq.com/llms.txt",
+          "type": "text/plain"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://www.rutinhq.com/llms-full.txt",
+          "type": "text/plain"
+        }
+      ]
+    },
+    {
+      "anchor": "https://www.rutinhq.com/sitemap.xml",
+      "service-desc": [
+        {
+          "href": "https://www.rutinhq.com/sitemap.xml",
+          "type": "application/xml"
+        }
+      ]
+    },
+    {
+      "anchor": "https://www.rutinhq.com/auth.md",
+      "service-doc": [
+        {
+          "href": "https://www.rutinhq.com/auth.md",
+          "type": "text/markdown"
+        },
+        {
+          "href": "https://www.rutinhq.com/agents/auth",
+          "type": "text/html"
+        }
+      ]
+    }
+  ]
+}

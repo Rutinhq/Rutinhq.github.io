@@ -9,6 +9,11 @@ export const GTM_PATHS = { en: '/gtm-os', es: '/es/gtm-os' } as const
 export const STORE_PATHS = { en: '/store-os', es: '/es/store-os' } as const
 export const NEXUS_PATHS = { en: '/nexus-os', es: '/es/nexus-os' } as const
 export const BLOG_PATHS = { en: '/blog', es: '/es/blog' } as const
+export const AGENTS_PATHS = { en: '/agents', es: '/es/agents' } as const
+export const AGENTS_AUTH_PATHS = {
+  en: '/agents/auth',
+  es: '/es/agents/auth',
+} as const
 export const ARTICLE01_PATHS = {
   en: '/blog/icp-gated-cold-outbound-without-rented-sdr',
   es: '/es/blog/outbound-frio-con-icp-sin-sdr-rentado',

@@ -26,6 +26,14 @@ Spanish index and article:
 
 Public catalog curriculum (English): https://docs.rutinhq.com/catalog/
 
+## Agent discovery
+
+- Human catalog: https://www.rutinhq.com/agents
+- Auth surfaces: https://www.rutinhq.com/auth.md
+- Auth (HTML): https://www.rutinhq.com/agents/auth
+- RFC 9727 api-catalog: https://www.rutinhq.com/.well-known/api-catalog
+- Sitemap: https://www.rutinhq.com/sitemap.xml
+
 ## Contact
 
 - Email: strategy@rutinhq.com

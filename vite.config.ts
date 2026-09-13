@@ -263,6 +263,14 @@ export default defineConfig({
               name: 'page-not-found',
               test: /src[\\/]pages[\\/]not-found\.tsx$/,
             },
+            {
+              name: 'page-agents',
+              test: /src[\\/]pages[\\/]agents\.tsx$/,
+            },
+            {
+              name: 'page-agents-auth',
+              test: /src[\\/]pages[\\/]agents-auth\.tsx$/,
+            },
           ],
         },
       },

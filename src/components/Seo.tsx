@@ -103,6 +103,14 @@ export function Seo({
       <link rel="icon" type="image/svg+xml" href={FAVICON_SVG} />
       <link rel="apple-touch-icon" href={APPLE_TOUCH_ICON} />
       <link rel="manifest" href={WEB_MANIFEST} />
+      <link
+        rel="api-catalog"
+        href={`${SITE}/.well-known/api-catalog`}
+        type="application/linkset+json"
+      />
+      <link rel="describedby" href={`${SITE}/llms.txt`} type="text/plain" />
+      <link rel="describedby" href={`${SITE}/auth.md`} type="text/markdown" />
+      <link rel="sitemap" href={`${SITE}/sitemap.xml`} type="application/xml" />
       {alternates?.map((alt) => (
         <link
           key={alt.hreflang}
