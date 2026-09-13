@@ -7,6 +7,29 @@ const root = path.resolve(__dirname, '..')
 const dist = path.join(root, 'dist')
 const SITE = 'https://www.rutinhq.com'
 
+const enLocale = JSON.parse(
+  fs.readFileSync(path.join(root, 'src/locales/en.json'), 'utf8'),
+)
+const esLocale = JSON.parse(
+  fs.readFileSync(path.join(root, 'src/locales/es.json'), 'utf8'),
+)
+
+function faqPageNode(pageUrl, items) {
+  if (!Array.isArray(items) || items.length === 0) return null
+  return {
+    '@type': 'FAQPage',
+    '@id': `${pageUrl}#faq`,
+    mainEntity: items.map((item) => ({
+      '@type': 'Question',
+      name: item.q,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.a,
+      },
+    })),
+  }
+}
+
 const OG_IMAGE = {
   hub: `${SITE}/og/og-hub.png`,
   gtm: `${SITE}/og/og-gtm.png`,
@@ -256,7 +279,7 @@ const ROUTES = [
   },
 ]
 
-function skuJsonLd(path, name, description, serviceType) {
+function skuJsonLd(path, name, description, serviceType, faq = []) {
   const pageUrl = `${SITE}${path}`
   const webpage = {
     '@type': 'WebPage',
@@ -267,30 +290,39 @@ function skuJsonLd(path, name, description, serviceType) {
     isPartOf: { '@id': `${SITE}/#website` },
     about: { '@id': `${SITE}/#organization` },
   }
+  const faqNode = faqPageNode(pageUrl, faq)
   if (!serviceType) {
+    if (!faqNode) {
+      return {
+        '@context': 'https://schema.org',
+        ...webpage,
+      }
+    }
     return {
       '@context': 'https://schema.org',
-      ...webpage,
+      '@graph': [webpage, faqNode],
     }
   }
+  const graph = [
+    { ...webpage, mainEntity: { '@id': `${pageUrl}#service` } },
+    {
+      '@type': 'Service',
+      '@id': `${pageUrl}#service`,
+      name: serviceType,
+      description,
+      url: pageUrl,
+      provider: { '@id': `${SITE}/#organization` },
+      serviceType,
+    },
+  ]
+  if (faqNode) graph.push(faqNode)
   return {
     '@context': 'https://schema.org',
-    '@graph': [
-      { ...webpage, mainEntity: { '@id': `${pageUrl}#service` } },
-      {
-        '@type': 'Service',
-        '@id': `${pageUrl}#service`,
-        name: serviceType,
-        description,
-        url: pageUrl,
-        provider: { '@id': `${SITE}/#organization` },
-        serviceType,
-      },
-    ],
+    '@graph': graph,
   }
 }
 
-function skuRoute({ path, file, title, description, locale, serviceType, image }) {
+function skuRoute({ path, file, title, description, locale, serviceType, image, faq }) {
   const enPath = path === '/es' ? '/' : path.replace(/^\/es/, '') || '/'
   const esPath = enPath === '/' ? '/es' : `/es${enPath}`
   return {
@@ -306,7 +338,7 @@ function skuRoute({ path, file, title, description, locale, serviceType, image }
       { hreflang: 'es', href: `${SITE}${esPath}` },
       { hreflang: 'x-default', href: `${SITE}${enPath}` },
     ],
-    jsonLd: skuJsonLd(path, title, description, serviceType),
+    jsonLd: skuJsonLd(path, title, description, serviceType, faq),
   }
 }
 
@@ -320,6 +352,7 @@ const MARKETING_ROUTES = [
     locale: 'en',
     serviceType: 'GTM OS',
     image: OG_IMAGE.gtm,
+    faq: enLocale.gtm.faq.items,
   }),
   skuRoute({
     path: '/store-os',
@@ -330,6 +363,7 @@ const MARKETING_ROUTES = [
     locale: 'en',
     serviceType: 'STORE OS',
     image: OG_IMAGE.store,
+    faq: enLocale.store.faq.items,
   }),
   skuRoute({
     path: '/nexus-os',
@@ -340,6 +374,7 @@ const MARKETING_ROUTES = [
     locale: 'en',
     serviceType: 'NEXUS OS',
     image: OG_IMAGE.nexus,
+    faq: enLocale.nexus.faq.items,
   }),
   skuRoute({
     path: '/es',
@@ -349,6 +384,7 @@ const MARKETING_ROUTES = [
       'Tres sistemas operativos instalables. Elige el cuello de botella. Una página, un SKU.',
     locale: 'es',
     image: OG_IMAGE.hub,
+    faq: esLocale.hub.faq.items,
   }),
   skuRoute({
     path: '/es/gtm-os',
@@ -359,6 +395,7 @@ const MARKETING_ROUTES = [
     locale: 'es',
     serviceType: 'GTM OS',
     image: OG_IMAGE.gtm,
+    faq: esLocale.gtm.faq.items,
   }),
   skuRoute({
     path: '/es/store-os',
@@ -369,6 +406,7 @@ const MARKETING_ROUTES = [
     locale: 'es',
     serviceType: 'STORE OS',
     image: OG_IMAGE.store,
+    faq: esLocale.store.faq.items,
   }),
   skuRoute({
     path: '/es/nexus-os',
@@ -379,6 +417,7 @@ const MARKETING_ROUTES = [
     locale: 'es',
     serviceType: 'NEXUS OS',
     image: OG_IMAGE.nexus,
+    faq: esLocale.nexus.faq.items,
   }),
 ]
 
@@ -444,23 +483,29 @@ const HUB_JSON_LD = {
         },
       ],
     },
-  ],
+    faqPageNode(`${SITE}/`, enLocale.hub.faq.items),
+  ].filter(Boolean),
 }
 
 const esHub = ROUTES.find((route) => route.path === '/es')
 if (esHub) {
   esHub.jsonLd = {
     '@context': 'https://schema.org',
-    '@graph': HUB_JSON_LD['@graph'].map((node) =>
-      node['@type'] === 'WebPage'
-        ? {
-            ...node,
-            '@id': `${SITE}/es#webpage`,
-            url: `${SITE}/es`,
-            name: esHub.title,
-          }
-        : node,
-    ),
+    '@graph': [
+      ...HUB_JSON_LD['@graph']
+        .filter((node) => node['@type'] !== 'FAQPage')
+        .map((node) =>
+          node['@type'] === 'WebPage'
+            ? {
+                ...node,
+                '@id': `${SITE}/es#webpage`,
+                url: `${SITE}/es`,
+                name: esHub.title,
+              }
+            : node,
+        ),
+      faqPageNode(`${SITE}/es`, esLocale.hub.faq.items),
+    ].filter(Boolean),
   }
 }
 

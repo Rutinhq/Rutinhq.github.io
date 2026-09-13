@@ -90,58 +90,81 @@ const OS_LANDINGS = [
   { name: 'NEXUS OS', path: '/nexus-os' },
 ] as const
 
+export type FaqItem = { q: string; a: string }
+
+export function faqPageNode(path: string, faq: readonly FaqItem[]) {
+  if (faq.length === 0) return null
+  const pageUrl = `${SITE}${path === '/' ? '/' : path}`
+  return {
+    '@type': 'FAQPage',
+    '@id': `${pageUrl}#faq`,
+    mainEntity: faq.map((item) => ({
+      '@type': 'Question',
+      name: item.q,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.a,
+      },
+    })),
+  }
+}
+
 export function hubJsonLd(
   path = '/',
   name = 'RutinHQ — systems you own',
+  faq: readonly FaqItem[] = [],
 ) {
   const pageUrl = `${SITE}${path === '/' ? '/' : path}`
+  const graph: Record<string, unknown>[] = [
+    {
+      '@type': 'WebSite',
+      '@id': `${SITE}/#website`,
+      url: `${SITE}/`,
+      name: 'RutinHQ',
+      description:
+        'RutinHQ installs B2B operating systems — GTM OS, STORE OS, and NEXUS OS — that founding teams own.',
+      inLanguage: ['en', 'es'],
+      publisher: { '@id': `${SITE}/#organization` },
+    },
+    {
+      '@type': 'Organization',
+      '@id': `${SITE}/#organization`,
+      name: 'RutinHQ',
+      alternateName: 'Rutin HQ',
+      url: `${SITE}/`,
+      email: 'strategy@rutinhq.com',
+      logo: LOGO_SVG,
+      image: `${SITE}/apple-touch-icon.png`,
+      description:
+        'RutinHQ is a B2B systems studio. We install GTM OS, STORE OS, and NEXUS OS — operating systems teams own, not retainers that vanish.',
+      knowsAbout: ['GTM OS', 'STORE OS', 'NEXUS OS', 'B2B outbound'],
+    },
+    {
+      '@type': 'WebPage',
+      '@id': `${pageUrl}#webpage`,
+      url: pageUrl,
+      name,
+      isPartOf: { '@id': `${SITE}/#website` },
+      about: { '@id': `${SITE}/#organization` },
+    },
+    {
+      '@type': 'ItemList',
+      '@id': `${SITE}/#os-landings`,
+      name: 'RutinHQ operating systems',
+      numberOfItems: OS_LANDINGS.length,
+      itemListElement: OS_LANDINGS.map((item, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: item.name,
+        url: `${SITE}${item.path}`,
+      })),
+    },
+  ]
+  const faqNode = faqPageNode(path, faq)
+  if (faqNode) graph.push(faqNode)
   return {
     '@context': 'https://schema.org',
-    '@graph': [
-      {
-        '@type': 'WebSite',
-        '@id': `${SITE}/#website`,
-        url: `${SITE}/`,
-        name: 'RutinHQ',
-        description:
-          'RutinHQ installs B2B operating systems — GTM OS, STORE OS, and NEXUS OS — that founding teams own.',
-        inLanguage: ['en', 'es'],
-        publisher: { '@id': `${SITE}/#organization` },
-      },
-      {
-        '@type': 'Organization',
-        '@id': `${SITE}/#organization`,
-        name: 'RutinHQ',
-        alternateName: 'Rutin HQ',
-        url: `${SITE}/`,
-        email: 'strategy@rutinhq.com',
-        logo: LOGO_SVG,
-        image: `${SITE}/apple-touch-icon.png`,
-        description:
-          'RutinHQ is a B2B systems studio. We install GTM OS, STORE OS, and NEXUS OS — operating systems teams own, not retainers that vanish.',
-        knowsAbout: ['GTM OS', 'STORE OS', 'NEXUS OS', 'B2B outbound'],
-      },
-      {
-        '@type': 'WebPage',
-        '@id': `${pageUrl}#webpage`,
-        url: pageUrl,
-        name,
-        isPartOf: { '@id': `${SITE}/#website` },
-        about: { '@id': `${SITE}/#organization` },
-      },
-      {
-        '@type': 'ItemList',
-        '@id': `${SITE}/#os-landings`,
-        name: 'RutinHQ operating systems',
-        numberOfItems: OS_LANDINGS.length,
-        itemListElement: OS_LANDINGS.map((item, index) => ({
-          '@type': 'ListItem',
-          position: index + 1,
-          name: item.name,
-          url: `${SITE}${item.path}`,
-        })),
-      },
-    ],
+    '@graph': graph,
   }
 }
 
@@ -150,6 +173,7 @@ export function skuJsonLd(
   name: string,
   description: string,
   service?: { serviceType: string },
+  faq: readonly FaqItem[] = [],
 ) {
   const pageUrl = `${SITE}${path}`
   const webpage = {
@@ -162,32 +186,40 @@ export function skuJsonLd(
     about: { '@id': `${SITE}/#organization` },
     ...(service ? { mainEntity: { '@id': `${pageUrl}#service` } } : {}),
   }
+  const faqNode = faqPageNode(path, faq)
 
   if (!service) {
+    if (!faqNode) {
+      return {
+        '@context': 'https://schema.org',
+        ...webpage,
+      }
+    }
     return {
       '@context': 'https://schema.org',
-      ...webpage,
+      '@graph': [webpage, faqNode],
     }
   }
 
+  const graph: Record<string, unknown>[] = [
+    webpage,
+    {
+      '@type': 'Service',
+      '@id': `${pageUrl}#service`,
+      name: service.serviceType,
+      description,
+      url: pageUrl,
+      provider: { '@id': `${SITE}/#organization` },
+      serviceType: service.serviceType,
+    },
+  ]
+  if (faqNode) graph.push(faqNode)
+
   return {
     '@context': 'https://schema.org',
-    '@graph': [
-      webpage,
-      {
-        '@type': 'Service',
-        '@id': `${pageUrl}#service`,
-        name: service.serviceType,
-        description,
-        url: pageUrl,
-        provider: { '@id': `${SITE}/#organization` },
-        serviceType: service.serviceType,
-      },
-    ],
+    '@graph': graph,
   }
 }
-
-type FaqItem = { q: string; a: string }
 
 export function articleJsonLd({
   path,
@@ -259,20 +291,8 @@ export function articleJsonLd({
     },
   ]
 
-  if (faq.length > 0) {
-    graph.push({
-      '@type': 'FAQPage',
-      '@id': `${url}#faq`,
-      mainEntity: faq.map((item) => ({
-        '@type': 'Question',
-        name: item.q,
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: item.a,
-        },
-      })),
-    })
-  }
+  const faqNode = faqPageNode(path, faq)
+  if (faqNode) graph.push(faqNode)
 
   return {
     '@context': 'https://schema.org',

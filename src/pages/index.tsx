@@ -1,9 +1,11 @@
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { Ctas } from '@/components/Ctas'
+import { FaqSection } from '@/components/Faq'
 import { Section } from '@/components/Section'
 import { hubJsonLd, OG_IMAGE, Seo } from '@/components/Seo'
 import { buttonVariants } from '@/components/ui/button'
+import { useObjectList } from '@/lib/i18n/lists'
 import { usePageLocale } from '@/lib/i18n/usePageLocale'
 import { DOCS_CATALOG_URL } from '@/lib/links'
 import { cn } from '@/lib/utils'
@@ -17,6 +19,7 @@ const CARDS = [
 export default function HubPage() {
   const { t } = useTranslation()
   const { locale, localized, alternatesFor } = usePageLocale()
+  const faq = useObjectList<{ q: string; a: string }>('hub.faq.items')
 
   return (
     <>
@@ -27,7 +30,7 @@ export default function HubPage() {
         locale={locale}
         alternates={alternatesFor('/')}
         image={OG_IMAGE.hub}
-        jsonLd={hubJsonLd(localized('/'), t('seo.hubTitle'))}
+        jsonLd={hubJsonLd(localized('/'), t('seo.hubTitle'), faq)}
       />
 
       <Section first>
@@ -72,6 +75,8 @@ export default function HubPage() {
           ))}
         </div>
       </Section>
+
+      <FaqSection title={t('hub.faq.title')} items={faq} />
 
       <Section>
         <Ctas />

@@ -227,6 +227,42 @@ export default defineConfig({
               name: 'vendor',
               test: /node_modules[\\/](react|react-dom|scheduler|react-router|react-router-dom|i18next|react-i18next|@dr\.pogodin[\\/]react-helmet)/,
             },
+            {
+              name: 'page-hub',
+              test: /src[\\/]pages[\\/]index\.tsx$/,
+            },
+            {
+              name: 'page-gtm-os',
+              test: /src[\\/]pages[\\/]gtm-os\.tsx$/,
+            },
+            {
+              name: 'page-store-os',
+              test: /src[\\/]pages[\\/]store-os\.tsx$/,
+            },
+            {
+              name: 'page-nexus-os',
+              test: /src[\\/]pages[\\/]nexus-os\.tsx$/,
+            },
+            {
+              name: 'page-blog',
+              test: /src[\\/]pages[\\/]blog\.tsx$/,
+            },
+            {
+              name: 'page-blog-es',
+              test: /src[\\/]pages[\\/]blog-es\.tsx$/,
+            },
+            {
+              name: 'page-article-en',
+              test: /src[\\/]pages[\\/]blog-icp-gated-cold-outbound\.tsx$/,
+            },
+            {
+              name: 'page-article-es',
+              test: /src[\\/]pages[\\/]blog-outbound-frio\.tsx$/,
+            },
+            {
+              name: 'page-not-found',
+              test: /src[\\/]pages[\\/]not-found\.tsx$/,
+            },
           ],
         },
       },

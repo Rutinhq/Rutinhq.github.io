@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react'
+import { lazy } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import { RootLayout } from '@/layouts/RootLayout'
 
@@ -14,36 +14,30 @@ const BlogIcpGatedColdOutboundPage = lazy(
 const BlogOutboundFrioPage = lazy(() => import('@/pages/blog-outbound-frio'))
 const NotFoundPage = lazy(() => import('@/pages/not-found'))
 
-function RouteFallback() {
-  return <div className="min-h-[40vh]" aria-busy="true" />
-}
-
 export default function App() {
   return (
-    <Suspense fallback={<RouteFallback />}>
-      <Routes>
-        <Route element={<RootLayout />}>
-          <Route path="/" element={<HubPage />} />
-          <Route path="/es" element={<HubPage />} />
-          <Route path="/gtm-os" element={<GtmOsPage />} />
-          <Route path="/es/gtm-os" element={<GtmOsPage />} />
-          <Route path="/store-os" element={<StoreOsPage />} />
-          <Route path="/es/store-os" element={<StoreOsPage />} />
-          <Route path="/nexus-os" element={<NexusOsPage />} />
-          <Route path="/es/nexus-os" element={<NexusOsPage />} />
-          <Route path="/blog" element={<BlogPage />} />
-          <Route
-            path="/blog/icp-gated-cold-outbound-without-rented-sdr"
-            element={<BlogIcpGatedColdOutboundPage />}
-          />
-          <Route path="/es/blog" element={<BlogEsPage />} />
-          <Route
-            path="/es/blog/outbound-frio-con-icp-sin-sdr-rentado"
-            element={<BlogOutboundFrioPage />}
-          />
-          <Route path="*" element={<NotFoundPage />} />
-        </Route>
-      </Routes>
-    </Suspense>
+    <Routes>
+      <Route element={<RootLayout />}>
+        <Route path="/" element={<HubPage />} />
+        <Route path="/es" element={<HubPage />} />
+        <Route path="/gtm-os" element={<GtmOsPage />} />
+        <Route path="/es/gtm-os" element={<GtmOsPage />} />
+        <Route path="/store-os" element={<StoreOsPage />} />
+        <Route path="/es/store-os" element={<StoreOsPage />} />
+        <Route path="/nexus-os" element={<NexusOsPage />} />
+        <Route path="/es/nexus-os" element={<NexusOsPage />} />
+        <Route path="/blog" element={<BlogPage />} />
+        <Route
+          path="/blog/icp-gated-cold-outbound-without-rented-sdr"
+          element={<BlogIcpGatedColdOutboundPage />}
+        />
+        <Route path="/es/blog" element={<BlogEsPage />} />
+        <Route
+          path="/es/blog/outbound-frio-con-icp-sin-sdr-rentado"
+          element={<BlogOutboundFrioPage />}
+        />
+        <Route path="*" element={<NotFoundPage />} />
+      </Route>
+    </Routes>
   )
 }

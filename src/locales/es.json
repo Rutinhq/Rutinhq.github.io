@@ -19,7 +19,28 @@
     "subhead": "Tres sistemas operativos instalables. Elige el cuello de botella. Una página, un SKU.",
     "catalogNote": "El curriculum del catálogo también vive en",
     "catalogNoteAfter": "— este sitio vende un SKU a la vez.",
-    "blogNote": "Los textos viven en el"
+    "blogNote": "Los textos viven en el",
+    "faq": {
+      "title": "Preguntas frecuentes",
+      "items": [
+        {
+          "q": "¿Qué instala RutinHQ?",
+          "a": "Tres sistemas operativos instalables. Elige el cuello de botella. Una página, un SKU."
+        },
+        {
+          "q": "¿Cuáles son los tres sistemas operativos?",
+          "a": "GTM OS — outbound B2B que se queda con tu equipo, en frío, filtrado por ICP, con gates por milestone. STORE OS — auditoría + config del Admin de Shopify para que la tienda convierta antes de gastar en ads. NEXUS OS — marketing agéntico, Estrategia → Social → Ads (Ads con gate hasta firmar creatividades, mix y presupuesto)."
+        },
+        {
+          "q": "¿Esto es un retainer?",
+          "a": "Sistemas que posees — no retainers que desaparecen."
+        },
+        {
+          "q": "¿Dónde más vive el catálogo?",
+          "a": "El curriculum del catálogo también vive en docs.rutinhq.com/catalog — este sitio vende un SKU a la vez."
+        }
+      ]
+    }
   },
   "gtm": {
     "eyebrow": "GTM OS",
@@ -91,6 +112,27 @@
         "Un dump de listas / CRM / APIs",
         "Una promesa de N juntas"
       ]
+    },
+    "faq": {
+      "title": "Preguntas frecuentes",
+      "items": [
+        {
+          "q": "¿Qué es GTM OS?",
+          "a": "Outbound que se queda contigo. Un sistema de prospección B2B en frío instalado en tu equipo — no un SDR rentado que muere cuando termina el contrato. Cambia idioma, filtros y ángulo; el núcleo se queda."
+        },
+        {
+          "q": "¿Para quién es GTM OS?",
+          "a": "Founder / CEO o lead de ops en B2B. Ya venden; el cuello es un pipeline repetible. Cold email filtrado por ICP. La primera corrida siempre es en frío."
+        },
+        {
+          "q": "¿Cómo funciona GTM OS?",
+          "a": "Con gates por milestone: M0 Investigación de sector, M1 ICP + validación, M2 Framework de messaging, M3 Playbook de ventas + gate, M4 Activación de campaña, M5 Crawl / análisis, M6 KPIs semanales (continuo), M7 Cierre + escala al siguiente vertical."
+        },
+        {
+          "q": "¿Qué no es GTM OS?",
+          "a": "Una agencia de ads o social. Una wiki del SaaS de otro. Un dump de listas / CRM / APIs. Una promesa de N juntas."
+        }
+      ]
     }
   },
   "store": {
@@ -142,6 +184,27 @@
         "Defaults de catálogo o tarifas de envío de otro",
         "Bots que colocan órdenes de compra"
       ]
+    },
+    "faq": {
+      "title": "Preguntas frecuentes",
+      "items": [
+        {
+          "q": "¿Qué es STORE OS?",
+          "a": "Haz que la tienda convierta antes de comprar ads. Auditoría + config replicable del Admin de Shopify — variantes, precio, peso, envío — para que la fricción de ops deje de matar la conversión."
+        },
+        {
+          "q": "¿Para quién es STORE OS?",
+          "a": "Founder / lead de ecom en Shopify DTC. Fricción de ops. Quiere ads pero la tienda aún no convierte."
+        },
+        {
+          "q": "¿Cómo funciona STORE OS?",
+          "a": "1) Scorecard / diagnóstico de fricción en Admin. 2) Auditoría: variantes, precio, peso, envío. 3) Config de Admin al molde (sin editar archivos de theme). 4) Checklist de entrega + handoff. 5) Ads / creatividades = fuera de alcance (NEXUS OS)."
+        },
+        {
+          "q": "¿Qué no es STORE OS?",
+          "a": "Edición de archivos de theme / Dawn. Una agencia de ads. Defaults de catálogo o tarifas de envío de otro. Bots que colocan órdenes de compra."
+        }
+      ]
     }
   },
   "nexus": {
@@ -191,6 +254,27 @@
         "Dueño del ICP o la oferta del cliente",
         "GTM OS",
         "Edición de theme de Shopify"
+      ]
+    },
+    "faq": {
+      "title": "Preguntas frecuentes",
+      "items": [
+        {
+          "q": "¿Qué es NEXUS OS?",
+          "a": "Marketing agéntico — primero en papel, Ads solo con GO. Estrategia → Social → Ads. Hasta que creatividades, mix y presupuesto tengan un GO explícito: solo papel (sin pixel, sin spend)."
+        },
+        {
+          "q": "¿Para quién es NEXUS OS?",
+          "a": "Retailer / ecom con oferta y SKUs claros. Quiere demanda desde social como sistema. Voz de marca en ops/marketing del cliente (NEXUS no inventa ICP ni oferta)."
+        },
+        {
+          "q": "¿Cómo funciona NEXUS OS?",
+          "a": "1) Brief + pilares de contenido (un problema, un objeto). 2) Batch semanal en papel: mensaje · post orgánico · historia de producto. 3) Aprobación de voz por el dueño de marca del cliente. 4) Rotación de pilares. 5) Ads en pausa hasta firmar fotos + mix + presupuesto."
+        },
+        {
+          "q": "¿Qué no es NEXUS OS?",
+          "a": "Ads en vivo / pixel / spend sin GO. Dueño del ICP o la oferta del cliente. GTM OS. Edición de theme de Shopify."
+        }
       ]
     }
   },

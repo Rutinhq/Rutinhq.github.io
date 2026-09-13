@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { Ctas } from '@/components/Ctas'
+import { FaqSection } from '@/components/Faq'
 import { BulletList, MonoTitle, Section } from '@/components/Section'
 import { OG_IMAGE, Seo, skuJsonLd } from '@/components/Seo'
 import { useObjectList } from '@/lib/i18n/lists'
@@ -15,6 +16,7 @@ export default function NexusOsPage() {
   const how = useObjectList<string>('nexus.how.items')
   const outcomes = useObjectList<string>('nexus.outcomes.items')
   const notWhat = useObjectList<string>('nexus.notWhat.items')
+  const faq = useObjectList<{ q: string; a: string }>('nexus.faq.items')
 
   return (
     <>
@@ -25,9 +27,13 @@ export default function NexusOsPage() {
         locale={locale}
         alternates={alternatesFor('/nexus-os')}
         image={OG_IMAGE.nexus}
-        jsonLd={skuJsonLd(path, t('seo.nexusTitle'), t('seo.nexusDescription'), {
-          serviceType: 'NEXUS OS',
-        })}
+        jsonLd={skuJsonLd(
+          path,
+          t('seo.nexusTitle'),
+          t('seo.nexusDescription'),
+          { serviceType: 'NEXUS OS' },
+          faq,
+        )}
       />
 
       <Section first>
@@ -74,6 +80,8 @@ export default function NexusOsPage() {
         <BulletList items={notWhat} muted />
         <Ctas className="mt-10" docsHref={DOCS_NEXUS_URL} />
       </Section>
+
+      <FaqSection title={t('nexus.faq.title')} items={faq} />
     </>
   )
 }
