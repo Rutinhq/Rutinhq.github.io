@@ -195,6 +195,22 @@ if (!/\/llms-full\.txt\s+\/llms-full\.txt\s+200/.test(redirects)) {
   )
   process.exit(1)
 }
+for (const identity of [
+  '/favicon.ico',
+  '/favicon.svg',
+  '/favicon-48x48.png',
+  '/favicon-192x192.png',
+  '/apple-touch-icon.png',
+  '/site.webmanifest',
+]) {
+  const escaped = identity.replaceAll('.', '\\.')
+  if (!new RegExp(`${escaped}\\s+${escaped}\\s+200`).test(redirects)) {
+    console.error(
+      `dist/_redirects must 200-rewrite ${identity} onto itself so crawlers cannot receive SPA HTML.`,
+    )
+    process.exit(1)
+  }
+}
 
 const sitemap = 'dist/sitemap.xml'
 if (!fs.existsSync(sitemap)) {
@@ -321,6 +337,24 @@ if (fs.existsSync('dist/_headers')) {
   ) {
     console.error(
       'dist/_headers must set Content-Signal search=yes, ai-train=no, use=reference on /*.',
+    )
+    process.exit(1)
+  }
+  if (!/\/favicon-48x48\.png[\s\S]*?Content-Type:\s*image\/png/i.test(headers)) {
+    console.error('dist/_headers must set image/png on /favicon-48x48.png.')
+    process.exit(1)
+  }
+  if (!/\/favicon-192x192\.png[\s\S]*?Content-Type:\s*image\/png/i.test(headers)) {
+    console.error('dist/_headers must set image/png on /favicon-192x192.png.')
+    process.exit(1)
+  }
+  if (
+    !/\/site\.webmanifest[\s\S]*?Content-Type:\s*application\/manifest\+json/i.test(
+      headers,
+    )
+  ) {
+    console.error(
+      'dist/_headers must set application/manifest+json on /site.webmanifest.',
     )
     process.exit(1)
   }
@@ -775,6 +809,93 @@ if (ico[4] < 3) {
   process.exit(1)
 }
 
+function assertPngSize(file, width, height) {
+  if (!fs.existsSync(file)) {
+    console.error(`${file} missing — Google SERP needs a square PNG raster icon.`)
+    process.exit(1)
+  }
+  const buf = fs.readFileSync(file)
+  if (buf[0] !== 0x89 || buf[1] !== 0x50 || buf[2] !== 0x4e || buf[3] !== 0x47) {
+    console.error(`${file} must be a PNG, not HTML.`)
+    process.exit(1)
+  }
+  const w = buf.readUInt32BE(16)
+  const h = buf.readUInt32BE(20)
+  if (w !== width || h !== height) {
+    console.error(`${file} must be ${width}×${height} (got ${w}×${h}).`)
+    process.exit(1)
+  }
+}
+
+assertPngSize('dist/favicon-48x48.png', 48, 48)
+assertPngSize('dist/favicon-192x192.png', 192, 192)
+
+const manifestPath = 'dist/site.webmanifest'
+if (!fs.existsSync(manifestPath)) {
+  console.error(`${manifestPath} missing — Google/PWA icon discovery 404s without it.`)
+  process.exit(1)
+}
+let manifest
+try {
+  manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'))
+} catch {
+  console.error(`${manifestPath} must be valid JSON.`)
+  process.exit(1)
+}
+const manifestIcons = Array.isArray(manifest.icons) ? manifest.icons : []
+for (const icon of [
+  { src: '/favicon-48x48.png', sizes: '48x48' },
+  { src: '/favicon-192x192.png', sizes: '192x192' },
+]) {
+  if (
+    !manifestIcons.some(
+      (entry) => entry.src === icon.src && entry.sizes === icon.sizes && entry.type === 'image/png',
+    )
+  ) {
+    console.error(
+      `${manifestPath} must list ${icon.src} as a ${icon.sizes} PNG icon.`,
+    )
+    process.exit(1)
+  }
+}
+
+const seoSource = fs.readFileSync('src/components/Seo.tsx', 'utf8')
+const png48Href = 'https://www.rutinhq.com/favicon-48x48.png'
+const png192Href = 'https://www.rutinhq.com/favicon-192x192.png'
+const svgHref = 'https://www.rutinhq.com/favicon.svg'
+if (!seoSource.includes('favicon-48x48.png') || !seoSource.includes('favicon-192x192.png')) {
+  console.error('src/components/Seo.tsx must link PNG 48 and 192 HQ icons.')
+  process.exit(1)
+}
+if (seoSource.indexOf('favicon-48x48.png') > seoSource.indexOf('image/svg+xml')) {
+  console.error('src/components/Seo.tsx must link PNG before SVG for Google SERP.')
+  process.exit(1)
+}
+
+function assertGoogleFaviconLinks(file) {
+  const html = fs.readFileSync(file, 'utf8')
+  for (const needle of [
+    `type="image/png" sizes="48x48" href="${png48Href}"`,
+    `type="image/png" sizes="192x192" href="${png192Href}"`,
+    `href="https://www.rutinhq.com/favicon.ico"`,
+    `type="image/svg+xml" href="${svgHref}"`,
+    `rel="apple-touch-icon" href="https://www.rutinhq.com/apple-touch-icon.png"`,
+    `rel="manifest" href="https://www.rutinhq.com/site.webmanifest"`,
+  ]) {
+    if (!html.includes(needle)) {
+      console.error(`${file} must include Google-friendly icon link: ${needle}`)
+      process.exit(1)
+    }
+  }
+  if (html.indexOf(png48Href) > html.indexOf(svgHref)) {
+    console.error(`${file} must link PNG 48×48 before SVG so Google can pick a raster icon.`)
+    process.exit(1)
+  }
+}
+
+assertGoogleFaviconLinks('dist/index.html')
+assertGoogleFaviconLinks('index.html')
+
 const appSource = fs.readFileSync('src/App.tsx', 'utf8')
 for (const route of ['/es', '/es/gtm-os', '/es/store-os', '/es/nexus-os']) {
   if (!appSource.includes(`path="${route}"`)) {
@@ -1178,5 +1299,5 @@ console.log(
 )
 
 console.log(
-  'SSR bodies in #root; 404.html ships (no SPA catch-all); blog + SKU + ES shells unique; favicon.ico real; Calendly primary CTA.',
+  'SSR bodies in #root; 404.html ships (no SPA catch-all); blog + SKU + ES shells unique; favicon.ico + PNG 48/192 + manifest real; Calendly primary CTA.',
 )
