@@ -46,7 +46,7 @@ export default function BlogEsPage() {
       <Section first>
         <p className="font-mono text-[12px] uppercase tracking-[0.14em] text-primary">
           Radar · filtro · DRAFT
-        </p
+        </p>
         <h1
           className="mt-4 max-w-4xl font-heading font-extrabold tracking-[-0.03em]"
           style={{ fontSize: 'clamp(36px, 6vw, 64px)' }}
