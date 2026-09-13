@@ -5,10 +5,12 @@ import { OG_IMAGE, Seo, blogIndexJsonLd, hreflangPair } from '@/components/Seo'
 import { Button } from '@/components/ui/button'
 import {
   ARTICLE01_ES,
+  ARTICLE02,
   BLOG_FEATURED_COMING_ES,
   BLOG_FILTER_SIGNALS_ES,
   BLOG_INDEX,
   BLOG_INDEX_ES,
+  BLOG_ROBOTS,
 } from '@/lib/blog'
 import {
   DOCS_CATALOG_URL,
@@ -27,6 +29,7 @@ export default function BlogEsPage() {
         path={BLOG_INDEX_ES.path}
         locale="es"
         noindex={BLOG_INDEX_ES.noindex}
+        robots={BLOG_ROBOTS}
         alternates={hreflangPair(BLOG_INDEX.path, BLOG_INDEX_ES.path)}
         image={OG_IMAGE.blog}
         jsonLd={blogIndexJsonLd(
@@ -42,8 +45,8 @@ export default function BlogEsPage() {
 
       <Section first>
         <p className="font-mono text-[12px] uppercase tracking-[0.14em] text-primary">
-          Radar · filtro
-        </p>
+          Radar · filtro · DRAFT
+        </p
         <h1
           className="mt-4 max-w-4xl font-heading font-extrabold tracking-[-0.03em]"
           style={{ fontSize: 'clamp(36px, 6vw, 64px)' }}
@@ -89,7 +92,7 @@ export default function BlogEsPage() {
         <MonoTitle>Destacado</MonoTitle>
         <article className="mt-8 max-w-2xl">
           <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-primary">
-            How-to · GTM OS
+            How-to · GTM OS · DRAFT
           </p>
           <h2 className="mt-3 text-2xl font-heading font-extrabold tracking-[-0.03em]">
             <Link to={ARTICLE01_ES.path} className="hover:text-primary">
@@ -101,6 +104,23 @@ export default function BlogEsPage() {
           </p>
           <Button asChild className="mt-8" size="lg">
             <Link to={ARTICLE01_ES.path}>Lee el how-to</Link>
+          </Button>
+        </article>
+        <article className="mt-10 max-w-2xl border-t border-border pt-10">
+          <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-primary">
+            How-to · STORE OS · DRAFT · EN
+          </p>
+          <h2 className="mt-3 text-2xl font-heading font-extrabold tracking-[-0.03em]">
+            <Link to={ARTICLE02.path} className="hover:text-primary">
+              {ARTICLE02.title}
+            </Link>
+          </h2>
+          <p className="mt-3 text-[16px] text-muted-foreground">
+            Outline EN (Sprint 2). Base pública en inglés — sin gemelo ES
+            todavía.
+          </p>
+          <Button asChild className="mt-8" size="lg">
+            <Link to={ARTICLE02.path}>Leer el outline</Link>
           </Button>
         </article>
         <div className="mt-12 grid grid-cols-1 border-t border-border lg:grid-cols-3">
@@ -152,17 +172,24 @@ export default function BlogEsPage() {
           </article>
           <article className="flex flex-col border-t border-border py-8 lg:border-t-0 lg:border-l lg:border-border lg:px-8">
             <h2 className="text-2xl font-heading font-extrabold tracking-[-0.03em]">
-              Poseer la máquina vs retainer
+              Fricción de Admin antes de ads
             </h2>
             <p className="mt-3 flex-1 text-[16px] text-muted-foreground">
-              Posts M1 cuando estén live. Outbound hoy es GTM OS.
+              Outline STORE OS en EN (DRAFT). Ads fuera de alcance.
             </p>
             <p className="mt-8 font-mono text-[12px] tracking-[0.04em]">
-              <a
-                href={WWW_GTM_URL}
+              <Link
+                to={ARTICLE02.path}
                 className="text-foreground underline underline-offset-4 hover:text-primary"
               >
-                GTM OS
+                Article02
+              </Link>
+              {' · '}
+              <a
+                href={WWW_STORE_URL}
+                className="text-foreground underline underline-offset-4 hover:text-primary"
+              >
+                STORE OS
               </a>
             </p>
           </article>

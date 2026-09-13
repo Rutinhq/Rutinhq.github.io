@@ -17,6 +17,8 @@ export type BlogPostCta = {
   body?: ReactNode
   mailto: string
   mailtoLabel?: string
+  calendly?: string
+  calendlyLabel?: string
   lpHref: string
   lpLabel: string
 }
@@ -27,8 +29,9 @@ type BlogPostLayoutProps = {
   title: string
   lede: ReactNode
   children: ReactNode
-  faqTitle: string
-  faq: readonly BlogFaqItem[]
+  draft?: boolean
+  faqTitle?: string
+  faq?: readonly BlogFaqItem[]
   cta: BlogPostCta
 }
 
@@ -86,13 +89,19 @@ export function BlogPostLayout({
   title,
   lede,
   children,
+  draft = false,
   faqTitle,
-  faq,
+  faq = [],
   cta,
 }: BlogPostLayoutProps) {
   return (
     <article className="blog-post">
       <div className="blog-post-column">
+        {draft ? (
+          <p className="blog-kicker" role="status">
+            DRAFT — outline only. Not for index until publish GO.
+          </p>
+        ) : null}
         <p className="blog-kicker">{typeLabel}</p>
         <nav aria-label="Breadcrumb" className="blog-breadcrumb">
           {breadcrumbs.map((crumb, index) => (
@@ -114,22 +123,36 @@ export function BlogPostLayout({
 
         <BlogProse>{children}</BlogProse>
 
-        <section className="blog-faq">
-          <h2 className="blog-section-heading">{faqTitle}</h2>
-          <div className="blog-faq-list">
-            {faq.map((item) => (
-              <div key={item.q}>
-                <h3 className="blog-faq-question">{item.q}</h3>
-                <div className="blog-faq-answer">{item.a}</div>
-              </div>
-            ))}
-          </div>
-        </section>
+        {faqTitle && faq.length > 0 ? (
+          <section className="blog-faq">
+            <h2 className="blog-section-heading">{faqTitle}</h2>
+            <div className="blog-faq-list">
+              {faq.map((item) => (
+                <div key={item.q}>
+                  <h3 className="blog-faq-question">{item.q}</h3>
+                  <div className="blog-faq-answer">{item.a}</div>
+                </div>
+              ))}
+            </div>
+          </section>
+        ) : null}
 
         <footer className="blog-cta">
           <h2 className="blog-section-heading">{cta.title}</h2>
           {cta.body ? <div className="blog-lede">{cta.body}</div> : null}
           <p className="blog-cta-links">
+            {cta.calendly ? (
+              <>
+                <a
+                  href={cta.calendly}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {cta.calendlyLabel ?? 'Calendly'}
+                </a>
+                {' · '}
+              </>
+            ) : null}
             <a href={cta.mailto}>{cta.mailtoLabel ?? 'strategy@'}</a>
             {' · '}
             <a href={cta.lpHref}>{cta.lpLabel}</a>
