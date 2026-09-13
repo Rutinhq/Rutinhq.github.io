@@ -38,6 +38,48 @@ const OG_IMAGE = {
   blog: `${SITE}/og/og-blog.png`,
 }
 
+const LOGO_PNG = `${SITE}/apple-touch-icon.png`
+
+function organizationNode() {
+  return {
+    '@type': 'Organization',
+    '@id': `${SITE}/#organization`,
+    name: 'RutinHQ',
+    alternateName: 'Rutin HQ',
+    url: `${SITE}/`,
+    email: 'strategy@rutinhq.com',
+    logo: {
+      '@type': 'ImageObject',
+      url: LOGO_PNG,
+      width: 180,
+      height: 180,
+    },
+    image: LOGO_PNG,
+    description:
+      'RutinHQ is a B2B systems studio. We install GTM OS, STORE OS, and NEXUS OS — operating systems teams own, not retainers that vanish.',
+    knowsAbout: ['GTM OS', 'STORE OS', 'NEXUS OS', 'B2B outbound'],
+    contactPoint: {
+      '@type': 'ContactPoint',
+      email: 'strategy@rutinhq.com',
+      contactType: 'sales',
+      availableLanguage: ['English', 'Spanish'],
+    },
+  }
+}
+
+function breadcrumbList(url, items) {
+  return {
+    '@type': 'BreadcrumbList',
+    '@id': `${url}#breadcrumb`,
+    itemListElement: items.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.name,
+      item: item.url,
+    })),
+  }
+}
+
 // Do NOT emit dist/blog.html, dist/es/blog.html, dist/blog/index.html, or
 // dist/blog/<slug>/index.html. Pages html-handling 308s pretty URLs:
 // /blog.html → /blog, and /blog → /blog.html 200 then self-loops Location:/blog.
@@ -69,6 +111,9 @@ const ROUTES = [
           description:
             'Radar for founders who install GTM and ops systems — not rented seats.',
           inLanguage: 'en',
+          isPartOf: { '@id': `${SITE}/#website` },
+          about: { '@id': `${SITE}/#organization` },
+          mainEntity: { '@id': `${SITE}/blog#featured` },
         },
         {
           '@type': 'ItemList',
@@ -110,16 +155,12 @@ const ROUTES = [
         href: `${SITE}/blog/icp-gated-cold-outbound-without-rented-sdr`,
       },
     ],
+    datePublished: '2026-09-08',
+    dateModified: '2026-09-08',
     jsonLd: {
       '@context': 'https://schema.org',
       '@graph': [
-        {
-          '@type': 'Organization',
-          '@id': `${SITE}/#organization`,
-          name: 'RutinHQ',
-          url: `${SITE}/`,
-          email: 'strategy@rutinhq.com',
-        },
+        organizationNode(),
         {
           '@type': 'BlogPosting',
           '@id': `${SITE}/blog/icp-gated-cold-outbound-without-rented-sdr#article`,
@@ -130,9 +171,21 @@ const ROUTES = [
           dateModified: '2026-09-08',
           inLanguage: 'en',
           url: `${SITE}/blog/icp-gated-cold-outbound-without-rented-sdr`,
+          mainEntityOfPage: {
+            '@type': 'WebPage',
+            '@id': `${SITE}/blog/icp-gated-cold-outbound-without-rented-sdr`,
+          },
           author: { '@id': `${SITE}/#organization` },
           publisher: { '@id': `${SITE}/#organization` },
         },
+        breadcrumbList(`${SITE}/blog/icp-gated-cold-outbound-without-rented-sdr`, [
+          { name: 'Home', url: `${SITE}/` },
+          { name: 'Blog', url: `${SITE}/blog` },
+          {
+            name: 'ICP-gated cold outbound without a rented SDR',
+            url: `${SITE}/blog/icp-gated-cold-outbound-without-rented-sdr`,
+          },
+        ]),
         {
           '@type': 'FAQPage',
           '@id': `${SITE}/blog/icp-gated-cold-outbound-without-rented-sdr#faq`,
@@ -199,6 +252,23 @@ const ROUTES = [
           description:
             'Radar para founders que instalan sistemas de GTM y ops — no asientos rentados.',
           inLanguage: 'es',
+          isPartOf: { '@id': `${SITE}/#website` },
+          about: { '@id': `${SITE}/#organization` },
+          mainEntity: { '@id': `${SITE}/es/blog#featured` },
+        },
+        {
+          '@type': 'ItemList',
+          '@id': `${SITE}/es/blog#featured`,
+          name: 'Destacado',
+          numberOfItems: 1,
+          itemListElement: [
+            {
+              '@type': 'ListItem',
+              position: 1,
+              name: 'Outbound frío con ICP — sin SDR rentado',
+              url: `${SITE}/es/blog/outbound-frio-con-icp-sin-sdr-rentado`,
+            },
+          ],
         },
       ],
     },
@@ -226,16 +296,37 @@ const ROUTES = [
         href: `${SITE}/blog/icp-gated-cold-outbound-without-rented-sdr`,
       },
     ],
+    datePublished: '2026-09-08',
+    dateModified: '2026-09-08',
     jsonLd: {
       '@context': 'https://schema.org',
       '@graph': [
+        organizationNode(),
         {
           '@type': 'BlogPosting',
           '@id': `${SITE}/es/blog/outbound-frio-con-icp-sin-sdr-rentado#article`,
           headline: 'Outbound frío con ICP — sin SDR rentado',
+          description:
+            'Mantén fijo el núcleo del outbound; cambia solo ICP, mensaje y filtros — el pipeline se queda con tu equipo cuando termina el contrato.',
+          datePublished: '2026-09-08',
+          dateModified: '2026-09-08',
           inLanguage: 'es',
           url: `${SITE}/es/blog/outbound-frio-con-icp-sin-sdr-rentado`,
+          mainEntityOfPage: {
+            '@type': 'WebPage',
+            '@id': `${SITE}/es/blog/outbound-frio-con-icp-sin-sdr-rentado`,
+          },
+          author: { '@id': `${SITE}/#organization` },
+          publisher: { '@id': `${SITE}/#organization` },
         },
+        breadcrumbList(`${SITE}/es/blog/outbound-frio-con-icp-sin-sdr-rentado`, [
+          { name: 'Inicio', url: `${SITE}/` },
+          { name: 'Blog', url: `${SITE}/es/blog` },
+          {
+            name: 'Outbound frío con ICP — sin SDR rentado',
+            url: `${SITE}/es/blog/outbound-frio-con-icp-sin-sdr-rentado`,
+          },
+        ]),
         {
           '@type': 'FAQPage',
           '@id': `${SITE}/es/blog/outbound-frio-con-icp-sin-sdr-rentado#faq`,
@@ -436,19 +527,7 @@ const HUB_JSON_LD = {
       inLanguage: ['en', 'es'],
       publisher: { '@id': `${SITE}/#organization` },
     },
-    {
-      '@type': 'Organization',
-      '@id': `${SITE}/#organization`,
-      name: 'RutinHQ',
-      alternateName: 'Rutin HQ',
-      url: `${SITE}/`,
-      email: 'strategy@rutinhq.com',
-      logo: `${SITE}/airo-assets/images/logo/horizontal.svg`,
-      image: `${SITE}/apple-touch-icon.png`,
-      description:
-        'RutinHQ is a B2B systems studio. We install GTM OS, STORE OS, and NEXUS OS — operating systems teams own, not retainers that vanish.',
-      knowsAbout: ['GTM OS', 'STORE OS', 'NEXUS OS', 'B2B outbound'],
-    },
+    organizationNode(),
     {
       '@type': 'WebPage',
       '@id': `${SITE}/#webpage`,
@@ -531,6 +610,8 @@ function stripHomepageSeo(html) {
 function seoHead(route) {
   const url = `${SITE}${route.path}`
   const ogLocale = route.locale === 'es' ? 'es_MX' : 'en_US'
+  const ogLocaleAlternate = route.locale === 'es' ? 'en_US' : 'es_MX'
+  const modified = route.dateModified ?? route.datePublished
   const alternates = (route.alternates ?? []).map(
     (alt) =>
       `<link rel="alternate" hreflang="${alt.hreflang}" href="${alt.href}" />`,
@@ -545,14 +626,30 @@ function seoHead(route) {
     `<meta property="og:type" content="${route.ogType}" />`,
     `<meta property="og:site_name" content="RutinHQ" />`,
     `<meta property="og:locale" content="${ogLocale}" />`,
+    ...(route.alternates?.length
+      ? [`<meta property="og:locale:alternate" content="${ogLocaleAlternate}" />`]
+      : []),
     `<meta property="og:title" content="${esc(route.title)}" />`,
     `<meta property="og:description" content="${esc(route.description)}" />`,
     `<meta property="og:url" content="${url}" />`,
     ...(route.image
       ? [
           `<meta property="og:image" content="${route.image}" />`,
+          `<meta property="og:image:width" content="1200" />`,
+          `<meta property="og:image:height" content="630" />`,
+          `<meta property="og:image:type" content="image/png" />`,
+          `<meta property="og:image:alt" content="${esc(route.title)}" />`,
           `<meta name="twitter:image" content="${route.image}" />`,
+          `<meta name="twitter:image:alt" content="${esc(route.title)}" />`,
         ]
+      : []),
+    ...(route.ogType === 'article' && route.datePublished
+      ? [
+          `<meta property="article:published_time" content="${route.datePublished}" />`,
+        ]
+      : []),
+    ...(route.ogType === 'article' && modified
+      ? [`<meta property="article:modified_time" content="${modified}" />`]
       : []),
     `<meta name="twitter:card" content="summary_large_image" />`,
     `<meta name="twitter:title" content="${esc(route.title)}" />`,

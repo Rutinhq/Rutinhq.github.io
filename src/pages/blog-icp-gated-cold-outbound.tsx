@@ -15,6 +15,8 @@ export default function BlogIcpGatedColdOutboundPage() {
         locale="en"
         noindex={ARTICLE01.noindex}
         ogType="article"
+        datePublished={ARTICLE01.datePublished}
+        dateModified={ARTICLE01.dateModified}
         alternates={hreflangPair(ARTICLE01.path, ARTICLE01_ES.path)}
         image={OG_IMAGE.blog}
         jsonLd={articleJsonLd({

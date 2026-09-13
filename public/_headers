@@ -16,6 +16,18 @@
   Cache-Control: public, max-age=0, must-revalidate
   Link: </sitemap.xml>; rel="sitemap", </llms.txt>; rel="describedby"; type="text/plain"
   Content-Signal: search=yes, ai-train=no, use=reference
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+
+# Internal crawl shells. Pretty URLs (/gtm-os) are request-path matched by
+# `/*` above — this block only hits a direct /prerender/… request.
+# Do NOT 301 /prerender/:slug → /:slug (that pair loops with the 200 rewrite).
+/prerender/*
+  X-Robots-Tag: noindex, nofollow
+
+/guide-kb.json
+  Content-Type: application/json; charset=utf-8
+  X-Robots-Tag: noindex, nofollow
 
 # Vite hashed bundles (/assets/*.js).
 /assets/*
