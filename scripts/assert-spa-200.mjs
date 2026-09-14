@@ -64,6 +64,101 @@ function assertRealBody(file, needles) {
   }
 }
 
+const AGENT_DISCOVERY_CACHE =
+  'public, max-age=3600, stale-while-revalidate=86400'
+
+const AGENT_DISCOVERY_PATHS = [
+  '/llms.txt',
+  '/llms-full.txt',
+  '/agents.md',
+  '/sitemap.xml',
+  '/.well-known/api-catalog',
+  '/auth.md',
+]
+
+function headerPathBlock(headers, path) {
+  const lines = headers
+    .split('\n')
+    .filter((line) => line.trim() && !line.trim().startsWith('#'))
+  const start = lines.findIndex((line) => line === path)
+  if (start === -1) return ''
+  const block = []
+  for (let i = start + 1; i < lines.length; i += 1) {
+    if (lines[i].startsWith('/')) break
+    block.push(lines[i])
+  }
+  return block.join('\n')
+}
+
+function assertAgentDiscoveryCache(headers, label) {
+  for (const path of AGENT_DISCOVERY_PATHS) {
+    const block = headerPathBlock(headers, path)
+    if (
+      !/Cache-Control:\s*public,\s*max-age=3600,\s*stale-while-revalidate=86400/i.test(
+        block,
+      )
+    ) {
+      console.error(
+        `${label} must set Cache-Control: ${AGENT_DISCOVERY_CACHE} on ${path} (override /* max-age=0).`,
+      )
+      process.exit(1)
+    }
+    if (/max-age=31536000|immutable/i.test(block)) {
+      console.error(`${label} must not set long immutable cache on ${path}.`)
+      process.exit(1)
+    }
+  }
+
+  const splat = headerPathBlock(headers, '/*')
+  if (!/Cache-Control:\s*public,\s*max-age=0,\s*must-revalidate/i.test(splat)) {
+    console.error(`${label} /* must keep HTML Cache-Control max-age=0.`)
+    process.exit(1)
+  }
+  if (/immutable/i.test(splat)) {
+    console.error(`${label} /* must not set immutable cache on HTML routes.`)
+    process.exit(1)
+  }
+  if (
+    !/Content-Signal:\s*search=yes,\s*ai-train=no,\s*use=reference/i.test(splat)
+  ) {
+    console.error(
+      `${label} /* must keep Content-Signal search=yes, ai-train=no, use=reference.`,
+    )
+    process.exit(1)
+  }
+  if (
+    !/Link:\s*<\/sitemap\.xml>;\s*rel="sitemap".*<\/llms\.txt>;\s*rel="describedby".*api-catalog.*<\/auth\.md>/i.test(
+      splat,
+    )
+  ) {
+    console.error(
+      `${label} /* must keep RFC 8288 Link to sitemap + llms.txt + api-catalog + auth.md.`,
+    )
+    process.exit(1)
+  }
+}
+
+const publicHeadersPath = 'public/_headers'
+if (!fs.existsSync(publicHeadersPath)) {
+  console.error('public/_headers missing — Pages would lose custom headers.')
+  process.exit(1)
+}
+assertAgentDiscoveryCache(
+  fs.readFileSync(publicHeadersPath, 'utf8'),
+  'public/_headers',
+)
+
+if (process.argv.includes('--headers-only')) {
+  if (fs.existsSync('dist/_headers')) {
+    assertAgentDiscoveryCache(
+      fs.readFileSync('dist/_headers', 'utf8'),
+      'dist/_headers',
+    )
+  }
+  console.log('agent-discovery Cache-Control headers OK')
+  process.exit(0)
+}
+
 if (!fs.existsSync('dist/404.html')) {
   console.error(
     'dist/404.html must ship — Cloudflare Pages serves it with HTTP 404 for unknown paths.',
@@ -522,6 +617,7 @@ if (fs.existsSync('dist/_headers')) {
     )
     process.exit(1)
   }
+  assertAgentDiscoveryCache(headers, 'dist/_headers')
 }
 
 const blogSource = 'src/lib/blog.ts'
