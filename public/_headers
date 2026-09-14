@@ -1,5 +1,6 @@
-# Published /blog + Article01 are crawlable (sitemap + prerendered HTML).
-# Do not send X-Robots-Tag: noindex on those paths.
+# Blog pretty URLs stay off the sitemap and emit page robots
+# `noindex, follow` until publish GO. Do not send X-Robots-Tag: noindex
+# on those paths — crawlers must read the HTML meta (follow links).
 
 # HTML + prerender shells: short cache so copy/SEO updates land.
 # RFC 8288 Link (Agent Readiness Soft P1). Cloudflare Pages splat `/*`

@@ -5,6 +5,44 @@ function rootInner(html) {
   return match ? match[1] : ''
 }
 
+function robotsContents(html) {
+  return [...html.matchAll(/<meta\b[^>]*\bname=["']robots["'][^>]*>/gi)].map(
+    (m) => {
+      const content = m[0].match(/\bcontent=["']([^"']+)["']/i)
+      return content ? content[1] : ''
+    },
+  )
+}
+
+function assertBlogHoldRobots(file) {
+  if (!fs.existsSync(file)) {
+    console.error(`${file} missing — blog hold shell must prerender.`)
+    process.exit(1)
+  }
+  const html = fs.readFileSync(file, 'utf8')
+  const values = robotsContents(html)
+  if (values.length !== 1 || values[0] !== 'noindex, follow') {
+    console.error(
+      `${file} must emit exactly one robots meta "noindex, follow" (got ${JSON.stringify(values)}).`,
+    )
+    process.exit(1)
+  }
+  if (/content=["']index,\s*follow["']/.test(html)) {
+    console.error(
+      `${file} must not emit index, follow while the Sprint 2 hold is active.`,
+    )
+    process.exit(1)
+  }
+  const prerenderIdx = html.indexOf('<!-- prerender:')
+  const helmetRegion = prerenderIdx >= 0 ? html.slice(0, prerenderIdx) : ''
+  if (robotsContents(helmetRegion)[0] !== 'noindex, follow') {
+    console.error(
+      `${file} must emit Seo/Helmet robots "noindex, follow" in SSR head (<!--ssr-head-->), not only the seoHead fallback.`,
+    )
+    process.exit(1)
+  }
+}
+
 function assertRealBody(file, needles) {
   if (!fs.existsSync(file)) {
     console.error(`${file} missing — crawlers would get an empty SPA shell.`)
@@ -556,14 +594,6 @@ if (!articleHtml.includes('property="og:title" content="' + articleTitle + '"'))
   console.error(`${articleShell} must ship unique og:title for Article01.`)
   process.exit(1)
 }
-if (!/name="robots"\s+content="noindex, follow"/.test(articleHtml)) {
-  console.error(`${articleShell} must robots noindex, follow until publish GO.`)
-  process.exit(1)
-}
-if (!/name="robots"\s+content="noindex, follow"/.test(blogHtml)) {
-  console.error(`${blogShell} must robots noindex, follow until publish GO.`)
-  process.exit(1)
-}
 if (
   !articleHtml.includes(
     'hreflang="es" href="https://www.rutinhq.com/es/blog/outbound-frio-con-icp-sin-sdr-rentado"',
@@ -594,10 +624,6 @@ if (!esBlogHtml.includes('rel="canonical" href="https://www.rutinhq.com/es/blog"
   console.error(`${esBlogShell} must canonical https://www.rutinhq.com/es/blog.`)
   process.exit(1)
 }
-if (!/name="robots"\s+content="noindex, follow"/.test(esBlogHtml)) {
-  console.error(`${esBlogShell} must robots noindex, follow until publish GO.`)
-  process.exit(1)
-}
 const esArticleHtml = fs.readFileSync(esArticleShell, 'utf8')
 const esArticleTitle = 'RutinHQ — Outbound frío con ICP — sin SDR rentado'
 if (!esArticleHtml.includes(`<title>${esArticleTitle}</title>`)) {
@@ -607,6 +633,17 @@ if (!esArticleHtml.includes(`<title>${esArticleTitle}</title>`)) {
 if (esArticleHtml.includes(`<title>${homepageTitle}</title>`)) {
   console.error(`${esArticleShell} must not keep the homepage <title>.`)
   process.exit(1)
+}
+
+const article02Shell = 'dist/prerender/blog-shopify-admin-audit-before-ads.html'
+for (const file of [
+  blogShell,
+  articleShell,
+  article02Shell,
+  esBlogShell,
+  esArticleShell,
+]) {
+  assertBlogHoldRobots(file)
 }
 
 const esMarketing = [
@@ -1233,8 +1270,13 @@ for (const route of bodyRoutes) {
 }
 
 const notFoundHtml = fs.readFileSync('dist/404.html', 'utf8')
-if (!/name="robots"\s+content="noindex, nofollow"/.test(notFoundHtml)) {
-  console.error('dist/404.html must robots noindex, nofollow.')
+if (
+  robotsContents(notFoundHtml).length !== 1 ||
+  robotsContents(notFoundHtml)[0] !== 'noindex, nofollow'
+) {
+  console.error(
+    `dist/404.html must emit exactly one robots meta "noindex, nofollow" (got ${JSON.stringify(robotsContents(notFoundHtml))}).`,
+  )
   process.exit(1)
 }
 if (notFoundHtml.includes('<!--ssr-outlet-->')) {
@@ -1489,7 +1531,6 @@ if (
   process.exit(1)
 }
 
-const article02Shell = 'dist/prerender/blog-shopify-admin-audit-before-ads.html'
 if (!fs.existsSync(article02Shell)) {
   console.error(`${article02Shell} missing — Article02 draft shell must prerender.`)
   process.exit(1)
@@ -1497,10 +1538,6 @@ if (!fs.existsSync(article02Shell)) {
 const article02Html = fs.readFileSync(article02Shell, 'utf8')
 if (/"@type":"FAQPage"/.test(article02Html)) {
   console.error('Article02 draft shell must not invent FAQPage.')
-  process.exit(1)
-}
-if (!/name="robots"\s+content="noindex, follow"/.test(article02Html)) {
-  console.error(`${article02Shell} must robots noindex, follow.`)
   process.exit(1)
 }
 if (

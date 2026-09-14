@@ -96,6 +96,8 @@ export function Seo({
   const modified = dateModified ?? datePublished
   const robotsContent =
     robots ?? (noindex ? 'noindex, nofollow' : 'index, follow')
+  // robots must land in prerender HTML via Helmet SSR → <!--ssr-head-->.
+  // Do not treat this as client-only: crawlers read the static shell.
   return (
     <Helmet>
       <html lang={locale} />

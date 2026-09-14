@@ -95,6 +95,7 @@ const ROUTES = [
     ogType: 'website',
     locale: 'en',
     noindex: true,
+    robots: 'noindex, follow',
     image: OG_IMAGE.blog,
     alternates: [
       { hreflang: 'en', href: `${SITE}/blog` },
@@ -148,6 +149,7 @@ const ROUTES = [
     ogType: 'article',
     locale: 'en',
     noindex: true,
+    robots: 'noindex, follow',
     image: OG_IMAGE.blog,
     alternates: [
       {
@@ -244,6 +246,7 @@ const ROUTES = [
     ogType: 'article',
     locale: 'en',
     noindex: true,
+    robots: 'noindex, follow',
     image: OG_IMAGE.blog,
     jsonLd: {
       '@context': 'https://schema.org',
@@ -280,6 +283,7 @@ const ROUTES = [
     ogType: 'website',
     locale: 'es',
     noindex: true,
+    robots: 'noindex, follow',
     image: OG_IMAGE.blog,
     alternates: [
       { hreflang: 'en', href: `${SITE}/blog` },
@@ -327,6 +331,7 @@ const ROUTES = [
     ogType: 'article',
     locale: 'es',
     noindex: true,
+    robots: 'noindex, follow',
     image: OG_IMAGE.blog,
     alternates: [
       {
@@ -682,16 +687,21 @@ function stripHomepageSeo(html) {
     .replace(/<title>[\s\S]*?<\/title>/i, '')
     .replace(/<meta\s+name="description"[\s\S]*?\/?>/gi, '')
     .replace(/<link\s+rel="canonical"[\s\S]*?\/?>/gi, '')
+    .replace(/<link\s+rel="alternate"[\s\S]*?\/?>/gi, '')
     .replace(/<link\s+rel="api-catalog"[\s\S]*?\/?>/gi, '')
     .replace(/<link\s+rel="describedby"[\s\S]*?\/?>/gi, '')
     .replace(/<link\s+rel="sitemap"[\s\S]*?\/?>/gi, '')
     .replace(/<meta\s+property="og:[^"]+"[\s\S]*?\/?>/gi, '')
     .replace(/<meta\s+name="twitter:[^"]+"[\s\S]*?\/?>/gi, '')
-    .replace(/<meta\s+name="robots"[\s\S]*?\/?>/gi, '')
+    .replace(/<meta\b[^>]*\bname=["']robots["'][^>]*>/gi, '')
     .replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/gi, '')
 }
 
-function seoHead(route) {
+function helmetHasRobots(head) {
+  return /<meta\b[^>]*\bname=["']robots["'][^>]*>/i.test(head || '')
+}
+
+function seoHead(route, { omitRobots = false } = {}) {
   const url = `${SITE}${route.path}`
   const ogLocale = route.locale === 'es' ? 'es_MX' : 'en_US'
   const ogLocaleAlternate = route.locale === 'es' ? 'en_US' : 'es_MX'
@@ -710,7 +720,11 @@ function seoHead(route) {
     `<link rel="describedby" href="${SITE}/auth.md" type="text/markdown" />`,
     `<link rel="sitemap" href="${SITE}/sitemap.xml" type="application/xml" />`,
     ...alternates,
-    `<meta name="robots" content="${route.robots ?? (route.noindex ? 'noindex, follow' : 'index, follow')}" />`,
+    ...(omitRobots
+      ? []
+      : [
+          `<meta name="robots" content="${route.robots ?? (route.noindex ? 'noindex, follow' : 'index, follow')}" />`,
+        ]),
     `<meta property="og:type" content="${route.ogType}" />`,
     `<meta property="og:site_name" content="RutinHQ" />`,
     `<meta property="og:locale" content="${ogLocale}" />`,
@@ -774,7 +788,7 @@ function injectSsrBody(page, markup, label) {
     console.error(`${label}: SSR render produced an empty body.`)
     process.exit(1)
   }
-  return page.replace('<!--ssr-outlet-->', markup).replace('<!--ssr-head-->', '')
+  return page.replace('<!--ssr-outlet-->', markup)
 }
 
 async function loadRender() {
@@ -834,11 +848,21 @@ async function main() {
         console.error('dist/index.html has no </head> — cannot inject blog SEO.')
         process.exit(1)
       }
-      if (route.locale === 'es') {
+      if (!page.includes('<!--ssr-head-->')) {
+        console.error('dist/index.html missing <!--ssr-head--> — Seo/Helmet robots cannot land.')
+        process.exit(1)
+      }
+      const { html, head, htmlAttributes } = await render(route.path, route.locale)
+      if (htmlAttributes) {
+        page = page.replace(/<html[^>]*>/, `<html ${htmlAttributes}>`)
+      } else if (route.locale === 'es') {
         page = page.replace('<html lang="en">', '<html lang="es">')
       }
-      page = page.replace('</head>', `    ${seoHead(route)}\n  </head>`)
-      const { html } = await render(route.path, route.locale)
+      page = page.replace('<!--ssr-head-->', head || '')
+      page = page.replace(
+        '</head>',
+        `    ${seoHead(route, { omitRobots: helmetHasRobots(head) })}\n  </head>`,
+      )
       page = injectSsrBody(page, html, route.path)
       writePage(route.file, page, route.path)
     }
@@ -852,8 +876,18 @@ async function main() {
     console.log('prerender / → index.html (SSR body)')
 
     let notFound = stripHomepageSeo(pageTemplate)
-    notFound = notFound.replace('</head>', `    ${seoHead(NOT_FOUND_ROUTE)}\n  </head>`)
     const notFoundSsr = await render(NOT_FOUND_ROUTE.renderPath, 'en')
+    if (notFoundSsr.htmlAttributes) {
+      notFound = notFound.replace(
+        /<html[^>]*>/,
+        `<html ${notFoundSsr.htmlAttributes}>`,
+      )
+    }
+    notFound = notFound.replace('<!--ssr-head-->', notFoundSsr.head || '')
+    notFound = notFound.replace(
+      '</head>',
+      `    ${seoHead(NOT_FOUND_ROUTE, { omitRobots: helmetHasRobots(notFoundSsr.head) })}\n  </head>`,
+    )
     notFound = injectSsrBody(notFound, notFoundSsr.html, NOT_FOUND_ROUTE.renderPath)
     writePage(NOT_FOUND_ROUTE.file, notFound, NOT_FOUND_ROUTE.renderPath)
   } finally {
