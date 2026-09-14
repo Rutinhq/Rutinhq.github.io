@@ -223,6 +223,10 @@ if (!/\/auth\.md\s+\/auth\.md\s+200/.test(redirects)) {
   console.error('dist/_redirects must 200-rewrite /auth.md onto itself.')
   process.exit(1)
 }
+if (!/\/agents\.md\s+\/agents\.md\s+200/.test(redirects)) {
+  console.error('dist/_redirects must 200-rewrite /agents.md onto itself.')
+  process.exit(1)
+}
 for (const pair of [
   ['/agents', '/prerender/agents'],
   ['/agents/auth', '/prerender/agents-auth'],
@@ -431,6 +435,10 @@ if (fs.existsSync('dist/_headers')) {
   }
   if (!/\/auth\.md[\s\S]*?Content-Type:\s*text\/markdown/i.test(headers)) {
     console.error('dist/_headers must set text/markdown on /auth.md.')
+    process.exit(1)
+  }
+  if (!/\/agents\.md[\s\S]*?Content-Type:\s*text\/markdown/i.test(headers)) {
+    console.error('dist/_headers must set text/markdown on /agents.md.')
     process.exit(1)
   }
   if (
@@ -796,6 +804,7 @@ const llmsRequired = [
   'strategy@rutinhq.com',
   'https://calendly.com/rutinhq/30min',
   'https://www.rutinhq.com/agents',
+  'https://www.rutinhq.com/agents.md',
   'https://www.rutinhq.com/auth.md',
   'https://www.rutinhq.com/.well-known/api-catalog',
 ]
@@ -1569,6 +1578,7 @@ for (const needle of [
   'https://www.rutinhq.com/llms.txt',
   'https://www.rutinhq.com/sitemap.xml',
   'https://www.rutinhq.com/auth.md',
+  'https://www.rutinhq.com/agents.md',
 ]) {
   if (!catalogBody.includes(needle)) {
     console.error(`${catalogFile} must list ${needle}.`)
@@ -1607,6 +1617,36 @@ if (forbiddenLlms.test(authBody)) {
 }
 if (/sk-[A-Za-z0-9]|api[_-]?key\s*[:=]|Bearer\s+[A-Za-z0-9]/i.test(authBody)) {
   console.error(`${authMd} must not publish secrets.`)
+  process.exit(1)
+}
+
+const agentsMd = 'dist/agents.md'
+if (!fs.existsSync(agentsMd)) {
+  console.error(`${agentsMd} missing — agents need a public agents.md.`)
+  process.exit(1)
+}
+const agentsBody = fs.readFileSync(agentsMd, 'utf8')
+if (htmlShell.test(agentsBody)) {
+  console.error(`${agentsMd} must be markdown, not HTML.`)
+  process.exit(1)
+}
+for (const needle of [
+  'https://www.rutinhq.com/agents',
+  'https://docs.rutinhq.com/catalog/',
+  'strategy@rutinhq.com',
+  'https://www.rutinhq.com/.well-known/api-catalog',
+]) {
+  if (!agentsBody.includes(needle)) {
+    console.error(`${agentsMd} must include ${needle}.`)
+    process.exit(1)
+  }
+}
+if (forbiddenLlms.test(agentsBody)) {
+  console.error(`${agentsMd} must not invent prices or mention fzf / FuzzyFlags / Capo.`)
+  process.exit(1)
+}
+if (/sk-[A-Za-z0-9]|api[_-]?key\s*[:=]|Bearer\s+[A-Za-z0-9]/i.test(agentsBody)) {
+  console.error(`${agentsMd} must not publish secrets.`)
   process.exit(1)
 }
 

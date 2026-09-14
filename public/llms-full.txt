@@ -59,6 +59,7 @@ Catalog: https://docs.rutinhq.com/catalog/nexus-os/
 - https://www.rutinhq.com/es/agents
 - https://www.rutinhq.com/es/agents/auth
 - https://www.rutinhq.com/auth.md
+- https://www.rutinhq.com/agents.md
 - https://www.rutinhq.com/.well-known/api-catalog
 
 ## Docs catalog URLs
@@ -76,6 +77,7 @@ Public curriculum — what each system does, who it is for, how it works, outcom
 Public vs authenticated surfaces: https://www.rutinhq.com/auth.md
 RFC 9727 api-catalog: https://www.rutinhq.com/.well-known/api-catalog
 Human catalog: https://www.rutinhq.com/agents
+Machine catalog: https://www.rutinhq.com/agents.md
 
 ## Blog (EN + ES, from sitemap)
 

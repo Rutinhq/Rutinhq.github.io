@@ -15,6 +15,7 @@ Catálogo público (`/`) y tres landings de un SKU cada una:
 | `/es/blog` | Índice ES (hreflang ↔ EN) |
 | `/es/blog/outbound-frio-con-icp-sin-sdr-rentado` | Article01 ES — Outbound frío con ICP (tuteo) |
 | `/agents` `/es/agents` | Public agent catalog (thin index of public endpoints) |
+| `/agents.md` | Machine-readable agent catalog (text/markdown twin of `/agents`) |
 | `/agents/auth` `/es/agents/auth` | Public vs Access-gated surfaces (pairs with `/auth.md`) |
 | `/.well-known/api-catalog` | RFC 9727 linkset |
 | `/auth.md` | Machine-readable auth surfaces (no secrets) |
@@ -31,7 +32,7 @@ Stack: Vite + React + Tailwind + i18next. Default **EN** (commercial copy). Togg
 - **SSR body:** `scripts/prerender-blog.mjs` renders React via `src/entry-server.tsx` into `#root` (not an empty `<!--ssr-outlet-->`). Head SEO stays on the proven prerender injection.
 - **Do not emit `dist/<sku>/index.html` or exact `/{sku} /index.html 200` rewrites.** Both make Pages/wrangler html-handling 308 `/gtm-os` → `/` instead of 200.
 - **Pretty URLs:** live SKU routes have **no trailing slash** (`/gtm-os`, not `/gtm-os/`). Do not add `_redirects` slash-normalization — folder `index.html` + html-handling already 308'd `/gtm-os` away from the pretty URL.
-- **Canonical host:** `https://www.rutinhq.com`. `sitemap.xml` + `robots.txt` + `llms.txt` + `llms-full.txt` are www-only static files (explicit `_redirects` 200s so they are never rewritten to HTML).
+- **Canonical host:** `https://www.rutinhq.com`. `sitemap.xml` + `robots.txt` + `llms.txt` + `llms-full.txt` + `auth.md` + `agents.md` are www-only static files (explicit `_redirects` 200s so they are never rewritten to HTML).
 - **Apex → www 301:** **not possible in `public/_redirects`.** Cloudflare Pages marks domain-level (host) redirects as unsupported. A path-only `/* https://www.rutinhq.com/:splat 301` would also 301 www onto itself. Capo applies a **zone Single Redirect** (or Bulk Redirect) — see PR / steps below. Confirm `@` is Proxied. Do **not** enable Include subdomains (would catch `docs.rutinhq.com`).
   1. Dashboard → zone `rutinhq.com` → **Rules → Redirect Rules → Create rule**
   2. Wildcard: Request URL `https://rutinhq.com/*` → Target `https://www.rutinhq.com/${1}` → **301** → Preserve query string **On**
