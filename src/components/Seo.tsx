@@ -57,6 +57,8 @@ type SeoProps = {
   path: string
   jsonLd?: Record<string, unknown>
   noindex?: boolean
+  /** Override robots. Blog drafts use noindex,follow; 404 stays noindex,nofollow. */
+  robots?: 'index, follow' | 'noindex, follow' | 'noindex, nofollow'
   ogType?: 'website' | 'article'
   locale?: 'en' | 'es'
   alternates?: readonly HreflangLink[]
@@ -80,6 +82,7 @@ export function Seo({
   path,
   jsonLd,
   noindex = false,
+  robots,
   ogType = 'website',
   locale = 'en',
   alternates,
@@ -91,6 +94,8 @@ export function Seo({
   const ogLocale = locale === 'es' ? 'es_MX' : 'en_US'
   const ogLocaleAlternate = locale === 'es' ? 'en_US' : 'es_MX'
   const modified = dateModified ?? datePublished
+  const robotsContent =
+    robots ?? (noindex ? 'noindex, nofollow' : 'index, follow')
   return (
     <Helmet>
       <html lang={locale} />
@@ -119,10 +124,7 @@ export function Seo({
           href={alt.href}
         />
       ))}
-      <meta
-        name="robots"
-        content={noindex ? 'noindex, nofollow' : 'index, follow'}
-      />
+      <meta name="robots" content={robotsContent} />
       <meta property="og:type" content={ogType} />
       <meta property="og:site_name" content="RutinHQ" />
       <meta property="og:locale" content={ogLocale} />

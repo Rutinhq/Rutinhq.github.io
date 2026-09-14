@@ -5,10 +5,13 @@ import { OG_IMAGE, Seo, blogIndexJsonLd, hreflangPair } from '@/components/Seo'
 import { Button } from '@/components/ui/button'
 import {
   ARTICLE01,
+  ARTICLE02,
+  BLOG_FEATURED,
   BLOG_FEATURED_COMING,
   BLOG_FILTER_SIGNALS,
   BLOG_INDEX,
   BLOG_INDEX_ES,
+  BLOG_ROBOTS,
 } from '@/lib/blog'
 import {
   DOCS_CATALOG_URL,
@@ -27,14 +30,15 @@ export default function BlogPage() {
         path={BLOG_INDEX.path}
         locale="en"
         noindex={BLOG_INDEX.noindex}
+        robots={BLOG_ROBOTS}
         alternates={hreflangPair(BLOG_INDEX.path, BLOG_INDEX_ES.path)}
         image={OG_IMAGE.blog}
-        jsonLd={blogIndexJsonLd([{ path: ARTICLE01.path, name: ARTICLE01.title }])}
+        jsonLd={blogIndexJsonLd(BLOG_FEATURED)}
       />
 
       <Section first>
         <p className="font-mono text-[12px] uppercase tracking-[0.14em] text-primary">
-          Radar · filter
+          Radar · filter · DRAFT
         </p>
         <h1
           className="mt-4 max-w-4xl font-heading font-extrabold tracking-[-0.03em]"
@@ -81,7 +85,7 @@ export default function BlogPage() {
         <MonoTitle>Featured</MonoTitle>
         <article className="mt-8 max-w-2xl">
           <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-primary">
-            How-to · GTM OS
+            How-to · GTM OS · DRAFT
           </p>
           <h2 className="mt-3 text-2xl font-heading font-extrabold tracking-[-0.03em]">
             <Link to={ARTICLE01.path} className="hover:text-primary">
@@ -91,6 +95,24 @@ export default function BlogPage() {
           <p className="mt-3 text-[16px] text-muted-foreground">{ARTICLE01.job}</p>
           <Button asChild className="mt-8" size="lg">
             <Link to={ARTICLE01.path}>Read the how-to</Link>
+          </Button>
+        </article>
+        <article className="mt-10 max-w-2xl border-t border-border pt-10">
+          <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-primary">
+            How-to · STORE OS · DRAFT
+          </p>
+          <h2 className="mt-3 text-2xl font-heading font-extrabold tracking-[-0.03em]">
+            <Link to={ARTICLE02.path} className="hover:text-primary">
+              {ARTICLE02.title}
+            </Link>
+          </h2>
+          <p className="mt-3 text-[16px] text-muted-foreground">{ARTICLE02.job}</p>
+          <p className="mt-3 text-[15px] text-muted-foreground">
+            Placeholder outline — catalog language only. Full how-to pending
+            publish GO.
+          </p>
+          <Button asChild className="mt-8" size="lg">
+            <Link to={ARTICLE02.path}>Read the outline</Link>
           </Button>
         </article>
         <div className="mt-12 grid grid-cols-1 border-t border-border lg:grid-cols-3">
@@ -142,17 +164,24 @@ export default function BlogPage() {
           </article>
           <article className="flex flex-col border-t border-border py-8 lg:border-t-0 lg:border-l lg:border-border lg:px-8">
             <h2 className="text-2xl font-heading font-extrabold tracking-[-0.03em]">
-              Owning the machine vs retainer
+              Admin friction before ads
             </h2>
             <p className="mt-3 flex-1 text-[16px] text-muted-foreground">
-              M1 posts when live. Outbound now is GTM OS.
+              STORE OS Admin audit outline (DRAFT). Ads stay out of scope.
             </p>
             <p className="mt-8 font-mono text-[12px] tracking-[0.04em]">
-              <a
-                href={WWW_GTM_URL}
+              <Link
+                to={ARTICLE02.path}
                 className="text-foreground underline underline-offset-4 hover:text-primary"
               >
-                GTM OS
+                Article02
+              </Link>
+              {' · '}
+              <a
+                href={WWW_STORE_URL}
+                className="text-foreground underline underline-offset-4 hover:text-primary"
+              >
+                STORE OS
               </a>
             </p>
           </article>

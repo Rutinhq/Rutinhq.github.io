@@ -14,8 +14,11 @@ RutinHQ installs operating systems teams own. Three commercial SKUs. One page, o
 
 ## Blog
 
+Draft / noindex until publish GO. Soft-linked from the footer only.
+
 - [Blog](https://www.rutinhq.com/blog): Radar for founders who install GTM and ops systems — not rented seats.
 - [ICP-gated cold outbound without a rented SDR](https://www.rutinhq.com/blog/icp-gated-cold-outbound-without-rented-sdr)
+- [Shopify Admin audit before you buy ads](https://www.rutinhq.com/blog/shopify-admin-audit-before-ads) (DRAFT outline)
 
 Spanish index and article:
 
