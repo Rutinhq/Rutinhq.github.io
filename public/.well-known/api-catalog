@@ -22,6 +22,10 @@
         {
           "href": "https://www.rutinhq.com/agents",
           "title": "Human agent catalog"
+        },
+        {
+          "href": "https://www.rutinhq.com/agents.md",
+          "title": "Machine agent catalog"
         }
       ]
     },
@@ -67,6 +71,19 @@
         },
         {
           "href": "https://www.rutinhq.com/agents/auth",
+          "type": "text/html"
+        }
+      ]
+    },
+    {
+      "anchor": "https://www.rutinhq.com/agents.md",
+      "service-doc": [
+        {
+          "href": "https://www.rutinhq.com/agents.md",
+          "type": "text/markdown"
+        },
+        {
+          "href": "https://www.rutinhq.com/agents",
           "type": "text/html"
         }
       ]

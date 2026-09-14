@@ -15,6 +15,7 @@ These surfaces are intentionally open. Do not send Authorization headers.
 - Marketing site: https://www.rutinhq.com/ (hub, GTM OS, STORE OS, NEXUS OS, blog)
 - Public curriculum catalog: https://docs.rutinhq.com/catalog/
 - Agent catalog (HTML): https://www.rutinhq.com/agents
+- Agent catalog (markdown): https://www.rutinhq.com/agents.md
 - RFC 9727 api-catalog: https://www.rutinhq.com/.well-known/api-catalog
 - llms.txt: https://www.rutinhq.com/llms.txt
 - llms-full.txt: https://www.rutinhq.com/llms-full.txt
