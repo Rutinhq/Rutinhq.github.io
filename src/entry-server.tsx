@@ -35,12 +35,6 @@ export async function render(url: string, lang?: string) {
     helmetState?.meta.toString() ?? '',
     helmetState?.link.toString() ?? '',
     helmetState?.script.toString() ?? '',
-    helmetState?.htmlAttributes.toString()
-      ? `<html ${helmetState.htmlAttributes.toString()} />`.replace(
-          '<html ',
-          '',
-        )
-      : '',
   ]
     .filter(Boolean)
     .join('\n')
