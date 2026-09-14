@@ -57,20 +57,34 @@
   Content-Type: application/manifest+json
 
 # GEO/LLM discovery files. Must stay text/plain — never the SPA HTML shell.
+# Path-specific Cache-Control overrides /* max-age=0 so Free Pages can
+# edge-cache these static files (HIT/REVALIDATED or at least max-age>0).
+# Do not use immutable — copy can change. No Cache Rules / paid CF.
+# Content-Signal + Link stay on the /* merge; do not repeat them here.
 /llms.txt
   Content-Type: text/plain; charset=utf-8
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
 
 /llms-full.txt
   Content-Type: text/plain; charset=utf-8
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
 
 # RFC 9727 catalog + WorkOS-style auth.md. Keep non-HTML so Pages
 # never serves the SPA shell. Free CF Pages headers only — no Pro
 # vanity host, pay-per-crawl, or x402 from this file.
 /.well-known/api-catalog
   Content-Type: application/linkset+json; profile="https://www.rfc-editor.org/info/rfc9727"
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
 
 /auth.md
   Content-Type: text/markdown; charset=utf-8
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
 
 /agents.md
   Content-Type: text/markdown; charset=utf-8
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+
+# Generated at build (dist/sitemap.xml). Same short public cache as the
+# other agent-discovery files. HTML routes stay on /* max-age=0.
+/sitemap.xml
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
