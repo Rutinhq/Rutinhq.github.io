@@ -76,42 +76,80 @@ const AGENT_DISCOVERY_PATHS = [
   '/auth.md',
 ]
 
-function headerPathBlock(headers, path) {
+const HTML_CACHE_REQUEST_PATHS = [
+  '/',
+  '/index.html',
+  '/404.html',
+  '/gtm-os',
+  '/gtm-os/',
+  '/store-os',
+  '/nexus-os',
+  '/es',
+  '/es/gtm-os',
+  '/es/store-os',
+  '/es/nexus-os',
+  '/es/blog',
+  '/blog',
+  '/blog/icp-gated-cold-outbound-without-rented-sdr',
+  '/blog/shopify-admin-audit-before-ads',
+  '/es/blog/outbound-frio-con-icp-sin-sdr-rentado',
+  '/agents',
+  '/agents/auth',
+  '/es/agents',
+  '/es/agents/auth',
+  '/prerender/gtm-os',
+]
+
+function parseHeaderRules(headers) {
   const lines = headers
     .split('\n')
     .filter((line) => line.trim() && !line.trim().startsWith('#'))
-  const start = lines.findIndex((line) => line === path)
-  if (start === -1) return ''
-  const block = []
-  for (let i = start + 1; i < lines.length; i += 1) {
-    if (lines[i].startsWith('/')) break
-    block.push(lines[i])
+  const rules = []
+  let current = null
+  for (const line of lines) {
+    if (line.startsWith('/')) {
+      current = { path: line, headers: [] }
+      rules.push(current)
+      continue
+    }
+    if (current) current.headers.push(line)
   }
-  return block.join('\n')
+  return rules
+}
+
+function headerRuleMatches(rulePath, requestPath) {
+  if (rulePath === '/*') return true
+  if (rulePath === requestPath) return true
+  if (rulePath.endsWith('/*')) {
+    return requestPath.startsWith(rulePath.slice(0, -1))
+  }
+  return false
+}
+
+function headerPathBlock(headers, path) {
+  const rule = parseHeaderRules(headers).find((entry) => entry.path === path)
+  return rule ? rule.headers.join('\n') : ''
+}
+
+/** Pages inherits every matching rule and comma-joins the same header name. */
+function mergedCacheControl(headers, requestPath) {
+  return parseHeaderRules(headers)
+    .filter((rule) => headerRuleMatches(rule.path, requestPath))
+    .flatMap((rule) =>
+      rule.headers.flatMap((line) => {
+        const match = line.match(/^\s*Cache-Control:\s*(.+)\s*$/i)
+        return match ? [match[1].trim()] : []
+      }),
+    )
+    .join(', ')
 }
 
 function assertAgentDiscoveryCache(headers, label) {
-  for (const path of AGENT_DISCOVERY_PATHS) {
-    const block = headerPathBlock(headers, path)
-    if (
-      !/Cache-Control:\s*public,\s*max-age=3600,\s*stale-while-revalidate=86400/i.test(
-        block,
-      )
-    ) {
-      console.error(
-        `${label} must set Cache-Control: ${AGENT_DISCOVERY_CACHE} on ${path} (override /* max-age=0).`,
-      )
-      process.exit(1)
-    }
-    if (/max-age=31536000|immutable/i.test(block)) {
-      console.error(`${label} must not set long immutable cache on ${path}.`)
-      process.exit(1)
-    }
-  }
-
   const splat = headerPathBlock(headers, '/*')
-  if (!/Cache-Control:\s*public,\s*max-age=0,\s*must-revalidate/i.test(splat)) {
-    console.error(`${label} /* must keep HTML Cache-Control max-age=0.`)
+  if (/Cache-Control:/i.test(splat)) {
+    console.error(
+      `${label} /* must not set Cache-Control — Pages appends it onto discovery + assets.`,
+    )
     process.exit(1)
   }
   if (/immutable/i.test(splat)) {
@@ -135,6 +173,66 @@ function assertAgentDiscoveryCache(headers, label) {
       `${label} /* must keep RFC 8288 Link to sitemap + llms.txt + api-catalog + auth.md.`,
     )
     process.exit(1)
+  }
+
+  for (const path of AGENT_DISCOVERY_PATHS) {
+    const block = headerPathBlock(headers, path)
+    if (
+      !/Cache-Control:\s*public,\s*max-age=3600,\s*stale-while-revalidate=86400/i.test(
+        block,
+      )
+    ) {
+      console.error(
+        `${label} must set Cache-Control: ${AGENT_DISCOVERY_CACHE} on ${path}.`,
+      )
+      process.exit(1)
+    }
+    if (/max-age=31536000|immutable/i.test(block)) {
+      console.error(`${label} must not set long immutable cache on ${path}.`)
+      process.exit(1)
+    }
+
+    const merged = mergedCacheControl(headers, path)
+    if (/max-age=0/i.test(merged) && /max-age=3600/i.test(merged)) {
+      console.error(
+        `${label} ${path} Cache-Control must not contain both max-age=0 and max-age=3600 (got ${merged}).`,
+      )
+      process.exit(1)
+    }
+    if ((merged.match(/max-age=/gi) || []).length !== 1) {
+      console.error(
+        `${label} ${path} must emit exactly one Cache-Control max-age (got ${merged}).`,
+      )
+      process.exit(1)
+    }
+    if (
+      !/^public,\s*max-age=3600,\s*stale-while-revalidate=86400$/i.test(merged)
+    ) {
+      console.error(
+        `${label} ${path} merged Cache-Control must be only ${AGENT_DISCOVERY_CACHE} (got ${merged}).`,
+      )
+      process.exit(1)
+    }
+  }
+
+  for (const path of HTML_CACHE_REQUEST_PATHS) {
+    const merged = mergedCacheControl(headers, path)
+    if (!/max-age=0/i.test(merged) || !/must-revalidate/i.test(merged)) {
+      console.error(
+        `${label} ${path} must keep HTML Cache-Control max-age=0, must-revalidate (got ${merged || 'none'}).`,
+      )
+      process.exit(1)
+    }
+    if (/max-age=3600/i.test(merged)) {
+      console.error(
+        `${label} ${path} HTML Cache-Control must not include max-age=3600 (got ${merged}).`,
+      )
+      process.exit(1)
+    }
+    if (/immutable/i.test(merged)) {
+      console.error(`${label} ${path} HTML must not set immutable cache.`)
+      process.exit(1)
+    }
   }
 }
 
@@ -549,8 +647,8 @@ if (fs.existsSync('dist/_headers')) {
     console.error('dist/_headers must not enable HSTS (still park).')
     process.exit(1)
   }
-  if (!/\/\*[\s\S]*?Cache-Control:\s*public,\s*max-age=0/i.test(headers)) {
-    console.error('dist/_headers must short-cache HTML (max-age=0).')
+  if (!/^\/\s*\n\s*Cache-Control:\s*public,\s*max-age=0/m.test(headers)) {
+    console.error('dist/_headers must short-cache HTML entry `/` (max-age=0).')
     process.exit(1)
   }
   if (
