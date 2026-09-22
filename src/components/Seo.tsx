@@ -159,12 +159,6 @@ export function Seo({
   )
 }
 
-const OS_LANDINGS = [
-  { name: 'GTM OS', path: '/gtm-os' },
-  { name: 'STORE OS', path: '/store-os' },
-  { name: 'NEXUS OS', path: '/nexus-os' },
-] as const
-
 export type FaqItem = { q: string; a: string }
 
 export function faqPageNode(path: string, faq: readonly FaqItem[]) {
@@ -209,18 +203,6 @@ export function hubJsonLd(
       name,
       isPartOf: { '@id': `${SITE}/#website` },
       about: { '@id': `${SITE}/#organization` },
-    },
-    {
-      '@type': 'ItemList',
-      '@id': `${SITE}/#os-landings`,
-      name: 'RutinHQ operating systems',
-      numberOfItems: OS_LANDINGS.length,
-      itemListElement: OS_LANDINGS.map((item, index) => ({
-        '@type': 'ListItem',
-        position: index + 1,
-        name: item.name,
-        url: `${SITE}${item.path}`,
-      })),
     },
   ]
   const faqNode = faqPageNode(path, faq)
@@ -357,20 +339,17 @@ export function articleJsonLd({
   }
 }
 
-export function blogIndexJsonLd(
-  featured: readonly { path: string; name: string }[],
-  {
-    path = '/blog',
-    name = 'Blog — systems you own',
-    description = 'Radar for founders who install GTM and ops systems — not rented seats.',
-    inLanguage = 'en',
-  }: {
-    path?: string
-    name?: string
-    description?: string
-    inLanguage?: 'en' | 'es'
-  } = {},
-) {
+export function blogIndexJsonLd({
+  path = '/blog',
+  name = 'Blog — systems you own',
+  description = 'Radar for founders who install GTM and ops systems — not rented seats.',
+  inLanguage = 'en',
+}: {
+  path?: string
+  name?: string
+  description?: string
+  inLanguage?: 'en' | 'es'
+} = {}) {
   const url = `${SITE}${path}`
   return {
     '@context': 'https://schema.org',
@@ -384,19 +363,6 @@ export function blogIndexJsonLd(
         inLanguage,
         isPartOf: { '@id': `${SITE}/#website` },
         about: { '@id': `${SITE}/#organization` },
-        mainEntity: { '@id': `${url}#featured` },
-      },
-      {
-        '@type': 'ItemList',
-        '@id': `${url}#featured`,
-        name: inLanguage === 'es' ? 'Destacado' : 'Featured',
-        numberOfItems: featured.length,
-        itemListElement: featured.map((item, index) => ({
-          '@type': 'ListItem',
-          position: index + 1,
-          name: item.name,
-          url: `${SITE}${item.path}`,
-        })),
       },
     ],
   }
