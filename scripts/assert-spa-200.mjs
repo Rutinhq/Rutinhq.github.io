@@ -1206,6 +1206,12 @@ if (!homepage.includes('"@type":"ContactPoint"')) {
   console.error('dist/index.html Organization must emit ContactPoint.')
   process.exit(1)
 }
+if (/"@type":"ItemList"/.test(homepage) || homepage.includes('#os-landings')) {
+  console.error(
+    'dist/index.html must not emit navigation ItemList / #os-landings (Rich Results reject it).',
+  )
+  process.exit(1)
+}
 if (!homepage.includes('GTM OS') || !homepage.includes('STORE OS') || !homepage.includes('NEXUS OS')) {
   console.error('dist/index.html JSON-LD must name the three OS landings.')
   process.exit(1)
@@ -1686,10 +1692,14 @@ if (/"@type":"FAQPage"/.test(blogHtml)) {
   process.exit(1)
 }
 assertFaqPageMatchesVisible('dist/index.html', homepage)
-assertFaqPageMatchesVisible(
-  'dist/prerender/es.html',
-  fs.readFileSync('dist/prerender/es.html', 'utf8'),
-)
+const esHubHtml = fs.readFileSync('dist/prerender/es.html', 'utf8')
+assertFaqPageMatchesVisible('dist/prerender/es.html', esHubHtml)
+if (/"@type":"ItemList"/.test(esHubHtml) || esHubHtml.includes('#os-landings')) {
+  console.error(
+    'dist/prerender/es.html must not emit navigation ItemList / #os-landings (Rich Results reject it).',
+  )
+  process.exit(1)
+}
 if (!articleHtml.includes('"@type":"FAQPage"')) {
   console.error(`${articleShell} must keep FAQPage for the real Article01 FAQ.`)
   process.exit(1)
