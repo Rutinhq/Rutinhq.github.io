@@ -622,32 +622,6 @@ const HUB_JSON_LD = {
       isPartOf: { '@id': `${SITE}/#website` },
       about: { '@id': `${SITE}/#organization` },
     },
-    {
-      '@type': 'ItemList',
-      '@id': `${SITE}/#os-landings`,
-      name: 'RutinHQ operating systems',
-      numberOfItems: 3,
-      itemListElement: [
-        {
-          '@type': 'ListItem',
-          position: 1,
-          name: 'GTM OS',
-          url: `${SITE}/gtm-os`,
-        },
-        {
-          '@type': 'ListItem',
-          position: 2,
-          name: 'STORE OS',
-          url: `${SITE}/store-os`,
-        },
-        {
-          '@type': 'ListItem',
-          position: 3,
-          name: 'NEXUS OS',
-          url: `${SITE}/nexus-os`,
-        },
-      ],
-    },
     faqPageNode(`${SITE}/`, enLocale.hub.faq.items),
   ].filter(Boolean),
 }
