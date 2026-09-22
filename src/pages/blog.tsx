@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button'
 import {
   ARTICLE01,
   ARTICLE02,
-  BLOG_FEATURED,
   BLOG_FEATURED_COMING,
   BLOG_FILTER_SIGNALS,
   BLOG_INDEX,
@@ -33,7 +32,7 @@ export default function BlogPage() {
         robots={BLOG_ROBOTS}
         alternates={hreflangPair(BLOG_INDEX.path, BLOG_INDEX_ES.path)}
         image={OG_IMAGE.blog}
-        jsonLd={blogIndexJsonLd(BLOG_FEATURED)}
+        jsonLd={blogIndexJsonLd()}
       />
 
       <Section first>

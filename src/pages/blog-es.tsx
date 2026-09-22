@@ -32,15 +32,12 @@ export default function BlogEsPage() {
         robots={BLOG_ROBOTS}
         alternates={hreflangPair(BLOG_INDEX.path, BLOG_INDEX_ES.path)}
         image={OG_IMAGE.blog}
-        jsonLd={blogIndexJsonLd(
-          [{ path: ARTICLE01_ES.path, name: ARTICLE01_ES.title }],
-          {
-            path: BLOG_INDEX_ES.path,
-            name: BLOG_INDEX_ES.title,
-            description: BLOG_INDEX_ES.description,
-            inLanguage: 'es',
-          },
-        )}
+        jsonLd={blogIndexJsonLd({
+          path: BLOG_INDEX_ES.path,
+          name: BLOG_INDEX_ES.title,
+          description: BLOG_INDEX_ES.description,
+          inLanguage: 'es',
+        })}
       />
 
       <Section first>
