@@ -37,7 +37,7 @@ export default function StoreOsPage() {
       />
 
       <Section first>
-        <p className="font-mono text-[12px] uppercase tracking-[0.14em] text-primary">
+        <p className="font-mono text-[12px] tracking-[0.14em] text-primary">
           {t('store.eyebrow')}
         </p>
         <h1
