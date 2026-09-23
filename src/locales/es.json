@@ -31,7 +31,7 @@
         },
         {
           "q": "¿Cuáles son los tres sistemas operativos?",
-          "a": "GTM OS — outbound B2B que se queda con tu equipo, en frío, filtrado por ICP, con gates por milestone. STORE OS — auditoría + config del Admin de Shopify para que la tienda convierta antes de gastar en ads. NEXUS OS — marketing agéntico, Estrategia → Social → Ads (Ads con gate hasta firmar creatividades, mix y presupuesto)."
+          "a": "GTM OS — outbound B2B que se queda con tu equipo, en frío, filtrado por ICP, con gates por milestone. Store OS — auditoría + config del Admin de Shopify para que la tienda convierta antes de gastar en ads. NEXUS OS — marketing agéntico, Estrategia → Social → Ads (Ads con gate hasta firmar creatividades, mix y presupuesto)."
         },
         {
           "q": "¿Esto es un retainer?",
@@ -138,7 +138,7 @@
     }
   },
   "store": {
-    "eyebrow": "STORE OS",
+    "eyebrow": "Store OS",
     "hero": {
       "headline": "Haz que la tienda convierta antes de comprar ads.",
       "subhead": "Auditoría + config replicable del Admin de Shopify — variantes, precio, peso, envío — para que la fricción de ops deje de matar la conversión."
@@ -191,19 +191,19 @@
       "title": "Preguntas frecuentes",
       "items": [
         {
-          "q": "¿Qué es STORE OS?",
+          "q": "¿Qué es Store OS?",
           "a": "Haz que la tienda convierta antes de comprar ads. Auditoría + config replicable del Admin de Shopify — variantes, precio, peso, envío — para que la fricción de ops deje de matar la conversión."
         },
         {
-          "q": "¿Para quién es STORE OS?",
+          "q": "¿Para quién es Store OS?",
           "a": "Founder / lead de ecom en Shopify DTC. Fricción de ops. Quiere ads pero la tienda aún no convierte."
         },
         {
-          "q": "¿Cómo funciona STORE OS?",
+          "q": "¿Cómo funciona Store OS?",
           "a": "1) Scorecard / diagnóstico de fricción en Admin. 2) Auditoría: variantes, precio, peso, envío. 3) Config de Admin al molde (sin editar archivos de theme). 4) Checklist de entrega + handoff. 5) Ads / creatividades = fuera de alcance (NEXUS OS)."
         },
         {
-          "q": "¿Qué no es STORE OS?",
+          "q": "¿Qué no es Store OS?",
           "a": "Edición de archivos de theme / Dawn. Una agencia de ads. Defaults de catálogo o tarifas de envío de otro. Bots que colocan órdenes de compra."
         }
       ]
@@ -246,7 +246,7 @@
       "items": [
         "Sistema de contenido repetible sin claims inventados",
         "Papel listo para review antes del spend",
-        "Separación clara: NEXUS ≠ outbound (GTM OS) ≠ Admin de tienda (STORE OS)"
+        "Separación clara: NEXUS ≠ outbound (GTM OS) ≠ Admin de tienda (Store OS)"
       ]
     },
     "notWhat": {
@@ -287,9 +287,9 @@
       "cta": "Ver GTM OS"
     },
     "store": {
-      "name": "STORE OS",
+      "name": "Store OS",
       "thesis": "Auditoría + config del Admin de Shopify para que la tienda convierta antes de gastar en ads.",
-      "cta": "Ver STORE OS"
+      "cta": "Ver Store OS"
     },
     "nexus": {
       "name": "NEXUS OS",
@@ -311,7 +311,7 @@
     "hubDescription": "Tres sistemas operativos instalables. Elige el cuello de botella. Una página, un SKU.",
     "gtmTitle": "RutinHQ — GTM OS — outbound que se queda contigo",
     "gtmDescription": "Outbound que se queda contigo. Un sistema de prospección B2B en frío instalado en tu equipo.",
-    "storeTitle": "RutinHQ — STORE OS — la tienda convierte antes de los ads",
+    "storeTitle": "RutinHQ — Store OS — la tienda convierte antes de los ads",
     "storeDescription": "Haz que la tienda convierta antes de comprar ads. Auditoría y config replicable del Admin de Shopify.",
     "nexusTitle": "RutinHQ — NEXUS OS — marketing agéntico en papel primero",
     "nexusDescription": "Marketing agéntico — primero en papel, Ads solo con GO. Estrategia → Social → Ads.",

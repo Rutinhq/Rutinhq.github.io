@@ -150,7 +150,7 @@ const ROUTES = [
           },
           {
             q: 'Where do the systems live?',
-            a: 'GTM OS, STORE OS, and NEXUS OS on this site. Catalog curriculum also lives at docs.rutinhq.com/catalog.',
+            a: 'GTM OS, Store OS, and NEXUS OS on this site. Catalog curriculum also lives at docs.rutinhq.com/catalog.',
           },
         ]),
       ].filter(Boolean),
@@ -344,7 +344,7 @@ const ROUTES = [
           },
           {
             q: '¿Dónde viven los sistemas?',
-            a: 'GTM OS, STORE OS y NEXUS OS en este sitio. El currículo del catálogo también vive en docs.rutinhq.com/catalog.',
+            a: 'GTM OS, Store OS y NEXUS OS en este sitio. El currículo del catálogo también vive en docs.rutinhq.com/catalog.',
           },
         ]),
       ].filter(Boolean),
@@ -525,11 +525,11 @@ const MARKETING_ROUTES = [
   skuRoute({
     path: '/store-os',
     file: 'prerender/store-os.html',
-    title: 'RutinHQ — STORE OS',
+    title: 'RutinHQ — Store OS',
     description:
       'Make the store convert before you buy ads. Replicable Shopify Admin audit + config.',
     locale: 'en',
-    serviceType: 'STORE OS',
+    serviceType: 'Store OS',
     image: OG_IMAGE.store,
     faq: enLocale.store.faq.items,
   }),
@@ -568,11 +568,11 @@ const MARKETING_ROUTES = [
   skuRoute({
     path: '/es/store-os',
     file: 'prerender/es-store-os.html',
-    title: 'RutinHQ — STORE OS — la tienda convierte antes de los ads',
+    title: 'RutinHQ — Store OS — la tienda convierte antes de los ads',
     description:
       'Haz que la tienda convierta antes de comprar ads. Auditoría y config replicable del Admin de Shopify.',
     locale: 'es',
-    serviceType: 'STORE OS',
+    serviceType: 'Store OS',
     image: OG_IMAGE.store,
     faq: esLocale.store.faq.items,
   }),

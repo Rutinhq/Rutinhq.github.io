@@ -918,7 +918,7 @@ const esMarketing = [
   {
     file: 'dist/prerender/es-store-os.html',
     path: '/es/store-os',
-    title: 'RutinHQ — STORE OS — la tienda convierte antes de los ads',
+    title: 'RutinHQ — Store OS — la tienda convierte antes de los ads',
     description:
       'Haz que la tienda convierta antes de comprar ads. Auditoría y config replicable del Admin de Shopify.',
   },
@@ -1047,7 +1047,7 @@ for (const key of mustDiffer) {
 
 const linksSource = fs.readFileSync('src/lib/links.ts', 'utf8')
 if (!linksSource.includes('https://calendly.com/rutinhq/30min')) {
-  console.error('Primary scheduling URL must be https://calendly.com/rutinhq/30min.')
+  console.error('Guide/blog may keep https://calendly.com/rutinhq/30min in links.ts.')
   process.exit(1)
 }
 const headerSource = fs.readFileSync('src/layouts/parts/Header.tsx', 'utf8')
@@ -1058,13 +1058,21 @@ for (const [name, source] of [
   ['Footer', footerSource],
   ['Ctas', ctasSource],
 ]) {
-  if (!source.includes('CALENDLY_URL')) {
-    console.error(`${name} primary Talk CTA must use CALENDLY_URL.`)
+  if (source.includes('CALENDLY_URL')) {
+    console.error(`${name} primary Talk CTA must not use CALENDLY_URL.`)
     process.exit(1)
   }
 }
-if (headerSource.includes('MAILTO_HUB') || ctasSource.includes('mailto={')) {
-  console.error('Header/Ctas must not use mailto as the primary Talk button.')
+if (!headerSource.includes('talkMailtoForPath') || !footerSource.includes('talkMailtoForPath')) {
+  console.error('Header/Footer Talk CTA must use talkMailtoForPath (mailto + SKU subject).')
+  process.exit(1)
+}
+if (!ctasSource.includes('mailtoHref') || !ctasSource.includes('MAILTO_EMAIL')) {
+  console.error('Ctas primary Talk button must be mailto (mailtoHref, default MAILTO_EMAIL).')
+  process.exit(1)
+}
+if (ctasSource.includes('ctaEmail') || ctasSource.includes('ctaSecondary')) {
+  console.error('Ctas must drop the duplicate Email label in the Talk+Read cluster.')
   process.exit(1)
 }
 if (!footerSource.includes('MAILTO_EMAIL')) {
@@ -1178,7 +1186,7 @@ const skuShells = [
   },
   {
     file: 'dist/prerender/store-os.html',
-    title: 'RutinHQ — STORE OS',
+    title: 'RutinHQ — Store OS',
     canonical: 'https://www.rutinhq.com/store-os',
   },
   {
@@ -1198,7 +1206,7 @@ const skuShells = [
   },
   {
     file: 'dist/prerender/es-store-os.html',
-    title: 'RutinHQ — STORE OS — la tienda convierte antes de los ads',
+    title: 'RutinHQ — Store OS — la tienda convierte antes de los ads',
     canonical: 'https://www.rutinhq.com/es/store-os',
   },
   {
@@ -1234,6 +1242,68 @@ for (const shell of skuShells) {
     console.error(`${shell.file} must ship unique og:url.`)
     process.exit(1)
   }
+  if (!html.includes(`name="twitter:title" content="${shell.title}"`)) {
+    console.error(`${shell.file} must keep twitter:title.`)
+    process.exit(1)
+  }
+  if (!html.includes('property="og:site_name" content="RutinHQ"')) {
+    console.error(`${shell.file} must keep og:site_name.`)
+    process.exit(1)
+  }
+}
+
+const talkClusters = [
+  {
+    file: 'dist/prerender/gtm-os.html',
+    mailto: 'mailto:strategy@rutinhq.com?subject=GTM%20OS%20%E2%80%94%20fit%20call',
+    docs: 'https://docs.rutinhq.com/catalog/gtm-os/',
+    read: 'Read the system',
+  },
+  {
+    file: 'dist/prerender/store-os.html',
+    mailto: 'mailto:strategy@rutinhq.com?subject=Store%20OS%20%E2%80%94%20fit%20call',
+    docs: 'https://docs.rutinhq.com/catalog/store-os/',
+    read: 'Read the system',
+  },
+  {
+    file: 'dist/prerender/nexus-os.html',
+    mailto: 'mailto:strategy@rutinhq.com?subject=NEXUS%20OS%20%E2%80%94%20fit%20call',
+    docs: 'https://docs.rutinhq.com/catalog/nexus-os/',
+    read: 'Read the system',
+  },
+  {
+    file: 'dist/prerender/es-gtm-os.html',
+    mailto: 'mailto:strategy@rutinhq.com?subject=GTM%20OS%20%E2%80%94%20fit%20call',
+    docs: 'https://docs.rutinhq.com/catalog/gtm-os/',
+    read: 'Leer el sistema',
+  },
+  {
+    file: 'dist/prerender/es-store-os.html',
+    mailto: 'mailto:strategy@rutinhq.com?subject=Store%20OS%20%E2%80%94%20fit%20call',
+    docs: 'https://docs.rutinhq.com/catalog/store-os/',
+    read: 'Leer el sistema',
+  },
+  {
+    file: 'dist/prerender/es-nexus-os.html',
+    mailto: 'mailto:strategy@rutinhq.com?subject=NEXUS%20OS%20%E2%80%94%20fit%20call',
+    docs: 'https://docs.rutinhq.com/catalog/nexus-os/',
+    read: 'Leer el sistema',
+  },
+]
+for (const shell of talkClusters) {
+  const html = fs.readFileSync(shell.file, 'utf8')
+  if (!html.includes(`href="${shell.mailto}"`)) {
+    console.error(`${shell.file} must use Talk mailto ${shell.mailto}.`)
+    process.exit(1)
+  }
+  if (!html.includes(`href="${shell.docs}"`)) {
+    console.error(`${shell.file} must keep Read the system → ${shell.docs}.`)
+    process.exit(1)
+  }
+  if (!html.includes(shell.read)) {
+    console.error(`${shell.file} must keep «${shell.read}» on the LP cluster.`)
+    process.exit(1)
+  }
 }
 
 const homepage = fs.readFileSync('dist/index.html', 'utf8')
@@ -1243,6 +1313,26 @@ if (!homepage.includes(`<title>${homepageTitle}</title>`)) {
 }
 if (!homepage.includes('rel="canonical" href="https://www.rutinhq.com/"')) {
   console.error('dist/index.html must canonical the hub.')
+  process.exit(1)
+}
+if (!homepage.includes('name="twitter:title" content="RutinHQ — systems you own"')) {
+  console.error('dist/index.html must emit twitter:title matching the hub title.')
+  process.exit(1)
+}
+if (
+  !homepage.includes(
+    'name="twitter:description" content="Three installable operating systems. Pick the bottleneck. One page, one SKU."',
+  )
+) {
+  console.error('dist/index.html must emit twitter:description matching the hub description.')
+  process.exit(1)
+}
+if (!homepage.includes('property="og:url" content="https://www.rutinhq.com/"')) {
+  console.error('dist/index.html must emit og:url for the hub canonical.')
+  process.exit(1)
+}
+if (!homepage.includes('property="og:site_name" content="RutinHQ"')) {
+  console.error('dist/index.html must emit og:site_name RutinHQ.')
   process.exit(1)
 }
 if (!homepage.includes('"@type":"Organization"') || !homepage.includes('strategy@rutinhq.com')) {
@@ -1390,6 +1480,24 @@ function assertGoogleFaviconLinks(file) {
 assertGoogleFaviconLinks('dist/index.html')
 assertGoogleFaviconLinks('index.html')
 
+const hubShell = fs.readFileSync('index.html', 'utf8')
+if (!hubShell.includes('name="twitter:title" content="RutinHQ — systems you own"')) {
+  console.error('index.html must ship twitter:title on the EN hub shell.')
+  process.exit(1)
+}
+if (!hubShell.includes('property="og:url" content="https://www.rutinhq.com/"')) {
+  console.error('index.html must ship og:url on the EN hub shell.')
+  process.exit(1)
+}
+if (!hubShell.includes('property="og:site_name" content="RutinHQ"')) {
+  console.error('index.html must ship og:site_name on the EN hub shell.')
+  process.exit(1)
+}
+if (homepage.includes('Read the system') || homepage.includes('Leer el sistema')) {
+  console.error('dist/index.html hub must not show Read the system (SKU LPs only).')
+  process.exit(1)
+}
+
 const appSource = fs.readFileSync('src/App.tsx', 'utf8')
 for (const route of [
   '/es',
@@ -1408,8 +1516,8 @@ for (const route of [
 }
 
 const mailto = fs.readFileSync('src/lib/links.ts', 'utf8')
-if (!mailto.includes("mailto('STORE OS — fit call')")) {
-  console.error('src/lib/links.ts must use STORE OS — fit call.')
+if (!mailto.includes("mailto('Store OS — fit call')")) {
+  console.error('src/lib/links.ts must use Store OS — fit call.')
   process.exit(1)
 }
 
@@ -1421,11 +1529,11 @@ if (
   !footerSource.includes('DOCS_CATALOG_URL') ||
   !footerSource.includes("localized('/blog')") ||
   !footerSource.includes("localized('/agents')") ||
-  !footerSource.includes('CALENDLY_URL') ||
+  !footerSource.includes('talkMailtoForPath') ||
   !footerSource.includes('MAILTO_EMAIL')
 ) {
   console.error(
-    'Footer must keep Catalog (docs), locale Blog, Agents, Calendly Talk, and mailto email.',
+    'Footer must keep Catalog (docs), locale Blog, Agents, Talk mailto, and mailto email.',
   )
   process.exit(1)
 }
@@ -1436,7 +1544,7 @@ const bodyRoutes = [
     needles: [
       'Systems you own — not retainers that vanish.',
       'GTM OS',
-      'STORE OS',
+      'Store OS',
       'NEXUS OS',
       'What does RutinHQ install?',
     ],
@@ -1447,7 +1555,7 @@ const bodyRoutes = [
   },
   {
     file: 'dist/prerender/store-os.html',
-    needles: ['Make the store convert before you buy ads.', 'What is STORE OS?'],
+    needles: ['Make the store convert before you buy ads.', 'What is Store OS?'],
   },
   {
     file: 'dist/prerender/nexus-os.html',
@@ -1471,7 +1579,7 @@ const bodyRoutes = [
     file: 'dist/prerender/es-store-os.html',
     needles: [
       'Haz que la tienda convierta antes de comprar ads.',
-      '¿Qué es STORE OS?',
+      '¿Qué es Store OS?',
     ],
   },
   {
@@ -1690,10 +1798,10 @@ if (
 
 const osServiceShells = [
   { file: 'dist/prerender/gtm-os.html', type: 'GTM OS' },
-  { file: 'dist/prerender/store-os.html', type: 'STORE OS' },
+  { file: 'dist/prerender/store-os.html', type: 'Store OS' },
   { file: 'dist/prerender/nexus-os.html', type: 'NEXUS OS' },
   { file: 'dist/prerender/es-gtm-os.html', type: 'GTM OS' },
-  { file: 'dist/prerender/es-store-os.html', type: 'STORE OS' },
+  { file: 'dist/prerender/es-store-os.html', type: 'Store OS' },
   { file: 'dist/prerender/es-nexus-os.html', type: 'NEXUS OS' },
 ]
 function ldNodes(html) {
@@ -2085,5 +2193,5 @@ console.log(
 )
 
 console.log(
-  'SSR bodies in #root; 404.html ships (no SPA catch-all); blog + SKU + ES shells unique; favicon.ico + PNG 48/192 + manifest real; Calendly primary CTA.',
+  'SSR bodies in #root; 404.html ships (no SPA catch-all); blog + SKU + ES shells unique; favicon.ico + PNG 48/192 + manifest real; Talk mailto primary CTA.',
 )

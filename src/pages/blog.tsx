@@ -99,7 +99,7 @@ export default function BlogPage() {
         </article>
         <article className="mt-10 max-w-2xl border-t border-border pt-10">
           <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-primary">
-            How-to · STORE OS · DRAFT
+            How-to · Store OS · DRAFT
           </p>
           <h2 className="mt-3 text-2xl font-heading font-extrabold tracking-[-0.03em]">
             <Link to={ARTICLE02.path} className="hover:text-primary">
@@ -167,7 +167,7 @@ export default function BlogPage() {
               Admin friction before ads
             </h2>
             <p className="mt-3 flex-1 text-[16px] text-muted-foreground">
-              STORE OS Admin audit outline (DRAFT). Ads stay out of scope.
+              Store OS Admin audit outline (DRAFT). Ads stay out of scope.
             </p>
             <p className="mt-8 font-mono text-[12px] tracking-[0.04em]">
               <Link
@@ -181,7 +181,7 @@ export default function BlogPage() {
                 href={WWW_STORE_URL}
                 className="text-foreground underline underline-offset-4 hover:text-primary"
               >
-                STORE OS
+                Store OS
               </a>
             </p>
           </article>
@@ -245,7 +245,7 @@ export default function BlogPage() {
             href={WWW_STORE_URL}
             className="underline underline-offset-4 hover:text-foreground"
           >
-            STORE OS
+            Store OS
           </a>
           {' · '}
           <a

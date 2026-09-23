@@ -22,7 +22,7 @@ export const BLOG_INDEX_FAQ = [
   },
   {
     q: 'Where do the systems live?',
-    a: 'GTM OS, STORE OS, and NEXUS OS on this site. Catalog curriculum also lives at docs.rutinhq.com/catalog.',
+    a: 'GTM OS, Store OS, and NEXUS OS on this site. Catalog curriculum also lives at docs.rutinhq.com/catalog.',
   },
 ] as const
 
@@ -41,7 +41,7 @@ export const BLOG_INDEX_FAQ_ES = [
   },
   {
     q: '¿Dónde viven los sistemas?',
-    a: 'GTM OS, STORE OS y NEXUS OS en este sitio. El currículo del catálogo también vive en docs.rutinhq.com/catalog.',
+    a: 'GTM OS, Store OS y NEXUS OS en este sitio. El currículo del catálogo también vive en docs.rutinhq.com/catalog.',
   },
 ] as const
 
@@ -172,7 +172,7 @@ export const ARTICLE02 = {
     },
     {
       heading: 'Audit: variants, price, weight, shipping',
-      note: 'DRAFT — replicable Shopify Admin audit from the STORE OS sheet.',
+      note: 'DRAFT — replicable Shopify Admin audit from the Store OS sheet.',
     },
     {
       heading: 'Admin config to the mold',
@@ -184,7 +184,7 @@ export const ARTICLE02 = {
     },
     {
       heading: 'Out of scope',
-      note: 'DRAFT — Ads / creatives = NEXUS OS. Theme-only work is not STORE OS.',
+      note: 'DRAFT — Ads / creatives = NEXUS OS. Theme-only work is not Store OS.',
     },
   ],
 } as const

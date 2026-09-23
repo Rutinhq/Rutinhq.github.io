@@ -5,7 +5,7 @@ import { BulletList, MonoTitle, Section } from '@/components/Section'
 import { OG_IMAGE, Seo, skuJsonLd } from '@/components/Seo'
 import { useObjectList } from '@/lib/i18n/lists'
 import { usePageLocale } from '@/lib/i18n/usePageLocale'
-import { DOCS_GTM_URL } from '@/lib/links'
+import { DOCS_GTM_URL, MAILTO_GTM } from '@/lib/links'
 
 export default function GtmOsPage() {
   const { t } = useTranslation()
@@ -51,7 +51,7 @@ export default function GtmOsPage() {
         <p className="mt-6 max-w-2xl text-[17px] text-muted-foreground md:text-[18px]">
           {t('gtm.hero.subhead')}
         </p>
-        <Ctas className="mt-10" docsHref={DOCS_GTM_URL} />
+        <Ctas className="mt-10" docsHref={DOCS_GTM_URL} mailtoHref={MAILTO_GTM} />
       </Section>
 
       <Section>
@@ -90,7 +90,7 @@ export default function GtmOsPage() {
       <Section>
         <MonoTitle muted>{t('gtm.notWhat.title')}</MonoTitle>
         <BulletList items={notWhat} muted />
-        <Ctas className="mt-10" docsHref={DOCS_GTM_URL} />
+        <Ctas className="mt-10" docsHref={DOCS_GTM_URL} mailtoHref={MAILTO_GTM} />
       </Section>
 
       <FaqSection title={t('gtm.faq.title')} items={faq} />

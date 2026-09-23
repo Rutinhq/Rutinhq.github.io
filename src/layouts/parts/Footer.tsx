@@ -1,11 +1,12 @@
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { usePageLocale } from '@/lib/i18n/usePageLocale'
-import { CALENDLY_URL, DOCS_CATALOG_URL, EMAIL, MAILTO_EMAIL } from '@/lib/links'
+import { DOCS_CATALOG_URL, EMAIL, MAILTO_EMAIL, talkMailtoForPath } from '@/lib/links'
 
 export function Footer() {
   const { t } = useTranslation()
   const { localized } = usePageLocale()
+  const location = useLocation()
 
   return (
     <footer className="relative z-10 border-t border-border bg-background py-10">
@@ -32,9 +33,7 @@ export function Footer() {
             {t('common.agents')}
           </Link>
           <a
-            href={CALENDLY_URL}
-            target="_blank"
-            rel="noopener noreferrer"
+            href={talkMailtoForPath(location.pathname)}
             className="hover:text-foreground"
           >
             <span className="md:hidden">{t('common.ctaPrimaryShort')}</span>

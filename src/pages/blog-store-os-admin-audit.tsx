@@ -33,7 +33,7 @@ export default function BlogStoreOsAdminAuditPage() {
       />
 
       <BlogPostLayout
-        typeLabel="How-to · STORE OS · DRAFT"
+        typeLabel="How-to · Store OS · DRAFT"
         draft={ARTICLE02.draft}
         breadcrumbs={[
           { label: 'Home', to: '/' },
@@ -44,7 +44,7 @@ export default function BlogStoreOsAdminAuditPage() {
         lede={
           <p>
             <strong>DRAFT</strong> shell — title, outline, and CTA only. Copy
-            below is catalog language from STORE OS. No invented metrics, case
+            below is catalog language from Store OS. No invented metrics, case
             studies, or prices.
           </p>
         }
@@ -53,7 +53,7 @@ export default function BlogStoreOsAdminAuditPage() {
           body: (
             <p>
               Book a 30-min fit call or write strategy@rutinhq.com. Next desk is
-              STORE OS — not ads.
+              Store OS — not ads.
             </p>
           ),
           mailto: MAILTO_STORE,
@@ -88,7 +88,7 @@ export default function BlogStoreOsAdminAuditPage() {
         <p className="note">
           Curriculum proof:{' '}
           <a href={DOCS_STORE_URL} target="_blank" rel="noopener noreferrer">
-            STORE OS catalog
+            Store OS catalog
           </a>
           . Ads / creatives stay out of scope (NEXUS OS).
         </p>
