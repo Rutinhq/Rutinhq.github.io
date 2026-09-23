@@ -94,8 +94,6 @@ const ROUTES = [
       'Radar for founders who install GTM and ops systems — not rented seats.',
     ogType: 'website',
     locale: 'en',
-    noindex: true,
-    robots: 'noindex, follow',
     image: OG_IMAGE.blog,
     alternates: [
       { hreflang: 'en', href: `${SITE}/blog` },
@@ -137,7 +135,25 @@ const ROUTES = [
             },
           ],
         },
-      ],
+        faqPageNode(`${SITE}/blog`, [
+          {
+            q: 'What is the RutinHQ blog?',
+            a: 'Radar for founders who install GTM and ops systems — not rented seats.',
+          },
+          {
+            q: 'What signal does this radar filter?',
+            a: 'ICP fit, a real ops/GTM pain, SKU interest, and founder / CEO / ops lead language — then a system that stays with your team.',
+          },
+          {
+            q: 'Is this a content rabbit hole?',
+            a: 'No. CTA on every path is discovery (strategy@) — not a content rabbit hole. Discovery next; educate-forever never.',
+          },
+          {
+            q: 'Where do the systems live?',
+            a: 'GTM OS, STORE OS, and NEXUS OS on this site. Catalog curriculum also lives at docs.rutinhq.com/catalog.',
+          },
+        ]),
+      ].filter(Boolean),
     },
   },
   {
@@ -148,8 +164,6 @@ const ROUTES = [
       'Keep the outbound core fixed—change only ICP, message, and filters—so pipeline stays with your team when the contract ends.',
     ogType: 'article',
     locale: 'en',
-    noindex: true,
-    robots: 'noindex, follow',
     image: OG_IMAGE.blog,
     alternates: [
       {
@@ -245,8 +259,6 @@ const ROUTES = [
       'Replicable Shopify Admin audit + config — variants, price, weight, shipping — so ops friction stops killing conversion.',
     ogType: 'article',
     locale: 'en',
-    noindex: true,
-    robots: 'noindex, follow',
     image: OG_IMAGE.blog,
     jsonLd: {
       '@context': 'https://schema.org',
@@ -282,8 +294,6 @@ const ROUTES = [
       'Radar para founders que instalan sistemas de GTM y ops — no asientos rentados.',
     ogType: 'website',
     locale: 'es',
-    noindex: true,
-    robots: 'noindex, follow',
     image: OG_IMAGE.blog,
     alternates: [
       { hreflang: 'en', href: `${SITE}/blog` },
@@ -319,7 +329,25 @@ const ROUTES = [
             },
           ],
         },
-      ],
+        faqPageNode(`${SITE}/es/blog`, [
+          {
+            q: '¿Qué es el blog de RutinHQ?',
+            a: 'Radar para founders que instalan sistemas de GTM y ops — no asientos rentados.',
+          },
+          {
+            q: '¿Qué señal filtra este radar?',
+            a: 'Fit de ICP, un dolor real de ops/GTM, interés de SKU y lenguaje founder / CEO / lead de ops — luego un sistema que se queda con tu equipo.',
+          },
+          {
+            q: '¿Esto es un pozo de contenido?',
+            a: 'No. El CTA en cada camino es discovery (strategy@) — no un pozo de contenido. Siguiente paso: discovery; educate-forever, nunca.',
+          },
+          {
+            q: '¿Dónde viven los sistemas?',
+            a: 'GTM OS, STORE OS y NEXUS OS en este sitio. El currículo del catálogo también vive en docs.rutinhq.com/catalog.',
+          },
+        ]),
+      ].filter(Boolean),
     },
   },
   {
@@ -330,8 +358,6 @@ const ROUTES = [
       'Mantén fijo el núcleo del outbound; cambia solo ICP, mensaje y filtros — el pipeline se queda con tu equipo cuando termina el contrato.',
     ogType: 'article',
     locale: 'es',
-    noindex: true,
-    robots: 'noindex, follow',
     image: OG_IMAGE.blog,
     alternates: [
       {

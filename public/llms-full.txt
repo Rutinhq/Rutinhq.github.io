@@ -40,7 +40,7 @@ Headline: Agentic marketing — paper first, Ads only when signed.
 Subhead: Strategy → Social → Ads. Until creatives, mix, and budget have an explicit GO: paper only (no pixel, no spend).
 Catalog: https://docs.rutinhq.com/catalog/nexus-os/
 
-## Public www URLs (current sitemap — indexable hub + SKUs only)
+## Public www URLs (current sitemap — hub + SKUs + blog)
 
 - https://www.rutinhq.com/
 - https://www.rutinhq.com/gtm-os
@@ -54,6 +54,11 @@ Catalog: https://docs.rutinhq.com/catalog/nexus-os/
 - https://www.rutinhq.com/agents/auth
 - https://www.rutinhq.com/es/agents
 - https://www.rutinhq.com/es/agents/auth
+- https://www.rutinhq.com/blog
+- https://www.rutinhq.com/blog/icp-gated-cold-outbound-without-rented-sdr
+- https://www.rutinhq.com/blog/shopify-admin-audit-before-ads
+- https://www.rutinhq.com/es/blog
+- https://www.rutinhq.com/es/blog/outbound-frio-con-icp-sin-sdr-rentado
 - https://www.rutinhq.com/auth.md
 - https://www.rutinhq.com/agents.md
 - https://www.rutinhq.com/.well-known/api-catalog
@@ -75,7 +80,7 @@ RFC 9727 api-catalog: https://www.rutinhq.com/.well-known/api-catalog
 Human catalog: https://www.rutinhq.com/agents
 Machine catalog: https://www.rutinhq.com/agents.md
 
-## Blog (EN + ES, draft / noindex — omitted from sitemap)
+## Blog (EN + ES, indexable — listed in sitemap)
 
 Index EN: https://www.rutinhq.com/blog
 Title: Blog — systems you own

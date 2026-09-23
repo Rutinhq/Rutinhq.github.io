@@ -20,7 +20,7 @@ Paper for the leftover technical slice toward scorecard average **≥ 9.5**. No 
 Open drafts (do not merge from this PR):
 
 - **#34** — HQ green square + arrow favicon pack for Google SERP. Do not invent letter-R icons.
-- **#35** — Sprint 2 blog scaffold, `noindex` until Capo publish GO. Do not force-publish.
+- **#35** — Sprint 2 blog scaffold landed as `noindex`. Capo GO 23 Sep flips robots + sitemap (this PR).
 
 Parked (out of this repo / out of this PR): HSTS, apex→www zone redirect, Cloudflare Soft P1 / DNS.
 
@@ -36,7 +36,7 @@ Parked (out of this repo / out of this PR): HSTS, apex→www zone redirect, Clou
 
 ## Three Capo-gated next items
 
-1. **Blog publish GO (#35)** — flip `/blog` + articles to `index` + sitemap, or keep draft `noindex`. Content volume and Article02 outline are strategy, not a technical leftover.
+1. **Blog publish GO** — shipped in this PR (`index, follow` + sitemap). Article02 outline volume stays a content decision.
 2. **HSTS / apex→www / Cloudflare zone rules** — Soft P1 still parked. Not a Pages `_headers` change.
 3. **New public proof** — case studies, extra posts, SKU pricing, or invented testimonials. Scorecard Contenido/Blog will not move without Capo copy.
 

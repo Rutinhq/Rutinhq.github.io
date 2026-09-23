@@ -57,7 +57,7 @@ type SeoProps = {
   path: string
   jsonLd?: Record<string, unknown>
   noindex?: boolean
-  /** Override robots. Blog drafts use noindex,follow; 404 stays noindex,nofollow. */
+  /** Override robots. Published blog uses index,follow; 404 stays noindex,nofollow. */
   robots?: 'index, follow' | 'noindex, follow' | 'noindex, nofollow'
   ogType?: 'website' | 'article'
   locale?: 'en' | 'es'
@@ -344,26 +344,31 @@ export function blogIndexJsonLd({
   name = 'Blog — systems you own',
   description = 'Radar for founders who install GTM and ops systems — not rented seats.',
   inLanguage = 'en',
+  faq = [],
 }: {
   path?: string
   name?: string
   description?: string
   inLanguage?: 'en' | 'es'
+  faq?: readonly FaqItem[]
 } = {}) {
   const url = `${SITE}${path}`
+  const graph: Record<string, unknown>[] = [
+    {
+      '@type': ['CollectionPage', 'Blog'],
+      '@id': `${url}#blog`,
+      url,
+      name,
+      description,
+      inLanguage,
+      isPartOf: { '@id': `${SITE}/#website` },
+      about: { '@id': `${SITE}/#organization` },
+    },
+  ]
+  const faqNode = faqPageNode(path, faq)
+  if (faqNode) graph.push(faqNode)
   return {
     '@context': 'https://schema.org',
-    '@graph': [
-      {
-        '@type': ['CollectionPage', 'Blog'],
-        '@id': `${url}#blog`,
-        url,
-        name,
-        description,
-        inLanguage,
-        isPartOf: { '@id': `${SITE}/#website` },
-        about: { '@id': `${SITE}/#organization` },
-      },
-    ],
+    '@graph': graph,
   }
 }

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Ctas } from '@/components/Ctas'
+import { FaqSection } from '@/components/Faq'
 import { MonoTitle, Section } from '@/components/Section'
 import { OG_IMAGE, Seo, blogIndexJsonLd, hreflangPair } from '@/components/Seo'
 import { Button } from '@/components/ui/button'
@@ -32,12 +33,12 @@ export default function BlogPage() {
         robots={BLOG_ROBOTS}
         alternates={hreflangPair(BLOG_INDEX.path, BLOG_INDEX_ES.path)}
         image={OG_IMAGE.blog}
-        jsonLd={blogIndexJsonLd()}
+        jsonLd={blogIndexJsonLd({ faq: BLOG_INDEX.faq })}
       />
 
       <Section first>
         <p className="font-mono text-[12px] uppercase tracking-[0.14em] text-primary">
-          Radar · filter · DRAFT
+          Radar · filter
         </p>
         <h1
           className="mt-4 max-w-4xl font-heading font-extrabold tracking-[-0.03em]"
@@ -204,6 +205,8 @@ export default function BlogPage() {
           </article>
         </div>
       </Section>
+
+      <FaqSection title="FAQ" items={BLOG_INDEX.faq} />
 
       <Section>
         <Ctas />
