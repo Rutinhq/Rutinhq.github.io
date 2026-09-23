@@ -2193,5 +2193,5 @@ console.log(
 )
 
 console.log(
-  'SSR bodies in #root; 404.html ships (no SPA catch-all); blog + SKU + ES shells unique; favicon.ico + PNG 48/192 + manifest real; Calendly primary CTA.',
+  'SSR bodies in #root; 404.html ships (no SPA catch-all); blog + SKU + ES shells unique; favicon.ico + PNG 48/192 + manifest real; Talk mailto primary CTA.',
 )
