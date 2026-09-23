@@ -14,30 +14,28 @@ function robotsContents(html) {
   )
 }
 
-function assertBlogHoldRobots(file) {
+function assertBlogPublishRobots(file) {
   if (!fs.existsSync(file)) {
-    console.error(`${file} missing — blog hold shell must prerender.`)
+    console.error(`${file} missing — blog publish shell must prerender.`)
     process.exit(1)
   }
   const html = fs.readFileSync(file, 'utf8')
   const values = robotsContents(html)
-  if (values.length !== 1 || values[0] !== 'noindex, follow') {
+  if (values.length !== 1 || values[0] !== 'index, follow') {
     console.error(
-      `${file} must emit exactly one robots meta "noindex, follow" (got ${JSON.stringify(values)}).`,
+      `${file} must emit exactly one robots meta "index, follow" (got ${JSON.stringify(values)}).`,
     )
     process.exit(1)
   }
-  if (/content=["']index,\s*follow["']/.test(html)) {
-    console.error(
-      `${file} must not emit index, follow while the Sprint 2 hold is active.`,
-    )
+  if (/content=["']noindex/i.test(html)) {
+    console.error(`${file} must not emit noindex after Capo publish GO.`)
     process.exit(1)
   }
   const prerenderIdx = html.indexOf('<!-- prerender:')
   const helmetRegion = prerenderIdx >= 0 ? html.slice(0, prerenderIdx) : ''
-  if (robotsContents(helmetRegion)[0] !== 'noindex, follow') {
+  if (robotsContents(helmetRegion)[0] !== 'index, follow') {
     console.error(
-      `${file} must emit Seo/Helmet robots "noindex, follow" in SSR head (<!--ssr-head-->), not only the seoHead fallback.`,
+      `${file} must emit Seo/Helmet robots "index, follow" in SSR head (<!--ssr-head-->), not only the seoHead fallback.`,
     )
     process.exit(1)
   }
@@ -537,13 +535,20 @@ const expectedLocs = [
   'https://www.rutinhq.com/agents/auth',
   'https://www.rutinhq.com/es/agents',
   'https://www.rutinhq.com/es/agents/auth',
+  'https://www.rutinhq.com/blog',
+  'https://www.rutinhq.com/blog/icp-gated-cold-outbound-without-rented-sdr',
+  'https://www.rutinhq.com/blog/shopify-admin-audit-before-ads',
+  'https://www.rutinhq.com/es/blog',
+  'https://www.rutinhq.com/es/blog/outbound-frio-con-icp-sin-sdr-rentado',
 ]
-if (
-  (sitemapBody.match(/xhtml:link rel="alternate"/g) || []).length <
-  expectedLocs.length * 3
-) {
+const article02Loc =
+  'https://www.rutinhq.com/blog/shopify-admin-audit-before-ads'
+const pairedLocs = expectedLocs.filter((url) => url !== article02Loc)
+const xhtmlCount = (sitemapBody.match(/xhtml:link rel="alternate"/g) || [])
+  .length
+if (xhtmlCount < pairedLocs.length * 3 + 2) {
   console.error(
-    `${sitemap} must emit xhtml:link hreflang (en + es + x-default) on every URL.`,
+    `${sitemap} must emit xhtml:link hreflang (en + es + x-default) on paired URLs; Article02 is EN-only (en + x-default).`,
   )
   process.exit(1)
 }
@@ -552,7 +557,7 @@ if (
   expectedLocs.some((url) => !locs.includes(url))
 ) {
   console.error(
-    `${sitemap} must list exactly the 12 indexable www URLs (EN+ES hub + 3 SKUs + agents/auth). Blog is draft/noindex.`,
+    `${sitemap} must list exactly the 17 indexable www URLs (hub + 3 SKUs + agents/auth + blog EN/ES).`,
   )
   process.exit(1)
 }
@@ -571,12 +576,16 @@ if (lastmods.some((value) => !/^\d{4}-\d{2}-\d{2}$/.test(value))) {
   console.error(`${sitemap} lastmod values must be YYYY-MM-DD.`)
   process.exit(1)
 }
-if (/\/blog/.test(sitemapBody)) {
-  console.error(`${sitemap} must omit blog URLs while the Sprint 2 hold is noindex.`)
+if (!/\/blog/.test(sitemapBody)) {
+  console.error(`${sitemap} must include blog URLs after Capo publish GO.`)
   process.exit(1)
 }
 if (!sitemapBody.includes('<lastmod>2026-09-13</lastmod>')) {
   console.error(`${sitemap} must lastmod hub/OS after the FAQPage residual.`)
+  process.exit(1)
+}
+if (!sitemapBody.includes('<lastmod>2026-09-23</lastmod>')) {
+  console.error(`${sitemap} must lastmod blog URLs on the Capo publish GO date.`)
   process.exit(1)
 }
 
@@ -640,6 +649,57 @@ if (fs.existsSync('dist/_headers')) {
   if (!/Referrer-Policy:\s*strict-origin-when-cross-origin/i.test(headers)) {
     console.error(
       'dist/_headers must set Referrer-Policy: strict-origin-when-cross-origin.',
+    )
+    process.exit(1)
+  }
+  if (/Access-Control-Allow-Origin/i.test(splatBlock)) {
+    console.error(
+      'dist/_headers /* must not set Access-Control-Allow-Origin (scope ACAO * to fonts/assets/discovery).',
+    )
+    process.exit(1)
+  }
+  if (!/X-Frame-Options:\s*DENY/i.test(headers)) {
+    console.error('dist/_headers must set X-Frame-Options: DENY on /*.')
+    process.exit(1)
+  }
+  if (
+    !/Content-Security-Policy:\s*default-src 'self';\s*script-src 'self';/i.test(
+      headers,
+    )
+  ) {
+    console.error(
+      "dist/_headers must set CSP default-src 'self'; script-src 'self' (keep hub fonts/scripts first-party).",
+    )
+    process.exit(1)
+  }
+  if (
+    !/font-src 'self'/.test(headers) ||
+    !/frame-ancestors 'none'/.test(headers)
+  ) {
+    console.error(
+      "dist/_headers CSP must keep font-src 'self' and frame-ancestors 'none'.",
+    )
+    process.exit(1)
+  }
+  if (
+    /fonts\.googleapis\.com|fonts\.gstatic\.com/.test(headers)
+  ) {
+    console.error('dist/_headers CSP must not open Google Fonts hosts.')
+    process.exit(1)
+  }
+  if (
+    !/\/fonts\/\*[\s\S]*?Access-Control-Allow-Origin:\s*\*/i.test(headers)
+  ) {
+    console.error(
+      'dist/_headers must scope Access-Control-Allow-Origin: * to /fonts/* (crossorigin preload).',
+    )
+    process.exit(1)
+  }
+  if (
+    !/\/assets\/\*[\s\S]*?Access-Control-Allow-Origin:\s*\*/i.test(headers)
+  ) {
+    console.error(
+      'dist/_headers must scope Access-Control-Allow-Origin: * to /assets/*.',
     )
     process.exit(1)
   }
@@ -725,12 +785,12 @@ if (!fs.existsSync(blogSource)) {
 }
 const blogFlags = fs.readFileSync(blogSource, 'utf8')
 if (
-  /draft:\s*false/.test(blogFlags) ||
-  /noindex:\s*false/.test(blogFlags) ||
-  !blogFlags.includes("BLOG_ROBOTS = 'noindex, follow'")
+  !blogFlags.includes("BLOG_ROBOTS = 'index, follow'") ||
+  !/noindex:\s*false/.test(blogFlags) ||
+  blogFlags.includes("BLOG_ROBOTS = 'noindex, follow'")
 ) {
   console.error(
-    `${blogSource} must hold the blog as draft:true / noindex:true with BLOG_ROBOTS noindex, follow.`,
+    `${blogSource} must publish the blog with BLOG_ROBOTS index, follow and noindex:false.`,
   )
   process.exit(1)
 }
@@ -837,7 +897,7 @@ for (const file of [
   esBlogShell,
   esArticleShell,
 ]) {
-  assertBlogHoldRobots(file)
+  assertBlogPublishRobots(file)
 }
 
 const esMarketing = [
@@ -1212,6 +1272,13 @@ if (/"@type":"ItemList"/.test(homepage) || homepage.includes('#os-landings')) {
   )
   process.exit(1)
 }
+const prerenderSource = fs.readFileSync('scripts/prerender-blog.mjs', 'utf8')
+if (prerenderSource.includes('#os-landings')) {
+  console.error(
+    'scripts/prerender-blog.mjs HUB_JSON_LD must not restore ItemList #os-landings (PR #43).',
+  )
+  process.exit(1)
+}
 if (!homepage.includes('GTM OS') || !homepage.includes('STORE OS') || !homepage.includes('NEXUS OS')) {
   console.error('dist/index.html JSON-LD must name the three OS landings.')
   process.exit(1)
@@ -1416,7 +1483,10 @@ const bodyRoutes = [
   },
   {
     file: 'dist/prerender/blog.html',
-    needles: ['Systems you own — filtered for founders who install, not rent'],
+    needles: [
+      'Systems you own — filtered for founders who install, not rent',
+      'What is the RutinHQ blog?',
+    ],
   },
   {
     file: 'dist/prerender/blog-icp-gated-cold-outbound-without-rented-sdr.html',
@@ -1433,7 +1503,10 @@ const bodyRoutes = [
   },
   {
     file: 'dist/prerender/es-blog.html',
-    needles: ['Sistemas que posees — filtrados para founders que instalan, no rentan'],
+    needles: [
+      'Sistemas que posees — filtrados para founders que instalan, no rentan',
+      '¿Qué es el blog de RutinHQ?',
+    ],
   },
   {
     file: 'dist/prerender/es-blog-outbound-frio-con-icp-sin-sdr-rentado.html',
@@ -1687,8 +1760,10 @@ for (const shell of osServiceShells) {
   assertFaqPageMatchesVisible(shell.file, html)
 }
 
-if (/"@type":"FAQPage"/.test(blogHtml)) {
-  console.error('Blog index must not invent FAQPage (no on-page FAQ).')
+assertFaqPageMatchesVisible(blogShell, blogHtml)
+assertFaqPageMatchesVisible(esBlogShell, esBlogHtml)
+if (blogHtml.includes('#os-landings') || esBlogHtml.includes('#os-landings')) {
+  console.error('Blog index must not emit hub ItemList #os-landings.')
   process.exit(1)
 }
 assertFaqPageMatchesVisible('dist/index.html', homepage)

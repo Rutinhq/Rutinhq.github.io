@@ -1,6 +1,5 @@
-# Blog pretty URLs stay off the sitemap and emit page robots
-# `noindex, follow` until publish GO. Do not send X-Robots-Tag: noindex
-# on those paths — crawlers must read the HTML meta (follow links).
+# Blog pretty URLs are indexable (Capo GO 23 Sep). Do not send
+# X-Robots-Tag: noindex on those paths — crawlers read HTML robots.
 
 # Shared headers for every request URL. Do NOT set Cache-Control on `/*`:
 # Pages inherits every matching rule and comma-joins the same header
@@ -13,11 +12,19 @@
 # path block as separate headers (not a comma-join unless the same name
 # is repeated). Do not enable CF Markdown Negotiation or Zero Trust
 # bypass from this file.
+#
+# P1 headers: X-Frame-Options + CSP on `/*`. Do NOT put
+# Access-Control-Allow-Origin on `/*` (live had ACAO * on HTML).
+# Scope `*` to fonts/assets (crossorigin preload) + discovery files
+# agents fetch cross-origin. CSP stays same-origin for hub fonts/scripts
+# — no Google Fonts, no third-party script hosts. No HSTS here.
 /*
   Link: </sitemap.xml>; rel="sitemap", </llms.txt>; rel="describedby"; type="text/plain", </.well-known/api-catalog>; rel="api-catalog"; type="application/linkset+json", </auth.md>; rel="describedby"; type="text/markdown"
   Content-Signal: search=yes, ai-train=no, use=reference
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'
 
 # HTML SPA request paths (pretty URLs + shells). Short cache so copy/SEO
 # updates land. New pretty HTML routes need a rule here or a safe prefix
@@ -87,13 +94,17 @@
   Content-Type: application/json; charset=utf-8
   X-Robots-Tag: noindex, nofollow
 
-# Vite hashed bundles (/assets/*.js).
+# Vite hashed bundles (/assets/*.js). ACAO * scoped here so
+# crossorigin module/font fetches keep working; not on HTML `/*`.
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
+  Access-Control-Allow-Origin: *
 
 # Self-hosted latin subsets (stable filenames; bump the file to invalidate).
+# index.html preloads these with crossorigin — CORS must stay on this prefix.
 /fonts/*
   Cache-Control: public, max-age=31536000, immutable
+  Access-Control-Allow-Origin: *
 
 /favicon.ico
   Content-Type: image/x-icon
@@ -121,10 +132,12 @@
 /llms.txt
   Content-Type: text/plain; charset=utf-8
   Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+  Access-Control-Allow-Origin: *
 
 /llms-full.txt
   Content-Type: text/plain; charset=utf-8
   Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+  Access-Control-Allow-Origin: *
 
 # RFC 9727 catalog + WorkOS-style auth.md. Keep non-HTML so Pages
 # never serves the SPA shell. Free CF Pages headers only — no Pro
@@ -132,16 +145,20 @@
 /.well-known/api-catalog
   Content-Type: application/linkset+json; profile="https://www.rfc-editor.org/info/rfc9727"
   Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+  Access-Control-Allow-Origin: *
 
 /auth.md
   Content-Type: text/markdown; charset=utf-8
   Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+  Access-Control-Allow-Origin: *
 
 /agents.md
   Content-Type: text/markdown; charset=utf-8
   Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+  Access-Control-Allow-Origin: *
 
 # Generated at build (dist/sitemap.xml). Same public cache as the other
 # agent-discovery files. HTML routes stay on the HTML path rules above.
 /sitemap.xml
   Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+  Access-Control-Allow-Origin: *

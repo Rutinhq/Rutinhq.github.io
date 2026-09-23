@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Ctas } from '@/components/Ctas'
+import { FaqSection } from '@/components/Faq'
 import { MonoTitle, Section } from '@/components/Section'
 import { OG_IMAGE, Seo, blogIndexJsonLd, hreflangPair } from '@/components/Seo'
 import { Button } from '@/components/ui/button'
@@ -37,12 +38,13 @@ export default function BlogEsPage() {
           name: BLOG_INDEX_ES.title,
           description: BLOG_INDEX_ES.description,
           inLanguage: 'es',
+          faq: BLOG_INDEX_ES.faq,
         })}
       />
 
       <Section first>
         <p className="font-mono text-[12px] uppercase tracking-[0.14em] text-primary">
-          Radar · filtro · DRAFT
+          Radar · filtro
         </p>
         <h1
           className="mt-4 max-w-4xl font-heading font-extrabold tracking-[-0.03em]"
@@ -210,6 +212,8 @@ export default function BlogEsPage() {
           </article>
         </div>
       </Section>
+
+      <FaqSection title="FAQ" items={BLOG_INDEX_ES.faq} />
 
       <Section>
         <Ctas />

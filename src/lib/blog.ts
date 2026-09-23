@@ -4,8 +4,46 @@ export const ARTICLE01_ES_PATH =
   '/es/blog/outbound-frio-con-icp-sin-sdr-rentado' as const
 export const ARTICLE02_PATH = '/blog/shopify-admin-audit-before-ads' as const
 
-/** Sprint 2 hold: blog stays draft until Capo publish GO. */
-export const BLOG_ROBOTS = 'noindex, follow' as const
+/** Capo GO 23 Sep: blog index + articles are indexable. */
+export const BLOG_ROBOTS = 'index, follow' as const
+
+export const BLOG_INDEX_FAQ = [
+  {
+    q: 'What is the RutinHQ blog?',
+    a: 'Radar for founders who install GTM and ops systems — not rented seats.',
+  },
+  {
+    q: 'What signal does this radar filter?',
+    a: 'ICP fit, a real ops/GTM pain, SKU interest, and founder / CEO / ops lead language — then a system that stays with your team.',
+  },
+  {
+    q: 'Is this a content rabbit hole?',
+    a: 'No. CTA on every path is discovery (strategy@) — not a content rabbit hole. Discovery next; educate-forever never.',
+  },
+  {
+    q: 'Where do the systems live?',
+    a: 'GTM OS, STORE OS, and NEXUS OS on this site. Catalog curriculum also lives at docs.rutinhq.com/catalog.',
+  },
+] as const
+
+export const BLOG_INDEX_FAQ_ES = [
+  {
+    q: '¿Qué es el blog de RutinHQ?',
+    a: 'Radar para founders que instalan sistemas de GTM y ops — no asientos rentados.',
+  },
+  {
+    q: '¿Qué señal filtra este radar?',
+    a: 'Fit de ICP, un dolor real de ops/GTM, interés de SKU y lenguaje founder / CEO / lead de ops — luego un sistema que se queda con tu equipo.',
+  },
+  {
+    q: '¿Esto es un pozo de contenido?',
+    a: 'No. El CTA en cada camino es discovery (strategy@) — no un pozo de contenido. Siguiente paso: discovery; educate-forever, nunca.',
+  },
+  {
+    q: '¿Dónde viven los sistemas?',
+    a: 'GTM OS, STORE OS y NEXUS OS en este sitio. El currículo del catálogo también vive en docs.rutinhq.com/catalog.',
+  },
+] as const
 
 export const BLOG_INDEX = {
   title: 'Blog — systems you own',
@@ -13,8 +51,9 @@ export const BLOG_INDEX = {
     'Radar for founders who install GTM and ops systems — not rented seats.',
   path: '/blog',
   alternatePath: '/es/blog',
-  draft: true,
-  noindex: true,
+  draft: false,
+  noindex: false,
+  faq: BLOG_INDEX_FAQ,
 } as const
 
 export const BLOG_INDEX_ES = {
@@ -23,8 +62,9 @@ export const BLOG_INDEX_ES = {
     'Radar para founders que instalan sistemas de GTM y ops — no asientos rentados.',
   path: '/es/blog',
   alternatePath: '/blog',
-  draft: true,
-  noindex: true,
+  draft: false,
+  noindex: false,
+  faq: BLOG_INDEX_FAQ_ES,
 } as const
 
 export function articleSeoTitle(title: string) {
@@ -42,8 +82,8 @@ export const ARTICLE01 = {
   sku: 'gtm-os',
   job: 'Gate cold outbound by ICP before volume.',
   cta: 'strategy@',
-  draft: true,
-  noindex: true,
+  draft: false,
+  noindex: false,
   inLanguage: 'en',
   author: 'RutinHQ',
   datePublished: '2026-09-08',
@@ -79,8 +119,8 @@ export const ARTICLE01_ES = {
   sku: 'gtm-os',
   job: 'Cierra el outbound frío con ICP antes del volumen.',
   cta: 'strategy@',
-  draft: true,
-  noindex: true,
+  draft: false,
+  noindex: false,
   inLanguage: 'es',
   author: 'RutinHQ',
   datePublished: '2026-09-08',
@@ -116,7 +156,7 @@ export const ARTICLE02 = {
   job: 'Audit Admin friction before ad spend.',
   cta: 'strategy@',
   draft: true,
-  noindex: true,
+  noindex: false,
   inLanguage: 'en',
   author: 'RutinHQ',
   datePublished: '2026-09-13',
