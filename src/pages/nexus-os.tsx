@@ -5,7 +5,7 @@ import { BulletList, MonoTitle, Section } from '@/components/Section'
 import { OG_IMAGE, Seo, skuJsonLd } from '@/components/Seo'
 import { useObjectList } from '@/lib/i18n/lists'
 import { usePageLocale } from '@/lib/i18n/usePageLocale'
-import { DOCS_NEXUS_URL } from '@/lib/links'
+import { DOCS_NEXUS_URL, MAILTO_NEXUS } from '@/lib/links'
 
 export default function NexusOsPage() {
   const { t } = useTranslation()
@@ -49,7 +49,7 @@ export default function NexusOsPage() {
         <p className="mt-6 max-w-2xl text-[17px] text-muted-foreground md:text-[18px]">
           {t('nexus.hero.subhead')}
         </p>
-        <Ctas className="mt-10" docsHref={DOCS_NEXUS_URL} />
+        <Ctas className="mt-10" docsHref={DOCS_NEXUS_URL} mailtoHref={MAILTO_NEXUS} />
       </Section>
 
       <Section>
@@ -78,7 +78,7 @@ export default function NexusOsPage() {
       <Section>
         <MonoTitle muted>{t('nexus.notWhat.title')}</MonoTitle>
         <BulletList items={notWhat} muted />
-        <Ctas className="mt-10" docsHref={DOCS_NEXUS_URL} />
+        <Ctas className="mt-10" docsHref={DOCS_NEXUS_URL} mailtoHref={MAILTO_NEXUS} />
       </Section>
 
       <FaqSection title={t('nexus.faq.title')} items={faq} />

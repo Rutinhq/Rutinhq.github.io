@@ -4,7 +4,7 @@ import { Logo } from '@/components/Logo'
 import { buttonVariants } from '@/components/ui/button'
 import type { SupportedLanguage } from '@/lib/i18n/config'
 import { languageFromPathname, localePath, withLocale } from '@/lib/i18n/paths'
-import { CALENDLY_URL } from '@/lib/links'
+import { talkMailtoForPath } from '@/lib/links'
 import { cn } from '@/lib/utils'
 
 export function Header() {
@@ -59,9 +59,7 @@ export function Header() {
             </button>
           </div>
           <a
-            href={CALENDLY_URL}
-            target="_blank"
-            rel="noopener noreferrer"
+            href={talkMailtoForPath(location.pathname)}
             className={cn(buttonVariants({ size: 'sm' }), 'relative z-10 shrink-0 px-3 md:px-4')}
           >
             <span className="md:hidden">{t('common.ctaPrimaryShort')}</span>
