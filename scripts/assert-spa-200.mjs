@@ -663,12 +663,21 @@ if (fs.existsSync('dist/_headers')) {
     process.exit(1)
   }
   if (
-    !/Content-Security-Policy:\s*default-src 'self';\s*script-src 'self';/i.test(
+    !/Content-Security-Policy:\s*default-src 'self';\s*script-src 'self' https:\/\/challenges\.cloudflare\.com;/i.test(
       headers,
     )
   ) {
     console.error(
-      "dist/_headers must set CSP default-src 'self'; script-src 'self' (keep hub fonts/scripts first-party).",
+      "dist/_headers must set CSP default-src 'self' and script-src that allows only self + Turnstile.",
+    )
+    process.exit(1)
+  }
+  if (
+    !/frame-src https:\/\/challenges\.cloudflare\.com/.test(headers) ||
+    !/connect-src 'self' https:\/\/challenges\.cloudflare\.com/.test(headers)
+  ) {
+    console.error(
+      'dist/_headers CSP must allow Turnstile frame-src + connect-src on challenges.cloudflare.com.',
     )
     process.exit(1)
   }

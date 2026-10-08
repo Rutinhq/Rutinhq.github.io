@@ -7,6 +7,10 @@ import {
   knowledgeBlock,
 } from './config'
 import { localGuideReply } from './fallback'
+import {
+  enforceGuideRateLimit,
+  enforceGuideTurnstile,
+} from './ingress'
 import { buildLeadBrief } from './lead'
 import { callGuideLlm, composeGuideSystemPrompt, GUIDE_LLM_BUDGET_MS } from './llm'
 import { enforceSafeReply, isSecurityProbe, securityReply } from './security'
@@ -22,33 +26,11 @@ import type {
 
 export type { GuideEnv }
 
-const hits = new Map<string, { n: number; resetAt: number }>()
-
 function json(status: number, body: unknown): Response {
   return new Response(JSON.stringify(body), {
     status,
     headers: { 'content-type': 'application/json; charset=utf-8' },
   })
-}
-
-function clientKey(request: Request): string {
-  return (
-    request.headers.get('cf-connecting-ip') ||
-    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-    request.headers.get('x-real-ip') ||
-    'local'
-  )
-}
-
-function rateLimited(key: string): boolean {
-  const now = Date.now()
-  const row = hits.get(key)
-  if (!row || now > row.resetAt) {
-    hits.set(key, { n: 1, resetAt: now + GUIDE_LIMITS.rateLimitWindowMs })
-    return false
-  }
-  row.n += 1
-  return row.n > GUIDE_LIMITS.rateLimitMax
 }
 
 function asLocale(value: unknown): GuideLocale {
@@ -124,16 +106,21 @@ export async function handleGuideLeadRequest(
   if (request.method !== 'POST') {
     return json(405, { error: 'method_not_allowed' })
   }
+  const limited = await enforceGuideRateLimit(request, env)
+  if (limited) return limited
+
   const raw = await request.text()
   if (raw.length > GUIDE_LIMITS.maxBodyBytes) {
     return json(200, { ok: true, delivered: false })
   }
-  let parsed: { leadBrief?: unknown }
+  let parsed: { leadBrief?: unknown; turnstileToken?: string }
   try {
-    parsed = JSON.parse(raw || '{}') as { leadBrief?: unknown }
+    parsed = JSON.parse(raw || '{}') as { leadBrief?: unknown; turnstileToken?: string }
   } catch {
     return json(200, { ok: true, delivered: false })
   }
+  const blocked = await enforceGuideTurnstile(request, env, parsed)
+  if (blocked) return blocked
   const leadBrief = asLeadBrief(parsed.leadBrief)
   if (!leadBrief) return json(200, { ok: true, delivered: false })
   const delivered = await notifyWebhook(env, { type: 'lead_brief', leadBrief })
@@ -148,9 +135,8 @@ export async function handleGuideRequest(
   if (request.method !== 'POST') {
     return json(405, { error: 'method_not_allowed' })
   }
-  if (rateLimited(clientKey(request))) {
-    return json(429, { error: 'rate_limited' })
-  }
+  const limited = await enforceGuideRateLimit(request, env)
+  if (limited) return limited
 
   const raw = await request.text()
   if (raw.length > GUIDE_LIMITS.maxBodyBytes) {
@@ -163,6 +149,9 @@ export async function handleGuideRequest(
   } catch {
     return json(400, { error: 'invalid_json' })
   }
+
+  const blocked = await enforceGuideTurnstile(request, env, parsed)
+  if (blocked) return blocked
 
   const messages = parseMessages(parsed.messages)
   if (!messages) return json(400, { error: 'invalid_messages' })

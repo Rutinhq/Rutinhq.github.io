@@ -85,6 +85,7 @@ const guideKeys = [
   'leadCopied',
   'limit',
   'disclaimer',
+  'turnstileLabel',
 ]
 for (const key of guideKeys) {
   if (!en.guide?.[key] || !es.guide?.[key]) {
@@ -258,12 +259,32 @@ if (!/timeoutMs:\s*GUIDE_LLM_BUDGET_MS/.test(fn)) {
   console.error('Function must pass the shared LLM budget as timeoutMs')
   process.exit(1)
 }
+if (!/TURNSTILE_SECRET_KEY/.test(fn) || !/enforceGuideTurnstile/.test(fn)) {
+  console.error('Function must verify Turnstile via TURNSTILE_SECRET_KEY before the LLM')
+  process.exit(1)
+}
+if (!/enforceGuideRateLimit/.test(fn)) {
+  console.error('Function must apply the shared per-IP rate limit')
+  process.exit(1)
+}
 if (!/AbortSignal\.timeout/.test(widget) || !/GUIDE_CLIENT_FETCH_MS/.test(widget)) {
   console.error('Guide widget must abort a hung /api/guide fetch')
   process.exit(1)
 }
 if (!/guide.degradedNote/.test(widget)) {
   console.error('Guide widget must surface degraded/paused catalog messaging')
+  process.exit(1)
+}
+const turnstileHook = fs.readFileSync(
+  path.join(root, 'src/components/guide/useGuideTurnstile.ts'),
+  'utf8',
+)
+if (!/VITE_TURNSTILE_SITE_KEY/.test(turnstileHook) || !/readGuideTurnstileSiteKey/.test(widget)) {
+  console.error('Guide widget must read VITE_TURNSTILE_SITE_KEY and degrade when unset')
+  process.exit(1)
+}
+if (!/turnstileToken/.test(widget)) {
+  console.error('Guide widget must send turnstileToken with /api/guide requests')
   process.exit(1)
 }
 

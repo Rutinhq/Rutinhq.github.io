@@ -16,15 +16,16 @@
 # P1 headers: X-Frame-Options + CSP on `/*`. Do NOT put
 # Access-Control-Allow-Origin on `/*` (live had ACAO * on HTML).
 # Scope `*` to fonts/assets (crossorigin preload) + discovery files
-# agents fetch cross-origin. CSP stays same-origin for hub fonts/scripts
-# — no Google Fonts, no third-party script hosts. No HSTS here.
+# agents fetch cross-origin. CSP stays first-party for hub fonts/scripts
+# except Cloudflare Turnstile (script + iframe + connect). No Google Fonts.
+# No HSTS here.
 /*
   Link: </sitemap.xml>; rel="sitemap", </llms.txt>; rel="describedby"; type="text/plain", </.well-known/api-catalog>; rel="api-catalog"; type="application/linkset+json", </auth.md>; rel="describedby"; type="text/markdown"
   Content-Signal: search=yes, ai-train=no, use=reference
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   X-Frame-Options: DENY
-  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self' https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'
 
 # HTML SPA request paths (pretty URLs + shells). Short cache so copy/SEO
 # updates land. New pretty HTML routes need a rule here or a safe prefix

@@ -9,6 +9,9 @@ import { handleGuideLeadRequest } from '../../../src/guide/api'
 
 type Env = {
   GUIDE_LEAD_WEBHOOK_URL?: string
+  TURNSTILE_SECRET_KEY?: string
+  ENVIRONMENT?: string
+  NODE_ENV?: string
 }
 
 export async function onRequestPost(context: { request: Request; env: Env }) {

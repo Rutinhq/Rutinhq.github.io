@@ -58,8 +58,12 @@ Recommended path: **Gemini OpenAI-compatible** (`GUIDE_LLM_BASE_URL` + Gemini ke
 | `GUIDE_LLM_BASE_URL` | no | Recommended Gemini: `https://generativelanguage.googleapis.com/v1beta/openai`. Alternative OpenAI: `https://api.openai.com/v1` (code default) |
 | `GUIDE_LLM_MODEL` | no | Recommended Gemini: `gemini-2.0-flash` (404 fallback: `gemini-2.0-flash-001` / `gemini-flash-latest`). Alternative OpenAI: `gpt-4o-mini` (code default) |
 | `GUIDE_LEAD_WEBHOOK_URL` | no | `POST { type: "lead_brief", leadBrief }`. Capo sets this Pages secret; do not invent a local webhook URL. Unset is valid (`delivered: false`). |
+| `TURNSTILE_SECRET_KEY` | production | Server Siteverify. Unset fail-opens **only** in local/dev (warning). Production without it returns `403` before LLM or lead write. |
+| `VITE_TURNSTILE_SITE_KEY` | production | Public widget site key, baked at `vite build`. Absent → widget skips Turnstile and sends no token. |
 
 Local: copy `.env.example` → `.env` (Vite + the guide middleware read `process.env`).
+
+Operator checklist (Turnstile widget, Pages env, WAF `/api/guide*`, AI Studio daily cap): [`docs/guide-api-hardening.md`](docs/guide-api-hardening.md). The WAF rule is a dashboard step — this repo does not create it.
 
 ### Gemini (Google AI Studio)
 
