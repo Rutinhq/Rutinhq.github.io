@@ -48,9 +48,18 @@ function guideApiPlugin(): Plugin {
       }
       try {
         const body = await readBody(req)
+        const incomingHeaders = new Headers({ 'content-type': 'application/json' })
+        const forwarded = req.headers['x-forwarded-for']
+        const connecting = req.headers['cf-connecting-ip']
+        if (typeof forwarded === 'string' && forwarded) {
+          incomingHeaders.set('x-forwarded-for', forwarded)
+        }
+        if (typeof connecting === 'string' && connecting) {
+          incomingHeaders.set('cf-connecting-ip', connecting)
+        }
         const request = new Request(`http://guide.local${url}`, {
           method: 'POST',
-          headers: { 'content-type': 'application/json' },
+          headers: incomingHeaders,
           body: body.length ? new Uint8Array(body) : undefined,
         })
         const kbPath = path.join(rootDir, 'public/guide-kb.json')
@@ -62,6 +71,9 @@ function guideApiPlugin(): Plugin {
           GUIDE_LLM_BASE_URL: process.env.GUIDE_LLM_BASE_URL,
           GUIDE_LLM_MODEL: process.env.GUIDE_LLM_MODEL,
           GUIDE_LEAD_WEBHOOK_URL: process.env.GUIDE_LEAD_WEBHOOK_URL,
+          TURNSTILE_SECRET_KEY: process.env.TURNSTILE_SECRET_KEY,
+          ENVIRONMENT: process.env.ENVIRONMENT,
+          NODE_ENV: process.env.NODE_ENV,
         }
         let response: Response
         if (typeof server.ssrLoadModule === 'function') {

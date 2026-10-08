@@ -1,10 +1,15 @@
 /**
  * Standalone Worker if Pages Functions are awkward on rutinhq-web.
- * Contract: POST { messages, locale, page } → { reply, mode, leadBrief?, calendlyUrl }
+ * Contract: POST { messages, locale, page, turnstileToken? } → { reply, mode, leadBrief?, calendlyUrl }
  *
  * Preferred path remains functions/api/guide.ts on the Pages project.
  * This folder is the escape hatch — see README.md.
  */
+
+import {
+  enforceGuideRateLimit,
+  enforceGuideTurnstile,
+} from '../../../src/guide/ingress'
 
 type Env = {
   GUIDE_LLM_API_KEY?: string
@@ -12,6 +17,9 @@ type Env = {
   GUIDE_LLM_MODEL?: string
   GUIDE_LEAD_WEBHOOK_URL?: string
   GUIDE_KB_URL?: string
+  TURNSTILE_SECRET_KEY?: string
+  ENVIRONMENT?: string
+  NODE_ENV?: string
 }
 
 export default {
@@ -21,6 +29,15 @@ export default {
     }
     if (request.method !== 'POST') {
       return json(405, { error: 'method_not_allowed' })
+    }
+
+    const limited = await enforceGuideRateLimit(request, env)
+    if (limited) {
+      const headers = cors()
+      limited.headers.forEach((value, key) => {
+        headers[key] = value
+      })
+      return new Response(limited.body, { status: limited.status, headers })
     }
 
     const kbUrl = env.GUIDE_KB_URL || 'https://www.rutinhq.com/guide-kb.json'
@@ -45,6 +62,15 @@ export default {
       messages?: { role: string; content: string }[]
       locale?: string
       page?: string
+      turnstileToken?: string
+    }
+    const blocked = await enforceGuideTurnstile(request, env, parsed)
+    if (blocked) {
+      const headers = cors()
+      blocked.headers.forEach((value, key) => {
+        headers[key] = value
+      })
+      return new Response(blocked.body, { status: blocked.status, headers })
     }
     const locale = parsed.locale === 'es' ? 'es' : 'en'
     const messages = parsed.messages || []

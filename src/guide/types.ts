@@ -75,6 +75,7 @@ export type GuideApiRequest = {
   messages: GuideChatMessage[]
   locale: GuideLocale
   page: string
+  turnstileToken?: string
 }
 
 export type GuideApiResponse = {
@@ -89,4 +90,7 @@ export type GuideEnv = {
   GUIDE_LLM_BASE_URL?: string
   GUIDE_LLM_MODEL?: string
   GUIDE_LEAD_WEBHOOK_URL?: string
+  TURNSTILE_SECRET_KEY?: string
+  ENVIRONMENT?: string
+  NODE_ENV?: string
 }
