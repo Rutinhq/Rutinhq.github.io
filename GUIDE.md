@@ -63,7 +63,7 @@ Local: copy `.env.example` → `.env` (Vite + the guide middleware read `process
 
 ### Gemini (Google AI Studio)
 
-1. Create a key at [https://aistudio.google.com/apikey](https://aistudio.google.com/apikey) (Google account = `rutinhqsolutions@gmail.com` lane preferred).
+1. Create a key at [https://aistudio.google.com/apikey](https://aistudio.google.com/apikey) (use the RutinHQ Gemini lane, not a personal Gmail).
 2. Cloudflare Pages project `rutinhq-web` → Settings → Environment variables (Production **and** Preview):
    - `GUIDE_LLM_API_KEY` = Gemini API key (Encrypt / secret)
    - `GUIDE_LLM_BASE_URL` = `https://generativelanguage.googleapis.com/v1beta/openai`

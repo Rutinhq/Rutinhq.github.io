@@ -7,7 +7,7 @@ import { hubJsonLd, OG_IMAGE, Seo } from '@/components/Seo'
 import { buttonVariants } from '@/components/ui/button'
 import { useObjectList } from '@/lib/i18n/lists'
 import { usePageLocale } from '@/lib/i18n/usePageLocale'
-import { DOCS_CATALOG_URL } from '@/lib/links'
+import { DOCS_CATALOG_URL, MAILTO_HUB } from '@/lib/links'
 import { cn } from '@/lib/utils'
 
 const CARDS = [
@@ -79,7 +79,7 @@ export default function HubPage() {
       <FaqSection title={t('hub.faq.title')} items={faq} />
 
       <Section>
-        <Ctas />
+        <Ctas mailtoHref={MAILTO_HUB} />
         <p className="mt-6 max-w-2xl text-sm text-muted-foreground">
           {t('hub.catalogNote')}{' '}
           <a

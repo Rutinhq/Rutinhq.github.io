@@ -5,7 +5,7 @@ import {
   CALENDLY_URL,
   DOCS_GTM_URL,
   MAILTO_GTM,
-  WWW_GTM_URL,
+  WWW_GTM_ES_URL,
 } from '@/lib/links'
 
 const TITLE = articleSeoTitle(ARTICLE01_ES.title)
@@ -71,7 +71,7 @@ export default function BlogOutboundFrioPage() {
                       ficha GTM OS en catalog
                     </a>{' '}
                     y la página{' '}
-                    <a href={WWW_GTM_URL}>www.rutinhq.com/gtm-os</a>.
+                    <a href={WWW_GTM_ES_URL}>www.rutinhq.com/es/gtm-os</a>.
                   </p>
                 ),
               }
@@ -83,8 +83,8 @@ export default function BlogOutboundFrioPage() {
           mailtoLabel: 'strategy@rutinhq.com',
           calendly: CALENDLY_URL,
           calendlyLabel: 'Agendar 30 min',
-          lpHref: WWW_GTM_URL,
-          lpLabel: 'www.rutinhq.com/gtm-os',
+          lpHref: WWW_GTM_ES_URL,
+          lpLabel: 'www.rutinhq.com/es/gtm-os',
         }}
       >
         <h2>Qué significa “con puerta de ICP”</h2>
