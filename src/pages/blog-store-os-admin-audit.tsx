@@ -1,6 +1,6 @@
 import { BlogPostLayout } from '@/components/blog'
 import { OG_IMAGE, Seo, articleJsonLd } from '@/components/Seo'
-import { ARTICLE02, BLOG_ROBOTS, articleSeoTitle } from '@/lib/blog'
+import { ARTICLE02, articleSeoTitle } from '@/lib/blog'
 import {
   CALENDLY_URL,
   DOCS_STORE_URL,
@@ -19,7 +19,6 @@ export default function BlogStoreOsAdminAuditPage() {
         path={ARTICLE02.path}
         locale="en"
         noindex={ARTICLE02.noindex}
-        robots={BLOG_ROBOTS}
         ogType="article"
         image={OG_IMAGE.blog}
         jsonLd={articleJsonLd({

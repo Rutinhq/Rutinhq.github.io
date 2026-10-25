@@ -56,8 +56,9 @@ type SeoProps = {
   description: string
   path: string
   jsonLd?: Record<string, unknown>
+  /** When true (and `robots` is omitted) emit `noindex, follow`. */
   noindex?: boolean
-  /** Override robots. Published blog uses index,follow; 404 stays noindex,nofollow. */
+  /** Override robots. Published pages use index,follow; 404 stays noindex,nofollow. */
   robots?: 'index, follow' | 'noindex, follow' | 'noindex, nofollow'
   ogType?: 'website' | 'article'
   locale?: 'en' | 'es'
@@ -95,7 +96,7 @@ export function Seo({
   const ogLocaleAlternate = locale === 'es' ? 'en_US' : 'es_MX'
   const modified = dateModified ?? datePublished
   const robotsContent =
-    robots ?? (noindex ? 'noindex, nofollow' : 'index, follow')
+    robots ?? (noindex ? 'noindex, follow' : 'index, follow')
   // robots must land in prerender HTML via Helmet SSR → <!--ssr-head-->.
   // Do not treat this as client-only: crawlers read the static shell.
   return (

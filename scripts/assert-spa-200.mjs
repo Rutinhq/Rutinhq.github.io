@@ -14,31 +14,35 @@ function robotsContents(html) {
   )
 }
 
-function assertBlogPublishRobots(file) {
+function assertPageRobots(file, expected) {
   if (!fs.existsSync(file)) {
     console.error(`${file} missing — blog publish shell must prerender.`)
     process.exit(1)
   }
   const html = fs.readFileSync(file, 'utf8')
   const values = robotsContents(html)
-  if (values.length !== 1 || values[0] !== 'index, follow') {
+  if (values.length !== 1 || values[0] !== expected) {
     console.error(
-      `${file} must emit exactly one robots meta "index, follow" (got ${JSON.stringify(values)}).`,
+      `${file} must emit exactly one robots meta "${expected}" (got ${JSON.stringify(values)}).`,
     )
     process.exit(1)
   }
-  if (/content=["']noindex/i.test(html)) {
+  if (expected === 'index, follow' && /content=["']noindex/i.test(html)) {
     console.error(`${file} must not emit noindex after Capo publish GO.`)
     process.exit(1)
   }
   const prerenderIdx = html.indexOf('<!-- prerender:')
   const helmetRegion = prerenderIdx >= 0 ? html.slice(0, prerenderIdx) : ''
-  if (robotsContents(helmetRegion)[0] !== 'index, follow') {
+  if (robotsContents(helmetRegion)[0] !== expected) {
     console.error(
-      `${file} must emit Seo/Helmet robots "index, follow" in SSR head (<!--ssr-head-->), not only the seoHead fallback.`,
+      `${file} must emit Seo/Helmet robots "${expected}" in SSR head (<!--ssr-head-->), not only the seoHead fallback.`,
     )
     process.exit(1)
   }
+}
+
+function assertBlogPublishRobots(file) {
+  assertPageRobots(file, 'index, follow')
 }
 
 function assertRealBody(file, needles) {
@@ -537,18 +541,22 @@ const expectedLocs = [
   'https://www.rutinhq.com/es/agents/auth',
   'https://www.rutinhq.com/blog',
   'https://www.rutinhq.com/blog/icp-gated-cold-outbound-without-rented-sdr',
-  'https://www.rutinhq.com/blog/shopify-admin-audit-before-ads',
   'https://www.rutinhq.com/es/blog',
   'https://www.rutinhq.com/es/blog/outbound-frio-con-icp-sin-sdr-rentado',
 ]
 const article02Loc =
   'https://www.rutinhq.com/blog/shopify-admin-audit-before-ads'
-const pairedLocs = expectedLocs.filter((url) => url !== article02Loc)
 const xhtmlCount = (sitemapBody.match(/xhtml:link rel="alternate"/g) || [])
   .length
-if (xhtmlCount < pairedLocs.length * 3 + 2) {
+if (xhtmlCount !== expectedLocs.length * 3) {
   console.error(
-    `${sitemap} must emit xhtml:link hreflang (en + es + x-default) on paired URLs; Article02 is EN-only (en + x-default).`,
+    `${sitemap} must emit xhtml:link hreflang (en + es + x-default) on every indexable URL.`,
+  )
+  process.exit(1)
+}
+if (locs.includes(article02Loc) || sitemapBody.includes(article02Loc)) {
+  console.error(
+    `${sitemap} must omit Article02 until publish GO (noindex draft).`,
   )
   process.exit(1)
 }
@@ -557,7 +565,7 @@ if (
   expectedLocs.some((url) => !locs.includes(url))
 ) {
   console.error(
-    `${sitemap} must list exactly the 17 indexable www URLs (hub + 3 SKUs + agents/auth + blog EN/ES).`,
+    `${sitemap} must list exactly the 16 indexable www URLs (hub + 3 SKUs + agents/auth + published blog EN/ES).`,
   )
   process.exit(1)
 }
@@ -786,11 +794,13 @@ if (!fs.existsSync(blogSource)) {
 const blogFlags = fs.readFileSync(blogSource, 'utf8')
 if (
   !blogFlags.includes("BLOG_ROBOTS = 'index, follow'") ||
-  !/noindex:\s*false/.test(blogFlags) ||
+  !/export const ARTICLE01 = \{[\s\S]*?\bnoindex:\s*false\b/.test(blogFlags) ||
+  !/export const ARTICLE01_ES = \{[\s\S]*?\bnoindex:\s*false\b/.test(blogFlags) ||
+  !/export const ARTICLE02 = \{[\s\S]*?\bnoindex:\s*true\b/.test(blogFlags) ||
   blogFlags.includes("BLOG_ROBOTS = 'noindex, follow'")
 ) {
   console.error(
-    `${blogSource} must publish the blog with BLOG_ROBOTS index, follow and noindex:false.`,
+    `${blogSource} must keep published blog index,follow / noindex:false, and Article02 noindex:true until publish GO.`,
   )
   process.exit(1)
 }
@@ -890,14 +900,56 @@ if (esArticleHtml.includes(`<title>${homepageTitle}</title>`)) {
 }
 
 const article02Shell = 'dist/prerender/blog-shopify-admin-audit-before-ads.html'
-for (const file of [
-  blogShell,
-  articleShell,
-  article02Shell,
-  esBlogShell,
-  esArticleShell,
-]) {
+for (const file of [blogShell, articleShell, esBlogShell, esArticleShell]) {
   assertBlogPublishRobots(file)
+}
+assertPageRobots(article02Shell, 'noindex, follow')
+const noindexPrerender = fs
+  .readdirSync('dist/prerender')
+  .filter((name) => name.endsWith('.html'))
+  .filter((name) =>
+    robotsContents(
+      fs.readFileSync(`dist/prerender/${name}`, 'utf8'),
+    ).some((value) => value.includes('noindex')),
+  )
+if (
+  noindexPrerender.length !== 1 ||
+  noindexPrerender[0] !== 'blog-shopify-admin-audit-before-ads.html'
+) {
+  console.error(
+    `only Article02 prerender may emit noindex until publish GO (got ${JSON.stringify(noindexPrerender)}).`,
+  )
+  process.exit(1)
+}
+for (const file of [
+  'dist/index.html',
+  'dist/prerender/gtm-os.html',
+  'dist/prerender/store-os.html',
+  'dist/prerender/nexus-os.html',
+  'dist/prerender/es.html',
+  'dist/prerender/es-gtm-os.html',
+  'dist/prerender/es-store-os.html',
+  'dist/prerender/es-nexus-os.html',
+  'dist/prerender/agents.html',
+  'dist/prerender/agents-auth.html',
+  'dist/prerender/es-agents.html',
+  'dist/prerender/es-agents-auth.html',
+]) {
+  if (!fs.existsSync(file)) {
+    console.error(`${file} missing — published shell robots cannot be checked.`)
+    process.exit(1)
+  }
+  const values = robotsContents(fs.readFileSync(file, 'utf8'))
+  if (values.some((value) => value.includes('noindex'))) {
+    console.error(`${file} must stay indexable until a page-level noindex GO.`)
+    process.exit(1)
+  }
+  if (!values.includes('index, follow')) {
+    console.error(
+      `${file} must emit robots "index, follow" (got ${JSON.stringify(values)}).`,
+    )
+    process.exit(1)
+  }
 }
 
 const esMarketing = [
@@ -1126,7 +1178,6 @@ const llmsRequired = [
   'https://www.rutinhq.com/nexus-os',
   'https://www.rutinhq.com/blog',
   'https://www.rutinhq.com/blog/icp-gated-cold-outbound-without-rented-sdr',
-  'https://www.rutinhq.com/blog/shopify-admin-audit-before-ads',
   'https://docs.rutinhq.com/catalog/',
   'strategy@rutinhq.com',
   'https://calendly.com/rutinhq/30min',
@@ -1137,6 +1188,7 @@ const llmsRequired = [
 ]
 const llmsFullRequired = [
   ...llmsRequired,
+  article02Loc,
   'https://www.rutinhq.com/es/blog',
   'https://www.rutinhq.com/es/blog/outbound-frio-con-icp-sin-sdr-rentado',
   'https://docs.rutinhq.com/catalog/gtm-os/',
@@ -1175,6 +1227,12 @@ for (const spec of [
       console.error(`${spec.file} must include ${needle}.`)
       process.exit(1)
     }
+  }
+  if (spec.file === 'dist/llms.txt' && body.includes(article02Loc)) {
+    console.error(
+      `${spec.file} must omit Article02 until publish GO (noindex draft).`,
+    )
+    process.exit(1)
   }
 }
 

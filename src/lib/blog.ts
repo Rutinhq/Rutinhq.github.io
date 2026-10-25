@@ -156,7 +156,7 @@ export const ARTICLE02 = {
   job: 'Audit Admin friction before ad spend.',
   cta: 'strategy@',
   draft: true,
-  noindex: false,
+  noindex: true,
   inLanguage: 'en',
   author: 'RutinHQ',
   datePublished: '2026-09-13',

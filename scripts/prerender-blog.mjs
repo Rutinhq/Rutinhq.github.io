@@ -254,6 +254,7 @@ const ROUTES = [
   {
     path: '/blog/shopify-admin-audit-before-ads',
     file: 'prerender/blog-shopify-admin-audit-before-ads.html',
+    noindex: true,
     title: 'RutinHQ — Shopify Admin audit before you buy ads',
     description:
       'Replicable Shopify Admin audit + config — variants, price, weight, shipping — so ops friction stops killing conversion.',
