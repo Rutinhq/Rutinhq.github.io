@@ -58,11 +58,8 @@ npm run preview
 
 ## Copy y CTAs
 
-- Comercial público en **EN**. CTA: **Talk to RutinHQ** → `mailto:strategy@rutinhq.com`
-  - Hub: `RutinHQ`
-  - GTM: `GTM OS — fit call`
-  - Store: `STORE OS — fit call`
-  - NEXUS: `NEXUS OS — fit call`
+- Comercial público en **EN**. CTA primario: **Talk to RutinHQ** → `https://calendly.com/rutinhq/30min` (`target="_blank"` `rel="noopener noreferrer"`). Header, footer, hub y cada SKU (EN/ES).
+- Email secundario: **or email** / **o escríbenos a** → `mailto:strategy@rutinhq.com` (sujeto de fit en landings). Envuelto en `<!--email_off-->` para que Cloudflare Email Obfuscation no lo reescriba a `/cdn-cgi/l/email-protection`.
 - Opcional: **Read the system** → `https://docs.rutinhq.com/catalog/{sku}/`
 - Hub `/` = índice de 3 SKUs. Un SKU por landing. Sin tabulador de precios.
 - Fuera: FuzzyFlags / fzf.dev, nombres de clientes, mailbox inventado, GROK BOT OS como 4ª card

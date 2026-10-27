@@ -4,6 +4,7 @@
     "ctaPrimaryShort": "Hablar",
     "ctaSecondary": "Email",
     "ctaEmail": "Escribir a {{email}}",
+    "ctaEmailSecondary": "o escríbenos a",
     "ctaDocs": "Leer el sistema",
     "ctaOffer": "Ver el sistema",
     "hubLink": "Catálogo",
