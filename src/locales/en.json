@@ -4,6 +4,7 @@
     "ctaPrimaryShort": "Talk",
     "ctaSecondary": "Email",
     "ctaEmail": "Email {{email}}",
+    "ctaEmailSecondary": "or email",
     "ctaDocs": "Read the system",
     "ctaOffer": "See the system",
     "hubLink": "Catalog",
