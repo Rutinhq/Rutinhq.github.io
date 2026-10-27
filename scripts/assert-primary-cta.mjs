@@ -57,8 +57,15 @@ for (const file of SOURCE_FILES) {
   if (!source.includes('CALENDLY_URL')) {
     fail(`${file} primary Talk CTA must use CALENDLY_URL.`)
   }
-  if (file.includes('Ctas.tsx') && /href=\{mailtoHref\}/.test(source)) {
-    fail(`${file} primary button must not bind href to mailtoHref.`)
+  if (file.includes('Ctas.tsx')) {
+    const emailLinkIdx = source.indexOf('<EmailLink')
+    const primaryBlock = emailLinkIdx >= 0 ? source.slice(0, emailLinkIdx) : source
+    if (/href=\{mailtoHref\}/.test(primaryBlock)) {
+      fail(`${file} primary button must not bind href to mailtoHref.`)
+    }
+    if (!/href=\{CALENDLY_URL\}/.test(primaryBlock)) {
+      fail(`${file} primary button must bind href to CALENDLY_URL.`)
+    }
   }
   if (/href=\{talkMailtoForPath/.test(source)) {
     fail(`${file} must not point a Talk CTA at talkMailtoForPath.`)
