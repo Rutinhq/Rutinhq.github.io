@@ -5,6 +5,9 @@ export const SITE_URL = 'https://www.rutinhq.com'
 export const WWW_GTM_URL = `${SITE_URL}/gtm-os`
 export const WWW_STORE_URL = `${SITE_URL}/store-os`
 export const WWW_NEXUS_URL = `${SITE_URL}/nexus-os`
+export const WWW_GTM_ES_URL = `${SITE_URL}/es/gtm-os`
+export const WWW_STORE_ES_URL = `${SITE_URL}/es/store-os`
+export const WWW_NEXUS_ES_URL = `${SITE_URL}/es/nexus-os`
 export const AGENTS_URL = `${SITE_URL}/agents`
 export const AGENTS_AUTH_URL = `${SITE_URL}/agents/auth`
 export const AUTH_MD_URL = `${SITE_URL}/auth.md`
@@ -33,5 +36,7 @@ export function talkMailtoForPath(pathname: string): string {
   if (pathname.includes('/gtm-os')) return MAILTO_GTM
   if (pathname.includes('/store-os')) return MAILTO_STORE
   if (pathname.includes('/nexus-os')) return MAILTO_NEXUS
+  const path = pathname.split('?')[0]?.replace(/\/$/, '') || '/'
+  if (path === '/' || path === '/es') return MAILTO_HUB
   return MAILTO_EMAIL
 }
