@@ -2,6 +2,7 @@ import { Calendar, Mail, MessageSquare, Send, X } from 'lucide-react'
 import { useEffect, useId, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
+import { CloudflareEmailOff } from '@/components/EmailLink'
 import { shouldCaptureLead } from '@/guide/classify'
 import {
   GUIDE_CALENDLY_URL,
@@ -249,13 +250,15 @@ export function GuideWidget() {
                 <Calendar className="size-3.5" />
                 {copy('guide.ctaBook')}
               </a>
-              <a
-                href={strategyMailtoHref(locale)}
-                className="inline-flex h-9 items-center gap-2 border border-border px-3 text-[11px] font-bold uppercase tracking-widest text-foreground hover:bg-card"
-              >
-                <Mail className="size-3.5" />
-                {copy('guide.emailCta')}
-              </a>
+              <CloudflareEmailOff>
+                <a
+                  href={strategyMailtoHref(locale)}
+                  className="inline-flex h-9 items-center gap-2 border border-border px-3 text-[11px] font-bold uppercase tracking-widest text-foreground hover:bg-card"
+                >
+                  <Mail className="size-3.5" />
+                  {copy('guide.emailCta')}
+                </a>
+              </CloudflareEmailOff>
               {leadBrief ? (
                 <button
                   type="button"
