@@ -100,7 +100,7 @@ export function BlogPostLayout({
       <div className="blog-post-column">
         {draft ? (
           <p className="blog-kicker" role="status">
-            DRAFT — not for index until publish GO.
+            DRAFT outline — catalog language only.
           </p>
         ) : null}
         <p className="blog-kicker">{typeLabel}</p>
