@@ -628,6 +628,13 @@ if (fs.existsSync('dist/_headers')) {
     )
     process.exit(1)
   }
+  const blogPretty = headers.match(/^\/blog\/\*[\s\S]*?(?=\n\/[^*\n]|\n#[^\n]*\n\/|$)/m)
+  if (blogPretty && /X-Robots-Tag:\s*noindex/i.test(blogPretty[0])) {
+    console.error(
+      'dist/_headers /blog/* must not send X-Robots-Tag noindex (Article02 is indexable).',
+    )
+    process.exit(1)
+  }
   if (
     !/\/prerender\/\*[\s\S]*?X-Robots-Tag:\s*noindex,\s*nofollow/i.test(headers)
   ) {
@@ -791,6 +798,35 @@ if (
 ) {
   console.error(
     `${blogSource} must publish the blog with BLOG_ROBOTS index, follow and noindex:false.`,
+  )
+  process.exit(1)
+}
+const article02Flag = blogFlags.match(
+  /export const ARTICLE02 = \{[\s\S]*?\n\} as const/,
+)?.[0]
+if (
+  !article02Flag ||
+  !/noindex:\s*false/.test(article02Flag) ||
+  /noindex:\s*true/.test(article02Flag)
+) {
+  console.error(
+    `${blogSource} Article02 must stay indexable (noindex: false) — Capo 4 Nov 2026.`,
+  )
+  process.exit(1)
+}
+const article02Page = 'src/pages/blog-store-os-admin-audit.tsx'
+if (!fs.existsSync(article02Page)) {
+  console.error(`${article02Page} missing — Article02 route cannot stay indexable.`)
+  process.exit(1)
+}
+const article02PageSrc = fs.readFileSync(article02Page, 'utf8')
+if (
+  !article02PageSrc.includes('robots={BLOG_ROBOTS}') ||
+  !article02PageSrc.includes('noindex={ARTICLE02.noindex}') ||
+  /robots=["']noindex/i.test(article02PageSrc)
+) {
+  console.error(
+    `${article02Page} must pass BLOG_ROBOTS (index, follow) — Capo 4 Nov 2026 keeps Article02 indexable.`,
   )
   process.exit(1)
 }
@@ -1120,6 +1156,12 @@ for (const bot of ['GPTBot', 'ClaudeBot', 'Google-Extended']) {
     console.error(`${robots} must not Disallow: / for ${bot}.`)
     process.exit(1)
   }
+}
+if (/Disallow:\s*\/blog/i.test(robotsBody)) {
+  console.error(
+    `${robots} must not Disallow /blog — Article02 and the rest of the blog stay crawlable.`,
+  )
+  process.exit(1)
 }
 
 const htmlShell = /<!doctype html|<html[\s>]/i
@@ -1953,6 +1995,12 @@ if (
   )
 ) {
   console.error(`${article02Shell} must canonical the Article02 www URL.`)
+  process.exit(1)
+}
+if (/not for index/i.test(article02Html) || /content=["']noindex/i.test(article02Html)) {
+  console.error(
+    `${article02Shell} must stay indexable (Capo 4 Nov 2026) — no noindex meta or "not for index" copy.`,
+  )
   process.exit(1)
 }
 
