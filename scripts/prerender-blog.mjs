@@ -343,11 +343,11 @@ const ROUTES = [
           },
           {
             q: '¿Qué señal filtra este radar?',
-            a: 'Fit de perfil de cliente ideal (ICP), un dolor real de operación/GTM, interés de producto y lenguaje de fundador / CEO / responsable de operación — luego un sistema que se queda con su equipo.',
+            a: 'Encaje de perfil de cliente ideal (ICP), un dolor real de operación/GTM, interés de producto y lenguaje de fundador / CEO / responsable de operación — luego un sistema que se queda con su equipo.',
           },
           {
             q: '¿Esto es un pozo de contenido?',
-            a: 'No. El CTA en cada camino es discovery (strategy@) — no un pozo de contenido. Siguiente paso: discovery; educate-forever, nunca.',
+            a: 'No. El CTA en cada camino es una llamada de encaje (strategy@) — no un pozo de contenido. Siguiente paso: llamada de encaje; educar para siempre, nunca.',
           },
           {
             q: '¿Dónde viven los sistemas?',

@@ -56,15 +56,16 @@ export default function BlogEsPage() {
           El blog de RutinHQ es un radar: cada post deja ver si encaja en
           nuestro perfil de cliente ideal (ICP), si nombra un dolor real de operación/GTM y si desea un
           sistema que se quede con su equipo. Mesa doble — estrategia de CEO +
-          instalación de operación. Siguiente paso: discovery; educate-forever, nunca.
+          instalación de operación. Siguiente paso: llamada de encaje; educar
+          para siempre, nunca.
         </p>
       </Section>
 
       <Section>
         <MonoTitle>Marco de filtro</MonoTitle>
         <p className="mt-6 max-w-2xl text-[16px] text-muted-foreground">
-          Este blog etiqueta señal del lector. El CTA en cada camino es
-          discovery (strategy@) — no un pozo de contenido.
+          Este blog etiqueta señal del lector. El CTA en cada camino es una
+          llamada de encaje (strategy@) — no un pozo de contenido.
         </p>
         <div className="mt-10 grid grid-cols-1 lg:grid-cols-4">
           {BLOG_FILTER_SIGNALS_ES.map((signal, index) => (
@@ -115,11 +116,11 @@ export default function BlogEsPage() {
             </Link>
           </h2>
           <p className="mt-3 text-[16px] text-muted-foreground">
-            Outline EN (Sprint 2). Base pública en inglés — sin gemelo ES
+            Esquema en inglés (borrador). Base pública en inglés — sin gemelo ES
             todavía.
           </p>
           <Button asChild className="mt-8" size="lg">
-            <Link to={ARTICLE02.path}>Leer el outline</Link>
+            <Link to={ARTICLE02.path}>Lea el esquema en inglés</Link>
           </Button>
         </article>
         <div className="mt-12 grid grid-cols-1 border-t border-border lg:grid-cols-3">
@@ -151,14 +152,14 @@ export default function BlogEsPage() {
               Flujo de ventas en frío repetible / puertas de ICP
             </h2>
             <p className="mt-3 flex-1 text-[16px] text-muted-foreground">
-              Empiece por Article01, luego GTM OS.
+              Empiece por la guía práctica, luego GTM OS.
             </p>
             <p className="mt-8 font-mono text-[12px] tracking-[0.04em]">
               <Link
                 to={ARTICLE01_ES.path}
                 className="text-foreground underline underline-offset-4 hover:text-primary"
               >
-                Article01
+                Guía práctica
               </Link>
               {' · '}
               <a
@@ -174,14 +175,14 @@ export default function BlogEsPage() {
               Fricción del panel de Shopify antes de anuncios
             </h2>
             <p className="mt-3 flex-1 text-[16px] text-muted-foreground">
-              Outline STORE OS en EN (borrador). Anuncios fuera de alcance.
+              Esquema STORE OS en inglés (borrador). Anuncios fuera de alcance.
             </p>
             <p className="mt-8 font-mono text-[12px] tracking-[0.04em]">
               <Link
                 to={ARTICLE02.path}
                 className="text-foreground underline underline-offset-4 hover:text-primary"
               >
-                Article02
+                Esquema EN
               </Link>
               {' · '}
               <a

@@ -34,11 +34,11 @@ export const BLOG_INDEX_FAQ_ES = [
   },
   {
     q: '¿Qué señal filtra este radar?',
-    a: 'Fit de perfil de cliente ideal (ICP), un dolor real de operación/GTM, interés de producto y lenguaje de fundador / CEO / responsable de operación — luego un sistema que se queda con su equipo.',
+    a: 'Encaje de perfil de cliente ideal (ICP), un dolor real de operación/GTM, interés de producto y lenguaje de fundador / CEO / responsable de operación — luego un sistema que se queda con su equipo.',
   },
   {
     q: '¿Esto es un pozo de contenido?',
-    a: 'No. El CTA en cada camino es discovery (strategy@) — no un pozo de contenido. Siguiente paso: discovery; educate-forever, nunca.',
+    a: 'No. El CTA en cada camino es una llamada de encaje (strategy@) — no un pozo de contenido. Siguiente paso: llamada de encaje; educar para siempre, nunca.',
   },
   {
     q: '¿Dónde viven los sistemas?',
@@ -219,16 +219,16 @@ export const BLOG_FEATURED_COMING = [
 ] as const
 
 export const BLOG_FILTER_SIGNALS_ES = [
-  { name: 'Fit de perfil de cliente ideal (ICP)', thesis: 'Vertical / rol del comprador' },
-  { name: 'Dolor', thesis: 'Flujo de ventas, handoff, ICP, fricción de operación lean' },
+  { name: 'Encaje de perfil de cliente ideal (ICP)', thesis: 'Vertical / rol del comprador' },
+  { name: 'Dolor', thesis: 'Flujo de ventas, traspaso, ICP, fricción de operación lean' },
   { name: 'Interés de producto', thesis: 'Qué página OS abren' },
-  { name: 'Seniority', thesis: 'Lenguaje de fundador / CEO / responsable de operación' },
+  { name: 'Cargo', thesis: 'Lenguaje de fundador / CEO / responsable de operación' },
 ] as const
 
 export const BLOG_FEATURED_COMING_ES = [
   {
     title: 'Qué significa “sistemas que usted posee” para un fundador B2B',
-    type: 'framework',
+    type: 'marco',
   },
   {
     title: 'Radar → Blueprint → OS: el cuello antes de comprar build',
@@ -236,7 +236,7 @@ export const BLOG_FEATURED_COMING_ES = [
   },
   {
     title: 'Iguala mensual de agencia vs instalar un OS de prospección en frío',
-    type: 'comparison',
+    type: 'comparación',
   },
 ] as const
 
