@@ -49,10 +49,10 @@ export default function BlogOutboundFrioPage() {
         title={ARTICLE01_ES.title}
         lede={
           <p>
-            El outbound frío funciona cuando la <strong>máquina</strong> se queda
+            La prospección en frío funciona cuando la <strong>máquina</strong> se queda
             fija y solo cambian el lenguaje, los filtros y el ángulo. Un SDR
             rentado se va con el contrato. Un sistema con{' '}
-            <strong>puerta de ICP</strong> se queda con tu equipo.
+            <strong>puerta de ICP</strong> se queda con su equipo.
           </p>
         }
         faqTitle="FAQ"
@@ -62,7 +62,7 @@ export default function BlogOutboundFrioPage() {
                 q: item.q,
                 a: (
                   <p>
-                    Mira la{' '}
+                    Mire la{' '}
                     <a
                       href={DOCS_GTM_URL}
                       target="_blank"
@@ -78,7 +78,7 @@ export default function BlogOutboundFrioPage() {
             : item,
         )}
         cta={{
-          title: 'Un SKU. Un siguiente paso.',
+          title: 'Un producto. Un siguiente paso.',
           mailto: MAILTO_GTM,
           mailtoLabel: 'strategy@rutinhq.com',
           calendly: CALENDLY_URL,
@@ -89,7 +89,7 @@ export default function BlogOutboundFrioPage() {
       >
         <h2>Qué significa “con puerta de ICP”</h2>
         <p>
-          Outbound con puerta de ICP <strong>no abre volumen</strong> hasta que
+          Prospección en frío con puerta de ICP <strong>no abre volumen</strong> hasta que
           los criterios son <strong>verificables</strong>. Nada de listas spray.
           Nada de “ya afinamos cuando lleguen replies.” La puerta es el
           producto: si fallan los tests firmográficos y de motion, la secuencia
@@ -112,19 +112,19 @@ export default function BlogOutboundFrioPage() {
             ],
             [
               'Fit de volumen',
-              'No escalas hasta que el vertical previo mostró señal',
+              'No escala hasta que el vertical previo mostró señal',
             ],
           ]}
         />
 
         <h2>Núcleo fijo, inputs que cambian</h2>
         <p>
-          El GTM OS de RutinHQ trata el outbound como una máquina reutilizable.
-          Por vertical cambias:
+          El GTM OS de RutinHQ trata la prospección en frío como una máquina reutilizable.
+          Por vertical cambie:
         </p>
         <ul>
           <li>
-            <strong>Lenguaje</strong> — cómo nombras el dolor
+            <strong>Lenguaje</strong> — cómo nombra el dolor
           </li>
           <li>
             <strong>Filtros</strong> — quién entra al pool
@@ -134,12 +134,12 @@ export default function BlogOutboundFrioPage() {
           </li>
         </ul>
         <p>
-          <strong>No</strong> reconstruyes milestones, protocolo de respuesta ni
+          <strong>No</strong> reconstruya etapas, protocolo de respuesta ni
           gobernanza en cada experimento. Esa es la diferencia entre instalar un
           sistema y rentar un asiento.
         </p>
         <p className="note">
-          Prueba de currículo:{' '}
+          Prueba de temario:{' '}
           <a
             href={DOCS_GTM_URL}
             target="_blank"
@@ -149,9 +149,9 @@ export default function BlogOutboundFrioPage() {
           </a>
         </p>
 
-        <h2>Orden de milestones (M0–M7 de un vistazo)</h2>
+        <h2>Orden de etapas (M0–M7 de un vistazo)</h2>
         <p>
-          Nada se salta. Cada fase alimenta la siguiente. Validas un vertical
+          Nada se salta. Cada fase alimenta la siguiente. Valide un vertical
           antes del siguiente.
         </p>
         <BlogTable
@@ -169,7 +169,7 @@ export default function BlogOutboundFrioPage() {
         />
         <p className="note">
           Saltar M3 para “conseguir juntas más rápido” casi siempre significa
-          que escalaste ruido.
+          que escaló ruido.
         </p>
 
         <h2>Responder antes de pitch</h2>
@@ -184,7 +184,7 @@ export default function BlogOutboundFrioPage() {
             ['Pregunta', 'Framing de research; sin pitch; confirma call'],
             ['Referral', 'Agradece + contacta al referido mencionando'],
             ['OOO', 'Marca; follow-up al regreso'],
-            ['No interesado', 'Agradece; descarta; no persigas'],
+            ['No interesado', 'Agradece; descarta; no persiga'],
             ['Silencio (5–7d)', 'Un bump en el hilo; luego descarta'],
           ]}
         />
@@ -195,12 +195,12 @@ export default function BlogOutboundFrioPage() {
           rows={[
             ['Founder / CEO o lead de ops B2B (MX)', 'Ecom / B2C puro'],
             [
-              'Ya vendes; el cuello es pipeline repetible',
-              '“Solo corre ads”',
+              'Ya vende; el cuello es pipeline repetible',
+              '“Solo corre anuncios”',
             ],
             [
-              'Quieres poseer la máquina después del install',
-              'RFP enterprise sin dueño de outbound',
+              'Desea poseer la máquina después del install',
+              'RFP enterprise sin dueño de prospección en frío',
             ],
             [
               'Motion cold-first',

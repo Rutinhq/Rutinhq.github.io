@@ -34,7 +34,7 @@ export const BLOG_INDEX_FAQ_ES = [
   },
   {
     q: '¿Qué señal filtra este radar?',
-    a: 'Fit de ICP, un dolor real de ops/GTM, interés de SKU y lenguaje founder / CEO / lead de ops — luego un sistema que se queda con tu equipo.',
+    a: 'Fit de perfil de cliente ideal (ICP), un dolor real de ops/GTM, interés de producto y lenguaje founder / CEO / lead de ops — luego un sistema que se queda con su equipo.',
   },
   {
     q: '¿Esto es un pozo de contenido?',
@@ -42,7 +42,7 @@ export const BLOG_INDEX_FAQ_ES = [
   },
   {
     q: '¿Dónde viven los sistemas?',
-    a: 'GTM OS, Store OS y NEXUS OS en este sitio. El currículo del catálogo también vive en docs.rutinhq.com/catalog.',
+    a: 'GTM OS, STORE OS y NEXUS OS en este sitio. El temario del catálogo también vive en docs.rutinhq.com/catalog.',
   },
 ] as const
 
@@ -58,7 +58,7 @@ export const BLOG_INDEX = {
 } as const
 
 export const BLOG_INDEX_ES = {
-  title: 'Blog — sistemas que posees',
+  title: 'Blog — sistemas que usted posee',
   description:
     'Radar para founders que instalan sistemas de GTM y ops — no asientos rentados.',
   path: '/es/blog',
@@ -110,15 +110,15 @@ export const ARTICLE01 = {
 } as const
 
 export const ARTICLE01_ES = {
-  title: 'Outbound frío con ICP — sin SDR rentado',
+  title: 'Prospección en frío con perfil de cliente ideal (ICP) — sin SDR rentado',
   description:
-    'Mantén fijo el núcleo del outbound; cambia solo ICP, mensaje y filtros — el pipeline se queda con tu equipo cuando termina el contrato.',
+    'Mantenga fijo el núcleo de la prospección en frío; cambie solo ICP, mensaje y filtros — el pipeline se queda con su equipo cuando termina el contrato.',
   slug: 'outbound-frio-con-icp-sin-sdr-rentado',
   path: ARTICLE01_ES_PATH,
   alternatePath: ARTICLE01_PATH,
   type: 'how-to',
   sku: 'gtm-os',
-  job: 'Cierra el outbound frío con ICP antes del volumen.',
+  job: 'Cierra la prospección en frío con ICP antes del volumen.',
   cta: 'strategy@',
   draft: false,
   noindex: false,
@@ -129,7 +129,7 @@ export const ARTICLE01_ES = {
   faq: [
     {
       q: '¿Esto es contratar un SDR?',
-      a: 'No. Es un sistema de prospección instalado en tu equipo para que el outbound sobreviva cuando la agencia se va.',
+      a: 'No. Es un sistema de prospección instalado en su equipo para que la prospección en frío sobreviva cuando la agencia se va.',
     },
     {
       q: '¿Se salta la validación de ICP para ir más rápido?',
@@ -137,11 +137,11 @@ export const ARTICLE01_ES = {
     },
     {
       q: '¿Qué cambia por vertical?',
-      a: 'Lenguaje, filtros y ángulo — no el núcleo de milestones.',
+      a: 'Lenguaje, filtros y ángulo — no el núcleo de etapas.',
     },
     {
       q: '¿Dónde está la ficha del sistema?',
-      a: 'Mira la ficha GTM OS en catalog y la página /gtm-os.',
+      a: 'Mire la ficha GTM OS en catalog y la página /gtm-os.',
     },
   ],
 } as const
@@ -219,15 +219,15 @@ export const BLOG_FEATURED_COMING = [
 ] as const
 
 export const BLOG_FILTER_SIGNALS_ES = [
-  { name: 'Fit de ICP', thesis: 'Vertical / rol del buyer' },
+  { name: 'Fit de perfil de cliente ideal (ICP)', thesis: 'Vertical / rol del buyer' },
   { name: 'Dolor', thesis: 'Pipeline, handoff, ICP, fricción de ops lean' },
-  { name: 'Interés de SKU', thesis: 'Qué página OS abren' },
+  { name: 'Interés de producto', thesis: 'Qué página OS abren' },
   { name: 'Seniority', thesis: 'Lenguaje founder / CEO / lead de ops' },
 ] as const
 
 export const BLOG_FEATURED_COMING_ES = [
   {
-    title: 'Qué significa “sistemas que posees” para un founder B2B',
+    title: 'Qué significa “sistemas que usted posee” para un founder B2B',
     type: 'framework',
   },
   {
@@ -235,7 +235,7 @@ export const BLOG_FEATURED_COMING_ES = [
     type: 'how-to',
   },
   {
-    title: 'Retainer de agencia vs instalar un OS de outbound',
+    title: 'Iguala mensual de agencia vs instalar un OS de prospección en frío',
     type: 'comparison',
   },
 ] as const

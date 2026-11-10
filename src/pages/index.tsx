@@ -30,7 +30,7 @@ export default function HubPage() {
         locale={locale}
         alternates={alternatesFor('/')}
         image={OG_IMAGE.hub}
-        jsonLd={hubJsonLd(localized('/'), t('seo.hubTitle'), faq)}
+        jsonLd={hubJsonLd(localized('/'), t('seo.hubTitle'), faq, locale)}
       />
 
       <Section first>
