@@ -1,23 +1,71 @@
-import { lazy } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import { RootLayout } from '@/layouts/RootLayout'
+import { lazyPage } from '@/lib/lazyPage'
+import { normalizePathname } from '@/lib/i18n/paths'
 
-const HubPage = lazy(() => import('@/pages/index'))
-const GtmOsPage = lazy(() => import('@/pages/gtm-os'))
-const StoreOsPage = lazy(() => import('@/pages/store-os'))
-const NexusOsPage = lazy(() => import('@/pages/nexus-os'))
-const BlogPage = lazy(() => import('@/pages/blog'))
-const BlogEsPage = lazy(() => import('@/pages/blog-es'))
-const BlogIcpGatedColdOutboundPage = lazy(
+export const HubPage = lazyPage(() => import('@/pages/index'))
+export const GtmOsPage = lazyPage(() => import('@/pages/gtm-os'))
+export const StoreOsPage = lazyPage(() => import('@/pages/store-os'))
+export const NexusOsPage = lazyPage(() => import('@/pages/nexus-os'))
+export const BlogPage = lazyPage(() => import('@/pages/blog'))
+export const BlogEsPage = lazyPage(() => import('@/pages/blog-es'))
+export const BlogIcpGatedColdOutboundPage = lazyPage(
   () => import('@/pages/blog-icp-gated-cold-outbound'),
 )
-const BlogStoreOsAdminAuditPage = lazy(
+export const BlogStoreOsAdminAuditPage = lazyPage(
   () => import('@/pages/blog-store-os-admin-audit'),
 )
-const BlogOutboundFrioPage = lazy(() => import('@/pages/blog-outbound-frio'))
-const AgentsPage = lazy(() => import('@/pages/agents'))
-const AgentsAuthPage = lazy(() => import('@/pages/agents-auth'))
-const NotFoundPage = lazy(() => import('@/pages/not-found'))
+export const BlogOutboundFrioPage = lazyPage(
+  () => import('@/pages/blog-outbound-frio'),
+)
+export const AgentsPage = lazyPage(() => import('@/pages/agents'))
+export const AgentsAuthPage = lazyPage(() => import('@/pages/agents-auth'))
+export const NotFoundPage = lazyPage(() => import('@/pages/not-found'))
+
+const pages = [
+  HubPage,
+  GtmOsPage,
+  StoreOsPage,
+  NexusOsPage,
+  BlogPage,
+  BlogEsPage,
+  BlogIcpGatedColdOutboundPage,
+  BlogStoreOsAdminAuditPage,
+  BlogOutboundFrioPage,
+  AgentsPage,
+  AgentsAuthPage,
+  NotFoundPage,
+]
+
+const pageByPath: Record<string, (typeof pages)[number]> = {
+  '/': HubPage,
+  '/es': HubPage,
+  '/gtm-os': GtmOsPage,
+  '/es/gtm-os': GtmOsPage,
+  '/store-os': StoreOsPage,
+  '/es/store-os': StoreOsPage,
+  '/nexus-os': NexusOsPage,
+  '/es/nexus-os': NexusOsPage,
+  '/blog': BlogPage,
+  '/es/blog': BlogEsPage,
+  '/blog/icp-gated-cold-outbound-without-rented-sdr': BlogIcpGatedColdOutboundPage,
+  '/blog/shopify-admin-audit-before-ads': BlogStoreOsAdminAuditPage,
+  '/es/blog/outbound-frio-con-icp-sin-sdr-rentado': BlogOutboundFrioPage,
+  '/agents': AgentsPage,
+  '/es/agents': AgentsPage,
+  '/agents/auth': AgentsAuthPage,
+  '/es/agents/auth': AgentsAuthPage,
+}
+
+export async function resolveAllPages() {
+  await Promise.all(pages.map((page) => page.preload()))
+}
+
+export async function resolvePageForPath(pathname: string) {
+  const path = normalizePathname(pathname)
+  const page = pageByPath[path] ?? NotFoundPage
+  await page.preload()
+}
 
 export default function App() {
   return (

@@ -1,18 +1,21 @@
 import { HelmetProvider, type HelmetServerState } from '@dr.pogodin/react-helmet'
 import { StrictMode } from 'react'
-import { renderToReadableStream } from 'react-dom/server'
+import { renderToString } from 'react-dom/server'
 import { I18nextProvider } from 'react-i18next'
 import { MemoryRouter } from 'react-router-dom'
-import App from './App'
+import App, { resolveAllPages } from './App'
+import { GuideWidgetLazy } from './components/guide/GuideHost'
 import './lib/i18n'
 import i18n from './lib/i18n'
 import { defaultLanguage } from './lib/i18n/config'
 
 export async function render(url: string, lang?: string) {
+  await resolveAllPages()
+  await GuideWidgetLazy.preload()
   await i18n.changeLanguage(lang || defaultLanguage)
 
   let helmetState: HelmetServerState | undefined
-  const stream = await renderToReadableStream(
+  const html = renderToString(
     <StrictMode>
       <HelmetProvider
         onServerState={(state) => {
@@ -27,8 +30,6 @@ export async function render(url: string, lang?: string) {
       </HelmetProvider>
     </StrictMode>,
   )
-  await stream.allReady
-  const html = await new Response(stream).text()
 
   const head = [
     helmetState?.title.toString() ?? '',
