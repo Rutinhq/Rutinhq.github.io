@@ -169,6 +169,15 @@ if (!/formal usted only/.test(policySrc.systemPrompt) || !/sistemas que usted po
   process.exit(1)
 }
 if (
+  !/ICP = perfil de cliente ideal/.test(policySrc.systemPrompt) ||
+  !/representante de desarrollo de ventas/.test(policySrc.systemPrompt) ||
+  !/tiendas ecommerce/.test(policySrc.systemPrompt) ||
+  !/Estrategia → Social → Ads/.test(policySrc.systemPrompt)
+) {
+  console.error('systemPrompt must pin the ES acronym glossary, ecommerce audience, and NEXUS phrasing')
+  process.exit(1)
+}
+if (
   !/retainers/.test(policySrc.systemPrompt) ||
   !/SLAs/.test(policySrc.systemPrompt) ||
   !/credentials/.test(policySrc.systemPrompt)

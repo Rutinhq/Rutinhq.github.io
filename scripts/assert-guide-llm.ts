@@ -205,7 +205,10 @@ assert(
     /Never invent acronym expansions/.test(GUIDE_MANDATE) &&
     /Calendly CTA only when relevant/.test(GUIDE_MANDATE) &&
     /sistemas que usted posee/.test(GUIDE_MANDATE) &&
-    /nunca tú/.test(GUIDE_MANDATE),
+    /nunca tú/.test(GUIDE_MANDATE) &&
+    /ICP = perfil de cliente ideal/.test(GUIDE_MANDATE) &&
+    /tiendas ecommerce/.test(GUIDE_MANDATE) &&
+    /Estrategia → Social → Ads/.test(GUIDE_MANDATE),
   'mandate asks for short catalog-only usted replies that finish',
 )
 assert(GUIDE_LLM_REPLY_MAX_WORDS === 80, 'hard word cap is 80')
@@ -466,6 +469,11 @@ assert(!isGuidePreviewHost('rutinhq.com'), 'rutinhq.com is never preview')
   assert(/LENGTH LOCK: ≤80 words/.test(esPrompt), 'length lock in prompt')
   assert(/USTED LOCK: Formal usted only/.test(esPrompt), 'es usted lock')
   assert(/sistemas que usted posee, sin retainers/.test(esPrompt), 'es glossary example')
+  assert(/ICP = perfil de cliente ideal/.test(esPrompt), 'es ICP glossary')
+  assert(/SDR = representante de desarrollo de ventas \(externo\)/.test(esPrompt), 'es SDR glossary')
+  assert(/tiendas ecommerce/.test(esPrompt) && /marcas DTC en Shopify/.test(esPrompt), 'es audience glossary')
+  assert(/NEXUS OS = "Estrategia → Social → Ads"/.test(esPrompt), 'es NEXUS phrasing')
+  assert(/never "ecommerceros"/.test(esPrompt), 'es bans ecommerceros')
   assert(!/USTED LOCK/.test(enPrompt), 'en prompt must not carry the Spanish usted lock')
   assert(
     esPrompt.lastIndexOf('LANGUAGE LOCK') > esPrompt.lastIndexOf('Allowlisted knowledge'),
