@@ -106,8 +106,24 @@ if (es.guide.launcher === 'Ask RutinHQ Guide' || /ask rutin/i.test(es.guide.laun
   console.error('ES launcher must not be English "Ask RutinHQ Guide"')
   process.exit(1)
 }
-if (!/I'm RutinHQ Guide/i.test(en.guide.greeting) || !/Soy RutinHQ Guide/i.test(es.guide.greeting)) {
-  console.error('greeting must be locale-pure (I\'m / Soy)')
+if (!/I'm RutinHQ Guide/i.test(en.guide.greeting) || !/Soy la guía de RutinHQ/i.test(es.guide.greeting)) {
+  console.error('greeting must be locale-pure (I\'m RutinHQ Guide / Soy la guía de RutinHQ)')
+  process.exit(1)
+}
+if (/RutinHQ Guide/.test(es.guide.greeting) || /pregunta de fit/.test(es.guide.greeting)) {
+  console.error('ES greeting must not say RutinHQ Guide or pregunta de fit')
+  process.exit(1)
+}
+if (!/pregunta sobre si encaja/.test(es.guide.greeting)) {
+  console.error('ES greeting must say pregunta sobre si encaja')
+  process.exit(1)
+}
+if (es.guide.ctaBook !== 'Agendar 30 min' || /de fit/.test(es.guide.ctaBook)) {
+  console.error('ES ctaBook must be Agendar 30 min')
+  process.exit(1)
+}
+if (es.guide.leadCta !== 'Enviar un resumen corto al equipo') {
+  console.error('ES leadCta must be Enviar un resumen corto al equipo')
   process.exit(1)
 }
 
@@ -189,6 +205,10 @@ if (!/fundador, director general o responsable de operaciones/.test(policySrc.fa
   console.error('GTM OS ES fallback must name fundador / director general / operaciones')
   process.exit(1)
 }
+if (!/se queda con su equipo/.test(policySrc.fallbackReplies['gtm-os'].es)) {
+  console.error('GTM OS ES fallback must say se queda con su equipo')
+  process.exit(1)
+}
 if (!/auditoría y configuración del panel de Shopify para que la tienda convierta antes de gastar en anuncios/.test(policySrc.fallbackReplies['store-os'].es)) {
   console.error('STORE OS ES fallback must describe panel de Shopify in Spanish')
   process.exit(1)
@@ -206,6 +226,14 @@ if (
   /\bpapel\b/.test(policySrc.fallbackReplies['nexus-os'].es)
 ) {
   console.error('NEXUS OS ES fallback must be a sistema with explicit approval, not papel')
+  process.exit(1)
+}
+if (
+  !/marcas y tiendas en línea con oferta y productos claros que buscan generar demanda en redes sociales de forma sistemática/.test(
+    policySrc.fallbackReplies['nexus-os'].es,
+  )
+) {
+  console.error('NEXUS OS ES fallback must use the Spanish for-whom line')
   process.exit(1)
 }
 if (
@@ -270,8 +298,17 @@ if (!/appendGuideCalendlyCta/.test(llm) || !/appendGuideCalendlyCta/.test(fn)) {
   console.error('Function must append Calendly on LLM replies that lack the link')
   process.exit(1)
 }
-if (!/applyGuideEsTypoFixes/.test(llm) || !/agender/.test(llm) || !/ecommerce/.test(llm) || !/\\bpipeline\\b/.test(llm)) {
-  console.error('LLM polish must rewrite known ES typos and glossary (ecommerce, pipeline, …)')
+if (
+  !/applyGuideEsTypoFixes/.test(llm) ||
+  !/agender/.test(llm) ||
+  !/ecommerce/.test(llm) ||
+  !/\\bpipeline\\b/.test(llm) ||
+  !/\\btu\\b/.test(llm) ||
+  !/\\bcontigo\\b/.test(llm) ||
+  !/\\bretailers\\b/.test(llm) ||
+  !/\\bSKUs\\b/.test(llm)
+) {
+  console.error('LLM polish must rewrite known ES typos and glossary (ecommerce, pipeline, tu, SKU, …)')
   process.exit(1)
 }
 if (!/GUIDE_ES_CATALOG_FACTS/.test(llm) || !/selectGuideKnowledge/.test(fn)) {

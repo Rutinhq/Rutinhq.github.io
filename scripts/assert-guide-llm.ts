@@ -401,6 +401,39 @@ assert(
       'GTM OS is B2B outbound for the team.',
     'EN polish must not apply the ES glossary',
   )
+  assert(
+    applyGuideEsTypoFixes('GTM OS que se queda con tu equipo y tus anuncios, contigo.') ===
+      'GTM OS que se queda con su equipo y sus anuncios, con usted.',
+    'tu / tus / contigo become su / sus / con usted',
+  )
+  assert(
+    applyGuideEsTypoFixes('Usted puede agendar. Estudio de mercado.') ===
+      'Usted puede agendar. Estudio de mercado.',
+    'usted and estudio are not rewritten',
+  )
+  assert(
+    applyGuideEsTypoFixes(
+      'Lea https://example.com/tu/path y https://calendly.com/rutinhq/30min con tu equipo.',
+    ) === 'Lea https://example.com/tu/path y https://calendly.com/rutinhq/30min con su equipo.',
+    'tu inside URLs is left intact',
+  )
+  assert(
+    applyGuideEsTypoFixes('Retailers o ecom con SKUs claros. Un SKU basta.') ===
+      'Minoristas o ecom con productos claros. Un producto basta.',
+    'retailers / SKUs / SKU glossary',
+  )
+  assert(
+    applyGuideEsTypoFixes('Agende para discutir más el cuello.') ===
+      'Agende para conversarlo el cuello.',
+    'para discutir más becomes para conversarlo',
+  )
+  assert(
+    appendGuideCalendlyCta(
+      'STORE OS es auditoría. Agende 30 min para discutir más: https://calendly.com/rutinhq/30min.',
+      'es',
+    ) === 'STORE OS es auditoría. Si encaja, agende 30 min: https://calendly.com/rutinhq/30min.',
+    'ES Calendly sentence is capped to the canonical CTA',
+  )
 }
 assert(isUnusableGuideReply(null), 'empty completion is unusable')
 assert(isUnusableGuideReply('GTM OS es el sistema de outbound'), 'sub-80 mid-cut is unusable')
@@ -583,6 +616,13 @@ assert(!isGuidePreviewHost('rutinhq.com'), 'rutinhq.com is never preview')
   )
   assert(/nunca abra con "No,"/.test(esPrompt) || /never open with "No,"/.test(esPrompt), 'es STORE lead-with')
   assert(esPrompt.includes(GUIDE_ES_CATALOG_FACTS), 'es prompt includes Spanish catalog facts')
+  assert(/que se queda con su equipo/.test(GUIDE_ES_CATALOG_FACTS), 'es catalog GTM uses su equipo')
+  assert(
+    /marcas y tiendas en línea con oferta y productos claros que buscan generar demanda en redes sociales de forma sistemática/.test(
+      GUIDE_ES_CATALOG_FACTS,
+    ),
+    'es catalog NEXUS for-whom',
+  )
   assert(
     /fundador, director general o responsable de operaciones en empresas B2B/.test(esPrompt),
     'es GTM for-whom',
