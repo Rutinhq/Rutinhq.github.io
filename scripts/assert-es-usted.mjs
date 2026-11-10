@@ -30,6 +30,16 @@ const bannedEnglish = [
   { id: 'curriculum', re: /\bcurriculum\b/i },
   { id: 'ads', re: /\bads\b/i },
   { id: 'config del Admin', re: /config del Admin/i },
+  { id: 'founders', re: /\bfounders?\b/i },
+  { id: 'how-to', re: /\bhow-to\b/i },
+  { id: 'Dual desk', re: /\bdual\s+desk\b/i },
+  { id: 'pipeline', re: /\bpipelines?\b/i },
+  { id: 'ops', re: /\bops\b/i },
+  { id: 'buyer', re: /\bbuyers?\b/i },
+  { id: 'install', re: /\binstall(?:ed|s)?\b/i },
+  { id: 'RFP', re: /\bRFP\b/ },
+  { id: 'Admin', re: /\bAdmin\b/ },
+  { id: 'DRAFT', re: /\bdraft\b/i },
 ]
 
 const bannedTu = [
@@ -55,14 +65,47 @@ function maskCopy(html) {
   return html
     .replaceAll(LOCKED_ADS, 'ESTRATEGIA_SOCIAL_ADS')
     .replace(/https?:\/\/[^\s"'<>]+/gi, ' ')
-    .replace(/\b(?:href|src)=["'][^"']*["']/gi, ' ')
+    .replace(/\b(?:href|src|to|class|id)=["'][^"']*["']/gi, ' ')
     .replace(/\/(?:es\/)?blog\/[a-z0-9-]+/gi, ' ')
 }
 
+/** Visible leftover English on the /es/blog index only — not URL slugs. */
+const bannedOnEsBlogIndex = [
+  { id: 'discovery', re: /\bdiscovery\b/i },
+  { id: 'educate-forever', re: /educate-forever/i },
+  { id: 'comparison', re: /\bcomparison\b/i },
+  { id: 'framework', re: /\bframework\b/i },
+  { id: 'Fit', re: /\bFit\b/ },
+  { id: 'outline', re: /\boutline\b/i },
+  { id: 'Sprint', re: /\bSprint\b/ },
+  { id: 'Article01/02', re: /\bArticle0[12]\b/ },
+  { id: 'handoff', re: /\bhandoff\b/i },
+  { id: 'Seniority', re: /\bSeniority\b/ },
+]
+
+const requiredOnEsBlogIndex = [
+  { id: 'llamada de encaje', re: /llamada de encaje/i },
+  { id: 'educar para siempre', re: /educar para siempre/i },
+  { id: 'Encaje de perfil', re: /Encaje de perfil de cliente ideal \(ICP\)/ },
+  { id: 'comparación', re: /comparación/i },
+  { id: 'esquema en inglés', re: /esquema en inglés/i },
+  { id: 'Esquema EN marker', re: /Esquema EN/ },
+]
+
 const hits = []
 for (const file of files) {
-  const masked = maskCopy(fs.readFileSync(file, 'utf8'))
-  for (const rule of [...bannedEnglish, ...bannedTu]) {
+  const html = fs.readFileSync(file, 'utf8')
+  const masked = maskCopy(html)
+  const rules = [...bannedEnglish, ...bannedTu]
+  if (path.basename(file) === 'es-blog.html') {
+    rules.push(...bannedOnEsBlogIndex)
+    for (const rule of requiredOnEsBlogIndex) {
+      if (!rule.re.test(masked)) {
+        hits.push(`${file}: missing ${rule.id}`)
+      }
+    }
+  }
+  for (const rule of rules) {
     const match = masked.match(rule.re)
     if (match) {
       hits.push(`${file}: ${rule.id} → ${match[0]}`)

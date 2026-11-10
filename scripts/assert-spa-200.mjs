@@ -1683,8 +1683,11 @@ const bodyRoutes = [
   {
     file: 'dist/prerender/es-blog.html',
     needles: [
-      'Sistemas que usted posee — filtrados para founders que instalan, no rentan',
+      'Sistemas que usted posee — filtrados para fundadores que instalan, no rentan',
       '¿Qué es el blog de RutinHQ?',
+      'llamada de encaje',
+      'Encaje de perfil de cliente ideal (ICP)',
+      'Esquema EN',
     ],
   },
   {
