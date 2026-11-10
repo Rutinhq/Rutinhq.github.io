@@ -1,55 +1,91 @@
 import { lazy } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import { RootLayout } from '@/layouts/RootLayout'
-import HubEager from '@/pages/index'
-import GtmOsEager from '@/pages/gtm-os'
-import StoreOsEager from '@/pages/store-os'
-import NexusOsEager from '@/pages/nexus-os'
-import BlogEager from '@/pages/blog'
-import BlogEsEager from '@/pages/blog-es'
-import BlogIcpGatedColdOutboundEager from '@/pages/blog-icp-gated-cold-outbound'
-import BlogStoreOsAdminAuditEager from '@/pages/blog-store-os-admin-audit'
-import BlogOutboundFrioEager from '@/pages/blog-outbound-frio'
-import AgentsEager from '@/pages/agents'
-import AgentsAuthEager from '@/pages/agents-auth'
-import NotFoundEager from '@/pages/not-found'
+import { normalizePathname } from '@/lib/i18n/paths'
+import { resolveLazy } from '@/lib/resolveLazy'
 
-const HubPage = import.meta.env.SSR
-  ? HubEager
-  : lazy(() => import('@/pages/index'))
-const GtmOsPage = import.meta.env.SSR
-  ? GtmOsEager
-  : lazy(() => import('@/pages/gtm-os'))
-const StoreOsPage = import.meta.env.SSR
-  ? StoreOsEager
-  : lazy(() => import('@/pages/store-os'))
-const NexusOsPage = import.meta.env.SSR
-  ? NexusOsEager
-  : lazy(() => import('@/pages/nexus-os'))
-const BlogPage = import.meta.env.SSR
-  ? BlogEager
-  : lazy(() => import('@/pages/blog'))
-const BlogEsPage = import.meta.env.SSR
-  ? BlogEsEager
-  : lazy(() => import('@/pages/blog-es'))
-const BlogIcpGatedColdOutboundPage = import.meta.env.SSR
-  ? BlogIcpGatedColdOutboundEager
-  : lazy(() => import('@/pages/blog-icp-gated-cold-outbound'))
-const BlogStoreOsAdminAuditPage = import.meta.env.SSR
-  ? BlogStoreOsAdminAuditEager
-  : lazy(() => import('@/pages/blog-store-os-admin-audit'))
-const BlogOutboundFrioPage = import.meta.env.SSR
-  ? BlogOutboundFrioEager
-  : lazy(() => import('@/pages/blog-outbound-frio'))
-const AgentsPage = import.meta.env.SSR
-  ? AgentsEager
-  : lazy(() => import('@/pages/agents'))
-const AgentsAuthPage = import.meta.env.SSR
-  ? AgentsAuthEager
-  : lazy(() => import('@/pages/agents-auth'))
-const NotFoundPage = import.meta.env.SSR
-  ? NotFoundEager
-  : lazy(() => import('@/pages/not-found'))
+export const HubPage = lazy(() => import('@/pages/index'))
+export const GtmOsPage = lazy(() => import('@/pages/gtm-os'))
+export const StoreOsPage = lazy(() => import('@/pages/store-os'))
+export const NexusOsPage = lazy(() => import('@/pages/nexus-os'))
+export const BlogPage = lazy(() => import('@/pages/blog'))
+export const BlogEsPage = lazy(() => import('@/pages/blog-es'))
+export const BlogIcpGatedColdOutboundPage = lazy(
+  () => import('@/pages/blog-icp-gated-cold-outbound'),
+)
+export const BlogStoreOsAdminAuditPage = lazy(
+  () => import('@/pages/blog-store-os-admin-audit'),
+)
+export const BlogOutboundFrioPage = lazy(() => import('@/pages/blog-outbound-frio'))
+export const AgentsPage = lazy(() => import('@/pages/agents'))
+export const AgentsAuthPage = lazy(() => import('@/pages/agents-auth'))
+export const NotFoundPage = lazy(() => import('@/pages/not-found'))
+
+const pages = [
+  HubPage,
+  GtmOsPage,
+  StoreOsPage,
+  NexusOsPage,
+  BlogPage,
+  BlogEsPage,
+  BlogIcpGatedColdOutboundPage,
+  BlogStoreOsAdminAuditPage,
+  BlogOutboundFrioPage,
+  AgentsPage,
+  AgentsAuthPage,
+  NotFoundPage,
+]
+
+export async function resolveAllPages() {
+  await Promise.all(pages.map((page) => resolveLazy(page)))
+}
+
+export async function resolvePageForPath(pathname: string) {
+  const path = normalizePathname(pathname)
+  switch (path) {
+    case '/':
+    case '/es':
+      await resolveLazy(HubPage)
+      return
+    case '/gtm-os':
+    case '/es/gtm-os':
+      await resolveLazy(GtmOsPage)
+      return
+    case '/store-os':
+    case '/es/store-os':
+      await resolveLazy(StoreOsPage)
+      return
+    case '/nexus-os':
+    case '/es/nexus-os':
+      await resolveLazy(NexusOsPage)
+      return
+    case '/blog':
+      await resolveLazy(BlogPage)
+      return
+    case '/es/blog':
+      await resolveLazy(BlogEsPage)
+      return
+    case '/blog/icp-gated-cold-outbound-without-rented-sdr':
+      await resolveLazy(BlogIcpGatedColdOutboundPage)
+      return
+    case '/blog/shopify-admin-audit-before-ads':
+      await resolveLazy(BlogStoreOsAdminAuditPage)
+      return
+    case '/es/blog/outbound-frio-con-icp-sin-sdr-rentado':
+      await resolveLazy(BlogOutboundFrioPage)
+      return
+    case '/agents':
+    case '/es/agents':
+      await resolveLazy(AgentsPage)
+      return
+    case '/agents/auth':
+    case '/es/agents/auth':
+      await resolveLazy(AgentsAuthPage)
+      return
+    default:
+      await resolveLazy(NotFoundPage)
+  }
+}
 
 export default function App() {
   return (
