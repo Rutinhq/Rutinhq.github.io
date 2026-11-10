@@ -41,7 +41,7 @@ const shells = [
   },
   {
     file: 'dist/prerender/es-nexus-os.html',
-    h1: 'Marketing agéntico — primero en papel, anuncios solo con GO.',
+    h1: 'Marketing agéntico — primero en papel, anuncios solo con aprobación explícita.',
   },
   {
     file: 'dist/prerender/blog.html',
