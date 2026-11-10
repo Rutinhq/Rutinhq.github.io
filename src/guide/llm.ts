@@ -584,11 +584,36 @@ export function capGuideReplyWords(
   return kept || t.slice(0, ends[0]).trim()
 }
 
+const GUIDE_ES_TYPO_FIXES: ReadonlyArray<readonly [RegExp, string]> = [
+  [/\bagender\b/gi, 'agendar'],
+  [/\bpropietar\b/gi, 'poseer'],
+  [/\bun llamada\b/gi, 'una llamada'],
+  [/\bmarketing agente\b/gi, 'marketing agéntico'],
+]
+
+function preservePhraseCase(match: string, replacement: string): string {
+  if (!match) return replacement
+  if (match[0] === match[0].toUpperCase() && match.slice(1) === match.slice(1).toLowerCase()) {
+    return replacement.charAt(0).toUpperCase() + replacement.slice(1)
+  }
+  return replacement
+}
+
+/** Known 8B ES slips — apply after the word cap so canned CTAs stay clean. */
+export function applyGuideEsTypoFixes(text: string): string {
+  let out = text
+  for (const [pattern, replacement] of GUIDE_ES_TYPO_FIXES) {
+    out = out.replace(pattern, (match) => preservePhraseCase(match, replacement))
+  }
+  return out
+}
+
 export function polishGuideLlmReply(
   text: string | null,
   finishReason?: string | null,
 ): string | null {
-  return capGuideReplyWords(trimIncompleteGuideReply(text, finishReason))
+  const capped = capGuideReplyWords(trimIncompleteGuideReply(text, finishReason))
+  return capped ? applyGuideEsTypoFixes(capped) : capped
 }
 
 const GUIDE_LLM_CALENDLY_URL = 'https://calendly.com/rutinhq/30min'
@@ -651,10 +676,14 @@ export function appendGuideCalendlyCta(
   const cta = peeled.cta || guideCalendlyCta(locale, url)
   const body = peeled.cta ? peeled.body : t
   const combined = joinBodyAndCta(body, cta)
-  if (countGuideWords(combined) <= maxWords) return combined
-  const bodyBudget = Math.max(1, maxWords - countGuideWords(cta))
-  const trimmedBody = capGuideReplyWords(body, bodyBudget)
-  return joinBodyAndCta(trimmedBody || '', cta)
+  const fitted =
+    countGuideWords(combined) <= maxWords
+      ? combined
+      : joinBodyAndCta(
+          capGuideReplyWords(body, Math.max(1, maxWords - countGuideWords(cta))) || '',
+          cta,
+        )
+  return locale === 'es' ? applyGuideEsTypoFixes(fitted) : fitted
 }
 
 /** Empty, <~80 chars, finish_reason=length, or mid-sentence cut → do not ship as mode=llm. */

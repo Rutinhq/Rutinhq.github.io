@@ -103,6 +103,30 @@ export function isBookingTurn(messages: GuideChatMessage[], policy: ClassifyPoli
   return scoreHints(lastUserText(messages), bookingHintsOf(policy)) >= 1
 }
 
+/** Narrower than booking: only schedule-a-call phrasing, not "fit" / "qué más". */
+export const DEFAULT_SCHEDULING_HINTS = [
+  'agendar',
+  'agende',
+  'agendo',
+  'agender',
+  'llamada',
+  'cita',
+  'calendly',
+] as const
+
+export function isSchedulingTurn(messages: GuideChatMessage[]): boolean {
+  return scoreHints(lastUserText(messages), [...DEFAULT_SCHEDULING_HINTS]) >= 1
+}
+
+export function schedulingGuideReply(
+  locale: GuideLocale,
+  url = 'https://calendly.com/rutinhq/30min',
+): string {
+  return locale === 'es'
+    ? `Puede agendar una llamada de 30 minutos aquí: ${url}.`
+    : `You can book a 30-minute call here: ${url}.`
+}
+
 function uniqueSku(
   ranked: { key: 'gtm-os' | 'store-os' | 'nexus-os'; n: number }[],
 ): RecommendedSku {

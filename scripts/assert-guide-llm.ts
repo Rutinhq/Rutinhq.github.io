@@ -3,8 +3,10 @@ import { fileURLToPath } from 'node:url'
 import {
   classifyIntentWithPolicy,
   ensureCalendlyCta,
+  isSchedulingTurn,
   recommendSkuWithPolicy,
   resolveFallbackKey,
+  schedulingGuideReply,
   type ClassifyPolicy,
 } from '../src/guide/classify-core.ts'
 import { localGuideReply } from '../src/guide/fallback.ts'
@@ -15,6 +17,7 @@ import {
   extractLlmText,
   coerceGuideLlmReply,
   capGuideReplyWords,
+  applyGuideEsTypoFixes,
   countGuideWords,
   extractFirstJsonObject,
   extractWorkersAiText,
@@ -349,6 +352,21 @@ assert(
   assert(
     enCta === `GTM OS is B2B cold outbound the team keeps. ${guideCalendlyCta('en')}`,
     'EN reply without Calendly gets the EN CTA',
+  )
+  assert(
+    applyGuideEsTypoFixes('Puede agender una llamada de 30 minutos aquí.') ===
+      'Puede agendar una llamada de 30 minutos aquí.',
+    'agender is rewritten to agendar',
+  )
+  assert(
+    applyGuideEsTypoFixes('Sistemas que usted propietar. Un llamada. marketing agente.') ===
+      'Sistemas que usted poseer. Una llamada. marketing agéntico.',
+    'propietar / un llamada / marketing agente are rewritten',
+  )
+  assert(
+    polishGuideLlmReply('Puede agender una llamada. Si encaja, agende 30 min: https://calendly.com/rutinhq/30min.') ===
+      'Puede agendar una llamada. Si encaja, agende 30 min: https://calendly.com/rutinhq/30min.',
+    'polish applies ES typo fixes',
   )
 }
 assert(isUnusableGuideReply(null), 'empty completion is unusable')
@@ -689,6 +707,32 @@ assert(
 assert(
   classifyIntentWithPolicy([{ role: 'user', content: 'quiero cita' }], guidePolicy) === 'fit',
   'single-turn cita without SKU is fit+Calendly',
+)
+assert(
+  isSchedulingTurn([{ role: 'user', content: '¿Cómo agendo una llamada?' }]),
+  'Q5 how-to-book is a scheduling turn',
+)
+assert(
+  isSchedulingTurn([{ role: 'user', content: 'quiero cita' }]),
+  'cita is scheduling',
+)
+assert(
+  !isSchedulingTurn([{ role: 'user', content: '¿Qué es GTM OS?' }]),
+  'SKU questions must still call the LLM',
+)
+assert(
+  !isSchedulingTurn([{ role: 'user', content: 'qué más' }]),
+  'qué más stays on the LLM, not the scheduling one-liner',
+)
+assert(
+  schedulingGuideReply('es') ===
+    'Puede agendar una llamada de 30 minutos aquí: https://calendly.com/rutinhq/30min.',
+  'scheduling ES reply is the fixed one-liner',
+)
+assert(
+  localGuideReply([{ role: 'user', content: '¿Cómo agendo una llamada?' }], 'es') ===
+    schedulingGuideReply('es'),
+  'local Q5 returns the scheduling one-liner without catalog fallback',
 )
 
 for (const follow of ['cita', 'agenda', 'schedule', 'Calendly', 'fit', 'qué más', 'quiero cita']) {

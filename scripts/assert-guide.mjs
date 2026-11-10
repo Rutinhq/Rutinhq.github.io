@@ -260,6 +260,14 @@ if (!/appendGuideCalendlyCta/.test(llm) || !/appendGuideCalendlyCta/.test(fn)) {
   console.error('Function must append Calendly on LLM replies that lack the link')
   process.exit(1)
 }
+if (!/applyGuideEsTypoFixes/.test(llm) || !/agender/.test(llm)) {
+  console.error('LLM polish must rewrite known ES typos including agender→agendar')
+  process.exit(1)
+}
+if (!/isSchedulingTurn/.test(fn) || !/schedulingGuideReply/.test(fn)) {
+  console.error('Function must skip the LLM for scheduling-intent questions')
+  process.exit(1)
+}
 if (!/export const GUIDE_MANDATE/.test(llm)) {
   console.error('src/guide/llm.ts must export GUIDE_MANDATE')
   process.exit(1)
@@ -411,8 +419,8 @@ if (!/degradedReason/.test(widget) || !/isGuidePreviewHost/.test(widget)) {
   console.error('Guide widget must show degradedReason under the paused banner on preview hosts only')
   process.exit(1)
 }
-if (!/client_timeout/.test(widget) || !/token_wait_timeout/.test(widget)) {
-  console.error('Guide widget must label local fallbacks (client_timeout / token_wait_timeout)')
+if (!/client_timeout/.test(widget) || !/formatGuideTurnstileTimeoutReason/.test(widget)) {
+  console.error('Guide widget must label local fallbacks (client_timeout / token_wait_timeout@)')
   process.exit(1)
 }
 if (!/sendGuideWithTurnstile/.test(widget) || !/awaitingChallenge/.test(widget) || !/sendLock/.test(widget)) {
@@ -471,6 +479,14 @@ if (!/createGuideTurnstileController/.test(turnstileHook) || !/attach\(node\)/.t
 }
 if (!/api\.reset\(widgetId\)/.test(turnstileHook)) {
   console.error('Turnstile consumeToken must reset the widget after a single-use token')
+  process.exit(1)
+}
+if (!/execution: 'execute'/.test(turnstileHook) || !/api\.execute\(widgetId\)/.test(turnstileHook)) {
+  console.error('Turnstile must execute the challenge at send, not at the previous reset')
+  process.exit(1)
+}
+if (!/token_wait_timeout@/.test(turnstileHook)) {
+  console.error('preview timeout reason must include elapsed wait as token_wait_timeout@N.Ns')
   process.exit(1)
 }
 if (!/turnstileToken/.test(widget)) {

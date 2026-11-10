@@ -4,6 +4,7 @@
  */
 import {
   createGuideTurnstileController,
+  formatGuideTurnstileTimeoutReason,
   GUIDE_TURNSTILE_ALWAYS_INTERACTIVE_SITE_KEY,
   GUIDE_TURNSTILE_TOKEN_WAIT_MS,
   resolveGuideTurnstileSiteKey,
@@ -28,12 +29,15 @@ type WidgetRecord = {
   token: string
   removed: boolean
   resetCount: number
+  executeCount: number
 }
 
-function mockTurnstile(autoIssue = true) {
+function mockTurnstile(autoIssue = true, extra?: { autoIssueLimit?: number }) {
   const widgets = new Map<string, WidgetRecord>()
   const renderCalls: HTMLElement[] = []
+  const executeCalls: string[] = []
   let n = 0
+  const autoIssueLimit = extra?.autoIssueLimit ?? Number.POSITIVE_INFINITY
 
   const issue = (widget: WidgetRecord, token: string) => {
     widget.token = token
@@ -52,16 +56,21 @@ function mockTurnstile(autoIssue = true) {
         token: '',
         removed: false,
         resetCount: 0,
+        executeCount: 0,
       }
       widgets.set(id, widget)
-      if (autoIssue) issue(widget, `token-${id}`)
+      if (autoIssue && options.execution !== 'execute') issue(widget, `token-${id}`)
       return id
     },
     reset(widgetId) {
       const widget = widgetId ? widgets.get(widgetId) : undefined
       if (!widget || widget.removed) return
       widget.resetCount += 1
-      issue(widget, `token-${widget.id}-r${widget.resetCount}`)
+      widget.token = ''
+      // execution=execute: reset must NOT start the next challenge.
+      if (autoIssue && widget.options.execution !== 'execute') {
+        issue(widget, `token-${widget.id}-r${widget.resetCount}`)
+      }
     },
     remove(widgetId) {
       const widget = widgetId ? widgets.get(widgetId) : undefined
@@ -72,9 +81,18 @@ function mockTurnstile(autoIssue = true) {
       if (!widget || widget.removed) return ''
       return widget.token
     },
+    execute(widgetId) {
+      const widget = widgetId ? widgets.get(widgetId) : undefined
+      if (!widget || widget.removed) return
+      widget.executeCount += 1
+      executeCalls.push(widget.id)
+      if (autoIssue && widget.executeCount <= autoIssueLimit) {
+        issue(widget, `token-${widget.id}-e${widget.executeCount}`)
+      }
+    },
   }
 
-  return { api, widgets, renderCalls }
+  return { api, widgets, renderCalls, executeCalls }
 }
 
 function host(): HTMLDivElement {
@@ -154,11 +172,13 @@ async function main() {
     const widget = [...widgets.values()][0]
     assert(widget.options.sitekey === siteKey, 'explicit render keeps sitekey')
     assert(widget.options.appearance === 'interaction-only', 'appearance interaction-only')
+    assert(widget.options.execution === 'execute', 'execution execute — challenge starts at send')
     assert(widget.options.size === 'flexible', 'size flexible')
     assert(widget.options.action === 'guide', 'action guide')
     assert(typeof widget.options.callback === 'function', 'success callback')
     assert(typeof widget.options['expired-callback'] === 'function', 'expired callback')
     assert(typeof widget.options['error-callback'] === 'function', 'error callback')
+    assert(typeof widget.options['timeout-callback'] === 'function', 'timeout callback re-executes')
     controller.dispose()
   }
 
@@ -177,7 +197,7 @@ async function main() {
     resolveScript()
     const token = await pending
     assert(renderCalls.length === 1, 'render runs after script + host mount')
-    assert(token === 'token-w1', `consumeToken must return the first token, got ${token}`)
+    assert(token === 'token-w1-e1', `consumeToken must return the first token, got ${token}`)
     controller.dispose()
   }
 
@@ -189,10 +209,11 @@ async function main() {
     const second = await controller.consumeToken()
     const third = await controller.consumeToken()
     const widget = [...widgets.values()][0]
-    assert(first === 'token-w1', `first token, got ${first}`)
-    assert(second === 'token-w1-r1', `reset token after first consume, got ${second}`)
-    assert(third === 'token-w1-r2', `reset token after second consume, got ${third}`)
+    assert(first === 'token-w1-e1', `first token, got ${first}`)
+    assert(second === 'token-w1-e2', `execute token after first consume+reset, got ${second}`)
+    assert(third === 'token-w1-e3', `execute token after second consume+reset, got ${third}`)
     assert(widget.resetCount === 3, `reset after each consume, got ${widget.resetCount}`)
+    assert(widget.executeCount === 3, `execute at each send, got ${widget.executeCount}`)
     controller.dispose()
   }
 
@@ -310,6 +331,69 @@ async function main() {
       `request must use the t=5s token, got ${result.ok ? result.token : result.reason}`,
     )
     assert(posted.length === 1 && posted[0] === 'tok-at-5s', 'single send with the t=5s token')
+    controller.dispose()
+  }
+
+  assert(
+    formatGuideTurnstileTimeoutReason(20_000, false) === 'token_wait_timeout',
+    'prod degraded note stays token_wait_timeout',
+  )
+  assert(
+    formatGuideTurnstileTimeoutReason(20_000, true) === 'token_wait_timeout@20.0s',
+    'preview degraded note includes elapsed wait',
+  )
+  assert(
+    formatGuideTurnstileTimeoutReason(8_250, true) === 'token_wait_timeout@8.3s',
+    'preview elapsed is one decimal second',
+  )
+
+  {
+    const clock = createFakeClock()
+    const { api, widgets } = mockTurnstile(true, { autoIssueLimit: 2 })
+    const controller = controllerOf(api, { tokenWaitMs: GUIDE_TURNSTILE_TOKEN_WAIT_MS, clock })
+    controller.attach(host())
+    await flush()
+    const posted: string[] = []
+    const send = (label: string) =>
+      sendGuideWithTurnstile({
+        consumeToken: () => controller.consumeToken(),
+        siteKey,
+        now: () => clock.now(),
+        post: async (token) => {
+          posted.push(`${label}:${token || ''}`)
+        },
+      })
+
+    const q1 = await send('q1')
+    assert(q1.ok === true, 'Q1 invisible token must POST')
+    const q2 = await send('q2')
+    assert(q2.ok === true, 'Q2 invisible token must POST')
+    assert(
+      posted.join(',') === 'q1:token-w1-e1,q2:token-w1-e2',
+      `Q1+Q2 must each POST once, got ${posted.join(',')}`,
+    )
+
+    const q3 = send('q3')
+    await flush()
+    await clock.advance(8_000)
+    assert(
+      posted.filter((row) => row.startsWith('q3:')).length === 0,
+      'Q3 must not POST before the interactive callback',
+    )
+    const widget = [...widgets.values()].filter((w) => !w.removed)[0]
+    assert(widget.executeCount === 3, `Q3 execute starts at send, got ${widget.executeCount}`)
+    widget.options.callback?.('tok-q3-at-8s')
+    await clock.advance(200)
+    const result = await q3
+    assert(result.ok === true, 'Q3 t=8s callback must not fall to token_wait_timeout')
+    assert(
+      result.ok && result.token === 'tok-q3-at-8s',
+      `Q3 must POST the t=8s token, got ${result.ok ? result.token : result.reason}`,
+    )
+    assert(
+      posted.filter((row) => row === 'q3:tok-q3-at-8s').length === 1 && posted.length === 3,
+      `Q1–Q3 must be three single sends, got ${posted.join(',')}`,
+    )
     controller.dispose()
   }
 

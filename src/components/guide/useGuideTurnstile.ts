@@ -55,10 +55,12 @@ export type GuideTurnstileRenderOptions = {
   theme?: 'auto' | 'light' | 'dark'
   size?: 'normal' | 'flexible' | 'compact'
   appearance?: 'always' | 'execute' | 'interaction-only'
+  execution?: 'render' | 'execute'
   action?: string
   callback?: (token: string) => void
   'expired-callback'?: () => void
   'error-callback'?: () => void
+  'timeout-callback'?: () => void
 }
 
 export type GuideTurnstileApi = {
@@ -66,6 +68,7 @@ export type GuideTurnstileApi = {
   reset(widgetId?: string): void
   remove(widgetId?: string): void
   getResponse(widgetId?: string): string
+  execute?(widgetId?: string): void
 }
 
 export type GuideTurnstileClock = {
@@ -105,9 +108,40 @@ export function createGuideTurnstileController(
   const tokenWaitMs = opts.tokenWaitMs ?? GUIDE_TURNSTILE_TOKEN_WAIT_MS
 
   let generation = 0
+  let disposed = false
   let widgetId: string | null = null
   let token: string | null = null
   let renderPromise: Promise<void> = Promise.resolve()
+  const waiters = new Set<(value: string) => void>()
+
+  const readLive = (): string => {
+    const api = getApi()
+    const fromApi = widgetId != null && api ? api.getResponse(widgetId) : ''
+    return token || fromApi || ''
+  }
+
+  const takeToken = (): string | undefined => {
+    const live = readLive()
+    if (!live) return undefined
+    token = null
+    const api = getApi()
+    if (widgetId != null && api) api.reset(widgetId)
+    return live
+  }
+
+  const executeWidget = () => {
+    const api = getApi()
+    if (widgetId == null || !api || typeof api.execute !== 'function') return
+    api.execute(widgetId)
+  }
+
+  const deliver = (value: string) => {
+    if (!value) return
+    token = value
+    const pending = [...waiters]
+    waiters.clear()
+    for (const waiter of pending) waiter(value)
+  }
 
   const removeWidget = () => {
     const id = widgetId
@@ -143,9 +177,10 @@ export function createGuideTurnstileController(
           theme: 'dark',
           size: 'flexible',
           appearance: 'interaction-only',
+          execution: 'execute',
           action: 'guide',
           callback: (value) => {
-            token = value
+            deliver(value)
           },
           'expired-callback': () => {
             token = null
@@ -153,7 +188,13 @@ export function createGuideTurnstileController(
           'error-callback': () => {
             token = null
           },
+          'timeout-callback': () => {
+            token = null
+            if (waiters.size) executeWidget()
+          },
         })
+        // Re-attach during an in-flight wait must start THIS send's challenge.
+        if (waiters.size) executeWidget()
       })
       .catch(() => {
         /* Widget degrades: requests go without a token. */
@@ -165,31 +206,61 @@ export function createGuideTurnstileController(
 
   const consumeToken = async (): Promise<string | undefined> => {
     if (!opts.getSiteKey()) return undefined
-    const gen = generation
     const started = clock.now()
     const deadline = started + tokenWaitMs
-    const pendingRender = renderPromise
-    const renderWait = deadline - clock.now()
-    if (renderWait > 0) {
-      await Promise.race([pendingRender, clock.sleep(renderWait)])
-    }
-    while (clock.now() < deadline) {
-      if (gen !== generation) return undefined
-      const api = getApi()
-      const live =
-        token || (widgetId && api ? api.getResponse(widgetId) : '') || ''
-      if (live) {
-        token = null
-        if (widgetId && api) api.reset(widgetId)
-        return live
+
+    return new Promise<string | undefined>((resolve) => {
+      let settled = false
+      const finish = (value: string | undefined) => {
+        if (settled) return
+        settled = true
+        waiters.delete(onToken)
+        resolve(value)
       }
-      await clock.sleep(100)
-    }
-    return undefined
+      const onToken = (value: string) => {
+        finish(takeToken() || value)
+      }
+      waiters.add(onToken)
+
+      void (async () => {
+        const pendingRender = renderPromise
+        const renderWait = deadline - clock.now()
+        if (renderWait > 0) {
+          await Promise.race([pendingRender, clock.sleep(renderWait)])
+        }
+        if (settled || disposed) {
+          finish(undefined)
+          return
+        }
+        // Start the challenge at send time — not at the previous reset().
+        if (!readLive()) executeWidget()
+        if (settled || disposed) return
+        const immediate = takeToken()
+        if (immediate) {
+          finish(immediate)
+          return
+        }
+        while (clock.now() < deadline) {
+          if (disposed) {
+            finish(undefined)
+            return
+          }
+          const live = takeToken()
+          if (live) {
+            finish(live)
+            return
+          }
+          await clock.sleep(100)
+        }
+        finish(takeToken())
+      })()
+    })
   }
 
   const dispose = () => {
+    disposed = true
     generation += 1
+    waiters.clear()
     removeWidget()
     renderPromise = Promise.resolve()
   }
@@ -229,19 +300,33 @@ export function shouldPostGuideAfterTurnstile(opts: {
   return { post: false, timedOut: true }
 }
 
+/** Preview hosts only — show how long we waited so a mid-wait tick is diagnosable. */
+export function formatGuideTurnstileTimeoutReason(
+  waitedMs: number,
+  previewHost: boolean,
+): string {
+  if (!previewHost) return 'token_wait_timeout'
+  return `token_wait_timeout@${(Math.max(0, waitedMs) / 1000).toFixed(1)}s`
+}
+
 /** Wait for a token, then POST once. A late checkbox (e.g. t=5s) still sends that token. */
 export async function sendGuideWithTurnstile(opts: {
   consumeToken: () => Promise<string | undefined>
   siteKey: string | undefined
   post: (token: string | undefined) => Promise<void>
+  now?: () => number
 }): Promise<
-  { ok: true; token: string | undefined } | { ok: false; reason: 'token_wait_timeout' }
+  | { ok: true; token: string | undefined; waitedMs: number }
+  | { ok: false; reason: 'token_wait_timeout'; waitedMs: number }
 > {
+  const now = opts.now ?? defaultNow
+  const started = now()
   const token = await opts.consumeToken()
+  const waitedMs = Math.max(0, now() - started)
   const plan = shouldPostGuideAfterTurnstile({ siteKey: opts.siteKey, token })
-  if (plan.timedOut) return { ok: false, reason: 'token_wait_timeout' }
+  if (plan.timedOut) return { ok: false, reason: 'token_wait_timeout', waitedMs }
   await opts.post(token)
-  return { ok: true, token }
+  return { ok: true, token, waitedMs }
 }
 
 export function useGuideTurnstile(siteKey: string | undefined) {

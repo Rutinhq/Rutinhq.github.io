@@ -1,4 +1,5 @@
 import { classifyIntent, shouldCaptureLead } from './classify'
+import { isSchedulingTurn, schedulingGuideReply } from './classify-core'
 import {
   fallbackReply,
   guidePolicy,
@@ -167,6 +168,14 @@ export async function handleGuideRequest(
     return json(200, {
       reply: securityReply(locale),
       mode: 'degraded',
+      calendlyUrl: guidePolicy.calendlyUrl,
+    })
+  }
+
+  if (isSchedulingTurn(messages)) {
+    return json(200, {
+      reply: schedulingGuideReply(locale, guidePolicy.calendlyUrl),
+      mode: 'llm',
       calendlyUrl: guidePolicy.calendlyUrl,
     })
   }

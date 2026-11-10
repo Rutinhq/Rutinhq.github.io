@@ -30,6 +30,7 @@ import { languageFromPathname } from '@/lib/i18n/paths'
 import { cn } from '@/lib/utils'
 import { getFocusable, trapTab } from './focusTrap'
 import {
+  formatGuideTurnstileTimeoutReason,
   readGuideTurnstileSiteKey,
   sendGuideWithTurnstile,
   useGuideTurnstile,
@@ -167,7 +168,7 @@ export function GuideWidget() {
       })
       setAwaitingChallenge(false)
       if (!gate.ok) {
-        reason = 'token_wait_timeout'
+        reason = formatGuideTurnstileTimeoutReason(gate.waitedMs, showPreviewReason)
         paused = true
       }
     } catch (err) {

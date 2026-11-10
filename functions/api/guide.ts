@@ -15,8 +15,10 @@ import {
   ensureCalendlyCta,
   hasBuyingIntentWithPolicy,
   hintMatches,
+  isSchedulingTurn,
   recommendSkuWithPolicy,
   resolveFallbackKey,
+  schedulingGuideReply,
 } from '../../src/guide/classify-core'
 import {
   enforceGuideRateLimit,
@@ -248,6 +250,14 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
     return json(200, {
       reply: pick('security'),
       mode: 'degraded',
+      calendlyUrl: policy.calendlyUrl,
+    })
+  }
+
+  if (isSchedulingTurn(messages)) {
+    return json(200, {
+      reply: schedulingGuideReply(locale, policy.calendlyUrl),
+      mode: 'llm',
       calendlyUrl: policy.calendlyUrl,
     })
   }
