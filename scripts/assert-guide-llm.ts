@@ -3,8 +3,10 @@ import { fileURLToPath } from 'node:url'
 import {
   classifyIntentWithPolicy,
   ensureCalendlyCta,
+  isRateCardTurn,
   isSchedulingTurn,
   isSkuComparisonTurn,
+  isStoreAuditFieldTurn,
   isStoreShopifyFitTurn,
   namedGuideSkus,
   recommendSkuWithPolicy,
@@ -1011,6 +1013,48 @@ assert(
     'pricing',
   'explicit pricing still refuses',
 )
+{
+  const auditQ = '¿la auditoría cubre variantes, precio, peso y envío?'
+  assert(
+    classifyIntentWithPolicy(userTurn(auditQ), guidePolicy) === 'store-os',
+    'audit fields including precio classify as STORE OS, not a rate card',
+  )
+  assert(
+    isStoreAuditFieldTurn(userTurn(auditQ), guidePolicy),
+    'audit field turn detects precio next to variantes/peso/envío',
+  )
+  assert(
+    !isRateCardTurn(userTurn(auditQ), guidePolicy),
+    'audit field turn is not a rate-card verb',
+  )
+  const afterAudit = [
+    { role: 'user' as const, content: '¿Qué es STORE OS?' },
+    {
+      role: 'assistant' as const,
+      content: 'STORE OS audita variantes, precio, peso y envío. Si encaja, agende 30 min: https://calendly.com/rutinhq/30min.',
+    },
+    { role: 'user' as const, content: '¿cubre precio?' },
+  ]
+  assert(
+    classifyIntentWithPolicy(afterAudit, guidePolicy) === 'store-os',
+    'after STORE audit, ¿cubre precio? stays STORE OS',
+  )
+  assert(
+    classifyIntentWithPolicy(
+      [
+        { role: 'user' as const, content: '¿Qué es STORE OS?' },
+        { role: 'assistant' as const, content: 'STORE OS audita el panel.' },
+        { role: 'user' as const, content: 'cuánto cuesta STORE OS' },
+      ],
+      guidePolicy,
+    ) === 'pricing',
+    'cuánto cuesta after STORE is still a rate-card refusal',
+  )
+  assert(
+    /precio/.test(GUIDE_ES_STORE_FACTS),
+    'STORE ES facts keep precio as a catalog audit field',
+  )
+}
 const degradedSku = ensureCalendlyCta(
   'STORE OS is Shopify Admin audit + config. GTM OS and NEXUS OS stay out of Admin.',
   'en',

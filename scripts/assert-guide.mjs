@@ -714,6 +714,34 @@ function classifyConversation(messages) {
     }
     return 'fit'
   }
+  const weakPrice = new Set(['price', 'precio'])
+  const strongPricing = (policySrc.pricingHints || []).filter((h) => !weakPrice.has(h.toLowerCase()))
+  const auditFields = [
+    'variante',
+    'variant',
+    'peso',
+    'weight',
+    'envío',
+    'envio',
+    'shipping',
+    'auditoría',
+    'auditoria',
+    'audit',
+    'scorecard',
+    'ficha de diagnóstico',
+    'ficha de diagnostico',
+  ]
+  const storeThread =
+    scoreHints(users, policySrc.intentHints['store-os']) >= 1 ||
+    /\bstore\s*-?\s*os\b/i.test(users) ||
+    /\bshopify\b/i.test(users)
+  const rateCard = scoreHints(last, strongPricing) >= 1
+  const priceField = scoreHints(last, [...weakPrice]) >= 1
+  const otherAudit = scoreHints(last, auditFields) >= 1
+  if (rateCard) return 'pricing'
+  if ((priceField && otherAudit) || ((priceField || otherAudit) && storeThread) || (otherAudit && !priceField)) {
+    return 'store-os'
+  }
   if (scoreHints(last, policySrc.pricingHints)) return 'pricing'
   const lastRanked = rankOn(last, ['gtm-os', 'store-os', 'nexus-os', 'catalog'])
   if (lastRanked[0] && lastRanked[0].n > 0) {
@@ -825,16 +853,52 @@ if (!(policySrc.intentHints['gtm-os'] || []).includes('leads')) {
 }
 
 const storeCopy = `${policySrc.fallbackReplies['store-os'].en}\n${policySrc.fallbackReplies['store-os'].es}`
-if (/\bprice\b|\bprecio\b/i.test(storeCopy)) {
-  console.error('STORE OS fallback must not contain price/precio (poisons later pricingHints)')
+if (!/\bprice\b/i.test(policySrc.fallbackReplies['store-os'].en)) {
+  console.error('STORE OS EN fallback must keep catalog audit field price (variants, price, weight, shipping)')
   process.exit(1)
 }
+if (!/\bprecio\b/i.test(policySrc.fallbackReplies['store-os'].es)) {
+  console.error('STORE OS ES fallback must keep catalog audit field precio (variantes, precio, peso, envío)')
+  process.exit(1)
+}
+if (!/No incluye anuncios ni creatividades/.test(policySrc.fallbackReplies['store-os'].es)) {
+  console.error('STORE OS ES fallback must keep ads/creatives as an exclusion')
+  process.exit(1)
+}
+void storeCopy
 
 const storeThread = (follow) => [
   { role: 'user', content: 'que es STORE OS?' },
   { role: 'assistant', content: policySrc.fallbackReplies['store-os'].es },
   { role: 'user', content: follow },
 ]
+
+const storeAuditFollows = [
+  '¿cubre precio?',
+  'cubre precio y peso',
+  'auditoría de variantes, precio, peso y envío',
+  'y el precio del producto en Shopify',
+]
+for (const follow of storeAuditFollows) {
+  const intent = classifyConversation(storeThread(follow))
+  if (intent === 'pricing') {
+    console.error(`STORE audit follow-up "${follow}" must not be a rate-card refusal (got pricing)`)
+    process.exit(1)
+  }
+  if (intent !== 'store-os') {
+    console.error(`STORE audit follow-up "${follow}" expected store-os, got ${intent}`)
+    process.exit(1)
+  }
+}
+if (classifyConversation(storeThread('cuánto cuesta STORE OS')) !== 'pricing') {
+  console.error('cuánto cuesta after STORE must still be a pricing refusal')
+  process.exit(1)
+}
+if (classifyProbe('how much does GTM OS cost?') !== 'pricing') {
+  console.error('explicit SKU rate-card probe must stay pricing')
+  process.exit(1)
+}
+
 if (classifyProbe('leads') !== 'gtm-os') {
   console.error('single-turn leads must classify as gtm-os (GTM SKU + Calendly), not fit')
   process.exit(1)

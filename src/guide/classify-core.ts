@@ -103,6 +103,59 @@ export function isBookingTurn(messages: GuideChatMessage[], policy: ClassifyPoli
   return scoreHints(lastUserText(messages), bookingHintsOf(policy)) >= 1
 }
 
+/** Catalog STORE audit fields (source how-step 2: variants, price, weight, shipping). */
+export const STORE_AUDIT_FIELD_HINTS = [
+  'variante',
+  'variant',
+  'peso',
+  'weight',
+  'envío',
+  'envio',
+  'shipping',
+  'auditoría',
+  'auditoria',
+  'audit',
+  'scorecard',
+  'ficha de diagnóstico',
+  'ficha de diagnostico',
+] as const
+
+/** Weak: product-price field in the Shopify audit, not a SKU rate card. */
+const WEAK_PRICE_FIELD_HINTS = ['price', 'precio'] as const
+
+function strongPricingHints(policy: ClassifyPolicy): string[] {
+  const weak: Set<string> = new Set(WEAK_PRICE_FIELD_HINTS)
+  return (policy.pricingHints || []).filter((hint) => !weak.has(hint.toLowerCase()))
+}
+
+export function isRateCardTurn(messages: GuideChatMessage[], policy: ClassifyPolicy): boolean {
+  return scoreHints(lastUserText(messages), strongPricingHints(policy)) >= 1
+}
+
+function haystackIsStoreThread(messages: GuideChatMessage[], policy: ClassifyPolicy): boolean {
+  const users = userHaystack(messages)
+  return (
+    scoreHints(users, policy.intentHints['store-os']) >= 1 ||
+    /\bstore\s*-?\s*os\b/i.test(users) ||
+    /\bshopify\b/i.test(users)
+  )
+}
+
+/** Last turn is the catalog audit field (precio/peso/variantes), not "cuánto cuesta". */
+export function isStoreAuditFieldTurn(
+  messages: GuideChatMessage[],
+  policy: ClassifyPolicy,
+): boolean {
+  if (isRateCardTurn(messages, policy)) return false
+  const last = lastUserText(messages)
+  const priceField = scoreHints(last, [...WEAK_PRICE_FIELD_HINTS]) >= 1
+  const otherField = scoreHints(last, [...STORE_AUDIT_FIELD_HINTS]) >= 1
+  if (priceField && otherField) return true
+  if (!priceField && !otherField) return false
+  if (haystackIsStoreThread(messages, policy)) return true
+  return otherField && !priceField
+}
+
 /** Narrower than booking: only schedule-a-call phrasing, not "fit" / "qué más". */
 export const DEFAULT_SCHEDULING_HINTS = [
   'agendar',
@@ -282,6 +335,8 @@ export function classifyIntentWithPolicy(
     const sku = uniqueSku(rankKeys(last, policy, ['gtm-os', 'store-os', 'nexus-os']))
     return sku === 'unclear' ? 'fit' : sku
   }
+  if (isRateCardTurn(messages, policy)) return 'pricing'
+  if (isStoreAuditFieldTurn(messages, policy)) return 'store-os'
   if (scoreHints(last, policy.pricingHints) >= 1) return 'pricing'
   const lastRanked = rankKeys(last, policy, ['gtm-os', 'store-os', 'nexus-os', 'catalog'] as const)
   if (lastRanked[0] && lastRanked[0].n > 0) {

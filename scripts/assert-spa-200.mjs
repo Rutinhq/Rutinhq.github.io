@@ -690,10 +690,21 @@ if (fs.existsSync('dist/_headers')) {
   const scriptSrc = scriptSrcMatch[1].trim()
   const connectSrc = connectSrcMatch[1].trim()
   const expectedScript =
-    "'self' https://challenges.cloudflare.com https://static.cloudflareinsights.com/beacon.min.js"
+    "'self' https://challenges.cloudflare.com https://static.cloudflareinsights.com/beacon.min.js https://static.cloudflareinsights.com/beacon.min.js/"
   if (scriptSrc !== expectedScript) {
     console.error(
-      `dist/_headers script-src must be exactly ${expectedScript} (Turnstile + official Web Analytics beacon.min.js; no host wildcard). Got: ${scriptSrc}`,
+      `dist/_headers script-src must be exactly ${expectedScript} (Turnstile + unversioned beacon.min.js + CSP3 /beacon.min.js/ prefix for /v…; no host wildcard). Got: ${scriptSrc}`,
+    )
+    process.exit(1)
+  }
+  if (
+    !scriptSrc.includes('https://static.cloudflareinsights.com/beacon.min.js/') ||
+    !/(?:^|\s)https:\/\/static\.cloudflareinsights\.com\/beacon\.min\.js(?:\s|$)/.test(
+      scriptSrc,
+    )
+  ) {
+    console.error(
+      'dist/_headers script-src must list both exact /beacon.min.js and directory prefix /beacon.min.js/.',
     )
     process.exit(1)
   }
