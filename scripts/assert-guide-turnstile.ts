@@ -7,8 +7,10 @@ import {
   GUIDE_TURNSTILE_ALWAYS_INTERACTIVE_SITE_KEY,
   GUIDE_TURNSTILE_TOKEN_WAIT_MS,
   resolveGuideTurnstileSiteKey,
+  sendGuideWithTurnstile,
   shouldPostGuideAfterTurnstile,
   type GuideTurnstileApi,
+  type GuideTurnstileClock,
   type GuideTurnstileRenderOptions,
 } from '../src/components/guide/useGuideTurnstile.ts'
 
@@ -83,14 +85,52 @@ const siteKey = '0x-test-site-key'
 
 function controllerOf(
   api: GuideTurnstileApi,
-  extra?: { loadScript?: () => Promise<void>; tokenWaitMs?: number },
+  extra?: {
+    loadScript?: () => Promise<void>
+    tokenWaitMs?: number
+    clock?: GuideTurnstileClock
+  },
 ) {
   return createGuideTurnstileController({
     getSiteKey: () => siteKey,
     loadScript: extra?.loadScript ?? (async () => {}),
     getApi: () => api,
     tokenWaitMs: extra?.tokenWaitMs ?? 500,
+    clock: extra?.clock,
   })
+}
+
+function createFakeClock(): GuideTurnstileClock & { advance: (ms: number) => Promise<void> } {
+  let now = 0
+  const waiters: { at: number; resolve: () => void }[] = []
+  return {
+    now: () => now,
+    sleep(ms: number) {
+      return new Promise<void>((resolve) => {
+        waiters.push({ at: now + ms, resolve })
+      })
+    },
+    async advance(ms: number) {
+      const target = now + ms
+      while (true) {
+        await Promise.resolve()
+        await Promise.resolve()
+        const due = waiters.filter((w) => w.at <= now)
+        if (due.length) {
+          waiters.splice(0, waiters.length, ...waiters.filter((w) => w.at > now))
+          due.sort((a, b) => a.at - b.at).forEach((w) => w.resolve())
+          continue
+        }
+        if (now >= target) break
+        const nextAt = waiters.reduce((min, w) => Math.min(min, w.at), Number.POSITIVE_INFINITY)
+        if (!Number.isFinite(nextAt) || nextAt > target) {
+          now = target
+          break
+        }
+        now = nextAt
+      }
+    },
+  }
 }
 
 async function flush() {
@@ -243,6 +283,35 @@ async function main() {
     shouldPostGuideAfterTurnstile({ siteKey: undefined, token: undefined }).post === true,
     'unset site key still posts (local fail-open)',
   )
+
+  {
+    const clock = createFakeClock()
+    const { api, widgets } = mockTurnstile(false)
+    const controller = controllerOf(api, { tokenWaitMs: GUIDE_TURNSTILE_TOKEN_WAIT_MS, clock })
+    controller.attach(host())
+    await flush()
+    const posted: string[] = []
+    const send = sendGuideWithTurnstile({
+      consumeToken: () => controller.consumeToken(),
+      siteKey,
+      post: async (token) => {
+        posted.push(token || '')
+      },
+    })
+    await clock.advance(5_000)
+    assert(posted.length === 0, 'must not POST before the checkbox callback')
+    const widget = [...widgets.values()][0]
+    widget.options.callback?.('tok-at-5s')
+    await clock.advance(200)
+    const result = await send
+    assert(result.ok === true, 't=5s callback must not fall to token_wait_timeout')
+    assert(
+      result.ok && result.token === 'tok-at-5s',
+      `request must use the t=5s token, got ${result.ok ? result.token : result.reason}`,
+    )
+    assert(posted.length === 1 && posted[0] === 'tok-at-5s', 'single send with the t=5s token')
+    controller.dispose()
+  }
 
   console.log('guide Turnstile hook checks passed')
 }

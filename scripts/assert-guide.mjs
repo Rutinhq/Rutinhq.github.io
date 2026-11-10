@@ -415,8 +415,24 @@ if (!/client_timeout/.test(widget) || !/token_wait_timeout/.test(widget)) {
   console.error('Guide widget must label local fallbacks (client_timeout / token_wait_timeout)')
   process.exit(1)
 }
-if (!/shouldPostGuideAfterTurnstile/.test(widget) || !/awaitingChallenge/.test(widget) || !/sendLock/.test(widget)) {
+if (!/sendGuideWithTurnstile/.test(widget) || !/awaitingChallenge/.test(widget) || !/sendLock/.test(widget)) {
   console.error('Guide widget must wait for Turnstile, keep the question, and not POST twice')
+  process.exit(1)
+}
+if (!/id="guide-human-check"/.test(widget)) {
+  console.error('Guide widget must pin the human-check container above the input')
+  process.exit(1)
+}
+if (widget.indexOf('id="guide-human-check"') > widget.indexOf('id="guide-input"')) {
+  console.error('human-check must sit above the input, not below it')
+  process.exit(1)
+}
+if (widget.indexOf('id="guide-human-check"') < widget.indexOf('overflow-y-auto')) {
+  console.error('human-check must stay out of the scrolling message list')
+  process.exit(1)
+}
+if (!/list\.scrollTop = list\.scrollHeight/.test(widget) || !/tickNoteRef/.test(widget)) {
+  console.error('Guide widget must scroll the message list internally and bring the tick note into view')
   process.exit(1)
 }
 if (!/guide.turnstileTick/.test(widget)) {

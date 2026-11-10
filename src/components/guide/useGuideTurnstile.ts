@@ -229,6 +229,21 @@ export function shouldPostGuideAfterTurnstile(opts: {
   return { post: false, timedOut: true }
 }
 
+/** Wait for a token, then POST once. A late checkbox (e.g. t=5s) still sends that token. */
+export async function sendGuideWithTurnstile(opts: {
+  consumeToken: () => Promise<string | undefined>
+  siteKey: string | undefined
+  post: (token: string | undefined) => Promise<void>
+}): Promise<
+  { ok: true; token: string | undefined } | { ok: false; reason: 'token_wait_timeout' }
+> {
+  const token = await opts.consumeToken()
+  const plan = shouldPostGuideAfterTurnstile({ siteKey: opts.siteKey, token })
+  if (plan.timedOut) return { ok: false, reason: 'token_wait_timeout' }
+  await opts.post(token)
+  return { ok: true, token }
+}
+
 export function useGuideTurnstile(siteKey: string | undefined) {
   const controller = useMemo(
     () =>

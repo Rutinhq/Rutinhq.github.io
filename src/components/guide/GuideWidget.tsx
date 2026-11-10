@@ -31,7 +31,7 @@ import { cn } from '@/lib/utils'
 import { getFocusable, trapTab } from './focusTrap'
 import {
   readGuideTurnstileSiteKey,
-  shouldPostGuideAfterTurnstile,
+  sendGuideWithTurnstile,
   useGuideTurnstile,
 } from './useGuideTurnstile'
 
@@ -60,6 +60,7 @@ export function GuideWidget() {
   const dialogRef = useRef<HTMLDivElement>(null)
   const launcherRef = useRef<HTMLButtonElement>(null)
   const listRef = useRef<HTMLDivElement>(null)
+  const tickNoteRef = useRef<HTMLParagraphElement>(null)
   const [open, setOpen] = useState(false)
   const [input, setInput] = useState('')
   const [pending, setPending] = useState(false)
@@ -97,9 +98,15 @@ export function GuideWidget() {
   }, [open])
 
   useEffect(() => {
-    const last = listRef.current?.lastElementChild as HTMLElement | undefined
-    last?.scrollIntoView({ block: 'nearest' })
+    const list = listRef.current
+    if (!list) return
+    list.scrollTop = list.scrollHeight
   }, [messages, open, pending])
+
+  useEffect(() => {
+    if (!awaitingChallenge) return
+    tickNoteRef.current?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+  }, [awaitingChallenge])
 
   const turnsUsed = messages.filter((m) => m.role === 'user').length
   const atCap = turnsUsed >= GUIDE_LIMITS.maxMessagesPerSession
@@ -129,39 +136,39 @@ export function GuideWidget() {
 
     try {
       setAwaitingChallenge(Boolean(turnstileSiteKey))
-      const turnstileToken = await consumeToken()
-      setAwaitingChallenge(false)
-      const plan = shouldPostGuideAfterTurnstile({
+      const gate = await sendGuideWithTurnstile({
+        consumeToken,
         siteKey: turnstileSiteKey,
-        token: turnstileToken,
+        post: async (turnstileToken) => {
+          const res = await fetch('/api/guide', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            signal: AbortSignal.timeout(GUIDE_CLIENT_FETCH_MS),
+            body: JSON.stringify({
+              messages: conversation,
+              locale,
+              page: pathname,
+              ...(turnstileToken ? { turnstileToken } : {}),
+            }),
+          })
+          if (res.ok) {
+            const data = (await res.json()) as GuideApiResponse
+            if (data.reply) reply = data.reply
+            brief = data.leadBrief
+            paused = data.mode === 'degraded' && !isSecurityProbe(conversation)
+            if (paused) {
+              reason = data.degradedReason || reason
+            }
+          } else {
+            paused = true
+            reason = `http_${res.status}`
+          }
+        },
       })
-      if (plan.timedOut) {
+      setAwaitingChallenge(false)
+      if (!gate.ok) {
         reason = 'token_wait_timeout'
         paused = true
-      } else {
-        const res = await fetch('/api/guide', {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          signal: AbortSignal.timeout(GUIDE_CLIENT_FETCH_MS),
-          body: JSON.stringify({
-            messages: conversation,
-            locale,
-            page: pathname,
-            ...(turnstileToken ? { turnstileToken } : {}),
-          }),
-        })
-        if (res.ok) {
-          const data = (await res.json()) as GuideApiResponse
-          if (data.reply) reply = data.reply
-          brief = data.leadBrief
-          paused = data.mode === 'degraded' && !isSecurityProbe(conversation)
-          if (paused) {
-            reason = data.degradedReason || reason
-          }
-        } else {
-          paused = true
-          reason = `http_${res.status}`
-        }
       }
     } catch (err) {
       // Timeout / network — catalog fallback + Calendly, not a hanging spinner.
@@ -241,7 +248,7 @@ export function GuideWidget() {
           aria-modal="true"
           aria-labelledby={titleId}
           tabIndex={-1}
-          className="pointer-events-auto flex w-full max-w-[400px] flex-col rounded-none border border-border bg-background shadow-[0_0_0_1px_#111] outline-none max-h-[min(40rem,calc(100dvh-9.5rem))] md:max-h-[min(40rem,calc(100dvh-12rem))]"
+          className="pointer-events-auto flex min-h-0 w-full max-w-[400px] flex-col rounded-none border border-border bg-background shadow-[0_0_0_1px_#111] outline-none max-h-[min(40rem,calc(100dvh-9.5rem))] md:max-h-[min(40rem,calc(100dvh-12rem))]"
         >
           <header className="flex items-start justify-between gap-3 border-b border-border px-4 py-3">
             <div>
@@ -265,7 +272,7 @@ export function GuideWidget() {
 
           <div
             ref={listRef}
-            className="flex-1 space-y-3 overflow-y-auto px-4 py-3"
+            className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-3"
             aria-live="polite"
           >
             <p className="max-w-[92%] whitespace-pre-wrap text-[14px] leading-6 text-foreground/90">
@@ -302,7 +309,7 @@ export function GuideWidget() {
             ) : null}
           </div>
 
-          <div className="border-t border-border px-4 py-3">
+          <div className="shrink-0 border-t border-border px-4 py-3">
             <p className="mb-3 text-[11px] text-muted-foreground">{copy('guide.disclaimer')}</p>
             <div className="flex flex-wrap gap-2">
               <a
@@ -340,16 +347,21 @@ export function GuideWidget() {
             ) : null}
 
             {turnstileSiteKey ? (
-              <div className="mt-3 space-y-2">
+              <div id="guide-human-check" className="mt-3 shrink-0 space-y-2">
                 <div
                   ref={turnstileRef}
                   aria-label={copy('guide.turnstileLabel')}
                 />
-                {awaitingChallenge ? (
-                  <p className="text-[12px] text-muted-foreground" role="status">
-                    {copy('guide.turnstileTick')}
-                  </p>
-                ) : null}
+                <p
+                  ref={tickNoteRef}
+                  className={cn(
+                    'min-h-5 text-[12px] text-muted-foreground',
+                    awaitingChallenge ? '' : 'invisible',
+                  )}
+                  role={awaitingChallenge ? 'status' : undefined}
+                >
+                  {copy('guide.turnstileTick')}
+                </p>
               </div>
             ) : null}
 
