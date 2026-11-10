@@ -3,9 +3,11 @@
  * → controller.attach), not hook mount, and reset runs after consume.
  */
 import {
+  armGuideTurnstileHost,
   createGuideTurnstileController,
   formatGuideTurnstileTimeoutReason,
   GUIDE_TURNSTILE_ALWAYS_INTERACTIVE_SITE_KEY,
+  GUIDE_TURNSTILE_HOST_MIN_HEIGHT_PX,
   GUIDE_TURNSTILE_TOKEN_WAIT_MS,
   resolveGuideTurnstileSiteKey,
   sendGuideWithTurnstile,
@@ -95,8 +97,31 @@ function mockTurnstile(autoIssue = true, extra?: { autoIssueLimit?: number }) {
   return { api, widgets, renderCalls, executeCalls }
 }
 
-function host(): HTMLDivElement {
-  return { id: 'turnstile-host' } as HTMLDivElement
+function host(init?: { hidden?: boolean; display?: string; visibility?: string }): HTMLDivElement {
+  const classes = new Set<string>()
+  const style: Record<string, string> = {
+    display: init?.display ?? '',
+    visibility: init?.visibility ?? '',
+    minHeight: '',
+    minWidth: '',
+    width: '',
+    overflow: '',
+  }
+  const el = {
+    id: 'turnstile-host',
+    hidden: Boolean(init?.hidden),
+    style,
+    classList: {
+      add: (name: string) => {
+        classes.add(name)
+      },
+      contains: (name: string) => classes.has(name),
+    },
+    removeAttribute(name: string) {
+      if (name === 'hidden') el.hidden = false
+    },
+  }
+  return el as unknown as HTMLDivElement
 }
 
 const siteKey = '0x-test-site-key'
@@ -171,9 +196,9 @@ async function main() {
     assert(renderCalls[0] === node, 'render target is the mounted host')
     const widget = [...widgets.values()][0]
     assert(widget.options.sitekey === siteKey, 'explicit render keeps sitekey')
-    assert(widget.options.appearance === 'interaction-only', 'appearance interaction-only')
+    assert(widget.options.appearance === 'always', 'appearance always so the iframe has layout')
     assert(widget.options.execution === 'execute', 'execution execute — challenge starts at send')
-    assert(widget.options.size === 'flexible', 'size flexible')
+    assert(widget.options.size === 'normal', 'size normal (300×65)')
     assert(widget.options.action === 'guide', 'action guide')
     assert(typeof widget.options.callback === 'function', 'success callback')
     assert(typeof widget.options['expired-callback'] === 'function', 'expired callback')
@@ -395,6 +420,59 @@ async function main() {
       `Q1–Q3 must be three single sends, got ${posted.join(',')}`,
     )
     controller.dispose()
+  }
+
+  {
+    const { api, widgets } = mockTurnstile(false)
+    const controller = controllerOf(api, { tokenWaitMs: 2_000 })
+    const node = host({ hidden: true, display: 'none', visibility: 'hidden' })
+    node.style.minHeight = '0px'
+    controller.attach(node)
+    await flush()
+    const pending = controller.consumeToken()
+    await flush()
+    assert(node.hidden === false, 'interactive wait unhides a hidden host')
+    assert(node.style.display === 'block', 'armed host is display:block')
+    assert(node.style.visibility === 'visible', 'armed host is visibility:visible')
+    assert(
+      parseInt(node.style.minHeight, 10) >= GUIDE_TURNSTILE_HOST_MIN_HEIGHT_PX,
+      'armed host has checkbox min-height',
+    )
+    assert(node.classList.contains('guide-turnstile-armed'), 'armed class is set')
+    const widget = [...widgets.values()][0]
+    widget.options.callback?.('tok-unhidden')
+    assert((await pending) === 'tok-unhidden', 'token still resolves after unhiding')
+    controller.dispose()
+  }
+
+  {
+    const { api, widgets } = mockTurnstile(false)
+    const controller = controllerOf(api, { tokenWaitMs: 5_000 })
+    controller.attach(host())
+    await flush()
+    const pending = controller.consumeToken()
+    await flush()
+    const widget = [...widgets.values()][0]
+    const execBefore = widget.executeCount
+    const resetBefore = widget.resetCount
+    widget.options['error-callback']?.()
+    await flush()
+    assert(widget.resetCount === resetBefore + 1, 'error-callback resets once')
+    assert(widget.executeCount === execBefore + 1, 'error-callback execute retries once')
+    widget.options['error-callback']?.()
+    await flush()
+    assert(widget.resetCount === resetBefore + 1, 'second error does not retry again')
+    assert(widget.executeCount === execBefore + 1, 'second error does not execute again')
+    widget.options.callback?.('tok-after-retry')
+    assert((await pending) === 'tok-after-retry', 'retry token resolves the wait')
+    controller.dispose()
+  }
+
+  {
+    const node = host({ hidden: true, display: 'none' })
+    armGuideTurnstileHost(node)
+    assert(node.hidden === false && node.style.visibility === 'visible', 'armGuideTurnstileHost unhides')
+    assert(parseInt(node.style.minHeight, 10) >= GUIDE_TURNSTILE_HOST_MIN_HEIGHT_PX, 'arm sets minHeight')
   }
 
   console.log('guide Turnstile hook checks passed')

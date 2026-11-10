@@ -11,6 +11,24 @@ export const GUIDE_TURNSTILE_ALWAYS_INTERACTIVE_SITE_KEY =
 /** Wait for the user to tick the box (callback) before posting. */
 export const GUIDE_TURNSTILE_TOKEN_WAIT_MS = 20_000
 
+/** Managed checkbox is 300×65. A 0-height host + interaction-only lays out a 1×1 iframe. */
+export const GUIDE_TURNSTILE_HOST_MIN_HEIGHT_PX = 65
+export const GUIDE_TURNSTILE_HOST_MIN_WIDTH_PX = 300
+
+/** Unhide and size the explicit-render host so an interactive challenge can paint. */
+export function armGuideTurnstileHost(node: HTMLElement | null): void {
+  if (!node) return
+  node.hidden = false
+  node.removeAttribute('hidden')
+  node.style.display = 'block'
+  node.style.visibility = 'visible'
+  node.style.overflow = 'visible'
+  node.style.minHeight = `${GUIDE_TURNSTILE_HOST_MIN_HEIGHT_PX}px`
+  node.style.minWidth = `${GUIDE_TURNSTILE_HOST_MIN_WIDTH_PX}px`
+  node.style.width = '100%'
+  node.classList.add('guide-turnstile-armed')
+}
+
 let scriptPromise: Promise<void> | null = null
 
 function loadTurnstileScript(): Promise<void> {
@@ -110,7 +128,9 @@ export function createGuideTurnstileController(
   let generation = 0
   let disposed = false
   let widgetId: string | null = null
+  let hostNode: HTMLElement | null = null
   let token: string | null = null
+  let challengeRetryUsed = false
   let renderPromise: Promise<void> = Promise.resolve()
   const waiters = new Set<(value: string) => void>()
 
@@ -130,9 +150,20 @@ export function createGuideTurnstileController(
   }
 
   const executeWidget = () => {
+    armGuideTurnstileHost(hostNode)
     const api = getApi()
     if (widgetId == null || !api || typeof api.execute !== 'function') return
     api.execute(widgetId)
+  }
+
+  const retryChallengeOnce = () => {
+    if (!waiters.size || challengeRetryUsed || disposed) return
+    challengeRetryUsed = true
+    armGuideTurnstileHost(hostNode)
+    const api = getApi()
+    if (widgetId == null || !api) return
+    api.reset(widgetId)
+    executeWidget()
   }
 
   const deliver = (value: string) => {
@@ -155,11 +186,13 @@ export function createGuideTurnstileController(
   const attach = (node: HTMLElement | null) => {
     generation += 1
     const gen = generation
+    hostNode = node
     removeWidget()
     if (!node || !opts.getSiteKey()) {
       renderPromise = Promise.resolve()
       return
     }
+    armGuideTurnstileHost(node)
 
     let settle: () => void = () => {}
     renderPromise = new Promise<void>((resolve) => {
@@ -175,8 +208,8 @@ export function createGuideTurnstileController(
         widgetId = api.render(node, {
           sitekey: siteKey,
           theme: 'dark',
-          size: 'flexible',
-          appearance: 'interaction-only',
+          size: 'normal',
+          appearance: 'always',
           execution: 'execute',
           action: 'guide',
           callback: (value) => {
@@ -184,13 +217,15 @@ export function createGuideTurnstileController(
           },
           'expired-callback': () => {
             token = null
+            retryChallengeOnce()
           },
           'error-callback': () => {
             token = null
+            retryChallengeOnce()
           },
           'timeout-callback': () => {
             token = null
-            if (waiters.size) executeWidget()
+            retryChallengeOnce()
           },
         })
         // Re-attach during an in-flight wait must start THIS send's challenge.
@@ -206,6 +241,8 @@ export function createGuideTurnstileController(
 
   const consumeToken = async (): Promise<string | undefined> => {
     if (!opts.getSiteKey()) return undefined
+    challengeRetryUsed = false
+    armGuideTurnstileHost(hostNode)
     const started = clock.now()
     const deadline = started + tokenWaitMs
 
@@ -261,6 +298,8 @@ export function createGuideTurnstileController(
     disposed = true
     generation += 1
     waiters.clear()
+    hostNode = null
+    challengeRetryUsed = false
     removeWidget()
     renderPromise = Promise.resolve()
   }

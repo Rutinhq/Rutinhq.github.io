@@ -72,6 +72,7 @@ const es = JSON.parse(fs.readFileSync(path.join(root, 'src/locales/es.json'), 'u
 
 const guideKeys = [
   'launcher',
+  'uiName',
   'subtitle',
   'placeholder',
   'send',
@@ -95,7 +96,7 @@ for (const key of guideKeys) {
   }
   if (en.guide[key] === es.guide[key] && key !== 'leadCta') {
     // brand-stable strings may match; greeting/launcher/chrome must differ
-    if (['launcher', 'greeting', 'subtitle', 'placeholder', 'ctaBook', 'emailCta', 'disclaimer', 'thinking', 'degradedNote', 'turnstileTick'].includes(key)) {
+    if (['launcher', 'uiName', 'greeting', 'subtitle', 'placeholder', 'ctaBook', 'emailCta', 'disclaimer', 'thinking', 'degradedNote', 'turnstileTick'].includes(key)) {
       console.error(`guide.${key} is identical in EN and ES — locale leak`)
       process.exit(1)
     }
@@ -104,6 +105,22 @@ for (const key of guideKeys) {
 
 if (es.guide.launcher === 'Ask RutinHQ Guide' || /ask rutin/i.test(es.guide.launcher)) {
   console.error('ES launcher must not be English "Ask RutinHQ Guide"')
+  process.exit(1)
+}
+if (es.guide.launcher !== 'Guía RutinHQ' || es.guide.uiName !== 'Guía RutinHQ') {
+  console.error('ES launcher and header must be Guía RutinHQ')
+  process.exit(1)
+}
+if (es.guide.placeholder !== 'Pregunte por un sistema…') {
+  console.error('ES placeholder must be Pregunte por un sistema…')
+  process.exit(1)
+}
+if (!/llamada para ver si encaja/.test(es.guide.degradedNote) || /llamada de fit/i.test(es.guide.degradedNote)) {
+  console.error('ES paused note must say llamada para ver si encaja')
+  process.exit(1)
+}
+if (es.guide.leadCopied !== 'Resumen copiado. Péguelo en el correo a strategy@') {
+  console.error('ES leadCopied must be Resumen copiado. Péguelo en el correo a strategy@')
   process.exit(1)
 }
 if (!/I'm RutinHQ Guide/i.test(en.guide.greeting) || !/Soy la guía de RutinHQ/i.test(es.guide.greeting)) {
@@ -201,16 +218,24 @@ if (!/No es para tiendas de comercio electrónico ni para quien solo quiere anun
   console.error('GTM OS ES fallback must use the natural not-for line')
   process.exit(1)
 }
-if (!/fundador, director general o responsable de operaciones/.test(policySrc.fallbackReplies['gtm-os'].es)) {
-  console.error('GTM OS ES fallback must name fundador / director general / operaciones')
+if (!/Es para fundadores, directores generales o responsables de operaciones/.test(policySrc.fallbackReplies['gtm-os'].es)) {
+  console.error('GTM OS ES fallback must say Es para fundadores, directores generales…')
+  process.exit(1)
+}
+if (
+  /SDR rentado/.test(policySrc.fallbackReplies['gtm-os'].es) ||
+  !/perfil de cliente ideal/.test(policySrc.fallbackReplies['gtm-os'].es) ||
+  !/vendedor externo/.test(policySrc.fallbackReplies['gtm-os'].es)
+) {
+  console.error('GTM OS ES fallback must gloss ICP and drop SDR rentado')
   process.exit(1)
 }
 if (!/se queda con su equipo/.test(policySrc.fallbackReplies['gtm-os'].es)) {
   console.error('GTM OS ES fallback must say se queda con su equipo')
   process.exit(1)
 }
-if (!/auditoría y configuración del panel de Shopify para que la tienda convierta antes de gastar en anuncios/.test(policySrc.fallbackReplies['store-os'].es)) {
-  console.error('STORE OS ES fallback must describe panel de Shopify in Spanish')
+if (!/STORE OS audita y configura el panel de Shopify para que la tienda convierta antes de gastar en anuncios/.test(policySrc.fallbackReplies['store-os'].es)) {
+  console.error('STORE OS ES fallback must be a full Spanish sentence')
   process.exit(1)
 }
 if (
@@ -482,6 +507,18 @@ if (!/id="guide-human-check"/.test(widget)) {
   console.error('Guide widget must pin the human-check container above the input')
   process.exit(1)
 }
+if (!/guide.uiName/.test(widget) || /GUIDE_UI_NAME/.test(widget)) {
+  console.error('Guide header must use locale guide.uiName, not the English GUIDE_UI_NAME constant')
+  process.exit(1)
+}
+if (!/leadBrief && !awaitingChallenge && !pending/.test(widget)) {
+  console.error('lead CTA must wait until no Turnstile challenge is pending')
+  process.exit(1)
+}
+if (!/min-h-\[65px\]/.test(widget) || !/min-w-\[300px\]/.test(widget)) {
+  console.error('Turnstile host must keep a 300×65 layout box')
+  process.exit(1)
+}
 if (widget.indexOf('id="guide-human-check"') > widget.indexOf('id="guide-input"')) {
   console.error('human-check must sit above the input, not below it')
   process.exit(1)
@@ -534,6 +571,14 @@ if (!/api\.reset\(widgetId\)/.test(turnstileHook)) {
 }
 if (!/execution: 'execute'/.test(turnstileHook) || !/api\.execute\(widgetId\)/.test(turnstileHook)) {
   console.error('Turnstile must execute the challenge at send, not at the previous reset')
+  process.exit(1)
+}
+if (!/appearance: 'always'/.test(turnstileHook) || !/size: 'normal'/.test(turnstileHook)) {
+  console.error('Turnstile must use appearance always + size normal so the checkbox has layout')
+  process.exit(1)
+}
+if (!/armGuideTurnstileHost/.test(turnstileHook) || !/retryChallengeOnce/.test(turnstileHook)) {
+  console.error('Turnstile must size the host and retry once on error/timeout/expired')
   process.exit(1)
 }
 if (!/token_wait_timeout@/.test(turnstileHook)) {

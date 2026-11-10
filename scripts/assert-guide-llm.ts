@@ -618,13 +618,25 @@ assert(!isGuidePreviewHost('rutinhq.com'), 'rutinhq.com is never preview')
   assert(esPrompt.includes(GUIDE_ES_CATALOG_FACTS), 'es prompt includes Spanish catalog facts')
   assert(/que se queda con su equipo/.test(GUIDE_ES_CATALOG_FACTS), 'es catalog GTM uses su equipo')
   assert(
+    /STORE OS audita y configura el panel de Shopify para que la tienda convierta antes de gastar en anuncios/.test(
+      GUIDE_ES_CATALOG_FACTS,
+    ),
+    'es catalog STORE OS is a full sentence',
+  )
+  assert(
+    /Es para fundadores, directores generales o responsables de operaciones/.test(GUIDE_ES_CATALOG_FACTS),
+    'es catalog GTM uses Es para fundadores…',
+  )
+  assert(
     /marcas y tiendas en línea con oferta y productos claros que buscan generar demanda en redes sociales de forma sistemática/.test(
       GUIDE_ES_CATALOG_FACTS,
     ),
     'es catalog NEXUS for-whom',
   )
   assert(
-    /fundador, director general o responsable de operaciones en empresas B2B/.test(esPrompt),
+    /Es para fundadores, directores generales o responsables de operaciones en empresas B2B/.test(
+      esPrompt,
+    ),
     'es GTM for-whom',
   )
   assert(/outbound → prospección en frío/.test(esPrompt), 'es outbound glossary')

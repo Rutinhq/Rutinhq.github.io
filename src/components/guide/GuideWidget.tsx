@@ -8,7 +8,6 @@ import {
   GUIDE_CALENDLY_URL,
   GUIDE_CLIENT_FETCH_MS,
   GUIDE_LIMITS,
-  GUIDE_UI_NAME,
 } from '@/guide/config'
 import { localGuideReply } from '@/guide/fallback'
 import { isGuidePreviewHost } from '@/guide/preview-host'
@@ -257,7 +256,7 @@ export function GuideWidget() {
                 id={titleId}
                 className="font-heading text-base font-extrabold tracking-[-0.03em]"
               >
-                {GUIDE_UI_NAME}
+                {copy('guide.uiName')}
               </p>
               <p className="mt-1 text-[12px] text-muted-foreground">{copy('guide.subtitle')}</p>
             </div>
@@ -331,15 +330,6 @@ export function GuideWidget() {
                   {copy('guide.emailCta')}
                 </a>
               </CloudflareEmailOff>
-              {leadBrief ? (
-                <button
-                  type="button"
-                  onClick={() => void sendLeadBrief()}
-                  className="inline-flex h-9 items-center border border-border px-3 text-[11px] font-bold uppercase tracking-widest text-foreground hover:bg-card"
-                >
-                  {copy('guide.leadCta')}
-                </button>
-              ) : null}
             </div>
             {leadStatus ? (
               <p className="mt-2 text-[12px] text-muted-foreground" role="status">
@@ -348,10 +338,17 @@ export function GuideWidget() {
             ) : null}
 
             {turnstileSiteKey ? (
-              <div id="guide-human-check" className="mt-3 shrink-0 space-y-2">
+              <div
+                id="guide-human-check"
+                className={cn(
+                  'mt-3 shrink-0 space-y-2 overflow-visible',
+                  awaitingChallenge && 'min-h-[85px]',
+                )}
+              >
                 <div
                   ref={turnstileRef}
                   aria-label={copy('guide.turnstileLabel')}
+                  className="block min-h-[65px] min-w-[300px] w-full overflow-visible [&_iframe]:min-h-[65px] [&_iframe]:min-w-[300px]"
                 />
                 <p
                   ref={tickNoteRef}
@@ -364,6 +361,16 @@ export function GuideWidget() {
                   {copy('guide.turnstileTick')}
                 </p>
               </div>
+            ) : null}
+
+            {leadBrief && !awaitingChallenge && !pending ? (
+              <button
+                type="button"
+                onClick={() => void sendLeadBrief()}
+                className="mt-3 inline-flex h-9 items-center border border-border px-3 text-[11px] font-bold uppercase tracking-widest text-foreground hover:bg-card"
+              >
+                {copy('guide.leadCta')}
+              </button>
             ) : null}
 
             {atCap ? (

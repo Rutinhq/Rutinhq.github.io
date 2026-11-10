@@ -324,6 +324,7 @@
   },
   "guide": {
     "launcher": "Ask RutinHQ Guide",
+    "uiName": "RutinHQ Guide",
     "subtitle": "Commercial questions on GTM OS, STORE OS, and NEXUS OS.",
     "placeholder": "Ask about a system…",
     "send": "Send",
