@@ -150,54 +150,62 @@ function kvStore(kv: GuideKvLike): GuideRateLimitStore {
   }
 }
 
+function parseRateLimitRecord(value: unknown): RateLimitRecord | null {
+  if (!value || typeof value !== 'object') return null
+  const rec = value as Partial<RateLimitRecord>
+  if (typeof rec.n !== 'number' || rec.n < 1) return null
+  if (typeof rec.resetAt !== 'number' || rec.resetAt <= 0) return null
+  return { n: rec.n, resetAt: rec.resetAt }
+}
+
 /**
- * Cache API keys must be GET requests on a same-zone URL that is allowed to
- * be cached. GET `/api/guide` is a Pages 404 with Cache-Control: no-store, so
- * putting the counter there is discarded. Key off the static JSON asset.
+ * Cache API keys must be GET requests. GET `/api/guide` is a Pages 404 with
+ * no-store, so putting there is discarded. The static `/guide-rate-limit.json`
+ * asset is cacheable; its on-disk body is a placeholder, not a counter.
  */
 function cacheApiStore(cache: Cache, requestUrl?: string): GuideRateLimitStore {
-  const asRequest = (key: string) => {
-    let origin = 'https://www.rutinhq.com'
+  const asRequests = (key: string): Request[] => {
+    const encoded = encodeURIComponent(key)
+    const urls = [`http://guide-rl/${encoded}`]
     try {
       if (requestUrl && /^https?:\/\//.test(requestUrl)) {
-        origin = new URL(requestUrl).origin
+        const origin = new URL(requestUrl).origin
+        urls.push(`${origin}/guide-rate-limit.json?k=${encoded}`)
       }
     } catch {
-      /* production origin */
+      /* named-cache key is enough */
     }
-    const url = new URL('/guide-rate-limit.json', `${origin}/`)
-    url.searchParams.set('k', key)
-    return new Request(url.toString(), { method: 'GET' })
+    return urls.map((url) => new Request(url, { method: 'GET' }))
   }
   return {
     async get(key) {
-      try {
-        const hit = await cache.match(asRequest(key), { ignoreMethod: true })
-        if (!hit || !hit.ok) return null
-        const parsed = (await hit.json()) as RateLimitRecord
-        if (typeof parsed.n === 'number' && typeof parsed.resetAt === 'number') {
-          return parsed
+      for (const req of asRequests(key)) {
+        try {
+          const hit = await cache.match(req)
+          if (!hit || !hit.ok) continue
+          const parsed = parseRateLimitRecord(await hit.json())
+          if (parsed) return parsed
+        } catch {
+          /* try the next key */
         }
-      } catch {
-        return null
       }
       return null
     },
     async set(key, value, ttlSec) {
-      try {
-        await cache.put(
-          asRequest(key),
-          new Response(JSON.stringify(value), {
-            status: 200,
-            headers: {
-              'content-type': 'application/json',
-              'cache-control': `public, max-age=${Math.max(60, ttlSec)}`,
-            },
-          }),
-        )
-      } catch {
-        /* Cache API may refuse the key; memory layer still counts. */
+      const body = JSON.stringify(value)
+      const headers = {
+        'content-type': 'application/json',
+        'cache-control': `public, max-age=${Math.max(60, ttlSec)}`,
       }
+      await Promise.all(
+        asRequests(key).map((req) =>
+          cache
+            .put(req, new Response(body, { status: 200, headers }))
+            .catch(() => {
+              /* Cache API may refuse a key; other layers still count. */
+            }),
+        ),
+      )
     },
   }
 }
@@ -219,33 +227,38 @@ function layeredStore(
   }
 }
 
-async function openRuntimeCache(): Promise<Cache | null> {
+async function openRuntimeCaches(): Promise<Cache[]> {
+  const found: Cache[] = []
   try {
-    if (typeof globalThis === 'undefined' || !('caches' in globalThis)) return null
+    if (typeof globalThis === 'undefined' || !('caches' in globalThis)) return found
     const runtimeCaches = (
       globalThis as typeof globalThis & {
         caches?: CacheStorage & { default?: Cache }
       }
     ).caches
-    if (!runtimeCaches) return null
+    if (!runtimeCaches) return found
     if (typeof runtimeCaches.open === 'function') {
-      return await runtimeCaches.open('guide-rate-limit')
+      found.push(await runtimeCaches.open('guide-rate-limit'))
     }
-    return runtimeCaches.default ?? null
+    if (runtimeCaches.default) found.push(runtimeCaches.default)
   } catch {
-    return null
+    return found
   }
+  return found
 }
 
-/** KV if bound, else named Cache API + isolate memory, else memory (best effort). */
+/** KV if bound, else Cache API + isolate memory, else memory (best effort). */
 export async function createGuideRateLimitStore(
   env?: GuideGateEnv,
   requestUrl?: string,
 ): Promise<GuideRateLimitStore> {
   if (env?.GUIDE_RATE_LIMIT) return kvStore(env.GUIDE_RATE_LIMIT)
-  const cache = await openRuntimeCache()
-  if (cache) return layeredStore(memoryStore, cacheApiStore(cache, requestUrl))
-  return memoryStore
+  const cachesFound = await openRuntimeCaches()
+  let store: GuideRateLimitStore = memoryStore
+  for (const cache of cachesFound) {
+    store = layeredStore(store, cacheApiStore(cache, requestUrl))
+  }
+  return store
 }
 
 export async function consumeIpRateLimit(options: {
