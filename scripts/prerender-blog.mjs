@@ -298,7 +298,7 @@ const ROUTES = [
     file: 'prerender/es-blog.html',
     title: 'Blog — sistemas que usted posee',
     description:
-      'Radar para fundadores que instalan sistemas de GTM y operación — no asientos rentados.',
+      'Radar para fundadores que instalan sistemas de prospección y operación — no asientos rentados.',
     ogType: 'website',
     locale: 'es',
     image: OG_IMAGE.blog,
@@ -316,7 +316,7 @@ const ROUTES = [
           url: `${SITE}/es/blog`,
           name: 'Blog — sistemas que usted posee',
           description:
-            'Radar para fundadores que instalan sistemas de GTM y operación — no asientos rentados.',
+            'Radar para fundadores que instalan sistemas de prospección y operación — no asientos rentados.',
           inLanguage: 'es',
           isPartOf: { '@id': `${SITE}/#website` },
           about: { '@id': `${SITE}/#organization` },
@@ -339,11 +339,11 @@ const ROUTES = [
         faqPageNode(`${SITE}/es/blog`, [
           {
             q: '¿Qué es el blog de RutinHQ?',
-            a: 'Radar para fundadores que instalan sistemas de GTM y operación — no asientos rentados.',
+            a: 'Radar para fundadores que instalan sistemas de prospección y operación — no asientos rentados.',
           },
           {
             q: '¿Qué señal filtra este radar?',
-            a: 'Encaje de perfil de cliente ideal (ICP), un dolor real de operación/GTM, interés de producto y lenguaje de fundador / CEO / responsable de operación — luego un sistema que se queda con su equipo.',
+            a: 'Encaje de perfil de cliente ideal (ICP), un dolor real de operación o de prospección, interés de producto y lenguaje de fundador / director general / responsable de operación — luego un sistema que se queda con su equipo.',
           },
           {
             q: '¿Esto es un pozo de contenido?',
@@ -444,7 +444,7 @@ const ROUTES = [
               name: '¿Dónde está la ficha del sistema?',
               acceptedAnswer: {
                 '@type': 'Answer',
-                text: 'Mire la ficha GTM OS en catalog y la página /gtm-os.',
+                text: 'Mire la ficha GTM OS en el catálogo y la página /es/gtm-os.',
               },
             },
           ],

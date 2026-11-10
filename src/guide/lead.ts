@@ -9,7 +9,7 @@ import type { GuideChatMessage, GuideLocale, LeadBrief } from './types'
 
 function excerpt(messages: GuideChatMessage[], locale: GuideLocale): string {
   const user = locale === 'es' ? 'Visitante' : 'Visitor'
-  const guide = locale === 'es' ? 'Guide' : 'Guide'
+  const guide = locale === 'es' ? 'Guía' : 'Guide'
   return messages
     .slice(-8)
     .map((m) => `${m.role === 'user' ? user : guide}: ${m.content.trim()}`)
@@ -18,15 +18,15 @@ function excerpt(messages: GuideChatMessage[], locale: GuideLocale): string {
 }
 
 function topicFromSku(sku: LeadBrief['recommendedSku'], locale: GuideLocale): string {
-  if (sku === 'gtm-os') return locale === 'es' ? 'Fit GTM OS' : 'GTM OS fit'
-  if (sku === 'store-os') return locale === 'es' ? 'Fit STORE OS' : 'STORE OS fit'
-  if (sku === 'nexus-os') return locale === 'es' ? 'Fit NEXUS OS' : 'NEXUS OS fit'
-  return locale === 'es' ? 'Fit RutinHQ (SKU por confirmar)' : 'RutinHQ fit (SKU TBD)'
+  if (sku === 'gtm-os') return locale === 'es' ? 'Encaje GTM OS' : 'GTM OS fit'
+  if (sku === 'store-os') return locale === 'es' ? 'Encaje STORE OS' : 'STORE OS fit'
+  if (sku === 'nexus-os') return locale === 'es' ? 'Encaje NEXUS OS' : 'NEXUS OS fit'
+  return locale === 'es' ? 'Encaje RutinHQ (producto por confirmar)' : 'RutinHQ fit (SKU TBD)'
 }
 
 export function nextStepCopy(locale: GuideLocale, url = guidePolicy.calendlyUrl): string {
   return locale === 'es'
-    ? `Agendar 30 min de fit — ${url}`
+    ? `Agendar 30 min de encaje — ${url}`
     : `Book 30-min fit call — ${url}`
 }
 
@@ -108,7 +108,7 @@ export function leadShortMailtoHref(brief: LeadBrief): string {
   const subject = leadSubject(brief)
   const body =
     brief.locale === 'es'
-      ? `Hola — el brief completo está en el portapapeles. Pégalo debajo de esta línea y envíalo a strategy@.\n\nSKU: ${brief.recommendedSku}\nPágina: ${brief.page}\n`
+      ? `Hola — el resumen completo está en el portapapeles. Péguelo debajo de esta línea y envíelo a strategy@.\n\nProducto: ${brief.recommendedSku}\nPágina: ${brief.page}\n`
       : `Hi — the full brief is on the clipboard. Paste it below this line and send it to strategy@.\n\nSKU: ${brief.recommendedSku}\nPage: ${brief.page}\n`
   return capMailtoHref(
     `mailto:${guidePolicy.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`,

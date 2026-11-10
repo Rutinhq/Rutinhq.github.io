@@ -31,11 +31,15 @@ export const MAILTO_HUB = mailto('RutinHQ')
 export const MAILTO_GTM = mailto('GTM OS — fit call')
 export const MAILTO_STORE = mailto('Store OS — fit call')
 export const MAILTO_NEXUS = mailto('NEXUS OS — fit call')
+export const MAILTO_GTM_ES = mailto('GTM OS — llamada de encaje')
+export const MAILTO_STORE_ES = mailto('STORE OS — llamada de encaje')
+export const MAILTO_NEXUS_ES = mailto('NEXUS OS — llamada de encaje')
 
 export function talkMailtoForPath(pathname: string): string {
-  if (pathname.includes('/gtm-os')) return MAILTO_GTM
-  if (pathname.includes('/store-os')) return MAILTO_STORE
-  if (pathname.includes('/nexus-os')) return MAILTO_NEXUS
+  const es = pathname === '/es' || pathname.startsWith('/es/')
+  if (pathname.includes('/gtm-os')) return es ? MAILTO_GTM_ES : MAILTO_GTM
+  if (pathname.includes('/store-os')) return es ? MAILTO_STORE_ES : MAILTO_STORE
+  if (pathname.includes('/nexus-os')) return es ? MAILTO_NEXUS_ES : MAILTO_NEXUS
   const path = pathname.split('?')[0]?.replace(/\/$/, '') || '/'
   if (path === '/' || path === '/es') return MAILTO_HUB
   return MAILTO_EMAIL

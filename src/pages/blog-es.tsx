@@ -54,8 +54,8 @@ export default function BlogEsPage() {
         </h1>
         <p className="mt-6 max-w-2xl text-[17px] text-muted-foreground md:text-[18px]">
           El blog de RutinHQ es un radar: cada post deja ver si encaja en
-          nuestro perfil de cliente ideal (ICP), si nombra un dolor real de operación/GTM y si desea un
-          sistema que se quede con su equipo. Mesa doble — estrategia de CEO +
+          nuestro perfil de cliente ideal (ICP), si nombra un dolor real de operación o de prospección y si desea un
+          sistema que se quede con su equipo. Mesa doble — estrategia de director general +
           instalación de operación. Siguiente paso: llamada de encaje; educar
           para siempre, nunca.
         </p>
@@ -214,7 +214,7 @@ export default function BlogEsPage() {
         </div>
       </Section>
 
-      <FaqSection title="FAQ" items={BLOG_INDEX_ES.faq} />
+      <FaqSection title="Preguntas frecuentes" items={BLOG_INDEX_ES.faq} />
 
       <Section>
         <Ctas />
@@ -238,7 +238,7 @@ export default function BlogEsPage() {
             ficha GTM
           </a>
           {' · '}
-          LP primaria{' '}
+          Página de producto{' '}
           <a
             href={WWW_GTM_ES_URL}
             className="text-foreground underline underline-offset-4 hover:text-primary"
@@ -248,12 +248,12 @@ export default function BlogEsPage() {
           .
         </p>
         <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
-          Soft-park hasta que esos desks estén GO:{' '}
+          En espera hasta que esos escritorios estén listos:{' '}
           <a
             href={WWW_STORE_ES_URL}
             className="underline underline-offset-4 hover:text-foreground"
           >
-            Store OS
+            STORE OS
           </a>
           {' · '}
           <a

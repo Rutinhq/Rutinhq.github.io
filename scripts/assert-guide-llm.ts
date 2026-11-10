@@ -451,6 +451,16 @@ assert(
     'para discutir más becomes para conversarlo',
   )
   assert(
+    applyGuideEsTypoFixes('scorecard, checklist y handoff.') ===
+      'ficha de diagnóstico, lista de entrega y entrega al equipo.',
+    'scorecard / checklist / handoff glossary',
+  )
+  assert(
+    applyGuideEsTypoFixes('Son cuellos distintos: GTM OS cubre prospección en frío.') ===
+      'No son el mismo sistema: GTM OS cubre prospección en frío.',
+    'Son cuellos distintos is rewritten',
+  )
+  assert(
     appendGuideCalendlyCta(
       'STORE OS es auditoría. Agende 30 min para discutir más: https://calendly.com/rutinhq/30min.',
       'es',
@@ -647,6 +657,24 @@ assert(!isGuidePreviewHost('rutinhq.com'), 'rutinhq.com is never preview')
       GUIDE_ES_CATALOG_FACTS,
     ),
     'es catalog STORE OS is a full sentence',
+  )
+  assert(/STORE DELIVERABLES LOCK/.test(esPrompt), 'es STORE deliverables lock')
+  assert(/scorecard → ficha de diagnóstico/.test(esPrompt), 'es scorecard glossary')
+  assert(/Never say "Son cuellos distintos"/.test(esPrompt), 'es comparison lock bans Son cuellos distintos')
+  assert(
+    /No incluye anuncios ni creatividades/.test(GUIDE_ES_STORE_FACTS) &&
+      /ficha de diagnóstico/.test(GUIDE_ES_STORE_FACTS) &&
+      /viven en NEXUS OS/.test(GUIDE_ES_STORE_FACTS),
+    'STORE facts split deliverables vs ads/creatives exclusion',
+  )
+  assert(
+    !/Entrega:.*anuncios ni creatividades — quedan fuera/.test(
+      GUIDE_ES_STORE_FACTS.slice(
+        0,
+        GUIDE_ES_STORE_FACTS.indexOf('No incluye anuncios ni creatividades'),
+      ),
+    ),
+    'STORE facts must not list ads as a numbered deliverable',
   )
   assert(
     /Es para fundadores, directores generales o responsables de operaciones/.test(GUIDE_ES_CATALOG_FACTS),
@@ -1058,6 +1086,8 @@ function assertPlainGuideText(text: string, label: string) {
   const gtmNexusEs = localGuideReply(userTurn(gtmNexusQ), 'es')
   assert(gtmNexusEs === skuComparisonGuideReply('es', undefined, ['gtm-os', 'nexus-os']), 'local GTM vs NEXUS uses canned comparison')
   assert(/GTM OS/.test(gtmNexusEs) && /NEXUS OS/.test(gtmNexusEs), 'GTM vs NEXUS names both labels')
+  assert(/No son el mismo sistema/.test(gtmNexusEs), 'GTM vs NEXUS uses No son el mismo sistema')
+  assert(!/Son cuellos distintos/.test(gtmNexusEs), 'GTM vs NEXUS must not say Son cuellos distintos')
   assert(
     /prospección en frío/.test(gtmNexusEs) &&
       /marketing agéntico/.test(gtmNexusEs) &&

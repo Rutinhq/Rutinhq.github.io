@@ -204,19 +204,19 @@ function skuContrast(locale: GuideLocale, keys: ComparedSku[]): string {
   switch (pair) {
     case 'gtm-nexus':
       return locale === 'es'
-        ? 'Son cuellos distintos: prospección en frío frente a demanda en redes.'
+        ? 'No son el mismo sistema: GTM OS cubre prospección en frío; NEXUS OS cubre demanda en redes.'
         : 'Different bottlenecks: cold outbound versus social demand.'
     case 'gtm-store':
       return locale === 'es'
-        ? 'Son cuellos distintos: prospección en frío B2B frente a conversión en Shopify.'
+        ? 'No son el mismo sistema: GTM OS cubre prospección en frío B2B; STORE OS cubre conversión en Shopify.'
         : 'Different bottlenecks: B2B cold outbound versus Shopify conversion.'
     case 'store-nexus':
       return locale === 'es'
-        ? 'Son cuellos distintos: conversión en Shopify frente a demanda en redes.'
+        ? 'No son el mismo sistema: STORE OS cubre conversión en Shopify; NEXUS OS cubre demanda en redes.'
         : 'Different bottlenecks: Shopify conversion versus social demand.'
     case 'all':
       return locale === 'es'
-        ? 'Un cuello, un sistema: elija el que atiende su operación.'
+        ? 'Cada sistema atiende un cuello distinto. Elija el que corresponde a su operación.'
         : 'One bottleneck, one system: pick the one that matches the operation.'
     default: {
       const _never: never = pair
