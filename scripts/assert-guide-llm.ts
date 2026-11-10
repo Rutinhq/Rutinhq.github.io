@@ -4,9 +4,11 @@ import {
   classifyIntentWithPolicy,
   ensureCalendlyCta,
   isSchedulingTurn,
+  isStoreShopifyFitTurn,
   recommendSkuWithPolicy,
   resolveFallbackKey,
   schedulingGuideReply,
+  storeShopifyFitGuideReply,
   type ClassifyPolicy,
 } from '../src/guide/classify-core.ts'
 import { localGuideReply } from '../src/guide/fallback.ts'
@@ -896,6 +898,36 @@ assert(
   localGuideReply([{ role: 'user', content: '¿Cómo agendo una llamada?' }], 'es') ===
     schedulingGuideReply('es'),
   'local Q5 returns the scheduling one-liner without catalog fallback',
+)
+assert(
+  isStoreShopifyFitTurn([{ role: 'user', content: '¿Sirve para una tienda Shopify pequeña?' }]),
+  'Q2 Shopify-store fit is a store-fit turn',
+)
+assert(
+  isStoreShopifyFitTurn([{ role: 'user', content: '¿funciona para ecommerce?' }]),
+  'funciona + ecommerce is a store-fit turn',
+)
+assert(
+  isStoreShopifyFitTurn([{ role: 'user', content: '¿me ayuda con comercio electrónico?' }]),
+  'me ayuda + comercio electrónico is a store-fit turn',
+)
+assert(
+  !isStoreShopifyFitTurn([{ role: 'user', content: '¿Qué es STORE OS?' }]),
+  'what-is STORE OS still calls the LLM',
+)
+assert(
+  !isStoreShopifyFitTurn([{ role: 'user', content: '¿Qué es GTM OS?' }]),
+  'GTM questions are not store-fit',
+)
+assert(
+  storeShopifyFitGuideReply('es') ===
+    'Sí. STORE OS audita y configura el panel de Shopify para que su tienda convierta antes de gastar en anuncios. Si encaja, agende 30 min: https://calendly.com/rutinhq/30min.',
+  'store-fit ES reply is the fixed STORE OS one-liner',
+)
+assert(
+  localGuideReply([{ role: 'user', content: '¿Sirve para una tienda Shopify pequeña?' }], 'es') ===
+    storeShopifyFitGuideReply('es'),
+  'local Q2 returns the STORE OS one-liner without the LLM',
 )
 
 for (const follow of ['cita', 'agenda', 'schedule', 'Calendly', 'fit', 'qué más', 'quiero cita']) {

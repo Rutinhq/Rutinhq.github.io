@@ -1,5 +1,10 @@
 import { classifyIntent, shouldCaptureLead } from './classify'
-import { isSchedulingTurn, schedulingGuideReply } from './classify-core'
+import {
+  isSchedulingTurn,
+  isStoreShopifyFitTurn,
+  schedulingGuideReply,
+  storeShopifyFitGuideReply,
+} from './classify-core'
 import {
   fallbackReply,
   guidePolicy,
@@ -183,6 +188,14 @@ export async function handleGuideRequest(
   if (isSchedulingTurn(messages)) {
     return json(200, {
       reply: schedulingGuideReply(locale, guidePolicy.calendlyUrl),
+      mode: 'llm',
+      calendlyUrl: guidePolicy.calendlyUrl,
+    })
+  }
+
+  if (isStoreShopifyFitTurn(messages)) {
+    return json(200, {
+      reply: storeShopifyFitGuideReply(locale, guidePolicy.calendlyUrl),
       mode: 'llm',
       calendlyUrl: guidePolicy.calendlyUrl,
     })

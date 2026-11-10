@@ -127,6 +127,27 @@ export function schedulingGuideReply(
     : `You can book a 30-minute call here: ${url}.`
 }
 
+/** Fit questions about a store / Shopify / ecommerce — skip the LLM. */
+export function isStoreShopifyFitTurn(messages: GuideChatMessage[]): boolean {
+  const t = lastUserText(messages).toLowerCase()
+  const object =
+    /\bshopify\b/.test(t) ||
+    /\btienda(s)?\b/.test(t) ||
+    /\be-?commerce\b/.test(t) ||
+    /comercio electr[oó]nico/.test(t)
+  const verb = /\bsirve\b/.test(t) || /\bfunciona\b/.test(t) || /\bme ayuda\b/.test(t)
+  return object && verb
+}
+
+export function storeShopifyFitGuideReply(
+  locale: GuideLocale,
+  url = 'https://calendly.com/rutinhq/30min',
+): string {
+  return locale === 'es'
+    ? `Sí. STORE OS audita y configura el panel de Shopify para que su tienda convierta antes de gastar en anuncios. Si encaja, agende 30 min: ${url}.`
+    : `Yes. STORE OS audits and configures the Shopify admin so the store converts before you spend on ads. If it fits, book 30 min: ${url}.`
+}
+
 function uniqueSku(
   ranked: { key: 'gtm-os' | 'store-os' | 'nexus-os'; n: number }[],
 ): RecommendedSku {

@@ -360,6 +360,29 @@ if (!/isSchedulingTurn/.test(fn) || !/schedulingGuideReply/.test(fn)) {
   console.error('Function must skip the LLM for scheduling-intent questions')
   process.exit(1)
 }
+if (!/isStoreShopifyFitTurn/.test(fn) || !/storeShopifyFitGuideReply/.test(fn)) {
+  console.error('Function must skip the LLM for store/Shopify-fit questions')
+  process.exit(1)
+}
+if (
+  !/prospección en frío B2B que se queda con su equipo/.test(policySrc.fallbackReplies.unsure.es) ||
+  !/auditoría y configuración de Shopify antes de gastar en anuncios/.test(
+    policySrc.fallbackReplies.unsure.es,
+  ) ||
+  !/Si no está claro cuál le conviene, agende 30 min y lo elegimos juntos:/.test(
+    policySrc.fallbackReplies.unsure.es,
+  )
+) {
+  console.error('unsure ES fallback must use the full GTM/STORE parentheticals and juntos CTA')
+  process.exit(1)
+}
+if (
+  /STORE OS \(Shopify antes de anuncios\)/.test(policySrc.fallbackReplies.unsure.es) ||
+  /Si el cuello no está claro/.test(policySrc.fallbackReplies.unsure.es)
+) {
+  console.error('unsure ES fallback must not keep the truncated paused lines')
+  process.exit(1)
+}
 if (!/export const GUIDE_MANDATE/.test(llm)) {
   console.error('src/guide/llm.ts must export GUIDE_MANDATE')
   process.exit(1)

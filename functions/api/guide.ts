@@ -16,9 +16,11 @@ import {
   hasBuyingIntentWithPolicy,
   hintMatches,
   isSchedulingTurn,
+  isStoreShopifyFitTurn,
   recommendSkuWithPolicy,
   resolveFallbackKey,
   schedulingGuideReply,
+  storeShopifyFitGuideReply,
 } from '../../src/guide/classify-core'
 import {
   enforceGuideRateLimit,
@@ -259,6 +261,14 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
   if (isSchedulingTurn(messages)) {
     return json(200, {
       reply: schedulingGuideReply(locale, policy.calendlyUrl),
+      mode: 'llm',
+      calendlyUrl: policy.calendlyUrl,
+    })
+  }
+
+  if (isStoreShopifyFitTurn(messages)) {
+    return json(200, {
+      reply: storeShopifyFitGuideReply(locale, policy.calendlyUrl),
       mode: 'llm',
       calendlyUrl: policy.calendlyUrl,
     })
