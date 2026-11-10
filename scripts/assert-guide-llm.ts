@@ -12,12 +12,14 @@ import {
   extractFinishReason,
   extractLlmText,
   guideLlmAttemptMs,
+  guideLlmFailureLog,
   guideLlmHasRetryBudget,
   guideLlmModelCandidates,
   guideLlmOnProviderError,
   isUnusableGuideReply,
   normalizeGuideLlmBaseUrl,
   normalizeGuideLlmModel,
+  redactGuideLlmSnippet,
   resolveGuideLlmBaseUrl,
   resolveGuideLlmModel,
   GUIDE_LLM_BUDGET_MS,
@@ -90,8 +92,16 @@ assert(
   'candidates must start with the configured primary',
 )
 assert(
-  guideLlmModelCandidates('gemini-3.1-flash-lite').includes('gemini-3-flash'),
-  'gemini-3.1-flash-lite 404 fallback is gemini-3-flash',
+  normalizeGuideLlmModel('gemini-3-flash') === 'gemini-3-flash-preview',
+  'bare gemini-3-flash aliases to the official gemini-3-flash-preview id',
+)
+assert(
+  guideLlmModelCandidates('gemini-3.1-flash-lite').includes('gemini-3-flash-preview'),
+  'gemini-3.1-flash-lite 404 fallback is official gemini-3-flash-preview',
+)
+assert(
+  !guideLlmModelCandidates('gemini-3.1-flash-lite').includes('gemini-3-flash'),
+  'must not spend the 9s budget 404ing a non-existent gemini-3-flash id',
 )
 assert(
   !guideLlmModelCandidates('gemini-3.1-flash-lite').some((id) => id.includes('gemini-2.0')),
@@ -194,6 +204,40 @@ assert(
   ) === false,
   'complete multi-clause reply is usable',
 )
+
+assert(
+  !redactGuideLlmSnippet('auth AIzaSyFakeKeyForShapeOnly extra').includes('AIza'),
+  'snippets must redact AIza-shaped keys',
+)
+assert(
+  !redactGuideLlmSnippet('Bearer AQ.FakeStudioKeyForShapeOnly').includes('AQ.'),
+  'snippets must redact Bearer / AQ. keys',
+)
+assert(redactGuideLlmSnippet('x'.repeat(500)).length === 200, 'snippets cap at 200 chars')
+{
+  const line = guideLlmFailureLog({
+    model: 'gemini-3.1-flash-lite',
+    status: 400,
+    errorSnippet: 'API key AIzaSyFakeKeyForShapeOnly invalid',
+    elapsedMs: 120,
+    modelsTried: ['gemini-3.1-flash-lite'],
+  })
+  const parsed = JSON.parse(line) as {
+    msg: string
+    model: string
+    status: number
+    errorSnippet: string
+    elapsedMs: number
+    modelsTried: string[]
+  }
+  assert(parsed.msg === 'guide_llm_failed', 'failure log msg')
+  assert(parsed.model === 'gemini-3.1-flash-lite', 'failure log model')
+  assert(parsed.status === 400, 'failure log status')
+  assert(parsed.elapsedMs === 120, 'failure log elapsedMs')
+  assert(parsed.modelsTried[0] === 'gemini-3.1-flash-lite', 'failure log modelsTried')
+  assert(!line.includes('AIza'), 'failure log must not contain the raw key')
+  assert(!/authorization|x-goog-api-key/i.test(line), 'failure log must not dump headers')
+}
 
 assert(/RutinHQ Guide/.test(GUIDE_MANDATE), 'mandate names public UI')
 assert(/GTM OS/.test(GUIDE_MANDATE) && /STORE OS/.test(GUIDE_MANDATE) && /NEXUS OS/.test(GUIDE_MANDATE), 'mandate SKUs')

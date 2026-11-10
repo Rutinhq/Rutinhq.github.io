@@ -28,6 +28,7 @@ import {
   composeGuideSystemPrompt,
   GUIDE_LLM_BUDGET_MS,
   isUnusableGuideReply,
+  logGuideLlmFailure,
   type GuideLlmMode,
 } from '../../src/guide/llm'
 
@@ -250,6 +251,7 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
       .map((d) => `### ${d.title}\nSource: ${d.url}\n${d.text}`)
       .join('\n\n')
       .slice(0, 14000)
+    const llmStarted = Date.now()
     try {
       const result = await callGuideLlmDetailed({
         apiKey: key,
@@ -280,8 +282,27 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
         reply = text
         mode = 'llm'
       }
+      if (mode !== 'llm') {
+        logGuideLlmFailure({
+          model:
+            result.modelsTried[result.modelsTried.length - 1] ||
+            context.env.GUIDE_LLM_MODEL ||
+            null,
+          status: result.lastStatus,
+          errorSnippet: result.lastErrorSnippet || result.lastError || '',
+          elapsedMs: Date.now() - llmStarted,
+          modelsTried: result.modelsTried,
+        })
+      }
     } catch {
       llmDebug = { hasKey: true, lastError: 'call_threw' }
+      logGuideLlmFailure({
+        model: context.env.GUIDE_LLM_MODEL || null,
+        status: null,
+        errorSnippet: 'call_threw',
+        elapsedMs: Date.now() - llmStarted,
+        modelsTried: [],
+      })
     }
   } else {
     llmDebug = {

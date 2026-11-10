@@ -29,18 +29,24 @@ const THINKING_MODELS = new Set([
   'gemini-3.6-flash',
 ])
 
-/** 404 / model-not-found only. Never used on 429/503. Never hop to thinking models.
+/** Official Gemini API ids (ai.google.dev/gemini-api/docs/models, Nov 2026):
+ *   Gemini 3.1 Flash-Lite → gemini-3.1-flash-lite (stable; -preview shut down May 2026)
+ *   Gemini 3 Flash        → gemini-3-flash-preview (no unsuffixed gemini-3-flash id)
+ * 404 / model-not-found only. Never used on 429/503. Never hop to thinking models.
  * Do not include gemini-2.0-* (zero free-tier quota). gemini-2.5-flash-lite stays
- * out: it thinks unless reasoning_effort=none, which this request shape does not send.
- * gemini-3-flash is the 404 alias; gemini-3-flash-preview covers older API ids. */
+ * out: it thinks unless reasoning_effort=none, which this request shape does not send. */
 const MODEL_FALLBACKS: Record<string, string[]> = {
-  'gemini-3.1-flash-lite': ['gemini-3-flash', 'gemini-3-flash-preview'],
-  'gemini-3-flash': ['gemini-3.1-flash-lite', 'gemini-3-flash-preview'],
-  'gemini-3-flash-preview': ['gemini-3.1-flash-lite', 'gemini-3-flash'],
-  'gemini-2.0-flash': ['gemini-3.1-flash-lite', 'gemini-3-flash'],
-  'gemini-2.0-flash-exp': ['gemini-3.1-flash-lite', 'gemini-3-flash'],
-  'gemini-2.0-flash-001': ['gemini-3.1-flash-lite', 'gemini-3-flash'],
-  'gemini-flash-latest': ['gemini-3.1-flash-lite', 'gemini-3-flash'],
+  'gemini-3.1-flash-lite': ['gemini-3-flash-preview'],
+  'gemini-3-flash-preview': ['gemini-3.1-flash-lite'],
+  'gemini-2.0-flash': ['gemini-3.1-flash-lite', 'gemini-3-flash-preview'],
+  'gemini-2.0-flash-exp': ['gemini-3.1-flash-lite', 'gemini-3-flash-preview'],
+  'gemini-2.0-flash-001': ['gemini-3.1-flash-lite', 'gemini-3-flash-preview'],
+  'gemini-flash-latest': ['gemini-3.1-flash-lite', 'gemini-3-flash-preview'],
+}
+
+/** Bare "gemini-3-flash" is not an API id — OpenAI-compat 404s it. */
+const GEMINI_MODEL_ALIASES: Record<string, string> = {
+  'gemini-3-flash': 'gemini-3-flash-preview',
 }
 
 export const GUIDE_LLM_CANDIDATE_CAP = 3
@@ -114,8 +120,50 @@ export function normalizeGuideLlmBaseUrl(raw?: string): string {
 }
 
 export function normalizeGuideLlmModel(raw?: string): string {
-  const model = (raw || 'gpt-4o-mini').trim()
-  return model.replace(/^models\//, '')
+  const model = (raw || 'gpt-4o-mini').trim().replace(/^models\//, '')
+  return GEMINI_MODEL_ALIASES[model] || model
+}
+
+/** First 200 chars of a provider body with key-like strings stripped. Never log headers. */
+export function redactGuideLlmSnippet(raw: string): string {
+  return String(raw || '')
+    .replace(/\s+/g, ' ')
+    .replace(
+      /AIza[0-9A-Za-z_-]{8,}|AQ\.[0-9A-Za-z._-]{8,}|sk-[A-Za-z0-9_-]{8,}|ya29\.[A-Za-z0-9._-]+|Bearer\s+\S+/gi,
+      '[redacted]',
+    )
+    .replace(
+      /(["']?(?:api[_-]?key|authorization|secret|token|password|credential)["']?\s*[=:]\s*["']?)[^"'&\s,}]{6,}/gi,
+      '$1[redacted]',
+    )
+    .slice(0, 200)
+}
+
+export function guideLlmFailureLog(opts: {
+  model: string | null
+  status: number | null
+  errorSnippet: string
+  elapsedMs: number
+  modelsTried: string[]
+}): string {
+  return JSON.stringify({
+    msg: 'guide_llm_failed',
+    model: opts.model,
+    status: opts.status,
+    errorSnippet: redactGuideLlmSnippet(opts.errorSnippet),
+    elapsedMs: opts.elapsedMs,
+    modelsTried: opts.modelsTried,
+  })
+}
+
+export function logGuideLlmFailure(opts: {
+  model: string | null
+  status: number | null
+  errorSnippet: string
+  elapsedMs: number
+  modelsTried: string[]
+}): void {
+  console.error(guideLlmFailureLog(opts))
 }
 
 export function guideLlmModelCandidates(raw?: string): string[] {
@@ -237,6 +285,8 @@ export type GuideLlmCallResult = {
   lastStatus: number | null
   lastError: string | null
   lastFinishReason: string | null
+  /** Redacted provider body snippet for server logs only — never echo to clients. */
+  lastErrorSnippet: string | null
 }
 
 function sanitizeProviderError(status: number, body: string): string {
@@ -306,6 +356,7 @@ export async function callGuideLlmDetailed(opts: {
     lastStatus: null,
     lastError: key ? null : 'missing_key',
     lastFinishReason: null,
+    lastErrorSnippet: null,
   }
   if (!key) return empty
 
@@ -363,6 +414,7 @@ export async function callGuideLlmDetailed(opts: {
         try {
           const res = await postOnce(model, attempt.signal)
           empty.lastStatus = res.status
+          empty.lastErrorSnippet = redactGuideLlmSnippet(res.raw)
           if (!res.ok) {
             empty.lastError = sanitizeProviderError(res.status, res.raw)
             const action = guideLlmOnProviderError(res.status, res.raw, isPrimary, retriedPrimary)

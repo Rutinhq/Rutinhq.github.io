@@ -284,6 +284,10 @@ if (!/TURNSTILE_SECRET_KEY/.test(fn) || !/enforceGuideTurnstile/.test(fn)) {
   console.error('Function must verify Turnstile via TURNSTILE_SECRET_KEY before the LLM')
   process.exit(1)
 }
+if (!/logGuideLlmFailure/.test(fn) || !/errorSnippet/.test(llm)) {
+  console.error('Function must log one redacted guide_llm_failed line when the LLM path fails')
+  process.exit(1)
+}
 if (!/enforceGuideRateLimit/.test(fn)) {
   console.error('Function must apply the shared per-IP rate limit')
   process.exit(1)
