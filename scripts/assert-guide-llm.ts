@@ -3,8 +3,12 @@ import { fileURLToPath } from 'node:url'
 import {
   classifyIntentWithPolicy,
   ensureCalendlyCta,
+  isSchedulingTurn,
+  isStoreShopifyFitTurn,
   recommendSkuWithPolicy,
   resolveFallbackKey,
+  schedulingGuideReply,
+  storeShopifyFitGuideReply,
   type ClassifyPolicy,
 } from '../src/guide/classify-core.ts'
 import { localGuideReply } from '../src/guide/fallback.ts'
@@ -14,11 +18,23 @@ import {
   extractFinishReason,
   extractLlmText,
   coerceGuideLlmReply,
+  capGuideReplyWords,
+  applyGuideEsTypoFixes,
+  GUIDE_ES_CATALOG_FACTS,
+  GUIDE_ES_STORE_FACTS,
+  isStoreShopifyQuery,
+  selectGuideCatalogFacts,
+  selectGuideKnowledge,
+  stripStoreLeadingGtmNotFor,
+  countGuideWords,
   extractFirstJsonObject,
   extractWorkersAiText,
   formatGuideAiErrorReason,
   stripGuideMarkdownFences,
   trimIncompleteGuideReply,
+  polishGuideLlmReply,
+  appendGuideCalendlyCta,
+  guideCalendlyCta,
   guideDegradedReasonFromLlm,
   guideLlmAttemptMs,
   guideLlmFailureLog,
@@ -40,6 +56,7 @@ import {
   GUIDE_LLM_RATE_LIMIT_BACKOFF_MS,
   GUIDE_LLM_RETRY_ATTEMPT_MS,
   GUIDE_MANDATE,
+  GUIDE_LLM_REPLY_MAX_WORDS,
   GUIDE_WORKERS_AI_MAX_TOKENS,
 } from '../src/guide/llm.ts'
 import { isGuidePreviewHost } from '../src/guide/preview-host.ts'
@@ -199,9 +216,23 @@ assert(
   /≤80 words/.test(GUIDE_MANDATE) &&
     /2–4 short sentences/.test(GUIDE_MANDATE) &&
     /Never invent acronym expansions/.test(GUIDE_MANDATE) &&
-    /Calendly CTA only when relevant/.test(GUIDE_MANDATE),
-  'mandate asks for short catalog-only replies that finish',
+    /Always end with the Calendly CTA/.test(GUIDE_MANDATE) &&
+    /sistemas que usted posee/.test(GUIDE_MANDATE) &&
+    /nunca tú/.test(GUIDE_MANDATE) &&
+    /ICP = perfil de cliente ideal/.test(GUIDE_MANDATE) &&
+    /tiendas de comercio electrónico/.test(GUIDE_MANDATE) &&
+    /Estrategia → Social → Ads/.test(GUIDE_MANDATE) &&
+    /prospección en frío/.test(GUIDE_MANDATE) &&
+    /iguala mensual/.test(GUIDE_MANDATE) &&
+    /Zero English/.test(GUIDE_MANDATE) &&
+    /STORE OS \(auditoría y configuración del panel de Shopify para marcas que venden directo al consumidor\)/.test(
+      GUIDE_MANDATE,
+    ) &&
+    /nada se publica ni se gasta sin aprobación explícita/.test(GUIDE_MANDATE) &&
+    /un sistema de marketing agéntico/.test(GUIDE_MANDATE),
+  'mandate asks for short catalog-only usted replies that finish',
 )
+assert(GUIDE_LLM_REPLY_MAX_WORDS === 80, 'hard word cap is 80')
 assert(GUIDE_LLM_BUDGET_MS === 20_000, 'LLM budget is 20s so Workers AI cold start can finish')
 assert(
   GUIDE_LLM_BUDGET_MS < 28_000,
@@ -281,6 +312,147 @@ assert(
     'GTM OS es outbound B2B que instalamos',
   'length cut with no prior sentence keeps the fragment',
 )
+{
+  const long =
+    'RutinHQ instala GTM OS para outbound B2B. STORE OS es auditoría de Shopify Admin. NEXUS OS es marketing agéntico. ' +
+    Array.from({ length: 70 }, () => 'detalle').join(' ') +
+    '.'
+  assert(countGuideWords(long) > 80, 'fixture exceeds the word cap')
+  const capped = capGuideReplyWords(long)
+  assert(capped !== null && countGuideWords(capped) <= 80, 'word cap stays at or under 80')
+  assert(/RutinHQ instala GTM OS/.test(capped || ''), 'word cap keeps the first complete sentence')
+  assert(
+    !/detalle detalle/.test(capped || ''),
+    'word cap drops the overflowing filler sentence',
+  )
+  const polished = polishGuideLlmReply(
+    'RutinHQ instala sistemas que usted posee, sin retainers. GTM OS es outbound B2B y además ' +
+      Array.from({ length: 90 }, () => 'palabra').join(' '),
+    'length',
+  )
+  assert(
+    polished === 'RutinHQ instala sistemas que usted posee, sin retainers.',
+    'polish trims the cut sentence then applies the word cap',
+  )
+}
+{
+  const missing = 'GTM OS es prospección en frío B2B. STORE OS es Shopify Admin para tiendas DTC.'
+  const esCta = appendGuideCalendlyCta(missing, 'es')
+  assert(/calendly\.com\/rutinhq\/30min/.test(esCta), 'ES reply without Calendly gets the CTA')
+  assert(/Si encaja, agende 30 min:/.test(esCta), 'ES CTA is usted agende')
+  assert(!/agenda 30 min/.test(esCta), 'ES CTA must not use tú agenda')
+  const already =
+    'NEXUS OS es un sistema de marketing agéntico: Estrategia → Social → Ads. Si encaja, agende 30 min: https://calendly.com/rutinhq/30min.'
+  assert(
+    appendGuideCalendlyCta(already, 'es') === already,
+    'reply that already has Calendly is left intact',
+  )
+  const filler = Array.from({ length: 12 }, () => 'NEXUS OS rota pilares cada semana.').join(' ')
+  const long = `GTM OS es prospección en frío B2B. STORE OS es Shopify Admin para tiendas DTC. ${filler}`
+  assert(countGuideWords(long) > 80, 'calendly-cap fixture exceeds 80 words')
+  const cappedCta = appendGuideCalendlyCta(long, 'es')
+  assert(countGuideWords(cappedCta) <= 80, 'appended CTA stays within the 80-word cap')
+  assert(/calendly\.com\/rutinhq\/30min/.test(cappedCta), 'CTA survives the word cap')
+  assert(/GTM OS es prospección en frío B2B/.test(cappedCta), 'cap trims later sentences, not the lead')
+  const longWithCta = `${long} Si encaja, agende 30 min: https://calendly.com/rutinhq/30min.`
+  const cappedExisting = appendGuideCalendlyCta(longWithCta, 'es')
+  assert(countGuideWords(cappedExisting) <= 80, 'existing CTA still fits the word cap')
+  assert(/calendly\.com\/rutinhq\/30min/.test(cappedExisting), 'existing CTA is not trimmed away')
+  const enCta = appendGuideCalendlyCta('GTM OS is B2B cold outbound the team keeps.', 'en')
+  assert(
+    enCta === `GTM OS is B2B cold outbound the team keeps. ${guideCalendlyCta('en')}`,
+    'EN reply without Calendly gets the EN CTA',
+  )
+  assert(
+    applyGuideEsTypoFixes('Puede agender una llamada de 30 minutos aquí.') ===
+      'Puede agendar una llamada de 30 minutos aquí.',
+    'agender is rewritten to agendar',
+  )
+  assert(
+    applyGuideEsTypoFixes('Sistemas que usted propietar. Un llamada. marketing agente.') ===
+      'Sistemas que usted poseer. Una llamada. marketing agéntico.',
+    'propietar / un llamada / marketing agente are rewritten',
+  )
+  assert(
+    polishGuideLlmReply(
+      'Puede agender una llamada. Si encaja, agende 30 min: https://calendly.com/rutinhq/30min.',
+      null,
+      'es',
+    ) === 'Puede agendar una llamada. Si encaja, agende 30 min: https://calendly.com/rutinhq/30min.',
+    'polish applies ES typo fixes',
+  )
+  assert(
+    applyGuideEsTypoFixes(
+      'No, GTM OS no es para tiendas ecommerce. STORE OS, que es un sistema para Shopify Admin audit + config.',
+    ) ===
+      'No, GTM OS no es para tiendas de comercio electrónico. STORE OS, que es un sistema para auditoría y configuración del panel de Shopify.',
+    'ecommerce and Shopify Admin audit + config are rewritten',
+  )
+  assert(
+    applyGuideEsTypoFixes('Founder / CEO o lead de ops en B2B con pipeline repetible y leads.') ===
+      'Fundador / director general o responsable de operaciones en B2B con flujo de ventas repetible y prospectos.',
+    'Founder/CEO/ops/pipeline/leads glossary',
+  )
+  assert(
+    applyGuideEsTypoFixes('Encaja en tiendas DTC y marcas DTC en Shopify.') ===
+      'Es para marcas que venden directo al consumidor y marcas que venden directo al consumidor en Shopify.',
+    'tiendas DTC / marcas DTC become marcas que venden directo al consumidor; Encaja → Es para',
+  )
+  assert(
+    applyGuideEsTypoFixes(
+      'No es para tiendas de comercio electrónico ni para quien solo quiere anuncios. STORE OS audita el panel.',
+    ) === 'STORE OS audita el panel.',
+    'GTM not-for must not lead a STORE OS answer',
+  )
+  assert(
+    stripStoreLeadingGtmNotFor(
+      'GTM OS no es para tiendas de comercio electrónico ni para quien solo quiere anuncios. STORE OS encaja en Shopify.',
+    ) === 'STORE OS encaja en Shopify.',
+    'even a named GTM not-for must not lead STORE OS',
+  )
+  assert(
+    applyGuideEsTypoFixes('outbound B2B con ICP.') === 'prospección en frío B2B con ICP.',
+    'outbound becomes prospección en frío; B2B stays',
+  )
+  assert(
+    polishGuideLlmReply('GTM OS is B2B outbound for the team.', 'stop', 'en') ===
+      'GTM OS is B2B outbound for the team.',
+    'EN polish must not apply the ES glossary',
+  )
+  assert(
+    applyGuideEsTypoFixes('GTM OS que se queda con tu equipo y tus anuncios, contigo.') ===
+      'GTM OS que se queda con su equipo y sus anuncios, con usted.',
+    'tu / tus / contigo become su / sus / con usted',
+  )
+  assert(
+    applyGuideEsTypoFixes('Usted puede agendar. Estudio de mercado.') ===
+      'Usted puede agendar. Estudio de mercado.',
+    'usted and estudio are not rewritten',
+  )
+  assert(
+    applyGuideEsTypoFixes(
+      'Lea https://example.com/tu/path y https://calendly.com/rutinhq/30min con tu equipo.',
+    ) === 'Lea https://example.com/tu/path y https://calendly.com/rutinhq/30min con su equipo.',
+    'tu inside URLs is left intact',
+  )
+  assert(
+    applyGuideEsTypoFixes('Retailers o ecom con SKUs claros. Un SKU basta.') ===
+      'Minoristas o ecom con productos claros. Un producto basta.',
+    'retailers / SKUs / SKU glossary',
+  )
+  assert(
+    applyGuideEsTypoFixes('Agende para discutir más el cuello.') ===
+      'Agende para conversarlo el cuello.',
+    'para discutir más becomes para conversarlo',
+  )
+  assert(
+    appendGuideCalendlyCta(
+      'STORE OS es auditoría. Agende 30 min para discutir más: https://calendly.com/rutinhq/30min.',
+      'es',
+    ) === 'STORE OS es auditoría. Si encaja, agende 30 min: https://calendly.com/rutinhq/30min.',
+    'ES Calendly sentence is capped to the canonical CTA',
+  )
+}
 assert(isUnusableGuideReply(null), 'empty completion is unusable')
 assert(isUnusableGuideReply('GTM OS es el sistema de outbound'), 'sub-80 mid-cut is unusable')
 assert(isUnusableGuideReply('x'.repeat(90), 'length'), 'finish_reason=length is unusable')
@@ -434,6 +606,61 @@ assert(!isGuidePreviewHost('rutinhq.com'), 'rutinhq.com is never preview')
   assert(/LANGUAGE LOCK: Visitor locale is es\. Reply 100% in Spanish/.test(esPrompt), 'es lock')
   assert(/LANGUAGE LOCK: Visitor locale is en\. Reply 100% in English/.test(enPrompt), 'en lock')
   assert(/LENGTH LOCK: ≤80 words/.test(esPrompt), 'length lock in prompt')
+  assert(/USTED LOCK: Formal usted only/.test(esPrompt), 'es usted lock')
+  assert(/sistemas que usted posee, sin iguala mensual/.test(esPrompt), 'es glossary example')
+  assert(/ICP = perfil de cliente ideal/.test(esPrompt), 'es ICP glossary')
+  assert(/SDR = representante de desarrollo de ventas \(externo\)/.test(esPrompt), 'es SDR glossary')
+  assert(
+    /tiendas de comercio electrónico/.test(esPrompt) &&
+      /marcas que venden directo al consumidor/.test(esPrompt),
+    'es audience glossary',
+  )
+  assert(
+    /NEXUS OS is always "un sistema de marketing agéntico: Estrategia → Social → Ads"/.test(esPrompt),
+    'es NEXUS phrasing',
+  )
+  assert(/nada se publica ni se gasta sin aprobación explícita/.test(esPrompt), 'es NEXUS gate')
+  assert(/never "papel"/.test(esPrompt), 'es bans papel')
+  assert(/never "publicidad social y publicidad"/.test(esPrompt), 'es bans redundant NEXUS ads')
+  assert(
+    /GTM OS \(prospección en frío B2B\), STORE OS \(auditoría y configuración del panel de Shopify para marcas que venden directo al consumidor\) y NEXUS OS \(Estrategia → Social → Ads\)/.test(
+      esPrompt,
+    ),
+    'es RutinHQ one-liner names all three SKUs',
+  )
+  assert(
+    /GTM OS no es para tiendas de comercio electrónico ni para quien solo quiere anuncios/.test(esPrompt),
+    'es GTM not-for names GTM OS',
+  )
+  assert(/nunca abra con "No,"/.test(esPrompt) || /never open with "No,"/.test(esPrompt), 'es STORE lead-with')
+  assert(esPrompt.includes(GUIDE_ES_CATALOG_FACTS), 'es prompt includes Spanish catalog facts')
+  assert(/que se queda con su equipo/.test(GUIDE_ES_CATALOG_FACTS), 'es catalog GTM uses su equipo')
+  assert(
+    /STORE OS audita y configura el panel de Shopify para que la tienda convierta antes de gastar en anuncios/.test(
+      GUIDE_ES_CATALOG_FACTS,
+    ),
+    'es catalog STORE OS is a full sentence',
+  )
+  assert(
+    /Es para fundadores, directores generales o responsables de operaciones/.test(GUIDE_ES_CATALOG_FACTS),
+    'es catalog GTM uses Es para fundadores…',
+  )
+  assert(
+    /marcas y tiendas en línea con oferta y productos claros que buscan generar demanda en redes sociales de forma sistemática/.test(
+      GUIDE_ES_CATALOG_FACTS,
+    ),
+    'es catalog NEXUS for-whom',
+  )
+  assert(
+    /Es para fundadores, directores generales o responsables de operaciones en empresas B2B/.test(
+      esPrompt,
+    ),
+    'es GTM for-whom',
+  )
+  assert(/outbound → prospección en frío/.test(esPrompt), 'es outbound glossary')
+  assert(/Zero English except product names/.test(esPrompt), 'es zero-english lock')
+  assert(/never "ecommerceros"/.test(esPrompt), 'es bans ecommerceros')
+  assert(!/USTED LOCK/.test(enPrompt), 'en prompt must not carry the Spanish usted lock')
   assert(
     esPrompt.lastIndexOf('LANGUAGE LOCK') > esPrompt.lastIndexOf('Allowlisted knowledge'),
     'locale lock must follow knowledge so Llama answers in Spanish',
@@ -441,6 +668,55 @@ assert(!isGuidePreviewHost('rutinhq.com'), 'rutinhq.com is never preview')
   assert(
     esPrompt.lastIndexOf('LANGUAGE LOCK') > esPrompt.lastIndexOf('LENGTH LOCK'),
     'locale lock stays last',
+  )
+  const ranked = selectGuideKnowledge(
+    [
+      { title: 'EN STORE', url: 'https://www.rutinhq.com/store-os', text: 'Shopify Admin audit + config' },
+      { title: 'ES STORE', url: 'https://www.rutinhq.com/es/store-os', text: 'auditoría y configuración del panel de Shopify' },
+    ],
+    'es',
+    400,
+  )
+  assert(
+    ranked.indexOf('ES STORE') < ranked.indexOf('EN STORE'),
+    'ES locale knowledge prefers /es/ catalog URLs',
+  )
+  const storeQ = '¿Sirve para una tienda Shopify pequeña?'
+  assert(isStoreShopifyQuery(storeQ), 'Shopify tienda question is a store query')
+  assert(!isStoreShopifyQuery('¿Qué hace GTM OS?'), 'GTM questions are not store queries')
+  const storeFacts = selectGuideCatalogFacts(storeQ)
+  assert(storeFacts === GUIDE_ES_STORE_FACTS, 'store questions get only STORE OS catalog facts')
+  assert(/Es para marcas que venden directo al consumidor en Shopify/.test(storeFacts), 'STORE for-whom is Es para marcas')
+  assert(!/Encaja en marcas/.test(storeFacts), 'STORE facts must not say Encaja en marcas')
+  assert(
+    !/No es para tiendas de comercio electrónico/.test(storeFacts),
+    'STORE facts must not include the GTM not-for',
+  )
+  const storeKb = selectGuideKnowledge(
+    [
+      { title: 'GTM', url: 'https://www.rutinhq.com/es/gtm-os', text: 'prospección en frío B2B' },
+      { title: 'STORE', url: 'https://www.rutinhq.com/es/store-os', text: 'auditoría Shopify' },
+      { title: 'NEXUS', url: 'https://www.rutinhq.com/es/nexus-os', text: 'marketing agéntico' },
+    ],
+    'es',
+    14_000,
+    storeQ,
+  )
+  assert(/STORE/.test(storeKb) && /store-os/.test(storeKb), 'store query knowledge keeps STORE OS')
+  assert(!/gtm-os/.test(storeKb) && !/nexus-os/.test(storeKb), 'store query knowledge drops GTM and NEXUS')
+  const storePrompt = composeGuideSystemPrompt('policy', 'es', storeKb, storeQ)
+  assert(storePrompt.includes(GUIDE_ES_STORE_FACTS), 'store prompt includes STORE facts')
+  assert(
+    !storePrompt.includes(GUIDE_ES_CATALOG_FACTS),
+    'store prompt must not inject the full GTM+STORE+NEXUS sheet',
+  )
+  const catalogBlock = storePrompt.slice(
+    storePrompt.indexOf('Spanish catalog facts'),
+    storePrompt.indexOf('Allowlisted knowledge'),
+  )
+  assert(
+    !/No es para tiendas de comercio electrónico/.test(catalogBlock),
+    'store catalog facts block must not carry the GTM disqualifier',
   )
 }
 {
@@ -596,6 +872,62 @@ assert(
 assert(
   classifyIntentWithPolicy([{ role: 'user', content: 'quiero cita' }], guidePolicy) === 'fit',
   'single-turn cita without SKU is fit+Calendly',
+)
+assert(
+  isSchedulingTurn([{ role: 'user', content: '¿Cómo agendo una llamada?' }]),
+  'Q5 how-to-book is a scheduling turn',
+)
+assert(
+  isSchedulingTurn([{ role: 'user', content: 'quiero cita' }]),
+  'cita is scheduling',
+)
+assert(
+  !isSchedulingTurn([{ role: 'user', content: '¿Qué es GTM OS?' }]),
+  'SKU questions must still call the LLM',
+)
+assert(
+  !isSchedulingTurn([{ role: 'user', content: 'qué más' }]),
+  'qué más stays on the LLM, not the scheduling one-liner',
+)
+assert(
+  schedulingGuideReply('es') ===
+    'Puede agendar una llamada de 30 minutos aquí: https://calendly.com/rutinhq/30min.',
+  'scheduling ES reply is the fixed one-liner',
+)
+assert(
+  localGuideReply([{ role: 'user', content: '¿Cómo agendo una llamada?' }], 'es') ===
+    schedulingGuideReply('es'),
+  'local Q5 returns the scheduling one-liner without catalog fallback',
+)
+assert(
+  isStoreShopifyFitTurn([{ role: 'user', content: '¿Sirve para una tienda Shopify pequeña?' }]),
+  'Q2 Shopify-store fit is a store-fit turn',
+)
+assert(
+  isStoreShopifyFitTurn([{ role: 'user', content: '¿funciona para ecommerce?' }]),
+  'funciona + ecommerce is a store-fit turn',
+)
+assert(
+  isStoreShopifyFitTurn([{ role: 'user', content: '¿me ayuda con comercio electrónico?' }]),
+  'me ayuda + comercio electrónico is a store-fit turn',
+)
+assert(
+  !isStoreShopifyFitTurn([{ role: 'user', content: '¿Qué es STORE OS?' }]),
+  'what-is STORE OS still calls the LLM',
+)
+assert(
+  !isStoreShopifyFitTurn([{ role: 'user', content: '¿Qué es GTM OS?' }]),
+  'GTM questions are not store-fit',
+)
+assert(
+  storeShopifyFitGuideReply('es') ===
+    'Sí. STORE OS audita y configura el panel de Shopify para que su tienda convierta antes de gastar en anuncios. Si encaja, agende 30 min: https://calendly.com/rutinhq/30min.',
+  'store-fit ES reply is the fixed STORE OS one-liner',
+)
+assert(
+  localGuideReply([{ role: 'user', content: '¿Sirve para una tienda Shopify pequeña?' }], 'es') ===
+    storeShopifyFitGuideReply('es'),
+  'local Q2 returns the STORE OS one-liner without the LLM',
 )
 
 for (const follow of ['cita', 'agenda', 'schedule', 'Calendly', 'fit', 'qué más', 'quiero cita']) {

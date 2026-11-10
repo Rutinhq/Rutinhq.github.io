@@ -15,16 +15,23 @@ import {
   ensureCalendlyCta,
   hasBuyingIntentWithPolicy,
   hintMatches,
+  isSchedulingTurn,
+  isStoreShopifyFitTurn,
   recommendSkuWithPolicy,
   resolveFallbackKey,
+  schedulingGuideReply,
+  storeShopifyFitGuideReply,
 } from '../../src/guide/classify-core'
 import {
   enforceGuideRateLimit,
   enforceGuideTurnstile,
 } from '../../src/guide/ingress'
 import {
+  appendGuideCalendlyCta,
   callGuideLlmDetailed,
   composeGuideSystemPrompt,
+  lastGuideUserText,
+  selectGuideKnowledge,
   GUIDE_LLM_BUDGET_MS,
   guideDegradedReasonFromLlm,
   logGuideLlmFailure,
@@ -104,9 +111,9 @@ const COPY = {
   },
   es: {
     degraded:
-      'Las respuestas en vivo están en pausa aquí, así que me quedo en hechos del catálogo: GTM OS (outbound), STORE OS (Shopify Admin), NEXUS OS (demanda en paper primero). Agenda 30 min — https://calendly.com/rutinhq/30min',
+      'Las respuestas en vivo están en pausa aquí, así que me quedo en hechos del catálogo: GTM OS (outbound), STORE OS (Shopify Admin), NEXUS OS (demanda en paper primero). Agende 30 min — https://calendly.com/rutinhq/30min',
     security:
-      'No comparto credenciales, contraseñas, claves de API, datos bancarios ni operaciones privadas. Solo cubro los sistemas públicos de RutinHQ. Agenda 30 min si quieres hablar de GTM OS, STORE OS o NEXUS OS.',
+      'No comparto credenciales, contraseñas, claves de API, datos bancarios ni operaciones privadas. Solo cubro los sistemas públicos de RutinHQ. Agende 30 min si desea hablar de GTM OS, STORE OS o NEXUS OS.',
     nextStep: (url: string) => `Agendar 30 min de fit — ${url}`,
     topicUnclear: 'Fit RutinHQ (SKU por confirmar)',
     topicSku: (sku: string) => `Fit ${sku}`,
@@ -251,6 +258,22 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
     })
   }
 
+  if (isSchedulingTurn(messages)) {
+    return json(200, {
+      reply: schedulingGuideReply(locale, policy.calendlyUrl),
+      mode: 'llm',
+      calendlyUrl: policy.calendlyUrl,
+    })
+  }
+
+  if (isStoreShopifyFitTurn(messages)) {
+    return json(200, {
+      reply: storeShopifyFitGuideReply(locale, policy.calendlyUrl),
+      mode: 'llm',
+      calendlyUrl: policy.calendlyUrl,
+    })
+  }
+
   let reply = ensureCalendlyCta(pick(replyKey), locale, policy.calendlyUrl)
   let mode: GuideLlmMode = 'degraded'
   const key = context.env.GUIDE_LLM_API_KEY?.trim()
@@ -265,10 +288,8 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
   let llmDebug: Record<string, unknown> | null = null
   let llmDegradedReason: string | null = null
   if (canCallLlm) {
-    const knowledge = (kb?.documents || [])
-      .map((d) => `### ${d.title}\nSource: ${d.url}\n${d.text}`)
-      .join('\n\n')
-      .slice(0, 14000)
+    const query = lastGuideUserText(messages)
+    const knowledge = selectGuideKnowledge(kb?.documents || [], locale, 14_000, query)
     const llmStarted = Date.now()
     try {
       const result = await callGuideLlmDetailed({
@@ -279,7 +300,8 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
         model: context.env.GUIDE_LLM_MODEL,
         maxTokens: limits.maxReplyTokens,
         timeoutMs: GUIDE_LLM_BUDGET_MS,
-        system: composeGuideSystemPrompt(policy.systemPrompt, locale, knowledge),
+        system: composeGuideSystemPrompt(policy.systemPrompt, locale, knowledge, query),
+        locale,
         messages: messages.map((m) => ({
           role: m.role,
           content: String(m.content).slice(0, limits.maxInputChars),
@@ -301,7 +323,7 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
       if (text && LEAK_RE.test(text)) {
         reply = pick('security')
       } else if (text) {
-        reply = text
+        reply = appendGuideCalendlyCta(text, locale, policy.calendlyUrl)
         mode = 'llm'
       }
       if (mode !== 'llm') {

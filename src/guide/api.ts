@@ -1,10 +1,15 @@
 import { classifyIntent, shouldCaptureLead } from './classify'
 import {
+  isSchedulingTurn,
+  isStoreShopifyFitTurn,
+  schedulingGuideReply,
+  storeShopifyFitGuideReply,
+} from './classify-core'
+import {
   fallbackReply,
   guidePolicy,
   GUIDE_LIMITS,
   GUIDE_SYSTEM_PROMPT,
-  knowledgeBlock,
 } from './config'
 import { localGuideReply } from './fallback'
 import {
@@ -12,7 +17,14 @@ import {
   enforceGuideTurnstile,
 } from './ingress'
 import { buildLeadBrief } from './lead'
-import { callGuideLlm, composeGuideSystemPrompt, GUIDE_LLM_BUDGET_MS } from './llm'
+import {
+  appendGuideCalendlyCta,
+  callGuideLlm,
+  composeGuideSystemPrompt,
+  GUIDE_LLM_BUDGET_MS,
+  lastGuideUserText,
+  selectGuideKnowledge,
+} from './llm'
 import { enforceSafeReply, isSecurityProbe, securityReply } from './security'
 import type {
   GuideApiRequest,
@@ -69,8 +81,15 @@ async function callLlm(
     system: composeGuideSystemPrompt(
       GUIDE_SYSTEM_PROMPT,
       locale,
-      knowledgeBlock(kb?.documents ?? []),
+      selectGuideKnowledge(
+        kb?.documents ?? [],
+        locale,
+        14_000,
+        lastGuideUserText(messages),
+      ),
+      lastGuideUserText(messages),
     ),
+    locale,
     messages,
   })
 }
@@ -166,6 +185,22 @@ export async function handleGuideRequest(
     })
   }
 
+  if (isSchedulingTurn(messages)) {
+    return json(200, {
+      reply: schedulingGuideReply(locale, guidePolicy.calendlyUrl),
+      mode: 'llm',
+      calendlyUrl: guidePolicy.calendlyUrl,
+    })
+  }
+
+  if (isStoreShopifyFitTurn(messages)) {
+    return json(200, {
+      reply: storeShopifyFitGuideReply(locale, guidePolicy.calendlyUrl),
+      mode: 'llm',
+      calendlyUrl: guidePolicy.calendlyUrl,
+    })
+  }
+
   if (classifyIntent(messages) === 'pricing') {
     const body: GuideApiResponse = {
       reply: fallbackReply('pricing', locale),
@@ -193,8 +228,9 @@ export async function handleGuideRequest(
   try {
     const live = await callLlm(env, messages, kb, locale)
     if (live) {
-      reply = enforceSafeReply(live, locale)
-      mode = reply === live ? 'llm' : 'degraded'
+      const withCta = appendGuideCalendlyCta(live, locale, guidePolicy.calendlyUrl)
+      reply = enforceSafeReply(withCta, locale)
+      mode = reply === withCta ? 'llm' : 'degraded'
     } else {
       reply = localGuideReply(messages, locale)
     }

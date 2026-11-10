@@ -72,6 +72,7 @@ const es = JSON.parse(fs.readFileSync(path.join(root, 'src/locales/es.json'), 'u
 
 const guideKeys = [
   'launcher',
+  'uiName',
   'subtitle',
   'placeholder',
   'send',
@@ -86,6 +87,8 @@ const guideKeys = [
   'limit',
   'disclaimer',
   'turnstileLabel',
+  'turnstileVerifying',
+  'turnstileTick',
 ]
 for (const key of guideKeys) {
   if (!en.guide?.[key] || !es.guide?.[key]) {
@@ -94,7 +97,7 @@ for (const key of guideKeys) {
   }
   if (en.guide[key] === es.guide[key] && key !== 'leadCta') {
     // brand-stable strings may match; greeting/launcher/chrome must differ
-    if (['launcher', 'greeting', 'subtitle', 'placeholder', 'ctaBook', 'emailCta', 'disclaimer', 'thinking', 'degradedNote'].includes(key)) {
+    if (['launcher', 'uiName', 'greeting', 'subtitle', 'placeholder', 'ctaBook', 'emailCta', 'disclaimer', 'thinking', 'degradedNote', 'turnstileTick', 'turnstileVerifying'].includes(key)) {
       console.error(`guide.${key} is identical in EN and ES — locale leak`)
       process.exit(1)
     }
@@ -105,8 +108,40 @@ if (es.guide.launcher === 'Ask RutinHQ Guide' || /ask rutin/i.test(es.guide.laun
   console.error('ES launcher must not be English "Ask RutinHQ Guide"')
   process.exit(1)
 }
-if (!/I'm RutinHQ Guide/i.test(en.guide.greeting) || !/Soy RutinHQ Guide/i.test(es.guide.greeting)) {
-  console.error('greeting must be locale-pure (I\'m / Soy)')
+if (es.guide.launcher !== 'Guía RutinHQ' || es.guide.uiName !== 'Guía RutinHQ') {
+  console.error('ES launcher and header must be Guía RutinHQ')
+  process.exit(1)
+}
+if (es.guide.placeholder !== 'Pregunte por un sistema…') {
+  console.error('ES placeholder must be Pregunte por un sistema…')
+  process.exit(1)
+}
+if (!/llamada para ver si encaja/.test(es.guide.degradedNote) || /llamada de fit/i.test(es.guide.degradedNote)) {
+  console.error('ES paused note must say llamada para ver si encaja')
+  process.exit(1)
+}
+if (es.guide.leadCopied !== 'Resumen copiado. Péguelo en el correo a strategy@') {
+  console.error('ES leadCopied must be Resumen copiado. Péguelo en el correo a strategy@')
+  process.exit(1)
+}
+if (!/I'm RutinHQ Guide/i.test(en.guide.greeting) || !/Soy la guía de RutinHQ/i.test(es.guide.greeting)) {
+  console.error('greeting must be locale-pure (I\'m RutinHQ Guide / Soy la guía de RutinHQ)')
+  process.exit(1)
+}
+if (/RutinHQ Guide/.test(es.guide.greeting) || /pregunta de fit/.test(es.guide.greeting)) {
+  console.error('ES greeting must not say RutinHQ Guide or pregunta de fit')
+  process.exit(1)
+}
+if (!/pregunta sobre si encaja/.test(es.guide.greeting)) {
+  console.error('ES greeting must say pregunta sobre si encaja')
+  process.exit(1)
+}
+if (es.guide.ctaBook !== 'Agendar 30 min' || /de fit/.test(es.guide.ctaBook)) {
+  console.error('ES ctaBook must be Agendar 30 min')
+  process.exit(1)
+}
+if (es.guide.leadCta !== 'Enviar un resumen corto al equipo') {
+  console.error('ES leadCta must be Enviar un resumen corto al equipo')
   process.exit(1)
 }
 
@@ -164,6 +199,85 @@ if (!/Never invent acronym expansions/.test(policySrc.systemPrompt)) {
   console.error('systemPrompt must forbid invented acronym expansions')
   process.exit(1)
 }
+if (!/formal usted only/.test(policySrc.systemPrompt) || !/sistemas que usted posee/.test(policySrc.systemPrompt)) {
+  console.error('systemPrompt must lock Spanish to usted and the public glossary')
+  process.exit(1)
+}
+if (
+  !/ICP = perfil de cliente ideal/.test(policySrc.systemPrompt) ||
+  !/representante de desarrollo de ventas/.test(policySrc.systemPrompt) ||
+  !/tiendas de comercio electrónico/.test(policySrc.systemPrompt) ||
+  !/Estrategia → Social → Ads/.test(policySrc.systemPrompt) ||
+  !/prospección en frío/.test(policySrc.systemPrompt) ||
+  !/iguala mensual/.test(policySrc.systemPrompt) ||
+  !/GTM OS no es para tiendas de comercio electrónico ni para quien solo quiere anuncios/.test(policySrc.systemPrompt)
+) {
+  console.error('systemPrompt must pin the ES glossary, NEXUS phrasing, and GTM not-for line')
+  process.exit(1)
+}
+if (!/GTM OS no es para tiendas de comercio electrónico ni para quien solo quiere anuncios/.test(policySrc.fallbackReplies['gtm-os'].es)) {
+  console.error('GTM OS ES fallback must name GTM OS on the not-for line')
+  process.exit(1)
+}
+if (!/Es para fundadores, directores generales o responsables de operaciones/.test(policySrc.fallbackReplies['gtm-os'].es)) {
+  console.error('GTM OS ES fallback must say Es para fundadores, directores generales…')
+  process.exit(1)
+}
+if (
+  /SDR rentado/.test(policySrc.fallbackReplies['gtm-os'].es) ||
+  !/perfil de cliente ideal/.test(policySrc.fallbackReplies['gtm-os'].es) ||
+  !/vendedor externo/.test(policySrc.fallbackReplies['gtm-os'].es)
+) {
+  console.error('GTM OS ES fallback must gloss ICP and drop SDR rentado')
+  process.exit(1)
+}
+if (!/se queda con su equipo/.test(policySrc.fallbackReplies['gtm-os'].es)) {
+  console.error('GTM OS ES fallback must say se queda con su equipo')
+  process.exit(1)
+}
+if (!/STORE OS audita y configura el panel de Shopify para que la tienda convierta antes de gastar en anuncios/.test(policySrc.fallbackReplies['store-os'].es)) {
+  console.error('STORE OS ES fallback must be a full Spanish sentence')
+  process.exit(1)
+}
+if (
+  /Encaja en marcas/.test(policySrc.fallbackReplies['store-os'].es) ||
+  !/Es para marcas que venden directo al consumidor/.test(policySrc.fallbackReplies['store-os'].es)
+) {
+  console.error('STORE OS ES fallback must say Es para marcas, not Encaja en marcas')
+  process.exit(1)
+}
+if (
+  !/Estrategia → Social → Ads/.test(policySrc.fallbackReplies['nexus-os'].es) ||
+  /publicidad social y publicidad/.test(policySrc.fallbackReplies['nexus-os'].es)
+) {
+  console.error('NEXUS OS ES fallback must be Estrategia → Social → Ads')
+  process.exit(1)
+}
+if (
+  !/un sistema de marketing agéntico/.test(policySrc.fallbackReplies['nexus-os'].es) ||
+  !/Nada se publica ni se gasta sin aprobación explícita/.test(policySrc.fallbackReplies['nexus-os'].es) ||
+  /\bpapel\b/.test(policySrc.fallbackReplies['nexus-os'].es)
+) {
+  console.error('NEXUS OS ES fallback must be a sistema with explicit approval, not papel')
+  process.exit(1)
+}
+if (
+  !/marcas y tiendas en línea con oferta y productos claros que buscan generar demanda en redes sociales de forma sistemática/.test(
+    policySrc.fallbackReplies['nexus-os'].es,
+  )
+) {
+  console.error('NEXUS OS ES fallback must use the Spanish for-whom line')
+  process.exit(1)
+}
+if (
+  !/¿Qué hace RutinHQ\?/.test(policySrc.systemPrompt) ||
+  !/STORE OS \(auditoría y configuración del panel de Shopify para marcas que venden directo al consumidor\)/.test(
+    policySrc.systemPrompt,
+  )
+) {
+  console.error('systemPrompt must pin the ¿Qué hace RutinHQ? three-SKU one-liner')
+  process.exit(1)
+}
 if (
   !/retainers/.test(policySrc.systemPrompt) ||
   !/SLAs/.test(policySrc.systemPrompt) ||
@@ -213,6 +327,62 @@ if (!/composeGuideSystemPrompt|GUIDE_MANDATE|GEMINI ENGINE/.test(fn)) {
 }
 
 const llm = fs.readFileSync(path.join(root, 'src/guide/llm.ts'), 'utf8')
+if (!/appendGuideCalendlyCta/.test(llm) || !/appendGuideCalendlyCta/.test(fn)) {
+  console.error('Function must append Calendly on LLM replies that lack the link')
+  process.exit(1)
+}
+if (
+  !/applyGuideEsTypoFixes/.test(llm) ||
+  !/agender/.test(llm) ||
+  !/ecommerce/.test(llm) ||
+  !/\\bpipeline\\b/.test(llm) ||
+  !/\\btu\\b/.test(llm) ||
+  !/\\bcontigo\\b/.test(llm) ||
+  !/\\bretailers\\b/.test(llm) ||
+  !/\\bSKUs\\b/.test(llm)
+) {
+  console.error('LLM polish must rewrite known ES typos and glossary (ecommerce, pipeline, tu, SKU, …)')
+  process.exit(1)
+}
+if (!/GUIDE_ES_CATALOG_FACTS/.test(llm) || !/selectGuideKnowledge/.test(fn)) {
+  console.error('ES replies must be grounded on Spanish catalog facts and /es/ knowledge first')
+  process.exit(1)
+}
+if (!/isStoreShopifyQuery/.test(llm) || !/selectGuideCatalogFacts/.test(llm) || !/lastGuideUserText/.test(fn)) {
+  console.error('store/Shopify questions must select STORE OS facts only')
+  process.exit(1)
+}
+if (!/GTM OS no es para tiendas de comercio electrónico ni para quien solo quiere anuncios/.test(llm)) {
+  console.error('GTM not-for must name GTM OS explicitly')
+  process.exit(1)
+}
+if (!/isSchedulingTurn/.test(fn) || !/schedulingGuideReply/.test(fn)) {
+  console.error('Function must skip the LLM for scheduling-intent questions')
+  process.exit(1)
+}
+if (!/isStoreShopifyFitTurn/.test(fn) || !/storeShopifyFitGuideReply/.test(fn)) {
+  console.error('Function must skip the LLM for store/Shopify-fit questions')
+  process.exit(1)
+}
+if (
+  !/prospección en frío B2B que se queda con su equipo/.test(policySrc.fallbackReplies.unsure.es) ||
+  !/auditoría y configuración de Shopify antes de gastar en anuncios/.test(
+    policySrc.fallbackReplies.unsure.es,
+  ) ||
+  !/Si no está claro cuál le conviene, agende 30 min y lo elegimos juntos:/.test(
+    policySrc.fallbackReplies.unsure.es,
+  )
+) {
+  console.error('unsure ES fallback must use the full GTM/STORE parentheticals and juntos CTA')
+  process.exit(1)
+}
+if (
+  /STORE OS \(Shopify antes de anuncios\)/.test(policySrc.fallbackReplies.unsure.es) ||
+  /Si el cuello no está claro/.test(policySrc.fallbackReplies.unsure.es)
+) {
+  console.error('unsure ES fallback must not keep the truncated paused lines')
+  process.exit(1)
+}
 if (!/export const GUIDE_MANDATE/.test(llm)) {
   console.error('src/guide/llm.ts must export GUIDE_MANDATE')
   process.exit(1)
@@ -239,6 +409,10 @@ if (!/coerceGuideLlmReply/.test(llm) || !/extractFirstJsonObject/.test(llm)) {
 }
 if (!/trimIncompleteGuideReply/.test(llm)) {
   console.error('LLM client must trim mid-sentence cuts to the last complete sentence')
+  process.exit(1)
+}
+if (!/capGuideReplyWords/.test(llm) || !/GUIDE_LLM_REPLY_MAX_WORDS/.test(llm) || !/USTED LOCK/.test(llm)) {
+  console.error('LLM client must cap replies at 80 words and lock Spanish to usted')
   process.exit(1)
 }
 if (!/resolveGuideLlmBaseUrl/.test(llm) || !/AIza/.test(llm) || !/AQ\./.test(llm)) {
@@ -360,14 +534,76 @@ if (!/degradedReason/.test(widget) || !/isGuidePreviewHost/.test(widget)) {
   console.error('Guide widget must show degradedReason under the paused banner on preview hosts only')
   process.exit(1)
 }
-if (!/client_timeout/.test(widget) || !/token_wait_timeout/.test(widget)) {
-  console.error('Guide widget must label local fallbacks (client_timeout / token_wait_timeout)')
+if (!/client_timeout/.test(widget) || !/formatGuideTurnstileTimeoutReason/.test(widget)) {
+  console.error('Guide widget must label local fallbacks (client_timeout / token_wait_timeout@)')
+  process.exit(1)
+}
+if (!/sendGuideWithTurnstile/.test(widget) || !/awaitingChallenge/.test(widget) || !/sendLock/.test(widget)) {
+  console.error('Guide widget must wait for Turnstile, keep the question, and not POST twice')
+  process.exit(1)
+}
+if (!/id="guide-human-check"/.test(widget)) {
+  console.error('Guide widget must pin the human-check container above the input')
+  process.exit(1)
+}
+if (!/guide.uiName/.test(widget) || /GUIDE_UI_NAME/.test(widget)) {
+  console.error('Guide header must use locale guide.uiName, not the English GUIDE_UI_NAME constant')
+  process.exit(1)
+}
+if (!/leadBrief && !awaitingChallenge && !pending/.test(widget)) {
+  console.error('lead CTA must wait until no Turnstile challenge is pending')
+  process.exit(1)
+}
+if (!/min-h-\[65px\]/.test(widget) || !/min-w-\[300px\]/.test(widget)) {
+  console.error('Turnstile host must keep a 300×65 layout box')
+  process.exit(1)
+}
+if (widget.indexOf('id="guide-human-check"') > widget.indexOf('id="guide-input"')) {
+  console.error('human-check must sit above the input, not below it')
+  process.exit(1)
+}
+if (widget.indexOf('id="guide-human-check"') < widget.indexOf('overflow-y-auto')) {
+  console.error('human-check must stay out of the scrolling message list')
+  process.exit(1)
+}
+if (!/list\.scrollTop = list\.scrollHeight/.test(widget) || !/tickNoteRef/.test(widget)) {
+  console.error('Guide widget must scroll the message list internally and bring the tick note into view')
+  process.exit(1)
+}
+if (!/guide.turnstileTick/.test(widget) || !/guide.turnstileVerifying/.test(widget)) {
+  console.error('Guide widget must show Verificando until before-interactive-callback, then the tick note')
+  process.exit(1)
+}
+if (!/challengeUi === 'interactive'/.test(widget) || !/challengeUi === 'verifying'/.test(widget)) {
+  console.error('tick note must be gated on challengeUi interactive, not the whole Turnstile wait')
+  process.exit(1)
+}
+const esLocale = fs.readFileSync(path.join(root, 'src/locales/es.json'), 'utf8')
+const enLocale = fs.readFileSync(path.join(root, 'src/locales/en.json'), 'utf8')
+if (!/Marque la casilla para continuar/.test(esLocale) || !/Please tick the box to continue/.test(enLocale)) {
+  console.error('turnstileTick copy must be ES Marque la casilla / EN Please tick the box')
+  process.exit(1)
+}
+if (!/Verificando…/.test(esLocale) || !/Verifying…/.test(enLocale)) {
+  console.error('turnstileVerifying copy must be ES Verificando… / EN Verifying…')
   process.exit(1)
 }
 const turnstileHook = fs.readFileSync(
   path.join(root, 'src/components/guide/useGuideTurnstile.ts'),
   'utf8',
 )
+if (!/GUIDE_TURNSTILE_TOKEN_WAIT_MS = 20_000/.test(turnstileHook)) {
+  console.error('Turnstile must wait ~20s for the checkbox before degrading')
+  process.exit(1)
+}
+if (!/get\('ts'\) === 'interactive'/.test(turnstileHook) || !/3x00000000000000000000FF/.test(turnstileHook)) {
+  console.error('preview ?ts=interactive must swap the always-interactive dummy site key')
+  process.exit(1)
+}
+if (!/isGuidePreviewHost/.test(turnstileHook)) {
+  console.error('dummy Turnstile site key must be gated to Pages preview hosts')
+  process.exit(1)
+}
 if (!/VITE_TURNSTILE_SITE_KEY/.test(turnstileHook) || !/readGuideTurnstileSiteKey/.test(widget)) {
   console.error('Guide widget must read VITE_TURNSTILE_SITE_KEY and degrade when unset')
   process.exit(1)
@@ -378,6 +614,31 @@ if (!/createGuideTurnstileController/.test(turnstileHook) || !/attach\(node\)/.t
 }
 if (!/api\.reset\(widgetId\)/.test(turnstileHook)) {
   console.error('Turnstile consumeToken must reset the widget after a single-use token')
+  process.exit(1)
+}
+if (!/execution: 'execute'/.test(turnstileHook) || !/api\.execute\(widgetId\)/.test(turnstileHook)) {
+  console.error('Turnstile must execute the challenge at send, not at the previous reset')
+  process.exit(1)
+}
+if (!/appearance: 'interaction-only'/.test(turnstileHook) || !/size: 'normal'/.test(turnstileHook)) {
+  console.error('Turnstile must stay interaction-only until before-interactive-callback')
+  process.exit(1)
+}
+if (!/theme: 'dark'/.test(turnstileHook)) {
+  console.error('Turnstile theme must match the dark panel')
+  process.exit(1)
+}
+if (
+  !/before-interactive-callback/.test(turnstileHook) ||
+  !/armGuideTurnstileHost/.test(turnstileHook) ||
+  !/collapseGuideTurnstileHost/.test(turnstileHook) ||
+  !/retryChallengeOnce/.test(turnstileHook)
+) {
+  console.error('Turnstile must arm at before-interactive-callback and collapse until then')
+  process.exit(1)
+}
+if (!/token_wait_timeout@/.test(turnstileHook)) {
+  console.error('preview timeout reason must include elapsed wait as token_wait_timeout@N.Ns')
   process.exit(1)
 }
 if (!/turnstileToken/.test(widget)) {

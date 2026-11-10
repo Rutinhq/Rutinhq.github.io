@@ -8,6 +8,7 @@ const policy = JSON.parse(
 )
 const mirrorsDir = path.join(root, 'src/guide/mirrors')
 const localesEn = JSON.parse(fs.readFileSync(path.join(root, 'src/locales/en.json'), 'utf8'))
+const localesEs = JSON.parse(fs.readFileSync(path.join(root, 'src/locales/es.json'), 'utf8'))
 
 const documents = []
 const sources = []
@@ -27,8 +28,8 @@ for (const file of fs.readdirSync(mirrorsDir).filter((f) => f.endsWith('.md'))) 
   addDoc(id, urlMatch?.[0] || policy.allowlistUrls[0], title, text, 'mirror')
 }
 
-function localeSku(key, url, title) {
-  const block = localesEn[key]
+function localeSku(pack, idPrefix, key, url, title) {
+  const block = pack[key]
   if (!block) return
   const parts = [
     title,
@@ -40,17 +41,27 @@ function localeSku(key, url, title) {
     block.outcomes?.items?.join('; '),
     block.notWhat?.items?.join('; '),
   ].filter(Boolean)
-  addDoc(`locale-${key}`, url, `${title} (site copy)`, parts.join('\n'), 'locale')
+  addDoc(`${idPrefix}-${key}`, url, `${title} (site copy)`, parts.join('\n'), 'locale')
 }
 
-localeSku('gtm', 'https://www.rutinhq.com/gtm-os', 'GTM OS')
-localeSku('store', 'https://www.rutinhq.com/store-os', 'STORE OS')
-localeSku('nexus', 'https://www.rutinhq.com/nexus-os', 'NEXUS OS')
+localeSku(localesEn, 'locale', 'gtm', 'https://www.rutinhq.com/gtm-os', 'GTM OS')
+localeSku(localesEn, 'locale', 'store', 'https://www.rutinhq.com/store-os', 'STORE OS')
+localeSku(localesEn, 'locale', 'nexus', 'https://www.rutinhq.com/nexus-os', 'NEXUS OS')
 addDoc(
   'locale-hub',
   'https://www.rutinhq.com/',
   'RutinHQ hub (site copy)',
   [localesEn.hub?.headline, localesEn.hub?.subhead, localesEn.cards?.gtm?.thesis, localesEn.cards?.store?.thesis, localesEn.cards?.nexus?.thesis].filter(Boolean).join('\n'),
+  'locale',
+)
+localeSku(localesEs, 'locale-es', 'gtm', 'https://www.rutinhq.com/es/gtm-os', 'GTM OS')
+localeSku(localesEs, 'locale-es', 'store', 'https://www.rutinhq.com/es/store-os', 'STORE OS')
+localeSku(localesEs, 'locale-es', 'nexus', 'https://www.rutinhq.com/es/nexus-os', 'NEXUS OS')
+addDoc(
+  'locale-es-hub',
+  'https://www.rutinhq.com/es',
+  'RutinHQ hub (site copy ES)',
+  [localesEs.hub?.headline, localesEs.hub?.subhead, localesEs.cards?.gtm?.thesis, localesEs.cards?.store?.thesis, localesEs.cards?.nexus?.thesis].filter(Boolean).join('\n'),
   'locale',
 )
 

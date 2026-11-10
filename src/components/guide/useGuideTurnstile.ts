@@ -1,10 +1,47 @@
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { isGuidePreviewHost } from '../../guide/preview-host'
 
 const TURNSTILE_SRC =
   'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'
 
-/** Wait covers script + explicit render after the chat host mounts, then the token callback. */
-export const GUIDE_TURNSTILE_TOKEN_WAIT_MS = 8_000
+/** Cloudflare dummy key that always shows the checkbox. Preview UX only. */
+export const GUIDE_TURNSTILE_ALWAYS_INTERACTIVE_SITE_KEY =
+  '3x00000000000000000000FF'
+
+/** Wait for the user to tick the box (callback) before posting. */
+export const GUIDE_TURNSTILE_TOKEN_WAIT_MS = 20_000
+
+/** Managed checkbox is 300×65. A 0-height host + interaction-only lays out a 1×1 iframe. */
+export const GUIDE_TURNSTILE_HOST_MIN_HEIGHT_PX = 65
+export const GUIDE_TURNSTILE_HOST_MIN_WIDTH_PX = 300
+
+/** Unhide and size the explicit-render host so an interactive challenge can paint.
+ * Call this from `before-interactive-callback` *before* the checkbox paints. */
+export function armGuideTurnstileHost(node: HTMLElement | null): void {
+  if (!node) return
+  node.hidden = false
+  node.removeAttribute('hidden')
+  node.style.display = 'block'
+  node.style.visibility = 'visible'
+  node.style.overflow = 'visible'
+  node.style.minHeight = `${GUIDE_TURNSTILE_HOST_MIN_HEIGHT_PX}px`
+  node.style.minWidth = `${GUIDE_TURNSTILE_HOST_MIN_WIDTH_PX}px`
+  node.style.height = `${GUIDE_TURNSTILE_HOST_MIN_HEIGHT_PX}px`
+  node.style.width = '100%'
+  node.classList.add('guide-turnstile-armed')
+}
+
+/** Collapse the host while Turnstile is invisible so we do not show an empty dark frame. */
+export function collapseGuideTurnstileHost(node: HTMLElement | null): void {
+  if (!node) return
+  node.style.overflow = 'hidden'
+  node.style.minHeight = '0px'
+  node.style.minWidth = '0px'
+  node.style.height = '0px'
+  node.style.width = '0px'
+  node.style.visibility = 'hidden'
+  node.classList.remove('guide-turnstile-armed')
+}
 
 let scriptPromise: Promise<void> | null = null
 
@@ -50,10 +87,13 @@ export type GuideTurnstileRenderOptions = {
   theme?: 'auto' | 'light' | 'dark'
   size?: 'normal' | 'flexible' | 'compact'
   appearance?: 'always' | 'execute' | 'interaction-only'
+  execution?: 'render' | 'execute'
   action?: string
   callback?: (token: string) => void
   'expired-callback'?: () => void
   'error-callback'?: () => void
+  'timeout-callback'?: () => void
+  'before-interactive-callback'?: () => void
 }
 
 export type GuideTurnstileApi = {
@@ -61,6 +101,7 @@ export type GuideTurnstileApi = {
   reset(widgetId?: string): void
   remove(widgetId?: string): void
   getResponse(widgetId?: string): string
+  execute?(widgetId?: string): void
 }
 
 export type GuideTurnstileClock = {
@@ -68,12 +109,15 @@ export type GuideTurnstileClock = {
   sleep: (ms: number) => Promise<void>
 }
 
+export type GuideTurnstileChallengeUi = 'idle' | 'verifying' | 'interactive'
+
 export type GuideTurnstileControllerOpts = {
   getSiteKey: () => string | undefined
   loadScript?: () => Promise<void>
   getApi?: () => GuideTurnstileApi | undefined
   clock?: GuideTurnstileClock
   tokenWaitMs?: number
+  onChallengeUi?: (ui: GuideTurnstileChallengeUi) => void
 }
 
 export type GuideTurnstileController = {
@@ -100,9 +144,57 @@ export function createGuideTurnstileController(
   const tokenWaitMs = opts.tokenWaitMs ?? GUIDE_TURNSTILE_TOKEN_WAIT_MS
 
   let generation = 0
+  let disposed = false
   let widgetId: string | null = null
+  let hostNode: HTMLElement | null = null
   let token: string | null = null
+  let challengeRetryUsed = false
   let renderPromise: Promise<void> = Promise.resolve()
+  const waiters = new Set<(value: string) => void>()
+
+  const setUi = (ui: GuideTurnstileChallengeUi) => {
+    opts.onChallengeUi?.(ui)
+  }
+
+  const readLive = (): string => {
+    const api = getApi()
+    const fromApi = widgetId != null && api ? api.getResponse(widgetId) : ''
+    return token || fromApi || ''
+  }
+
+  const takeToken = (): string | undefined => {
+    const live = readLive()
+    if (!live) return undefined
+    token = null
+    const api = getApi()
+    if (widgetId != null && api) api.reset(widgetId)
+    collapseGuideTurnstileHost(hostNode)
+    setUi('idle')
+    return live
+  }
+
+  const executeWidget = () => {
+    const api = getApi()
+    if (widgetId == null || !api || typeof api.execute !== 'function') return
+    api.execute(widgetId)
+  }
+
+  const retryChallengeOnce = () => {
+    if (!waiters.size || challengeRetryUsed || disposed) return
+    challengeRetryUsed = true
+    const api = getApi()
+    if (widgetId == null || !api) return
+    api.reset(widgetId)
+    executeWidget()
+  }
+
+  const deliver = (value: string) => {
+    if (!value) return
+    token = value
+    const pending = [...waiters]
+    waiters.clear()
+    for (const waiter of pending) waiter(value)
+  }
 
   const removeWidget = () => {
     const id = widgetId
@@ -116,11 +208,13 @@ export function createGuideTurnstileController(
   const attach = (node: HTMLElement | null) => {
     generation += 1
     const gen = generation
+    hostNode = node
     removeWidget()
     if (!node || !opts.getSiteKey()) {
       renderPromise = Promise.resolve()
       return
     }
+    collapseGuideTurnstileHost(node)
 
     let settle: () => void = () => {}
     renderPromise = new Promise<void>((resolve) => {
@@ -136,19 +230,33 @@ export function createGuideTurnstileController(
         widgetId = api.render(node, {
           sitekey: siteKey,
           theme: 'dark',
-          size: 'flexible',
+          size: 'normal',
           appearance: 'interaction-only',
+          execution: 'execute',
           action: 'guide',
           callback: (value) => {
-            token = value
+            deliver(value)
           },
           'expired-callback': () => {
             token = null
+            retryChallengeOnce()
           },
           'error-callback': () => {
             token = null
+            retryChallengeOnce()
+          },
+          'timeout-callback': () => {
+            token = null
+            retryChallengeOnce()
+          },
+          'before-interactive-callback': () => {
+            // Size the host before the checkbox paints — never a 0-height/1×1 iframe.
+            armGuideTurnstileHost(hostNode)
+            setUi('interactive')
           },
         })
+        // Re-attach during an in-flight wait must start THIS send's challenge.
+        if (waiters.size) executeWidget()
       })
       .catch(() => {
         /* Widget degrades: requests go without a token. */
@@ -160,29 +268,72 @@ export function createGuideTurnstileController(
 
   const consumeToken = async (): Promise<string | undefined> => {
     if (!opts.getSiteKey()) return undefined
+    challengeRetryUsed = false
+    collapseGuideTurnstileHost(hostNode)
+    setUi('verifying')
     const started = clock.now()
     const deadline = started + tokenWaitMs
-    const pendingRender = renderPromise
-    const renderWait = deadline - clock.now()
-    if (renderWait > 0) {
-      await Promise.race([pendingRender, clock.sleep(renderWait)])
-    }
-    while (clock.now() < deadline) {
-      const api = getApi()
-      const live =
-        token || (widgetId && api ? api.getResponse(widgetId) : '') || ''
-      if (live) {
-        token = null
-        if (widgetId && api) api.reset(widgetId)
-        return live
+
+    return new Promise<string | undefined>((resolve) => {
+      let settled = false
+      const finish = (value: string | undefined) => {
+        if (settled) return
+        settled = true
+        waiters.delete(onToken)
+        if (!value) {
+          collapseGuideTurnstileHost(hostNode)
+          setUi('idle')
+        }
+        resolve(value)
       }
-      await clock.sleep(100)
-    }
-    return undefined
+      const onToken = (value: string) => {
+        finish(takeToken() || value)
+      }
+      waiters.add(onToken)
+
+      void (async () => {
+        const pendingRender = renderPromise
+        const renderWait = deadline - clock.now()
+        if (renderWait > 0) {
+          await Promise.race([pendingRender, clock.sleep(renderWait)])
+        }
+        if (settled || disposed) {
+          finish(undefined)
+          return
+        }
+        // Start the challenge at send time — not at the previous reset().
+        if (!readLive()) executeWidget()
+        if (settled || disposed) return
+        const immediate = takeToken()
+        if (immediate) {
+          finish(immediate)
+          return
+        }
+        while (clock.now() < deadline) {
+          if (disposed) {
+            finish(undefined)
+            return
+          }
+          const live = takeToken()
+          if (live) {
+            finish(live)
+            return
+          }
+          await clock.sleep(100)
+        }
+        finish(takeToken())
+      })()
+    })
   }
 
   const dispose = () => {
+    disposed = true
     generation += 1
+    waiters.clear()
+    collapseGuideTurnstileHost(hostNode)
+    setUi('idle')
+    hostNode = null
+    challengeRetryUsed = false
     removeWidget()
     renderPromise = Promise.resolve()
   }
@@ -190,16 +341,74 @@ export function createGuideTurnstileController(
   return { attach, consumeToken, dispose }
 }
 
+export function resolveGuideTurnstileSiteKey(
+  envKey: string | undefined,
+  hostname: string,
+  search: string,
+): string | undefined {
+  const trimmed = typeof envKey === 'string' && envKey.trim() ? envKey.trim() : undefined
+  if (isGuidePreviewHost(hostname)) {
+    const params = new URLSearchParams(search.startsWith('?') ? search.slice(1) : search)
+    if (params.get('ts') === 'interactive') {
+      return GUIDE_TURNSTILE_ALWAYS_INTERACTIVE_SITE_KEY
+    }
+  }
+  return trimmed
+}
+
 export function readGuideTurnstileSiteKey(): string | undefined {
   const key = import.meta.env.VITE_TURNSTILE_SITE_KEY
-  return typeof key === 'string' && key.trim() ? key.trim() : undefined
+  const hostname = typeof window === 'undefined' ? '' : window.location.hostname
+  const search = typeof window === 'undefined' ? '' : window.location.search
+  return resolveGuideTurnstileSiteKey(key, hostname, search)
+}
+
+/** Skip the POST when a site key is set but no token arrived — avoid a 403 + double send. */
+export function shouldPostGuideAfterTurnstile(opts: {
+  siteKey: string | undefined
+  token: string | undefined
+}): { post: boolean; timedOut: boolean } {
+  if (!opts.siteKey) return { post: true, timedOut: false }
+  if (opts.token) return { post: true, timedOut: false }
+  return { post: false, timedOut: true }
+}
+
+/** Preview hosts only — show how long we waited so a mid-wait tick is diagnosable. */
+export function formatGuideTurnstileTimeoutReason(
+  waitedMs: number,
+  previewHost: boolean,
+): string {
+  if (!previewHost) return 'token_wait_timeout'
+  return `token_wait_timeout@${(Math.max(0, waitedMs) / 1000).toFixed(1)}s`
+}
+
+/** Wait for a token, then POST once. A late checkbox (e.g. t=5s) still sends that token. */
+export async function sendGuideWithTurnstile(opts: {
+  consumeToken: () => Promise<string | undefined>
+  siteKey: string | undefined
+  post: (token: string | undefined) => Promise<void>
+  now?: () => number
+}): Promise<
+  | { ok: true; token: string | undefined; waitedMs: number }
+  | { ok: false; reason: 'token_wait_timeout'; waitedMs: number }
+> {
+  const now = opts.now ?? defaultNow
+  const started = now()
+  const token = await opts.consumeToken()
+  const waitedMs = Math.max(0, now() - started)
+  const plan = shouldPostGuideAfterTurnstile({ siteKey: opts.siteKey, token })
+  if (plan.timedOut) return { ok: false, reason: 'token_wait_timeout', waitedMs }
+  await opts.post(token)
+  return { ok: true, token, waitedMs }
 }
 
 export function useGuideTurnstile(siteKey: string | undefined) {
+  const [challengeUi, setChallengeUi] = useState<GuideTurnstileChallengeUi>('idle')
   const controller = useMemo(
     () =>
       createGuideTurnstileController({
         getSiteKey: () => siteKey,
+        onChallengeUi: setChallengeUi,
       }),
     [siteKey],
   )
@@ -220,5 +429,5 @@ export function useGuideTurnstile(siteKey: string | undefined) {
 
   const consumeToken = useCallback(() => controller.consumeToken(), [controller])
 
-  return { hostRef, consumeToken }
+  return { hostRef, consumeToken, challengeUi }
 }

@@ -172,7 +172,7 @@ async function degradeGuidePreview(request: Request, kb: unknown): Promise<Respo
   const calendly = policy?.calendlyUrl || 'https://calendly.com/rutinhq/30min'
   let reply = pick(replyKey, {
     en: 'GTM OS, STORE OS, and NEXUS OS are the public catalog. Book 30 min — https://calendly.com/rutinhq/30min',
-    es: 'GTM OS, STORE OS y NEXUS OS son el catálogo público. Agenda 30 min — https://calendly.com/rutinhq/30min',
+    es: 'GTM OS, STORE OS y NEXUS OS son el catálogo público. Agende 30 min — https://calendly.com/rutinhq/30min',
   })
   reply = ensureCalendlyCta(reply, locale, calendly)
   let leadBrief: unknown

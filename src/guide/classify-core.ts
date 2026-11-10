@@ -103,6 +103,51 @@ export function isBookingTurn(messages: GuideChatMessage[], policy: ClassifyPoli
   return scoreHints(lastUserText(messages), bookingHintsOf(policy)) >= 1
 }
 
+/** Narrower than booking: only schedule-a-call phrasing, not "fit" / "qué más". */
+export const DEFAULT_SCHEDULING_HINTS = [
+  'agendar',
+  'agende',
+  'agendo',
+  'agender',
+  'llamada',
+  'cita',
+  'calendly',
+] as const
+
+export function isSchedulingTurn(messages: GuideChatMessage[]): boolean {
+  return scoreHints(lastUserText(messages), [...DEFAULT_SCHEDULING_HINTS]) >= 1
+}
+
+export function schedulingGuideReply(
+  locale: GuideLocale,
+  url = 'https://calendly.com/rutinhq/30min',
+): string {
+  return locale === 'es'
+    ? `Puede agendar una llamada de 30 minutos aquí: ${url}.`
+    : `You can book a 30-minute call here: ${url}.`
+}
+
+/** Fit questions about a store / Shopify / ecommerce — skip the LLM. */
+export function isStoreShopifyFitTurn(messages: GuideChatMessage[]): boolean {
+  const t = lastUserText(messages).toLowerCase()
+  const object =
+    /\bshopify\b/.test(t) ||
+    /\btienda(s)?\b/.test(t) ||
+    /\be-?commerce\b/.test(t) ||
+    /comercio electr[oó]nico/.test(t)
+  const verb = /\bsirve\b/.test(t) || /\bfunciona\b/.test(t) || /\bme ayuda\b/.test(t)
+  return object && verb
+}
+
+export function storeShopifyFitGuideReply(
+  locale: GuideLocale,
+  url = 'https://calendly.com/rutinhq/30min',
+): string {
+  return locale === 'es'
+    ? `Sí. STORE OS audita y configura el panel de Shopify para que su tienda convierta antes de gastar en anuncios. Si encaja, agende 30 min: ${url}.`
+    : `Yes. STORE OS audits and configures the Shopify admin so the store converts before you spend on ads. If it fits, book 30 min: ${url}.`
+}
+
 function uniqueSku(
   ranked: { key: 'gtm-os' | 'store-os' | 'nexus-os'; n: number }[],
 ): RecommendedSku {
@@ -194,7 +239,7 @@ export function ensureCalendlyCta(
 ): string {
   if (/calendly\.com\/rutinhq\/30min/i.test(reply)) return reply
   const cta =
-    locale === 'es' ? `Siguiente paso: agenda 30 min — ${url}` : `Next step: book 30 min — ${url}`
+    locale === 'es' ? `Si encaja, agende 30 min: ${url}.` : `If it fits, book 30 min: ${url}.`
   return `${reply.trim()} ${cta}`
 }
 

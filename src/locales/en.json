@@ -324,6 +324,7 @@
   },
   "guide": {
     "launcher": "Ask RutinHQ Guide",
+    "uiName": "RutinHQ Guide",
     "subtitle": "Commercial questions on GTM OS, STORE OS, and NEXUS OS.",
     "placeholder": "Ask about a system…",
     "send": "Send",
@@ -337,7 +338,9 @@
     "leadCopied": "Brief copied. Paste it into the email to strategy@",
     "limit": "That's the turn cap for this chat. Book a 30-min fit call and we'll pick it up there.",
     "disclaimer": "Answers stay on public catalog facts. No pricing or legal terms in chat.",
-    "turnstileLabel": "Human check"
+    "turnstileLabel": "Human check",
+    "turnstileVerifying": "Verifying…",
+    "turnstileTick": "Please tick the box to continue."
   },
   "agents": {
     "eyebrow": "Agent catalog",

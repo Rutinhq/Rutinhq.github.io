@@ -54,8 +54,8 @@
     "who": {
       "title": "Para quién",
       "items": [
-        "Founder / CEO o lead de ops en B2B",
-        "Ya venden; el cuello es un pipeline repetible",
+        "Fundador, director general o responsable de operaciones en empresas B2B",
+        "Ya venden y buscan un flujo de ventas repetible",
         "Cold email filtrado por ICP",
         "La primera corrida siempre es en frío"
       ]
@@ -63,9 +63,9 @@
     "notFor": {
       "title": "No es para",
       "items": [
-        "Ecom puro / B2C",
-        "“Solo corre ads”",
-        "RFP enterprise sin dueño de outbound",
+        "Tiendas de comercio electrónico / B2C",
+        "Quien solo quiere anuncios",
+        "Licitación enterprise sin dueño de prospección",
         "Compradores de N juntas garantizadas"
       ]
     },
@@ -125,7 +125,7 @@
         },
         {
           "q": "¿Para quién es GTM OS?",
-          "a": "Founder / CEO o lead de ops en B2B. Ya venden; el cuello es un pipeline repetible. Cold email filtrado por ICP. La primera corrida siempre es en frío."
+          "a": "Fundador, director general o responsable de operaciones en empresas B2B que ya venden y buscan un flujo de ventas repetible. Correo en frío filtrado por ICP. La primera corrida siempre es en frío."
         },
         {
           "q": "¿Cómo funciona GTM OS?",
@@ -142,13 +142,13 @@
     "eyebrow": "Store OS",
     "hero": {
       "headline": "Haz que la tienda convierta antes de comprar ads.",
-      "subhead": "Auditoría + config replicable del Admin de Shopify — variantes, precio, peso, envío — para que la fricción de ops deje de matar la conversión."
+      "subhead": "Auditoría y configuración del panel de Shopify — variantes, precio, peso, envío — para que la tienda convierta antes de gastar en anuncios."
     },
     "who": {
       "title": "Para quién",
       "items": [
-        "Founder / lead de ecom en Shopify DTC",
-        "Fricción de ops",
+        "Marcas que venden directo al consumidor en Shopify",
+        "Fricción operativa",
         "Quiere ads pero la tienda aún no convierte"
       ]
     },
@@ -193,11 +193,11 @@
       "items": [
         {
           "q": "¿Qué es Store OS?",
-          "a": "Haz que la tienda convierta antes de comprar ads. Auditoría + config replicable del Admin de Shopify — variantes, precio, peso, envío — para que la fricción de ops deje de matar la conversión."
+          "a": "Auditoría y configuración del panel de Shopify para que la tienda convierta antes de gastar en anuncios."
         },
         {
           "q": "¿Para quién es Store OS?",
-          "a": "Founder / lead de ecom en Shopify DTC. Fricción de ops. Quiere ads pero la tienda aún no convierte."
+          "a": "Marcas que venden directo al consumidor en Shopify. Fricción operativa. Quiere anuncios pero la tienda aún no convierte."
         },
         {
           "q": "¿Cómo funciona Store OS?",
@@ -289,7 +289,7 @@
     },
     "store": {
       "name": "Store OS",
-      "thesis": "Auditoría + config del Admin de Shopify para que la tienda convierta antes de gastar en ads.",
+      "thesis": "Auditoría y configuración del panel de Shopify para que la tienda convierta antes de gastar en anuncios.",
       "cta": "Ver Store OS"
     },
     "nexus": {
@@ -323,21 +323,24 @@
     "notFoundTitle": "RutinHQ — 404"
   },
   "guide": {
-    "launcher": "Preguntar a RutinHQ Guide",
+    "launcher": "Guía RutinHQ",
+    "uiName": "Guía RutinHQ",
     "subtitle": "Preguntas comerciales sobre GTM OS, STORE OS y NEXUS OS.",
-    "placeholder": "Pregunta por un sistema…",
+    "placeholder": "Pregunte por un sistema…",
     "send": "Enviar",
     "close": "Cerrar",
     "thinking": "Consultando el catálogo…",
-    "degradedNote": "Las respuestas en vivo están en pausa — hechos del catálogo y la llamada de fit.",
-    "greeting": "Soy RutinHQ Guide. Recorro los tres sistemas que vendemos y el catálogo público. No cito precios ni invento términos — si es una pregunta de fit, agenda 30 min.",
-    "ctaBook": "Agendar 30 min de fit",
+    "degradedNote": "Las respuestas en vivo están en pausa — hechos del catálogo y la llamada para ver si encaja.",
+    "greeting": "Soy la guía de RutinHQ. Recorro los tres sistemas que vendemos y el catálogo público. No cito precios ni invento términos — si es una pregunta sobre si encaja, agende 30 min.",
+    "ctaBook": "Agendar 30 min",
     "emailCta": "Escribir a strategy@",
-    "leadCta": "Enviar un brief corto al equipo",
-    "leadCopied": "Brief copiado. Pégalo en el mail a strategy@",
-    "limit": "Llegamos al tope de turnos de este chat. Agenda 30 min y lo seguimos ahí.",
+    "leadCta": "Enviar un resumen corto al equipo",
+    "leadCopied": "Resumen copiado. Péguelo en el correo a strategy@",
+    "limit": "Llegamos al tope de turnos de este chat. Agende 30 min y lo seguimos ahí.",
     "disclaimer": "Las respuestas se quedan en hechos del catálogo público. Sin precios ni términos legales en el chat.",
-    "turnstileLabel": "Comprobación humana"
+    "turnstileLabel": "Comprobación humana",
+    "turnstileVerifying": "Verificando…",
+    "turnstileTick": "Marque la casilla para continuar."
   },
   "agents": {
     "eyebrow": "Catálogo para agentes",
