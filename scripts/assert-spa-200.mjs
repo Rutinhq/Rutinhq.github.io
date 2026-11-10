@@ -1809,8 +1809,29 @@ if (
   )
   process.exit(1)
 }
-if (!appSource.includes('lazy(() => import')) {
-  console.error('src/App.tsx must keep route-level React.lazy imports.')
+if (fs.existsSync('src/lib/resolveLazy.ts')) {
+  console.error('src/lib/resolveLazy.ts must not ship (no React.lazy private-field mutation).')
+  process.exit(1)
+}
+const lazyPageSource = fs.readFileSync('src/lib/lazyPage.ts', 'utf8')
+if (!lazyPageSource.includes('lazy(factory)')) {
+  console.error('src/lib/lazyPage.ts must wrap React.lazy(factory) so route chunks stay split.')
+  process.exit(1)
+}
+if (
+  lazyPageSource.includes('_payload') ||
+  /_status/.test(lazyPageSource) ||
+  lazyPageSource.includes('_result')
+) {
+  console.error('src/lib/lazyPage.ts must not mutate React.lazy private fields.')
+  process.exit(1)
+}
+if (
+  !appSource.includes("() => import('@/pages/index')") ||
+  !appSource.includes("() => import('@/pages/gtm-os')") ||
+  !appSource.includes('lazyPage(')
+) {
+  console.error('src/App.tsx must keep route-level dynamic import() via lazyPage().')
   process.exit(1)
 }
 

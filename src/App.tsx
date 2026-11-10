@@ -1,25 +1,26 @@
-import { lazy } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import { RootLayout } from '@/layouts/RootLayout'
+import { lazyPage } from '@/lib/lazyPage'
 import { normalizePathname } from '@/lib/i18n/paths'
-import { resolveLazy } from '@/lib/resolveLazy'
 
-export const HubPage = lazy(() => import('@/pages/index'))
-export const GtmOsPage = lazy(() => import('@/pages/gtm-os'))
-export const StoreOsPage = lazy(() => import('@/pages/store-os'))
-export const NexusOsPage = lazy(() => import('@/pages/nexus-os'))
-export const BlogPage = lazy(() => import('@/pages/blog'))
-export const BlogEsPage = lazy(() => import('@/pages/blog-es'))
-export const BlogIcpGatedColdOutboundPage = lazy(
+export const HubPage = lazyPage(() => import('@/pages/index'))
+export const GtmOsPage = lazyPage(() => import('@/pages/gtm-os'))
+export const StoreOsPage = lazyPage(() => import('@/pages/store-os'))
+export const NexusOsPage = lazyPage(() => import('@/pages/nexus-os'))
+export const BlogPage = lazyPage(() => import('@/pages/blog'))
+export const BlogEsPage = lazyPage(() => import('@/pages/blog-es'))
+export const BlogIcpGatedColdOutboundPage = lazyPage(
   () => import('@/pages/blog-icp-gated-cold-outbound'),
 )
-export const BlogStoreOsAdminAuditPage = lazy(
+export const BlogStoreOsAdminAuditPage = lazyPage(
   () => import('@/pages/blog-store-os-admin-audit'),
 )
-export const BlogOutboundFrioPage = lazy(() => import('@/pages/blog-outbound-frio'))
-export const AgentsPage = lazy(() => import('@/pages/agents'))
-export const AgentsAuthPage = lazy(() => import('@/pages/agents-auth'))
-export const NotFoundPage = lazy(() => import('@/pages/not-found'))
+export const BlogOutboundFrioPage = lazyPage(
+  () => import('@/pages/blog-outbound-frio'),
+)
+export const AgentsPage = lazyPage(() => import('@/pages/agents'))
+export const AgentsAuthPage = lazyPage(() => import('@/pages/agents-auth'))
+export const NotFoundPage = lazyPage(() => import('@/pages/not-found'))
 
 const pages = [
   HubPage,
@@ -36,55 +37,34 @@ const pages = [
   NotFoundPage,
 ]
 
+const pageByPath: Record<string, (typeof pages)[number]> = {
+  '/': HubPage,
+  '/es': HubPage,
+  '/gtm-os': GtmOsPage,
+  '/es/gtm-os': GtmOsPage,
+  '/store-os': StoreOsPage,
+  '/es/store-os': StoreOsPage,
+  '/nexus-os': NexusOsPage,
+  '/es/nexus-os': NexusOsPage,
+  '/blog': BlogPage,
+  '/es/blog': BlogEsPage,
+  '/blog/icp-gated-cold-outbound-without-rented-sdr': BlogIcpGatedColdOutboundPage,
+  '/blog/shopify-admin-audit-before-ads': BlogStoreOsAdminAuditPage,
+  '/es/blog/outbound-frio-con-icp-sin-sdr-rentado': BlogOutboundFrioPage,
+  '/agents': AgentsPage,
+  '/es/agents': AgentsPage,
+  '/agents/auth': AgentsAuthPage,
+  '/es/agents/auth': AgentsAuthPage,
+}
+
 export async function resolveAllPages() {
-  await Promise.all(pages.map((page) => resolveLazy(page)))
+  await Promise.all(pages.map((page) => page.preload()))
 }
 
 export async function resolvePageForPath(pathname: string) {
   const path = normalizePathname(pathname)
-  switch (path) {
-    case '/':
-    case '/es':
-      await resolveLazy(HubPage)
-      return
-    case '/gtm-os':
-    case '/es/gtm-os':
-      await resolveLazy(GtmOsPage)
-      return
-    case '/store-os':
-    case '/es/store-os':
-      await resolveLazy(StoreOsPage)
-      return
-    case '/nexus-os':
-    case '/es/nexus-os':
-      await resolveLazy(NexusOsPage)
-      return
-    case '/blog':
-      await resolveLazy(BlogPage)
-      return
-    case '/es/blog':
-      await resolveLazy(BlogEsPage)
-      return
-    case '/blog/icp-gated-cold-outbound-without-rented-sdr':
-      await resolveLazy(BlogIcpGatedColdOutboundPage)
-      return
-    case '/blog/shopify-admin-audit-before-ads':
-      await resolveLazy(BlogStoreOsAdminAuditPage)
-      return
-    case '/es/blog/outbound-frio-con-icp-sin-sdr-rentado':
-      await resolveLazy(BlogOutboundFrioPage)
-      return
-    case '/agents':
-    case '/es/agents':
-      await resolveLazy(AgentsPage)
-      return
-    case '/agents/auth':
-    case '/es/agents/auth':
-      await resolveLazy(AgentsAuthPage)
-      return
-    default:
-      await resolveLazy(NotFoundPage)
-  }
+  const page = pageByPath[path] ?? NotFoundPage
+  await page.preload()
 }
 
 export default function App() {

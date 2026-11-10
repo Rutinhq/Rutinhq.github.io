@@ -8,11 +8,10 @@ import { GuideWidgetLazy } from './components/guide/GuideHost'
 import './lib/i18n'
 import i18n from './lib/i18n'
 import { defaultLanguage } from './lib/i18n/config'
-import { resolveLazy } from './lib/resolveLazy'
 
 export async function render(url: string, lang?: string) {
   await resolveAllPages()
-  await resolveLazy(GuideWidgetLazy)
+  await GuideWidgetLazy.preload()
   await i18n.changeLanguage(lang || defaultLanguage)
 
   let helmetState: HelmetServerState | undefined
