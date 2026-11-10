@@ -86,6 +86,7 @@ const guideKeys = [
   'limit',
   'disclaimer',
   'turnstileLabel',
+  'turnstileTick',
 ]
 for (const key of guideKeys) {
   if (!en.guide?.[key] || !es.guide?.[key]) {
@@ -94,7 +95,7 @@ for (const key of guideKeys) {
   }
   if (en.guide[key] === es.guide[key] && key !== 'leadCta') {
     // brand-stable strings may match; greeting/launcher/chrome must differ
-    if (['launcher', 'greeting', 'subtitle', 'placeholder', 'ctaBook', 'emailCta', 'disclaimer', 'thinking', 'degradedNote'].includes(key)) {
+    if (['launcher', 'greeting', 'subtitle', 'placeholder', 'ctaBook', 'emailCta', 'disclaimer', 'thinking', 'degradedNote', 'turnstileTick'].includes(key)) {
       console.error(`guide.${key} is identical in EN and ES — locale leak`)
       process.exit(1)
     }
@@ -395,10 +396,36 @@ if (!/client_timeout/.test(widget) || !/token_wait_timeout/.test(widget)) {
   console.error('Guide widget must label local fallbacks (client_timeout / token_wait_timeout)')
   process.exit(1)
 }
+if (!/shouldPostGuideAfterTurnstile/.test(widget) || !/awaitingChallenge/.test(widget) || !/sendLock/.test(widget)) {
+  console.error('Guide widget must wait for Turnstile, keep the question, and not POST twice')
+  process.exit(1)
+}
+if (!/guide.turnstileTick/.test(widget)) {
+  console.error('Guide widget must show the tick-the-box note while waiting for Turnstile')
+  process.exit(1)
+}
+const esLocale = fs.readFileSync(path.join(root, 'src/locales/es.json'), 'utf8')
+const enLocale = fs.readFileSync(path.join(root, 'src/locales/en.json'), 'utf8')
+if (!/Marque la casilla para continuar/.test(esLocale) || !/Please tick the box to continue/.test(enLocale)) {
+  console.error('turnstileTick copy must be ES Marque la casilla / EN Please tick the box')
+  process.exit(1)
+}
 const turnstileHook = fs.readFileSync(
   path.join(root, 'src/components/guide/useGuideTurnstile.ts'),
   'utf8',
 )
+if (!/GUIDE_TURNSTILE_TOKEN_WAIT_MS = 20_000/.test(turnstileHook)) {
+  console.error('Turnstile must wait ~20s for the checkbox before degrading')
+  process.exit(1)
+}
+if (!/get\('ts'\) === 'interactive'/.test(turnstileHook) || !/3x00000000000000000000FF/.test(turnstileHook)) {
+  console.error('preview ?ts=interactive must swap the always-interactive dummy site key')
+  process.exit(1)
+}
+if (!/isGuidePreviewHost/.test(turnstileHook)) {
+  console.error('dummy Turnstile site key must be gated to Pages preview hosts')
+  process.exit(1)
+}
 if (!/VITE_TURNSTILE_SITE_KEY/.test(turnstileHook) || !/readGuideTurnstileSiteKey/.test(widget)) {
   console.error('Guide widget must read VITE_TURNSTILE_SITE_KEY and degrade when unset')
   process.exit(1)

@@ -1,10 +1,15 @@
 import { useCallback, useEffect, useMemo } from 'react'
+import { isGuidePreviewHost } from '../../guide/preview-host'
 
 const TURNSTILE_SRC =
   'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'
 
-/** Wait covers script + explicit render after the chat host mounts, then the token callback. */
-export const GUIDE_TURNSTILE_TOKEN_WAIT_MS = 8_000
+/** Cloudflare dummy key that always shows the checkbox. Preview UX only. */
+export const GUIDE_TURNSTILE_ALWAYS_INTERACTIVE_SITE_KEY =
+  '3x00000000000000000000FF'
+
+/** Wait for the user to tick the box (callback) before posting. */
+export const GUIDE_TURNSTILE_TOKEN_WAIT_MS = 20_000
 
 let scriptPromise: Promise<void> | null = null
 
@@ -160,6 +165,7 @@ export function createGuideTurnstileController(
 
   const consumeToken = async (): Promise<string | undefined> => {
     if (!opts.getSiteKey()) return undefined
+    const gen = generation
     const started = clock.now()
     const deadline = started + tokenWaitMs
     const pendingRender = renderPromise
@@ -168,6 +174,7 @@ export function createGuideTurnstileController(
       await Promise.race([pendingRender, clock.sleep(renderWait)])
     }
     while (clock.now() < deadline) {
+      if (gen !== generation) return undefined
       const api = getApi()
       const live =
         token || (widgetId && api ? api.getResponse(widgetId) : '') || ''
@@ -190,9 +197,36 @@ export function createGuideTurnstileController(
   return { attach, consumeToken, dispose }
 }
 
+export function resolveGuideTurnstileSiteKey(
+  envKey: string | undefined,
+  hostname: string,
+  search: string,
+): string | undefined {
+  const trimmed = typeof envKey === 'string' && envKey.trim() ? envKey.trim() : undefined
+  if (isGuidePreviewHost(hostname)) {
+    const params = new URLSearchParams(search.startsWith('?') ? search.slice(1) : search)
+    if (params.get('ts') === 'interactive') {
+      return GUIDE_TURNSTILE_ALWAYS_INTERACTIVE_SITE_KEY
+    }
+  }
+  return trimmed
+}
+
 export function readGuideTurnstileSiteKey(): string | undefined {
   const key = import.meta.env.VITE_TURNSTILE_SITE_KEY
-  return typeof key === 'string' && key.trim() ? key.trim() : undefined
+  const hostname = typeof window === 'undefined' ? '' : window.location.hostname
+  const search = typeof window === 'undefined' ? '' : window.location.search
+  return resolveGuideTurnstileSiteKey(key, hostname, search)
+}
+
+/** Skip the POST when a site key is set but no token arrived — avoid a 403 + double send. */
+export function shouldPostGuideAfterTurnstile(opts: {
+  siteKey: string | undefined
+  token: string | undefined
+}): { post: boolean; timedOut: boolean } {
+  if (!opts.siteKey) return { post: true, timedOut: false }
+  if (opts.token) return { post: true, timedOut: false }
+  return { post: false, timedOut: true }
 }
 
 export function useGuideTurnstile(siteKey: string | undefined) {

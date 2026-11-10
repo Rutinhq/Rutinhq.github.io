@@ -29,7 +29,11 @@ import type {
 import { languageFromPathname } from '@/lib/i18n/paths'
 import { cn } from '@/lib/utils'
 import { getFocusable, trapTab } from './focusTrap'
-import { readGuideTurnstileSiteKey, useGuideTurnstile } from './useGuideTurnstile'
+import {
+  readGuideTurnstileSiteKey,
+  shouldPostGuideAfterTurnstile,
+  useGuideTurnstile,
+} from './useGuideTurnstile'
 
 type UiMessage = GuideChatMessage & { id: string }
 
@@ -59,12 +63,14 @@ export function GuideWidget() {
   const [open, setOpen] = useState(false)
   const [input, setInput] = useState('')
   const [pending, setPending] = useState(false)
+  const [awaitingChallenge, setAwaitingChallenge] = useState(false)
   const [livePaused, setLivePaused] = useState(false)
   const [degradedReason, setDegradedReason] = useState<string | null>(null)
   const showPreviewReason = readGuidePreviewHost()
   const [leadBrief, setLeadBrief] = useState<LeadBrief | null>(null)
   const [leadStatus, setLeadStatus] = useState<string | null>(null)
   const [messages, setMessages] = useState<UiMessage[]>([])
+  const sendLock = useRef(false)
   const turnstileSiteKey = readGuideTurnstileSiteKey()
   const { hostRef: turnstileRef, consumeToken } = useGuideTurnstile(turnstileSiteKey)
 
@@ -100,7 +106,8 @@ export function GuideWidget() {
 
   async function send() {
     const text = input.trim().slice(0, GUIDE_LIMITS.maxInputChars)
-    if (!text || pending || atCap) return
+    if (!text || pending || sendLock.current || atCap) return
+    sendLock.current = true
 
     const userMessage: UiMessage = { id: uid(), role: 'user', content: text }
     const nextMessages = [...messages, userMessage]
@@ -121,33 +128,40 @@ export function GuideWidget() {
     let reason: string | null = null
 
     try {
+      setAwaitingChallenge(Boolean(turnstileSiteKey))
       const turnstileToken = await consumeToken()
-      const tokenWaitTimedOut = Boolean(turnstileSiteKey) && !turnstileToken
-      if (tokenWaitTimedOut) {
-        reason = 'token_wait_timeout'
-      }
-      const res = await fetch('/api/guide', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        signal: AbortSignal.timeout(GUIDE_CLIENT_FETCH_MS),
-        body: JSON.stringify({
-          messages: conversation,
-          locale,
-          page: pathname,
-          ...(turnstileToken ? { turnstileToken } : {}),
-        }),
+      setAwaitingChallenge(false)
+      const plan = shouldPostGuideAfterTurnstile({
+        siteKey: turnstileSiteKey,
+        token: turnstileToken,
       })
-      if (res.ok) {
-        const data = (await res.json()) as GuideApiResponse
-        if (data.reply) reply = data.reply
-        brief = data.leadBrief
-        paused = data.mode === 'degraded' && !isSecurityProbe(conversation)
-        if (paused) {
-          reason = data.degradedReason || reason
-        }
-      } else {
+      if (plan.timedOut) {
+        reason = 'token_wait_timeout'
         paused = true
-        reason = tokenWaitTimedOut ? 'token_wait_timeout' : `http_${res.status}`
+      } else {
+        const res = await fetch('/api/guide', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          signal: AbortSignal.timeout(GUIDE_CLIENT_FETCH_MS),
+          body: JSON.stringify({
+            messages: conversation,
+            locale,
+            page: pathname,
+            ...(turnstileToken ? { turnstileToken } : {}),
+          }),
+        })
+        if (res.ok) {
+          const data = (await res.json()) as GuideApiResponse
+          if (data.reply) reply = data.reply
+          brief = data.leadBrief
+          paused = data.mode === 'degraded' && !isSecurityProbe(conversation)
+          if (paused) {
+            reason = data.degradedReason || reason
+          }
+        } else {
+          paused = true
+          reason = `http_${res.status}`
+        }
       }
     } catch (err) {
       // Timeout / network — catalog fallback + Calendly, not a hanging spinner.
@@ -178,13 +192,21 @@ export function GuideWidget() {
     }
     setLivePaused(paused)
     setDegradedReason(paused ? reason : null)
+    setAwaitingChallenge(false)
     setPending(false)
+    sendLock.current = false
   }
 
   async function sendLeadBrief() {
     if (!leadBrief) return
 
-    const turnstileToken = await consumeToken()
+    setAwaitingChallenge(Boolean(turnstileSiteKey))
+    let turnstileToken: string | undefined
+    try {
+      turnstileToken = await consumeToken()
+    } finally {
+      setAwaitingChallenge(false)
+    }
     void fetch('/api/guide/lead', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
@@ -318,11 +340,17 @@ export function GuideWidget() {
             ) : null}
 
             {turnstileSiteKey ? (
-              <div
-                ref={turnstileRef}
-                className="mt-3"
-                aria-label={copy('guide.turnstileLabel')}
-              />
+              <div className="mt-3 space-y-2">
+                <div
+                  ref={turnstileRef}
+                  aria-label={copy('guide.turnstileLabel')}
+                />
+                {awaitingChallenge ? (
+                  <p className="text-[12px] text-muted-foreground" role="status">
+                    {copy('guide.turnstileTick')}
+                  </p>
+                ) : null}
+              </div>
             ) : null}
 
             {atCap ? (

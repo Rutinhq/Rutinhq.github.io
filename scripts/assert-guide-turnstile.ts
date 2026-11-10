@@ -4,6 +4,10 @@
  */
 import {
   createGuideTurnstileController,
+  GUIDE_TURNSTILE_ALWAYS_INTERACTIVE_SITE_KEY,
+  GUIDE_TURNSTILE_TOKEN_WAIT_MS,
+  resolveGuideTurnstileSiteKey,
+  shouldPostGuideAfterTurnstile,
   type GuideTurnstileApi,
   type GuideTurnstileRenderOptions,
 } from '../src/components/guide/useGuideTurnstile.ts'
@@ -24,7 +28,7 @@ type WidgetRecord = {
   resetCount: number
 }
 
-function mockTurnstile() {
+function mockTurnstile(autoIssue = true) {
   const widgets = new Map<string, WidgetRecord>()
   const renderCalls: HTMLElement[] = []
   let n = 0
@@ -48,7 +52,7 @@ function mockTurnstile() {
         resetCount: 0,
       }
       widgets.set(id, widget)
-      issue(widget, `token-${id}`)
+      if (autoIssue) issue(widget, `token-${id}`)
       return id
     },
     reset(widgetId) {
@@ -170,6 +174,75 @@ async function main() {
     controller.dispose()
     assert(second.removed, 'dispose removes the live widget')
   }
+
+  {
+    const { api, widgets } = mockTurnstile(false)
+    const controller = controllerOf(api, { tokenWaitMs: 800 })
+    controller.attach(host())
+    await flush()
+    const pending = controller.consumeToken()
+    setTimeout(() => {
+      const widget = [...widgets.values()][0]
+      widget.options.callback?.('late-tick')
+    }, 120)
+    const token = await pending
+    assert(token === 'late-tick', `late checkbox callback must send, got ${token}`)
+    controller.dispose()
+  }
+
+  {
+    const { api } = mockTurnstile(false)
+    const controller = controllerOf(api, { tokenWaitMs: 250 })
+    controller.attach(host())
+    await flush()
+    const token = await controller.consumeToken()
+    assert(token === undefined, 'timeout with no tick must not invent a token')
+    controller.dispose()
+  }
+
+  assert(GUIDE_TURNSTILE_TOKEN_WAIT_MS === 20_000, 'wait up to ~20s for the checkbox')
+  assert(
+    GUIDE_TURNSTILE_ALWAYS_INTERACTIVE_SITE_KEY === '3x00000000000000000000FF',
+    'Cloudflare always-interactive dummy site key',
+  )
+
+  const prodKey = '0x4AAAAAAF6-kFpM12bv15mT'
+  const interactive = '?ts=interactive'
+  assert(
+    resolveGuideTurnstileSiteKey(prodKey, '42402de1.rutinhq-web.pages.dev', interactive) ===
+      GUIDE_TURNSTILE_ALWAYS_INTERACTIVE_SITE_KEY,
+    'preview host may swap in the interactive dummy key',
+  )
+  assert(
+    resolveGuideTurnstileSiteKey(prodKey, '42402de1.rutinhq-web.pages.dev', '') === prodKey,
+    'preview without ?ts=interactive keeps the real site key',
+  )
+  assert(
+    resolveGuideTurnstileSiteKey(prodKey, 'rutinhq.com', interactive) === prodKey,
+    'rutinhq.com must never use the dummy key',
+  )
+  assert(
+    resolveGuideTurnstileSiteKey(prodKey, 'www.rutinhq.com', interactive) === prodKey,
+    'www.rutinhq.com must never use the dummy key',
+  )
+  assert(
+    resolveGuideTurnstileSiteKey(prodKey, 'rutinhq-web.pages.dev', interactive) === prodKey,
+    'Pages production alias must never use the dummy key',
+  )
+
+  assert(
+    shouldPostGuideAfterTurnstile({ siteKey: prodKey, token: 'tok' }).post === true,
+    'token present → POST once',
+  )
+  assert(
+    shouldPostGuideAfterTurnstile({ siteKey: prodKey, token: undefined }).post === false &&
+      shouldPostGuideAfterTurnstile({ siteKey: prodKey, token: undefined }).timedOut === true,
+    'no token after wait → skip POST (local degraded, question kept)',
+  )
+  assert(
+    shouldPostGuideAfterTurnstile({ siteKey: undefined, token: undefined }).post === true,
+    'unset site key still posts (local fail-open)',
+  )
 
   console.log('guide Turnstile hook checks passed')
 }
