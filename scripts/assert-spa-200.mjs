@@ -491,6 +491,8 @@ for (const identity of [
   '/favicon-48x48.png',
   '/favicon-192x192.png',
   '/apple-touch-icon.png',
+  '/apple-touch-icon-180x180.png',
+  '/apple-touch-icon-precomposed.png',
   '/site.webmanifest',
 ]) {
   const escaped = identity.replaceAll('.', '\\.')
