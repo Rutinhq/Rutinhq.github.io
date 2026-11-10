@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { Ctas } from '@/components/Ctas'
+import { EmailLink } from '@/components/EmailLink'
 import { MonoTitle, Section } from '@/components/Section'
 import { OG_IMAGE, Seo } from '@/components/Seo'
 import { buttonVariants } from '@/components/ui/button'
@@ -82,15 +83,24 @@ export default function AgentsPage() {
                 <p className="mt-2 text-[16px] text-muted-foreground">
                   {t(`agents.resources.${item.key}.blurb`)}
                 </p>
-                <a
-                  href={href}
-                  {...(item.external
-                    ? { target: '_blank', rel: 'noopener noreferrer' }
-                    : {})}
-                  className="mt-2 inline-block text-[15px] text-foreground underline underline-offset-4 hover:text-primary"
-                >
-                  {label}
-                </a>
+                {item.key === 'contact' ? (
+                  <EmailLink
+                    href={href}
+                    className="mt-2 inline-block text-[15px] text-foreground underline underline-offset-4 hover:text-primary"
+                  >
+                    {label}
+                  </EmailLink>
+                ) : (
+                  <a
+                    href={href}
+                    {...(item.external
+                      ? { target: '_blank', rel: 'noopener noreferrer' }
+                      : {})}
+                    className="mt-2 inline-block text-[15px] text-foreground underline underline-offset-4 hover:text-primary"
+                  >
+                    {label}
+                  </a>
+                )}
               </li>
             )
           })}

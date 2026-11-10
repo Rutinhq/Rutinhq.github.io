@@ -85,7 +85,7 @@ export default function BlogPage() {
         <MonoTitle>Featured</MonoTitle>
         <article className="mt-8 max-w-2xl">
           <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-primary">
-            How-to · GTM OS · DRAFT
+            How-to · GTM OS
           </p>
           <h2 className="mt-3 text-2xl font-heading font-extrabold tracking-[-0.03em]">
             <Link to={ARTICLE01.path} className="hover:text-primary">

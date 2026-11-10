@@ -4,7 +4,8 @@ export const ARTICLE01_ES_PATH =
   '/es/blog/outbound-frio-con-icp-sin-sdr-rentado' as const
 export const ARTICLE02_PATH = '/blog/shopify-admin-audit-before-ads' as const
 
-/** Capo GO 23 Sep: blog index + articles are indexable. */
+/** Capo GO 23 Sep: blog index + articles are indexable.
+ *  Capo 4 Nov 2026: Article02 stays indexable (do not apply the noindex option). */
 export const BLOG_ROBOTS = 'index, follow' as const
 
 export const BLOG_INDEX_FAQ = [
@@ -156,6 +157,7 @@ export const ARTICLE02 = {
   job: 'Audit Admin friction before ad spend.',
   cta: 'strategy@',
   draft: true,
+  /** Capo 4 Nov 2026: outline may stay visually DRAFT; robots stay index,follow. */
   noindex: false,
   inLanguage: 'en',
   author: 'RutinHQ',

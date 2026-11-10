@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
+import { EmailLink } from '@/components/EmailLink'
 import { cn } from '@/lib/utils'
 
 export type BlogBreadcrumb = {
@@ -99,7 +100,7 @@ export function BlogPostLayout({
       <div className="blog-post-column">
         {draft ? (
           <p className="blog-kicker" role="status">
-            DRAFT — not for index until publish GO.
+            DRAFT outline — catalog language only.
           </p>
         ) : null}
         <p className="blog-kicker">{typeLabel}</p>
@@ -153,7 +154,7 @@ export function BlogPostLayout({
                 {' · '}
               </>
             ) : null}
-            <a href={cta.mailto}>{cta.mailtoLabel ?? 'strategy@'}</a>
+            <EmailLink href={cta.mailto}>{cta.mailtoLabel ?? 'strategy@'}</EmailLink>
             {' · '}
             <a href={cta.lpHref}>{cta.lpLabel}</a>
           </p>

@@ -628,6 +628,13 @@ if (fs.existsSync('dist/_headers')) {
     )
     process.exit(1)
   }
+  const blogPretty = headers.match(/^\/blog\/\*[\s\S]*?(?=\n\/[^*\n]|\n#[^\n]*\n\/|$)/m)
+  if (blogPretty && /X-Robots-Tag:\s*noindex/i.test(blogPretty[0])) {
+    console.error(
+      'dist/_headers /blog/* must not send X-Robots-Tag noindex (Article02 is indexable).',
+    )
+    process.exit(1)
+  }
   if (
     !/\/prerender\/\*[\s\S]*?X-Robots-Tag:\s*noindex,\s*nofollow/i.test(headers)
   ) {
@@ -800,6 +807,35 @@ if (
 ) {
   console.error(
     `${blogSource} must publish the blog with BLOG_ROBOTS index, follow and noindex:false.`,
+  )
+  process.exit(1)
+}
+const article02Flag = blogFlags.match(
+  /export const ARTICLE02 = \{[\s\S]*?\n\} as const/,
+)?.[0]
+if (
+  !article02Flag ||
+  !/noindex:\s*false/.test(article02Flag) ||
+  /noindex:\s*true/.test(article02Flag)
+) {
+  console.error(
+    `${blogSource} Article02 must stay indexable (noindex: false) — Capo 4 Nov 2026.`,
+  )
+  process.exit(1)
+}
+const article02Page = 'src/pages/blog-store-os-admin-audit.tsx'
+if (!fs.existsSync(article02Page)) {
+  console.error(`${article02Page} missing — Article02 route cannot stay indexable.`)
+  process.exit(1)
+}
+const article02PageSrc = fs.readFileSync(article02Page, 'utf8')
+if (
+  !article02PageSrc.includes('robots={BLOG_ROBOTS}') ||
+  !article02PageSrc.includes('noindex={ARTICLE02.noindex}') ||
+  /robots=["']noindex/i.test(article02PageSrc)
+) {
+  console.error(
+    `${article02Page} must pass BLOG_ROBOTS (index, follow) — Capo 4 Nov 2026 keeps Article02 indexable.`,
   )
   process.exit(1)
 }
@@ -1012,6 +1048,7 @@ const mustDiffer = [
   'common.ctaPrimary',
   'common.ctaPrimaryShort',
   'common.ctaDocs',
+  'common.ctaEmailSecondary',
   'hub.eyebrow',
   'hub.headline',
   'hub.subhead',
@@ -1067,25 +1104,29 @@ for (const [name, source] of [
   ['Footer', footerSource],
   ['Ctas', ctasSource],
 ]) {
-  if (source.includes('CALENDLY_URL')) {
-    console.error(`${name} primary Talk CTA must not use CALENDLY_URL.`)
+  if (!source.includes('CALENDLY_URL')) {
+    console.error(`${name} primary Talk CTA must use CALENDLY_URL.`)
+    process.exit(1)
+  }
+  if (!source.includes('target="_blank"') || !source.includes('rel="noopener noreferrer"')) {
+    console.error(`${name} Calendly CTA must open in a new tab with rel=noopener noreferrer.`)
     process.exit(1)
   }
 }
-if (!headerSource.includes('talkMailtoForPath') || !footerSource.includes('talkMailtoForPath')) {
-  console.error('Header/Footer Talk CTA must use talkMailtoForPath (mailto + SKU subject).')
+if (headerSource.includes('talkMailtoForPath') || footerSource.includes('talkMailtoForPath')) {
+  console.error('Header/Footer Talk CTA must not use talkMailtoForPath (Calendly is primary).')
+  process.exit(1)
+}
+if (!ctasSource.includes('CALENDLY_URL') || !ctasSource.includes('ctaEmailSecondary')) {
+  console.error('Ctas primary Talk button must be Calendly, with a secondary email line.')
   process.exit(1)
 }
 if (!ctasSource.includes('mailtoHref') || !ctasSource.includes('MAILTO_EMAIL')) {
-  console.error('Ctas primary Talk button must be mailto (mailtoHref, default MAILTO_EMAIL).')
+  console.error('Ctas must keep mailtoHref as the secondary email (default MAILTO_EMAIL).')
   process.exit(1)
 }
-if (ctasSource.includes('ctaEmail') || ctasSource.includes('ctaSecondary')) {
-  console.error('Ctas must drop the duplicate Email label in the Talk+Read cluster.')
-  process.exit(1)
-}
-if (!footerSource.includes('MAILTO_EMAIL')) {
-  console.error('Footer email line must use MAILTO_EMAIL.')
+if (!footerSource.includes('MAILTO_EMAIL') || !footerSource.includes('EmailLink')) {
+  console.error('Footer email line must use MAILTO_EMAIL inside EmailLink (email_off).')
   process.exit(1)
 }
 
@@ -1124,6 +1165,12 @@ for (const bot of ['GPTBot', 'ClaudeBot', 'Google-Extended']) {
     console.error(`${robots} must not Disallow: / for ${bot}.`)
     process.exit(1)
   }
+}
+if (/Disallow:\s*\/blog/i.test(robotsBody)) {
+  console.error(
+    `${robots} must not Disallow /blog — Article02 and the rest of the blog stay crawlable.`,
+  )
+  process.exit(1)
 }
 
 const htmlShell = /<!doctype html|<html[\s>]/i
@@ -1267,42 +1314,57 @@ const talkClusters = [
     mailto: 'mailto:strategy@rutinhq.com?subject=GTM%20OS%20%E2%80%94%20fit%20call',
     docs: 'https://docs.rutinhq.com/catalog/gtm-os/',
     read: 'Read the system',
+    emailLine: 'or email',
   },
   {
     file: 'dist/prerender/store-os.html',
     mailto: 'mailto:strategy@rutinhq.com?subject=Store%20OS%20%E2%80%94%20fit%20call',
     docs: 'https://docs.rutinhq.com/catalog/store-os/',
     read: 'Read the system',
+    emailLine: 'or email',
   },
   {
     file: 'dist/prerender/nexus-os.html',
     mailto: 'mailto:strategy@rutinhq.com?subject=NEXUS%20OS%20%E2%80%94%20fit%20call',
     docs: 'https://docs.rutinhq.com/catalog/nexus-os/',
     read: 'Read the system',
+    emailLine: 'or email',
   },
   {
     file: 'dist/prerender/es-gtm-os.html',
     mailto: 'mailto:strategy@rutinhq.com?subject=GTM%20OS%20%E2%80%94%20fit%20call',
     docs: 'https://docs.rutinhq.com/catalog/gtm-os/',
     read: 'Leer el sistema',
+    emailLine: 'o escríbenos a',
   },
   {
     file: 'dist/prerender/es-store-os.html',
     mailto: 'mailto:strategy@rutinhq.com?subject=Store%20OS%20%E2%80%94%20fit%20call',
     docs: 'https://docs.rutinhq.com/catalog/store-os/',
     read: 'Leer el sistema',
+    emailLine: 'o escríbenos a',
   },
   {
     file: 'dist/prerender/es-nexus-os.html',
     mailto: 'mailto:strategy@rutinhq.com?subject=NEXUS%20OS%20%E2%80%94%20fit%20call',
     docs: 'https://docs.rutinhq.com/catalog/nexus-os/',
     read: 'Leer el sistema',
+    emailLine: 'o escríbenos a',
   },
 ]
+const calendlyHref = 'https://calendly.com/rutinhq/30min'
 for (const shell of talkClusters) {
   const html = fs.readFileSync(shell.file, 'utf8')
+  if (!html.includes(`href="${calendlyHref}"`)) {
+    console.error(`${shell.file} must use Talk Calendly ${calendlyHref}.`)
+    process.exit(1)
+  }
   if (!html.includes(`href="${shell.mailto}"`)) {
-    console.error(`${shell.file} must use Talk mailto ${shell.mailto}.`)
+    console.error(`${shell.file} must keep secondary email ${shell.mailto}.`)
+    process.exit(1)
+  }
+  if (!html.includes(shell.emailLine)) {
+    console.error(`${shell.file} must keep «${shell.emailLine}» as the secondary email line.`)
     process.exit(1)
   }
   if (!html.includes(`href="${shell.docs}"`)) {
@@ -1538,11 +1600,11 @@ if (
   !footerSource.includes('DOCS_CATALOG_URL') ||
   !footerSource.includes("localized('/blog')") ||
   !footerSource.includes("localized('/agents')") ||
-  !footerSource.includes('talkMailtoForPath') ||
+  !footerSource.includes('CALENDLY_URL') ||
   !footerSource.includes('MAILTO_EMAIL')
 ) {
   console.error(
-    'Footer must keep Catalog (docs), locale Blog, Agents, Talk mailto, and mailto email.',
+    'Footer must keep Catalog (docs), locale Blog, Agents, Talk Calendly, and mailto email.',
   )
   process.exit(1)
 }
@@ -1944,6 +2006,12 @@ if (
   console.error(`${article02Shell} must canonical the Article02 www URL.`)
   process.exit(1)
 }
+if (/not for index/i.test(article02Html) || /content=["']noindex/i.test(article02Html)) {
+  console.error(
+    `${article02Shell} must stay indexable (Capo 4 Nov 2026) — no noindex meta or "not for index" copy.`,
+  )
+  process.exit(1)
+}
 
 const OG_PACK = [
   'og-hub.png',
@@ -2202,5 +2270,5 @@ console.log(
 )
 
 console.log(
-  'SSR bodies in #root; 404.html ships (no SPA catch-all); blog + SKU + ES shells unique; favicon.ico + PNG 48/192 + manifest real; Talk mailto primary CTA.',
+  'SSR bodies in #root; 404.html ships (no SPA catch-all); blog + SKU + ES shells unique; favicon.ico + PNG 48/192 + manifest real; Talk Calendly primary CTA.',
 )

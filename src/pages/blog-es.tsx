@@ -16,9 +16,9 @@ import {
 import {
   DOCS_CATALOG_URL,
   DOCS_GTM_URL,
-  WWW_GTM_URL,
-  WWW_NEXUS_URL,
-  WWW_STORE_URL,
+  WWW_GTM_ES_URL,
+  WWW_NEXUS_ES_URL,
+  WWW_STORE_ES_URL,
 } from '@/lib/links'
 
 export default function BlogEsPage() {
@@ -91,7 +91,7 @@ export default function BlogEsPage() {
         <MonoTitle>Destacado</MonoTitle>
         <article className="mt-8 max-w-2xl">
           <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-primary">
-            How-to · GTM OS · DRAFT
+            How-to · GTM OS
           </p>
           <h2 className="mt-3 text-2xl font-heading font-extrabold tracking-[-0.03em]">
             <Link to={ARTICLE01_ES.path} className="hover:text-primary">
@@ -162,7 +162,7 @@ export default function BlogEsPage() {
               </Link>
               {' · '}
               <a
-                href={WWW_GTM_URL}
+                href={WWW_GTM_ES_URL}
                 className="text-foreground underline underline-offset-4 hover:text-primary"
               >
                 GTM OS
@@ -185,7 +185,7 @@ export default function BlogEsPage() {
               </Link>
               {' · '}
               <a
-                href={WWW_STORE_URL}
+                href={WWW_STORE_ES_URL}
                 className="text-foreground underline underline-offset-4 hover:text-primary"
               >
                 Store OS
@@ -239,7 +239,7 @@ export default function BlogEsPage() {
           {' · '}
           LP primaria{' '}
           <a
-            href={WWW_GTM_URL}
+            href={WWW_GTM_ES_URL}
             className="text-foreground underline underline-offset-4 hover:text-primary"
           >
             GTM OS
@@ -249,14 +249,14 @@ export default function BlogEsPage() {
         <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
           Soft-park hasta que esos desks estén GO:{' '}
           <a
-            href={WWW_STORE_URL}
+            href={WWW_STORE_ES_URL}
             className="underline underline-offset-4 hover:text-foreground"
           >
             Store OS
           </a>
           {' · '}
           <a
-            href={WWW_NEXUS_URL}
+            href={WWW_NEXUS_ES_URL}
             className="underline underline-offset-4 hover:text-foreground"
           >
             NEXUS OS
