@@ -6,6 +6,11 @@ pages_build_output_dir = "dist"
 # Dashboard secrets (Production + Preview):
 #   GUIDE_LLM_API_KEY
 #   GUIDE_LEAD_WEBHOOK_URL
+#   TURNSTILE_SECRET_KEY
+# Public Turnstile site key lives in [vars] (this project's dashboard only
+# accepts Secrets). Vite does not read wrangler.toml — `.env.production` is
+# what `vite build` inlines as import.meta.env.VITE_TURNSTILE_SITE_KEY.
+# No [env.preview]/[env.production] vars block: top-level [vars] apply to both.
 # GUIDE_LLM_API_KEY stays a Pages secret (dashboard / wrangler pages secret put).
 # BASE_URL + MODEL must be [vars] here: Direct Upload wipes dashboard plaintext,
 # and wrangler pages secret put for these names did not land on production
@@ -14,3 +19,4 @@ pages_build_output_dir = "dist"
 [vars]
 GUIDE_LLM_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai"
 GUIDE_LLM_MODEL = "gemini-2.0-flash"
+VITE_TURNSTILE_SITE_KEY = "0x4AAAAAAF6-kFpM12bv15mT"

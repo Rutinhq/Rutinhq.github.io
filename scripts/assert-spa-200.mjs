@@ -670,12 +670,21 @@ if (fs.existsSync('dist/_headers')) {
     process.exit(1)
   }
   if (
-    !/Content-Security-Policy:\s*default-src 'self';\s*script-src 'self';/i.test(
+    !/Content-Security-Policy:\s*default-src 'self';\s*script-src 'self' https:\/\/challenges\.cloudflare\.com;/i.test(
       headers,
     )
   ) {
     console.error(
-      "dist/_headers must set CSP default-src 'self'; script-src 'self' (keep hub fonts/scripts first-party).",
+      "dist/_headers must set CSP default-src 'self' and script-src that allows only self + Turnstile.",
+    )
+    process.exit(1)
+  }
+  if (
+    !/frame-src https:\/\/challenges\.cloudflare\.com/.test(headers) ||
+    !/connect-src 'self' https:\/\/challenges\.cloudflare\.com/.test(headers)
+  ) {
+    console.error(
+      'dist/_headers CSP must allow Turnstile frame-src + connect-src on challenges.cloudflare.com.',
     )
     process.exit(1)
   }
@@ -1762,6 +1771,20 @@ for (const needle of [
     )
     process.exit(1)
   }
+}
+
+const TURNSTILE_SITE_KEY = '0x4AAAAAAF6-kFpM12bv15mT'
+const guideWidgetAsset = assetJs.find((file) => file.name.includes('GuideWidget'))
+if (!guideWidgetAsset) {
+  console.error('dist/assets must include a GuideWidget chunk to bake Turnstile.')
+  process.exit(1)
+}
+const guideWidgetJs = fs.readFileSync(`dist/assets/${guideWidgetAsset.name}`, 'utf8')
+if (!guideWidgetJs.includes(TURNSTILE_SITE_KEY)) {
+  console.error(
+    'GuideWidget chunk must inline VITE_TURNSTILE_SITE_KEY from .env.production (wrangler.toml [vars] are Function runtime, not Vite).',
+  )
+  process.exit(1)
 }
 
 const layoutSource = fs.readFileSync('src/layouts/RootLayout.tsx', 'utf8')

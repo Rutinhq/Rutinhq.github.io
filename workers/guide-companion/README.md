@@ -11,6 +11,7 @@ cd workers/guide-companion
 npx wrangler secret put GUIDE_LLM_API_KEY
 # optional
 npx wrangler secret put GUIDE_LEAD_WEBHOOK_URL
+npx wrangler secret put TURNSTILE_SECRET_KEY
 npx wrangler deploy
 ```
 
@@ -20,6 +21,8 @@ Then either:
 2. Point a route / Worker custom domain at this companion and change the fetch URL in `GuideWidget` (CORTEX).
 
 `GUIDE_KB_URL` defaults to `https://www.rutinhq.com/guide-kb.json` (allowlisted SoT blob).
+
+`TURNSTILE_SECRET_KEY` is verified with Siteverify before any LLM call or lead write. Unset fail-opens only in local/dev. Same per-IP `429` + `Retry-After` as the Pages Function.
 
 ## Lead briefs
 

@@ -5,6 +5,7 @@
  *   GUIDE_LLM_BASE_URL (optional, Gemini: https://generativelanguage.googleapis.com/v1beta/openai)
  *   GUIDE_LLM_MODEL (optional, recommended gemini-2.0-flash — do not pin thinking 2.5/3.6)
  *   GUIDE_LEAD_WEBHOOK_URL (optional JSON POST of lead briefs)
+ *   TURNSTILE_SECRET_KEY (Siteverify; fail-open only in local/dev if unset)
  *
  * Gemini runs with the full RutinHQ Guide mandate (not a bare model).
  * Successful LLM answers return mode=llm. Security/pricing stay hard refuses.
@@ -19,6 +20,10 @@ import {
   resolveFallbackKey,
 } from '../../src/guide/classify-core'
 import {
+  enforceGuideRateLimit,
+  enforceGuideTurnstile,
+} from '../../src/guide/ingress'
+import {
   callGuideLlmDetailed,
   composeGuideSystemPrompt,
   GUIDE_LLM_BUDGET_MS,
@@ -32,12 +37,14 @@ type Env = {
   GUIDE_LLM_BASE_URL?: string
   GUIDE_LLM_MODEL?: string
   GUIDE_LEAD_WEBHOOK_URL?: string
+  TURNSTILE_SECRET_KEY?: string
+  ENVIRONMENT?: string
+  NODE_ENV?: string
 }
 
 type Msg = { role: 'user' | 'assistant'; content: string }
 type Locale = 'en' | 'es'
 
-const hits = new Map<string, { n: number; resetAt: number }>()
 const KB_TTL_MS = 60_000
 let kbCache: { at: number; value: unknown } | null = null
 
@@ -129,13 +136,25 @@ async function loadKb(context: { request: Request; env: Env }) {
 }
 
 export async function onRequestPost(context: { request: Request; env: Env }) {
+  const limited = await enforceGuideRateLimit(context.request, context.env)
+  if (limited) return limited
+
   const raw = await context.request.text()
-  let parsed: { messages?: Msg[]; locale?: string; page?: string } = {}
+  if (raw.length > 32768) return json(413, { error: 'payload_too_large' })
+  let parsed: {
+    messages?: Msg[]
+    locale?: string
+    page?: string
+    turnstileToken?: string
+  } = {}
   try {
     parsed = JSON.parse(raw || '{}')
   } catch {
     return json(400, { error: 'invalid_json' })
   }
+
+  const blocked = await enforceGuideTurnstile(context.request, context.env, parsed)
+  if (blocked) return blocked
 
   const locale: Locale = parsed.locale === 'es' ? 'es' : 'en'
   const page = typeof parsed.page === 'string' ? parsed.page.slice(0, 80) : '/'
@@ -195,17 +214,6 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
   }
 
   const limits = policy.limits
-  const ip =
-    context.request.headers.get('cf-connecting-ip') ||
-    context.request.headers.get('x-forwarded-for') ||
-    'anon'
-  const now = Date.now()
-  const row = hits.get(ip)
-  if (!row || now > row.resetAt) hits.set(ip, { n: 1, resetAt: now + limits.rateLimitWindowMs })
-  else {
-    row.n += 1
-    if (row.n > limits.rateLimitMax) return json(429, { error: 'rate_limited' })
-  }
 
   if (raw.length > limits.maxBodyBytes) return json(413, { error: 'payload_too_large' })
   if (messages.length === 0 || messages.length > limits.maxMessagesPerSession) {

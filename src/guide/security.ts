@@ -80,3 +80,17 @@ export function enforceSafeReply(reply: string, locale: GuideLocale): string {
   if (replyLeaksPrivate(reply)) return securityReply(locale)
   return reply
 }
+
+export {
+  clientIp,
+  consumeIpRateLimit,
+  createGuideRateLimitStore,
+  enforceGuideRateLimit,
+  enforceGuideTurnstile,
+  isGuideDevRuntime,
+  isTurnstileFailOpen,
+  readTurnstileToken,
+  resetGuideRateLimitMemory,
+  TURNSTILE_SITEVERIFY_URL,
+  verifyTurnstileToken,
+} from './ingress'

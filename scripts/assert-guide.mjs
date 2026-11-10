@@ -85,6 +85,7 @@ const guideKeys = [
   'leadCopied',
   'limit',
   'disclaimer',
+  'turnstileLabel',
 ]
 for (const key of guideKeys) {
   if (!en.guide?.[key] || !es.guide?.[key]) {
@@ -246,6 +247,27 @@ if (!/GUIDE_LLM_MODEL\s*=\s*"gemini-2.0-flash"/.test(wrangler)) {
   console.error('wrangler [vars] must pin GUIDE_LLM_MODEL=gemini-2.0-flash (non-thinking)')
   process.exit(1)
 }
+const TURNSTILE_SITE_KEY = '0x4AAAAAAF6-kFpM12bv15mT'
+if (!wrangler.includes(`VITE_TURNSTILE_SITE_KEY = "${TURNSTILE_SITE_KEY}"`)) {
+  console.error('wrangler.toml [vars] must pin the public VITE_TURNSTILE_SITE_KEY')
+  process.exit(1)
+}
+if (/^\s*TURNSTILE_SECRET_KEY\s*=/m.test(wrangler)) {
+  console.error('wrangler.toml must not assign TURNSTILE_SECRET_KEY (secret stays on Pages)')
+  process.exit(1)
+}
+const envProduction = fs.readFileSync(path.join(root, '.env.production'), 'utf8')
+if (
+  !envProduction.includes(`VITE_TURNSTILE_SITE_KEY=${TURNSTILE_SITE_KEY}`) &&
+  !envProduction.includes(`VITE_TURNSTILE_SITE_KEY="${TURNSTILE_SITE_KEY}"`)
+) {
+  console.error('.env.production must pin VITE_TURNSTILE_SITE_KEY for the Vite Pages build')
+  process.exit(1)
+}
+if (/TURNSTILE_SECRET_KEY\s*=\s*\S/.test(envProduction)) {
+  console.error('.env.production must not contain TURNSTILE_SECRET_KEY')
+  process.exit(1)
+}
 if (!/guideLlmOnProviderError/.test(llm) || !/GUIDE_LLM_CANDIDATE_CAP/.test(llm)) {
   console.error('LLM client must fail-fast on 429 and cap model candidates')
   process.exit(1)
@@ -258,12 +280,32 @@ if (!/timeoutMs:\s*GUIDE_LLM_BUDGET_MS/.test(fn)) {
   console.error('Function must pass the shared LLM budget as timeoutMs')
   process.exit(1)
 }
+if (!/TURNSTILE_SECRET_KEY/.test(fn) || !/enforceGuideTurnstile/.test(fn)) {
+  console.error('Function must verify Turnstile via TURNSTILE_SECRET_KEY before the LLM')
+  process.exit(1)
+}
+if (!/enforceGuideRateLimit/.test(fn)) {
+  console.error('Function must apply the shared per-IP rate limit')
+  process.exit(1)
+}
 if (!/AbortSignal\.timeout/.test(widget) || !/GUIDE_CLIENT_FETCH_MS/.test(widget)) {
   console.error('Guide widget must abort a hung /api/guide fetch')
   process.exit(1)
 }
 if (!/guide.degradedNote/.test(widget)) {
   console.error('Guide widget must surface degraded/paused catalog messaging')
+  process.exit(1)
+}
+const turnstileHook = fs.readFileSync(
+  path.join(root, 'src/components/guide/useGuideTurnstile.ts'),
+  'utf8',
+)
+if (!/VITE_TURNSTILE_SITE_KEY/.test(turnstileHook) || !/readGuideTurnstileSiteKey/.test(widget)) {
+  console.error('Guide widget must read VITE_TURNSTILE_SITE_KEY and degrade when unset')
+  process.exit(1)
+}
+if (!/turnstileToken/.test(widget)) {
+  console.error('Guide widget must send turnstileToken with /api/guide requests')
   process.exit(1)
 }
 

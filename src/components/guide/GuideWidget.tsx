@@ -28,6 +28,7 @@ import type {
 import { languageFromPathname } from '@/lib/i18n/paths'
 import { cn } from '@/lib/utils'
 import { getFocusable, trapTab } from './focusTrap'
+import { readGuideTurnstileSiteKey, useGuideTurnstile } from './useGuideTurnstile'
 
 type UiMessage = GuideChatMessage & { id: string }
 
@@ -51,6 +52,8 @@ export function GuideWidget() {
   const [leadBrief, setLeadBrief] = useState<LeadBrief | null>(null)
   const [leadStatus, setLeadStatus] = useState<string | null>(null)
   const [messages, setMessages] = useState<UiMessage[]>([])
+  const turnstileSiteKey = readGuideTurnstileSiteKey()
+  const { hostRef: turnstileRef, consumeToken } = useGuideTurnstile(turnstileSiteKey)
 
   useEffect(() => {
     if (!open) return
@@ -103,6 +106,7 @@ export function GuideWidget() {
     let paused = false
 
     try {
+      const turnstileToken = await consumeToken()
       const res = await fetch('/api/guide', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
@@ -111,6 +115,7 @@ export function GuideWidget() {
           messages: conversation,
           locale,
           page: pathname,
+          ...(turnstileToken ? { turnstileToken } : {}),
         }),
       })
       if (res.ok) {
@@ -153,10 +158,14 @@ export function GuideWidget() {
   async function sendLeadBrief() {
     if (!leadBrief) return
 
+    const turnstileToken = await consumeToken()
     void fetch('/api/guide/lead', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ leadBrief }),
+      body: JSON.stringify({
+        leadBrief,
+        ...(turnstileToken ? { turnstileToken } : {}),
+      }),
     }).catch(() => {
       /* webhook is optional — clipboard + mailto still run */
     })
@@ -273,6 +282,14 @@ export function GuideWidget() {
               <p className="mt-2 text-[12px] text-muted-foreground" role="status">
                 {leadStatus}
               </p>
+            ) : null}
+
+            {turnstileSiteKey ? (
+              <div
+                ref={turnstileRef}
+                className="mt-3"
+                aria-label={copy('guide.turnstileLabel')}
+              />
             ) : null}
 
             {atCap ? (

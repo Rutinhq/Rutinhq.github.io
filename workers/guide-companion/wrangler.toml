@@ -5,6 +5,7 @@ compatibility_date = "2026-08-30"
 # Secrets (do not commit):
 #   wrangler secret put GUIDE_LLM_API_KEY
 #   wrangler secret put GUIDE_LEAD_WEBHOOK_URL
+#   wrangler secret put TURNSTILE_SECRET_KEY
 #
 # Optional vars:
 #   GUIDE_LLM_BASE_URL = "https://api.openai.com/v1"
