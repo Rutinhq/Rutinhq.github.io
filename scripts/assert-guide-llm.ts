@@ -14,6 +14,8 @@ import {
   extractFinishReason,
   extractLlmText,
   extractWorkersAiText,
+  formatGuideAiErrorReason,
+  guideDegradedReasonFromLlm,
   guideLlmAttemptMs,
   guideLlmFailureLog,
   guideLlmHasRetryBudget,
@@ -36,6 +38,7 @@ import {
   GUIDE_MANDATE,
   GUIDE_WORKERS_AI_MAX_TOKENS,
 } from '../src/guide/llm.ts'
+import { isGuidePreviewHost } from '../src/guide/preview-host.ts'
 
 function assert(cond: unknown, msg: string) {
   if (!cond) {
@@ -189,6 +192,11 @@ assert(
   /4–8 short sentences/.test(GUIDE_MANDATE) && /Do not stop mid-sentence/.test(GUIDE_MANDATE),
   'mandate asks for multi-sentence replies that finish',
 )
+assert(GUIDE_LLM_BUDGET_MS === 20_000, 'LLM budget is 20s so Workers AI cold start can finish')
+assert(
+  GUIDE_LLM_BUDGET_MS < 28_000,
+  'client fetch (28s in config.ts) must sit above the LLM budget so Pages logs still see /api/guide',
+)
 assert(
   GUIDE_LLM_PRIMARY_ATTEMPT_MS < GUIDE_LLM_BUDGET_MS,
   'primary attempt must leave room inside the overall budget',
@@ -284,6 +292,24 @@ assert(
   extractWorkersAiText({ result: { response: 'desde result' } }) === 'desde result',
   'Workers AI nested result.response',
 )
+assert(
+  extractWorkersAiText({
+    choices: [{ message: { content: 'OpenAI-compat binding shape' } }],
+  }) === 'OpenAI-compat binding shape',
+  'Workers AI OpenAI-compat choices',
+)
+assert(guideDegradedReasonFromLlm({ lastError: 'timeout', lastStatus: null, lastErrorSnippet: null }) === 'budget_timeout', 'timeout → budget_timeout')
+assert(guideDegradedReasonFromLlm({ lastError: 'missing_binding', lastStatus: null, lastErrorSnippet: null }) === 'missing_binding', 'missing_binding')
+assert(guideDegradedReasonFromLlm({ lastError: 'empty_content', lastStatus: 200, lastErrorSnippet: '{}' }) === 'parse_error', 'empty → parse_error')
+assert(
+  formatGuideAiErrorReason(403, 'The Gemini API free tier is not available').startsWith('ai_error:403/'),
+  'ai_error includes status',
+)
+assert(isGuidePreviewHost('8645d940.rutinhq-web.pages.dev'), 'commit preview is preview host')
+assert(isGuidePreviewHost('cursor-guide-turnstile-open.rutinhq-web.pages.dev'), 'branch preview is preview host')
+assert(!isGuidePreviewHost('rutinhq-web.pages.dev'), 'Pages production alias is not preview')
+assert(!isGuidePreviewHost('www.rutinhq.com'), 'www.rutinhq.com is never preview')
+assert(!isGuidePreviewHost('rutinhq.com'), 'rutinhq.com is never preview')
 {
   const esPrompt = composeGuideSystemPrompt('policy-block', 'es', 'Allowlisted knowledge body')
   const enPrompt = composeGuideSystemPrompt('policy-block', 'en', 'Allowlisted knowledge body')

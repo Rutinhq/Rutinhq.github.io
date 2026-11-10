@@ -12,7 +12,11 @@ export type GuideLlmMessage = { role: 'user' | 'assistant' | 'system'; content: 
 
 /** Minimal Pages `env.AI` surface — avoids a workers-types dependency. */
 export type GuideWorkersAi = {
-  run: (model: string, input: Record<string, unknown>) => Promise<unknown>
+  run: (
+    model: string,
+    input: Record<string, unknown>,
+    options?: { signal?: AbortSignal },
+  ) => Promise<unknown>
 }
 
 /** Public-safe GEMINI ENGINE mandate. Do not name internal operators. */
@@ -79,12 +83,14 @@ export const GUIDE_WORKERS_AI_MAX_TOKENS = 256
 export const GUIDE_LLM_CANDIDATE_CAP = 3
 export const GUIDE_LLM_MIN_REPLY_CHARS = 80
 export const GUIDE_LLM_RATE_LIMIT_BACKOFF_MS = 600
-export const GUIDE_LLM_BUDGET_MS = 9_000
-/** First Gemini call. Leaves room for one 429 retry inside GUIDE_LLM_BUDGET_MS. */
-export const GUIDE_LLM_PRIMARY_ATTEMPT_MS = 6_800
+/** Wall budget for env.AI.run / openai-compat. Cap is 20s (Pages Function + widget). */
+export const GUIDE_LLM_BUDGET_MS = 20_000
+/** First attempt. Leaves room for one 429 retry inside GUIDE_LLM_BUDGET_MS. */
+export const GUIDE_LLM_PRIMARY_ATTEMPT_MS = 17_000
 /** Single primary retry after 429/503. Timeouts never retry. */
 export const GUIDE_LLM_RETRY_ATTEMPT_MS = 2_000
 export const GUIDE_LLM_MIN_ATTEMPT_MS = 400
+export const GUIDE_DEGRADED_REASON_MAX = 120
 
 /** Per-attempt wall time so a hung primary cannot eat the 429 retry window. */
 export function guideLlmAttemptMs(opts: { isRetry: boolean; remainingMs: number }): number {
@@ -217,6 +223,38 @@ export function logGuideLlmFailure(opts: {
   console.error(guideLlmFailureLog(opts))
 }
 
+/** Preview-only diagnostic. Never include keys; cap at GUIDE_DEGRADED_REASON_MAX. */
+export function formatGuideAiErrorReason(
+  status: number | null,
+  message: string,
+): string {
+  const statusBit = status != null && Number.isFinite(status) ? String(status) : 'error'
+  const msg = redactGuideLlmSnippet(message).slice(0, 80)
+  const body = msg ? `${statusBit}/${msg}` : statusBit
+  return `ai_error:${body}`.slice(0, GUIDE_DEGRADED_REASON_MAX)
+}
+
+export function guideDegradedReasonFromLlm(opts: {
+  lastError: string | null
+  lastStatus: number | null
+  lastErrorSnippet: string | null
+}): string {
+  const err = (opts.lastError || '').trim()
+  if (err === 'missing_binding') return 'missing_binding'
+  if (err === 'timeout') return 'budget_timeout'
+  if (
+    err === 'truncated' ||
+    err === 'empty_content' ||
+    err.endsWith(':empty_content') ||
+    err.endsWith(':invalid_json') ||
+    err === 'invalid_json'
+  ) {
+    return 'parse_error'
+  }
+  if (!err) return 'parse_error'
+  return formatGuideAiErrorReason(opts.lastStatus, opts.lastErrorSnippet || err)
+}
+
 export function guideLlmModelCandidates(raw?: string, provider?: string): string[] {
   const primary = normalizeGuideLlmModel(raw)
   const explicit = (provider || '').trim()
@@ -280,18 +318,21 @@ function textFromUnknown(value: unknown): string {
   return ''
 }
 
-/** Workers AI `env.AI.run` shapes (`{ response }` or OpenAI-compat). */
+/** Workers AI `env.AI.run` shapes (`{ response }` or OpenAI-compat `choices`). */
 export function extractWorkersAiText(data: unknown): string | null {
   if (typeof data === 'string') return data.trim() || null
   if (!data || typeof data !== 'object') return null
   const rec = data as {
     response?: unknown
     result?: { response?: unknown }
+    output?: unknown
   }
   const fromResponse = textFromUnknown(rec.response)
   if (fromResponse.trim()) return fromResponse.trim()
   const fromResult = textFromUnknown(rec.result?.response)
   if (fromResult.trim()) return fromResult.trim()
+  const fromOutput = textFromUnknown(rec.output)
+  if (fromOutput.trim()) return fromOutput.trim()
   return extractLlmText(data)
 }
 
@@ -511,11 +552,15 @@ async function callWorkersAiDetailed(opts: GuideLlmCallOpts): Promise<GuideLlmCa
         const attempt = abortAfter(attemptMs, controller.signal)
         try {
           const data = await raceAbort(
-            opts.workersAi.run(model, {
-              messages,
-              max_tokens: maxTokens,
-              temperature: 0.2,
-            }),
+            opts.workersAi.run(
+              model,
+              {
+                messages,
+                max_tokens: maxTokens,
+                temperature: 0.2,
+              },
+              { signal: attempt.signal },
+            ),
             attempt.signal,
           )
           const text = extractWorkersAiText(data)

@@ -11,6 +11,7 @@ import {
   GUIDE_UI_NAME,
 } from '@/guide/config'
 import { localGuideReply } from '@/guide/fallback'
+import { isGuidePreviewHost } from '@/guide/preview-host'
 import {
   buildLeadBrief,
   formatLeadMarkdown,
@@ -36,6 +37,16 @@ function uid() {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
 }
 
+function isAbortTimeout(err: unknown): boolean {
+  const name = err instanceof Error ? err.name : ''
+  return name === 'TimeoutError' || name === 'AbortError'
+}
+
+function readGuidePreviewHost(): boolean {
+  if (typeof window === 'undefined') return false
+  return isGuidePreviewHost(window.location.hostname)
+}
+
 export function GuideWidget() {
   const { t } = useTranslation()
   const { pathname } = useLocation()
@@ -49,6 +60,8 @@ export function GuideWidget() {
   const [input, setInput] = useState('')
   const [pending, setPending] = useState(false)
   const [livePaused, setLivePaused] = useState(false)
+  const [degradedReason, setDegradedReason] = useState<string | null>(null)
+  const showPreviewReason = readGuidePreviewHost()
   const [leadBrief, setLeadBrief] = useState<LeadBrief | null>(null)
   const [leadStatus, setLeadStatus] = useState<string | null>(null)
   const [messages, setMessages] = useState<UiMessage[]>([])
@@ -100,13 +113,19 @@ export function GuideWidget() {
     setMessages(nextMessages)
     setPending(true)
     setLivePaused(false)
+    setDegradedReason(null)
 
     let reply = localGuideReply(conversation, locale)
     let brief: LeadBrief | undefined
     let paused = false
+    let reason: string | null = null
 
     try {
       const turnstileToken = await consumeToken()
+      const tokenWaitTimedOut = Boolean(turnstileSiteKey) && !turnstileToken
+      if (tokenWaitTimedOut) {
+        reason = 'token_wait_timeout'
+      }
       const res = await fetch('/api/guide', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
@@ -123,18 +142,24 @@ export function GuideWidget() {
         if (data.reply) reply = data.reply
         brief = data.leadBrief
         paused = data.mode === 'degraded' && !isSecurityProbe(conversation)
+        if (paused) {
+          reason = data.degradedReason || reason
+        }
       } else {
         paused = true
+        reason = tokenWaitTimedOut ? 'token_wait_timeout' : `http_${res.status}`
       }
-    } catch {
+    } catch (err) {
       // Timeout / network — catalog fallback + Calendly, not a hanging spinner.
       paused = true
+      reason = isAbortTimeout(err) ? 'client_timeout' : reason || 'client_timeout'
     }
 
     if (isSecurityProbe(conversation)) {
       reply = securityReply(locale)
       brief = undefined
       paused = false
+      reason = null
     } else {
       reply = enforceSafeReply(reply, locale)
     }
@@ -152,6 +177,7 @@ export function GuideWidget() {
       setLeadStatus(null)
     }
     setLivePaused(paused)
+    setDegradedReason(paused ? reason : null)
     setPending(false)
   }
 
@@ -241,9 +267,16 @@ export function GuideWidget() {
                 {copy('guide.thinking')}
               </p>
             ) : livePaused ? (
-              <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
-                {copy('guide.degradedNote')}
-              </p>
+              <div className="space-y-1">
+                <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
+                  {copy('guide.degradedNote')}
+                </p>
+                {showPreviewReason && degradedReason ? (
+                  <p className="font-mono text-[10px] lowercase tracking-normal text-muted-foreground/80">
+                    {degradedReason}
+                  </p>
+                ) : null}
+              </div>
             ) : null}
           </div>
 

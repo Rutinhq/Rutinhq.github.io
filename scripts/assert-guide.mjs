@@ -292,6 +292,26 @@ if (!/timeoutMs:\s*GUIDE_LLM_BUDGET_MS/.test(fn)) {
   console.error('Function must pass the shared LLM budget as timeoutMs')
   process.exit(1)
 }
+if (!/GUIDE_LLM_BUDGET_MS = 20_000/.test(llm)) {
+  console.error('LLM budget must be 20s so Workers AI can finish before the client aborts')
+  process.exit(1)
+}
+if (!/GUIDE_CLIENT_FETCH_MS = 28_000/.test(fs.readFileSync(path.join(root, 'src/guide/config.ts'), 'utf8'))) {
+  console.error('client fetch timeout must be 28s (above the 20s LLM budget)')
+  process.exit(1)
+}
+if (!/degradedReason/.test(fn) || !/isGuidePreviewHost/.test(fn)) {
+  console.error('Function must attach degradedReason only on Pages preview hosts')
+  process.exit(1)
+}
+if (!/msg: 'guide_request'/.test(fn) && !/msg: \"guide_request\"/.test(fn)) {
+  console.error('Function must log guide_request at the start of POST so in-flight calls are visible')
+  process.exit(1)
+}
+if (!/signal: attempt\.signal/.test(llm)) {
+  console.error('Workers AI run() must receive the abort signal')
+  process.exit(1)
+}
 if (!/TURNSTILE_SECRET_KEY/.test(fn) || !/enforceGuideTurnstile/.test(fn)) {
   console.error('Function must verify Turnstile via TURNSTILE_SECRET_KEY before the LLM')
   process.exit(1)
@@ -322,6 +342,14 @@ if (!/AbortSignal\.timeout/.test(widget) || !/GUIDE_CLIENT_FETCH_MS/.test(widget
 }
 if (!/guide.degradedNote/.test(widget)) {
   console.error('Guide widget must surface degraded/paused catalog messaging')
+  process.exit(1)
+}
+if (!/degradedReason/.test(widget) || !/isGuidePreviewHost/.test(widget)) {
+  console.error('Guide widget must show degradedReason under the paused banner on preview hosts only')
+  process.exit(1)
+}
+if (!/client_timeout/.test(widget) || !/token_wait_timeout/.test(widget)) {
+  console.error('Guide widget must label local fallbacks (client_timeout / token_wait_timeout)')
   process.exit(1)
 }
 const turnstileHook = fs.readFileSync(

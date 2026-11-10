@@ -26,12 +26,14 @@ import {
   callGuideLlmDetailed,
   composeGuideSystemPrompt,
   GUIDE_LLM_BUDGET_MS,
+  guideDegradedReasonFromLlm,
   isUnusableGuideReply,
   logGuideLlmFailure,
   resolveGuideLlmProvider,
   type GuideLlmMode,
   type GuideWorkersAi,
 } from '../../src/guide/llm'
+import { guideRequestHostname, isGuidePreviewHost } from '../../src/guide/preview-host'
 
 type Env = {
   ASSETS?: { fetch: (input: Request | URL | string) => Promise<Response> }
@@ -140,6 +142,13 @@ async function loadKb(context: { request: Request; env: Env }) {
 }
 
 export async function onRequestPost(context: { request: Request; env: Env }) {
+  console.log(
+    JSON.stringify({
+      msg: 'guide_request',
+      hasBinding: Boolean(context.env.AI),
+      provider: context.env.GUIDE_LLM_PROVIDER || null,
+    }),
+  )
   const limited = await enforceGuideRateLimit(context.request, context.env)
   if (limited) return limited
 
@@ -255,6 +264,7 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
     !skipLlm && (provider === 'workers-ai' ? Boolean(context.env.AI) : Boolean(key))
 
   let llmDebug: Record<string, unknown> | null = null
+  let llmDegradedReason: string | null = null
   if (canCallLlm) {
     const knowledge = (kb?.documents || [])
       .map((d) => `### ${d.title}\nSource: ${d.url}\n${d.text}`)
@@ -296,6 +306,11 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
         mode = 'llm'
       }
       if (mode !== 'llm') {
+        llmDegradedReason = guideDegradedReasonFromLlm({
+          lastError: result.lastError,
+          lastStatus: result.lastStatus,
+          lastErrorSnippet: result.lastErrorSnippet,
+        })
         logGuideLlmFailure({
           provider: result.provider,
           model:
@@ -310,6 +325,11 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
       }
     } catch {
       llmDebug = { provider, hasKey: Boolean(key), lastError: 'call_threw' }
+      llmDegradedReason = guideDegradedReasonFromLlm({
+        lastError: 'call_threw',
+        lastStatus: null,
+        lastErrorSnippet: 'call_threw',
+      })
       logGuideLlmFailure({
         provider,
         model: context.env.GUIDE_LLM_MODEL || null,
@@ -330,11 +350,13 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
       skuIntent,
     }
     if (!skipLlm) {
+      llmDegradedReason =
+        provider === 'workers-ai' ? 'missing_binding' : 'missing_key'
       logGuideLlmFailure({
         provider,
         model: context.env.GUIDE_LLM_MODEL || null,
         status: null,
-        errorSnippet: provider === 'workers-ai' ? 'missing_binding' : 'missing_key',
+        errorSnippet: llmDegradedReason,
         elapsedMs: 0,
         modelsTried: [],
       })
@@ -345,6 +367,13 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
     reply,
     mode,
     calendlyUrl: policy.calendlyUrl,
+  }
+  if (
+    mode === 'degraded' &&
+    llmDegradedReason &&
+    isGuidePreviewHost(guideRequestHostname(context.request))
+  ) {
+    body.degradedReason = llmDegradedReason
   }
   if (context.request.headers.get('x-rutinhq-guide-debug') === '1') {
     body.debug = llmDebug
