@@ -156,8 +156,12 @@ if (policySrc.limits.maxReplyTokens !== 1024 || policy.limits.maxReplyTokens !==
   console.error('policy + guide-kb maxReplyTokens must be 1024')
   process.exit(1)
 }
-if (!/4–8 short sentences/.test(policySrc.systemPrompt)) {
-  console.error('systemPrompt must ask for 4–8 short sentences')
+if (!/≤80 words/.test(policySrc.systemPrompt) || !/2–4 short sentences/.test(policySrc.systemPrompt)) {
+  console.error('systemPrompt must ask for ≤80 words / 2–4 short sentences')
+  process.exit(1)
+}
+if (!/Never invent acronym expansions/.test(policySrc.systemPrompt)) {
+  console.error('systemPrompt must forbid invented acronym expansions')
   process.exit(1)
 }
 if (
@@ -231,6 +235,10 @@ if (!/extractLlmText/.test(llm) || !/x-goog-api-key/.test(llm) || !/normalizeGui
 }
 if (!/coerceGuideLlmReply/.test(llm) || !/extractFirstJsonObject/.test(llm)) {
   console.error('LLM client must coerce chat.completion / fenced JSON / plain text instead of parse_error')
+  process.exit(1)
+}
+if (!/trimIncompleteGuideReply/.test(llm)) {
+  console.error('LLM client must trim mid-sentence cuts to the last complete sentence')
   process.exit(1)
 }
 if (!/resolveGuideLlmBaseUrl/.test(llm) || !/AIza/.test(llm) || !/AQ\./.test(llm)) {

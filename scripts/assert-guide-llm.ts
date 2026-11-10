@@ -18,6 +18,7 @@ import {
   extractWorkersAiText,
   formatGuideAiErrorReason,
   stripGuideMarkdownFences,
+  trimIncompleteGuideReply,
   guideDegradedReasonFromLlm,
   guideLlmAttemptMs,
   guideLlmFailureLog,
@@ -124,7 +125,10 @@ assert(
   ),
   'workers-ai default must not cascade onto 70B',
 )
-assert(GUIDE_WORKERS_AI_MAX_TOKENS <= 256, 'workers-ai max_tokens stay modest for 10k neurons/day')
+assert(
+  GUIDE_WORKERS_AI_MAX_TOKENS === 450,
+  'workers-ai max_tokens is 450 so the verbose 8B can finish a short reply',
+)
 assert(
   resolveGuideLlmBaseUrl(undefined, 'sk-openai-shape').includes('api.openai.com'),
   'non-Gemini key keeps OpenAI default',
@@ -192,8 +196,11 @@ assert(
   '404 may walk the short model-missing list',
 )
 assert(
-  /4–8 short sentences/.test(GUIDE_MANDATE) && /Do not stop mid-sentence/.test(GUIDE_MANDATE),
-  'mandate asks for multi-sentence replies that finish',
+  /≤80 words/.test(GUIDE_MANDATE) &&
+    /2–4 short sentences/.test(GUIDE_MANDATE) &&
+    /Never invent acronym expansions/.test(GUIDE_MANDATE) &&
+    /Calendly CTA only when relevant/.test(GUIDE_MANDATE),
+  'mandate asks for short catalog-only replies that finish',
 )
 assert(GUIDE_LLM_BUDGET_MS === 20_000, 'LLM budget is 20s so Workers AI cold start can finish')
 assert(
@@ -243,6 +250,36 @@ assert(
 assert(
   extractFinishReason({ choices: [{ finish_reason: 'length' }] }) === 'length',
   'OpenAI finish_reason',
+)
+assert(
+  trimIncompleteGuideReply(
+    'GTM OS es el sistema de outbound B2B que instalamos. No es un SDR rentado ni agencia de',
+    'length',
+  ) === 'GTM OS es el sistema de outbound B2B que instalamos.',
+  'finish_reason=length trims back to the last complete sentence',
+)
+assert(
+  trimIncompleteGuideReply(
+    'STORE OS es auditoría de Shopify Admin. Variants, peso y envío para que la tienda',
+  ) === 'STORE OS es auditoría de Shopify Admin.',
+  'missing terminal punctuation trims back to the last complete sentence',
+)
+assert(
+  trimIncompleteGuideReply(
+    'NEXUS OS es Strategy → Social → Ads. Agenda https://calendly.com/rutinhq/30min.',
+    'stop',
+  ) === 'NEXUS OS es Strategy → Social → Ads. Agenda https://calendly.com/rutinhq/30min.',
+  'complete reply is left intact',
+)
+assert(
+  trimIncompleteGuideReply('Agenda https://calendly.com/rutinhq/30min', 'stop') ===
+    'Agenda https://calendly.com/rutinhq/30min',
+  'URL-ending reply counts as complete',
+)
+assert(
+  trimIncompleteGuideReply('GTM OS es outbound B2B que instalamos', 'length') ===
+    'GTM OS es outbound B2B que instalamos',
+  'length cut with no prior sentence keeps the fragment',
 )
 assert(isUnusableGuideReply(null), 'empty completion is unusable')
 assert(isUnusableGuideReply('GTM OS es el sistema de outbound'), 'sub-80 mid-cut is unusable')
@@ -396,9 +433,14 @@ assert(!isGuidePreviewHost('rutinhq.com'), 'rutinhq.com is never preview')
   const enPrompt = composeGuideSystemPrompt('policy-block', 'en', 'Allowlisted knowledge body')
   assert(/LANGUAGE LOCK: Visitor locale is es\. Reply 100% in Spanish/.test(esPrompt), 'es lock')
   assert(/LANGUAGE LOCK: Visitor locale is en\. Reply 100% in English/.test(enPrompt), 'en lock')
+  assert(/LENGTH LOCK: ≤80 words/.test(esPrompt), 'length lock in prompt')
   assert(
     esPrompt.lastIndexOf('LANGUAGE LOCK') > esPrompt.lastIndexOf('Allowlisted knowledge'),
     'locale lock must follow knowledge so Llama answers in Spanish',
+  )
+  assert(
+    esPrompt.lastIndexOf('LANGUAGE LOCK') > esPrompt.lastIndexOf('LENGTH LOCK'),
+    'locale lock stays last',
   )
 }
 {
@@ -483,6 +525,30 @@ assert(!isGuidePreviewHost('rutinhq.com'), 'rutinhq.com is never preview')
   assert(
     fromFence.text === 'RutinHQ hace GTM OS, STORE OS y NEXUS OS. Agenda la llamada de 30 min.',
     'fenced JSON reply is unwrapped',
+  )
+  const fromCut = await callGuideLlmDetailed({
+    provider: 'workers-ai',
+    workersAi: {
+      run: async () => ({
+        choices: [
+          {
+            message: {
+              role: 'assistant',
+              content:
+                'GTM OS es outbound B2B que instalamos en tu equipo. No es un SDR rentado ni agencia de',
+            },
+            finish_reason: 'length',
+          },
+        ],
+      }),
+    },
+    system: 'sys',
+    messages: [{ role: 'user', content: '¿Qué es GTM OS?' }],
+    maxTokens: 450,
+  })
+  assert(
+    fromCut.text === 'GTM OS es outbound B2B que instalamos en tu equipo.',
+    'workers-ai length cut is trimmed to the last complete sentence',
   )
 }
 
