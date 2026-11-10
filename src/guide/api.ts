@@ -58,11 +58,10 @@ async function callLlm(
   kb: GuideKb | null,
   locale: GuideLocale,
 ): Promise<string | null> {
-  const apiKey = env.GUIDE_LLM_API_KEY?.trim()
-  if (!apiKey) return null
-
   return callGuideLlm({
-    apiKey,
+    provider: env.GUIDE_LLM_PROVIDER,
+    workersAi: env.AI,
+    apiKey: env.GUIDE_LLM_API_KEY,
     baseUrl: env.GUIDE_LLM_BASE_URL,
     model: env.GUIDE_LLM_MODEL,
     maxTokens: GUIDE_LIMITS.maxReplyTokens,

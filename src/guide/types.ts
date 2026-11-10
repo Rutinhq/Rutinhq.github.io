@@ -86,6 +86,8 @@ export type GuideApiResponse = {
 }
 
 export type GuideEnv = {
+  AI?: { run: (model: string, input: Record<string, unknown>) => Promise<unknown> }
+  GUIDE_LLM_PROVIDER?: string
   GUIDE_LLM_API_KEY?: string
   GUIDE_LLM_BASE_URL?: string
   GUIDE_LLM_MODEL?: string

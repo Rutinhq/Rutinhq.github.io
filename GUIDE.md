@@ -42,21 +42,22 @@ Skip the network crawl: `GUIDE_KB_SKIP_CRAWL=1`.
 2. **Local** — Vite middleware in `vite.config.ts` loads `src/guide/api.ts` (`npm run dev`). Preview without the SSR loader degrades from the KB.
 3. **Companion Worker** — `workers/guide-companion/` if Functions stay off this static project.
 
-If the LLM key is absent or the provider fails, both Function and client return catalog-grounded fallback copy plus the Calendly CTA (`mode: degraded`). A successful Gemini/OpenAI completion returns `mode: llm`. The widget still builds a lead-brief template.
+If the Workers AI binding is missing, the optional OpenAI-compat key is absent, or the provider fails, both Function and client return catalog-grounded fallback copy plus the Calendly CTA (`mode: degraded`). A successful completion returns `mode: llm`. The widget still builds a lead-brief template.
 
-Gemini is not a bare model: `functions/api/guide.ts` always prefixes the **GEMINI ENGINE** public mandate (catalog-only GTM OS / STORE OS / NEXUS OS, no prices/legal/credentials, 4–8 short sentences, Calendly + `strategy@rutinhq.com`, locale EN/ES) plus `policy.systemPrompt` and the allowlisted KB.
+The model is not a bare chat: `functions/api/guide.ts` always prefixes the public **GEMINI ENGINE** mandate (catalog-only GTM OS / STORE OS / NEXUS OS, no prices/legal/credentials, 4–8 short sentences, Calendly + `strategy@rutinhq.com`, locale EN/ES) plus `policy.systemPrompt` and the allowlisted KB. A **LANGUAGE LOCK** line is last so `locale: es` (the `/es` widget) replies in Spanish.
 
-On **429/503** the client retries the **primary** model once (~600ms) then degrades — it does not walk fallbacks and **never** falls through to thinking models (`gemini-2.5-flash` / `gemini-2.5-flash-lite` / `gemini-3.6-flash`; they burn `max_tokens` on thoughts and return `finish_reason=length`). Timeouts do **not** retry (they would burn quota on a hung call). Model-missing (404) may try the official `gemini-3-flash-preview` id (there is no unsuffixed `gemini-3-flash`) — never zero-quota `gemini-2.0-*`. Empty, under ~80 char, or mid-cut completions are treated as failure (`mode: degraded`). Overall LLM budget is ~9s: enough for `gemini-3.1-flash-lite` (default thinking_level=minimal). First attempt ~6.8s so a fast 429 still has room for the one retry; the widget aborts `/api/guide` at ~12s and shows catalog fallback plus a paused note. Provider failures log one `guide_llm_failed` JSON line (model, status, redacted errorSnippet, elapsedMs, modelsTried) — never the API key or headers.
+Default provider is **Workers AI** (`GUIDE_LLM_PROVIDER=workers-ai`, Pages `[ai] binding = "AI"`). Gemini's free tier 403s this project; do not send Guide traffic there unless billing is enabled and `GUIDE_LLM_PROVIDER=openai-compat`. On **429/503** the client retries the **primary** model once (~600ms) then degrades — it does not walk fallbacks and **never** falls through to thinking Gemini models (`gemini-2.5-flash` / `gemini-2.5-flash-lite` / `gemini-3.6-flash`; they burn `max_tokens` on thoughts and return `finish_reason=length`). Timeouts do **not** retry. Workers AI model-missing (404) may try `@cf/meta/llama-3.1-8b-instruct`; openai-compat 404 may try official `gemini-3-flash-preview` — never zero-quota `gemini-2.0-*`. Empty, under ~80 char, or mid-cut completions are treated as failure (`mode: degraded`). Overall LLM budget is ~9s. First attempt ~6.8s so a fast 429 still has room for the one retry; the widget aborts `/api/guide` at ~12s and shows catalog fallback plus a paused note. Provider failures log one `guide_llm_failed` JSON line (provider, model, status, redacted errorSnippet, elapsedMs, modelsTried) — never the API key or headers.
 
 ## Env vars (Pages → Settings → Environment variables)
 
-Recommended path: **Gemini OpenAI-compatible** (`GUIDE_LLM_BASE_URL` + Gemini key/model). `[vars]` pins `https://generativelanguage.googleapis.com/v1beta/openai`; `llm.ts` POSTs `/chat/completions` (not `generateContent`). The Function normalizes trailing slashes, Gemini `/openai` vs `/openai/v1`, `models/` prefixes, Bearer + `x-goog-api-key`, and parses both string and parts-array content. `GUIDE_LLM_MODEL` is the single primary (Pages `[vars]` pin official `gemini-3.1-flash-lite` — treated as non-thinking; do not pin 2.5/3.6 unless thinking is disabled). Rate-limits retry that primary once; 404-only fallback is official `gemini-3-flash-preview` (not 2.0). OpenAI remains a drop-in alternative (code default if `BASE_URL` / `MODEL` are unset).
+Recommended path: **Workers AI** (`GUIDE_LLM_PROVIDER=workers-ai`). `[ai] binding = "AI"` in `wrangler.toml` (top-level — this file has no `[env.preview]` / `[env.production]`, so it applies to preview and production). `[vars]` pin `GUIDE_LLM_MODEL=@cf/meta/llama-3.1-8b-instruct-fp8-fast` (fast 8B; do not pin 70B). Completions cap at 256 tokens to stay inside the Workers Free 10k neurons/day. Optional path: `GUIDE_LLM_PROVIDER=openai-compat` + `GUIDE_LLM_API_KEY` (Gemini OpenAI-compat or OpenAI). Gemini currently 403s without billing.
 
 | Name | Required | Purpose |
 | --- | --- | --- |
-| `GUIDE_LLM_API_KEY` | for `mode: llm` | Gemini API key (recommended) or other OpenAI-compatible bearer token |
-| `GUIDE_LLM_BASE_URL` | no | Recommended Gemini: `https://generativelanguage.googleapis.com/v1beta/openai`. Alternative OpenAI: `https://api.openai.com/v1` (code default) |
-| `GUIDE_LLM_MODEL` | no | Recommended Gemini: `gemini-3.1-flash-lite` (404 fallback: `gemini-3-flash-preview`). Alternative OpenAI: `gpt-4o-mini` (code default) |
+| `GUIDE_LLM_PROVIDER` | no | `workers-ai` (default) or `openai-compat` |
+| `GUIDE_LLM_MODEL` | no | Workers AI: `@cf/meta/llama-3.1-8b-instruct-fp8-fast`. openai-compat Gemini: `gemini-3.1-flash-lite` |
+| `GUIDE_LLM_API_KEY` | openai-compat only | Gemini API key or other OpenAI-compatible bearer token |
+| `GUIDE_LLM_BASE_URL` | openai-compat only | Gemini: `https://generativelanguage.googleapis.com/v1beta/openai`. Alternative OpenAI: `https://api.openai.com/v1` |
 | `GUIDE_LEAD_WEBHOOK_URL` | no | `POST { type: "lead_brief", leadBrief }`. Capo sets this Pages secret; do not invent a local webhook URL. Unset is valid (`delivered: false`). |
 | `TURNSTILE_SECRET_KEY` | production | Server Siteverify. Unset fail-opens **only** in local/dev (warning). Production without it returns `403` before LLM or lead write. |
 | `VITE_TURNSTILE_SITE_KEY` | production | Public widget site key. Pinned in `wrangler.toml` `[vars]` (dashboard plaintext is blocked) **and** `.env.production` so `vite build` inlines `import.meta.env.VITE_TURNSTILE_SITE_KEY`. |
@@ -65,16 +66,15 @@ Local: copy `.env.example` → `.env` (Vite + the guide middleware read `process
 
 Operator checklist (Turnstile widget, Pages env, WAF `/api/guide*`, AI Studio daily cap): [`docs/guide-api-hardening.md`](docs/guide-api-hardening.md). The WAF rule is a dashboard step — this repo does not create it.
 
-### Gemini (Google AI Studio)
+### Workers AI (default, zero extra cost)
 
-1. Create a key at [https://aistudio.google.com/apikey](https://aistudio.google.com/apikey) (use the RutinHQ Gemini lane, not a personal Gmail).
-2. Cloudflare Pages project `rutinhq-web` → Settings → Environment variables (Production **and** Preview):
-   - `GUIDE_LLM_API_KEY` = Gemini API key (Encrypt / secret)
-   - `GUIDE_LLM_BASE_URL` = `https://generativelanguage.googleapis.com/v1beta/openai`
-   - `GUIDE_LLM_MODEL` = `gemini-3.1-flash-lite`
-3. `GUIDE_LLM_API_KEY` = Pages **secret**. `GUIDE_LLM_BASE_URL` + `GUIDE_LLM_MODEL` live in `wrangler.toml` `[vars]` (Direct Upload wipes dashboard plaintext; `secret put` for those names did not attach to production `deployment_configs`). Do not secret-put the same names as `[vars]` (binding already in use). Then fresh `wrangler pages deploy` — Direct Upload cannot Retry. The Function also routes Google-shaped keys (legacy `AIza…` or current AI Studio `AQ.…`) to the Gemini OpenAI-compat base so a wiped plaintext var cannot send the key to `api.openai.com`.
-4. Smoke: `POST https://www.rutinhq.com/api/guide` with locale `es` and a catalog question → response `mode` should be `llm` (not `degraded`).
-5. Security probes still refuse credentials and pricing (same as `scripts/assert-guide.mjs`).
+`wrangler.toml` `[ai] binding = "AI"` plus `[vars] GUIDE_LLM_PROVIDER=workers-ai`. No API key. Uses the Workers Free 10k neurons/day allocation. Redeploy Pages after the binding lands so preview and production both see `env.AI`.
+
+### Gemini / OpenAI-compat (optional)
+
+Only after Gemini billing is enabled. Set `GUIDE_LLM_PROVIDER=openai-compat` in `[vars]`, pin `GUIDE_LLM_MODEL=gemini-3.1-flash-lite`, and `wrangler pages secret put GUIDE_LLM_API_KEY`. `llm.ts` POSTs `/chat/completions` (not `generateContent`). Do not secret-put names that already exist as `[vars]`.
+
+Smoke: `POST /api/guide` with locale `es` and a catalog question → `mode` should be `llm` and the reply in Spanish. Security probes still refuse credentials and pricing (`scripts/assert-guide.mjs`).
 
 ## Lead briefs
 

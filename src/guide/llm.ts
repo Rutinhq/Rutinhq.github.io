@@ -1,11 +1,19 @@
 /**
  * Shared Guide LLM client (Pages Function + Vite middleware).
- * Speaks OpenAI chat-completions; Gemini's OpenAI-compat endpoint is first-class.
+ * Default provider: Cloudflare Workers AI (`env.AI.run`).
+ * Optional: OpenAI-compat (Gemini / OpenAI) when GUIDE_LLM_PROVIDER=openai-compat.
  */
 
 export type GuideLlmMode = 'llm' | 'degraded'
 
+export type GuideLlmProviderId = 'workers-ai' | 'openai-compat'
+
 export type GuideLlmMessage = { role: 'user' | 'assistant' | 'system'; content: string }
+
+/** Minimal Pages `env.AI` surface — avoids a workers-types dependency. */
+export type GuideWorkersAi = {
+  run: (model: string, input: Record<string, unknown>) => Promise<unknown>
+}
 
 /** Public-safe GEMINI ENGINE mandate. Do not name internal operators. */
 export const GUIDE_MANDATE = `You are GEMINI ENGINE operating as RutinHQ Guide on www.rutinhq.com — not a generic assistant.
@@ -49,6 +57,25 @@ const GEMINI_MODEL_ALIASES: Record<string, string> = {
   'gemini-3-flash': 'gemini-3-flash-preview',
 }
 
+/** Current fast 8B in the Workers AI pricing table. The older
+ * `@cf/meta/llama-3.1-8b-instruct-fast` catalog id 404s. 70B is opt-in only
+ * (`GUIDE_LLM_MODEL`) — it risks the 9s budget and the 10k neuron/day cap. */
+export const DEFAULT_WORKERS_AI_MODEL = '@cf/meta/llama-3.1-8b-instruct-fp8-fast'
+
+const WORKERS_AI_ALIASES: Record<string, string> = {
+  '@cf/meta/llama-3.1-8b-instruct-fast': DEFAULT_WORKERS_AI_MODEL,
+}
+
+const WORKERS_AI_FALLBACKS: Record<string, string[]> = {
+  [DEFAULT_WORKERS_AI_MODEL]: ['@cf/meta/llama-3.1-8b-instruct'],
+  '@cf/meta/llama-3.1-8b-instruct-fast': [DEFAULT_WORKERS_AI_MODEL, '@cf/meta/llama-3.1-8b-instruct'],
+  '@cf/meta/llama-3.3-70b-instruct-fp8-fast': [DEFAULT_WORKERS_AI_MODEL],
+  '@cf/meta/llama-3.1-70b-instruct-fp8-fast': [DEFAULT_WORKERS_AI_MODEL],
+}
+
+/** Cap completions so 4–8 short sentences stay inside the free neuron allocation. */
+export const GUIDE_WORKERS_AI_MAX_TOKENS = 256
+
 export const GUIDE_LLM_CANDIDATE_CAP = 3
 export const GUIDE_LLM_MIN_REPLY_CHARS = 80
 export const GUIDE_LLM_RATE_LIMIT_BACKOFF_MS = 600
@@ -81,6 +108,20 @@ function looksLikeGeminiKey(apiKey?: string): boolean {
   return key.startsWith('AIza') || key.startsWith('AQ.')
 }
 
+export function resolveGuideLlmProvider(
+  raw?: string,
+  hints?: { hasWorkersAi?: boolean; hasApiKey?: boolean },
+): GuideLlmProviderId {
+  const v = (raw || '').trim().toLowerCase()
+  if (v === 'openai-compat' || v === 'openai' || v === 'gemini') return 'openai-compat'
+  if (v === 'workers-ai' || v === 'workersai' || v === 'workers_ai' || v === 'cf') {
+    return 'workers-ai'
+  }
+  if (hints?.hasWorkersAi) return 'workers-ai'
+  if (hints?.hasApiKey) return 'openai-compat'
+  return 'workers-ai'
+}
+
 export function resolveGuideLlmBaseUrl(raw?: string, apiKey?: string, model?: string): string {
   const explicit = raw?.trim()
   if (explicit) return normalizeGuideLlmBaseUrl(explicit)
@@ -91,9 +132,16 @@ export function resolveGuideLlmBaseUrl(raw?: string, apiKey?: string, model?: st
   return normalizeGuideLlmBaseUrl('https://api.openai.com/v1')
 }
 
-export function resolveGuideLlmModel(raw?: string, apiKey?: string): string {
+export function resolveGuideLlmModel(
+  raw?: string,
+  apiKey?: string,
+  provider?: string,
+): string {
   const explicit = raw?.trim()
   if (explicit) return normalizeGuideLlmModel(explicit)
+  if (resolveGuideLlmProvider(provider, { hasApiKey: Boolean(apiKey) }) === 'workers-ai') {
+    return DEFAULT_WORKERS_AI_MODEL
+  }
   if (looksLikeGeminiKey(apiKey)) return DEFAULT_GEMINI_MODEL
   return 'gpt-4o-mini'
 }
@@ -121,7 +169,7 @@ export function normalizeGuideLlmBaseUrl(raw?: string): string {
 
 export function normalizeGuideLlmModel(raw?: string): string {
   const model = (raw || 'gpt-4o-mini').trim().replace(/^models\//, '')
-  return GEMINI_MODEL_ALIASES[model] || model
+  return WORKERS_AI_ALIASES[model] || GEMINI_MODEL_ALIASES[model] || model
 }
 
 /** First 200 chars of a provider body with key-like strings stripped. Never log headers. */
@@ -140,6 +188,7 @@ export function redactGuideLlmSnippet(raw: string): string {
 }
 
 export function guideLlmFailureLog(opts: {
+  provider?: string | null
   model: string | null
   status: number | null
   errorSnippet: string
@@ -148,6 +197,7 @@ export function guideLlmFailureLog(opts: {
 }): string {
   return JSON.stringify({
     msg: 'guide_llm_failed',
+    provider: opts.provider || null,
     model: opts.model,
     status: opts.status,
     errorSnippet: redactGuideLlmSnippet(opts.errorSnippet),
@@ -157,6 +207,7 @@ export function guideLlmFailureLog(opts: {
 }
 
 export function logGuideLlmFailure(opts: {
+  provider?: string | null
   model: string | null
   status: number | null
   errorSnippet: string
@@ -166,8 +217,18 @@ export function logGuideLlmFailure(opts: {
   console.error(guideLlmFailureLog(opts))
 }
 
-export function guideLlmModelCandidates(raw?: string): string[] {
+export function guideLlmModelCandidates(raw?: string, provider?: string): string[] {
   const primary = normalizeGuideLlmModel(raw)
+  const explicit = (provider || '').trim()
+  const workers =
+    (Boolean(explicit) && resolveGuideLlmProvider(explicit) === 'workers-ai') ||
+    primary.startsWith('@cf/')
+  if (workers) {
+    const extra = WORKERS_AI_FALLBACKS[primary] || []
+    return [primary, ...extra]
+      .filter((id, i, all) => id && all.indexOf(id) === i)
+      .slice(0, GUIDE_LLM_CANDIDATE_CAP)
+  }
   const extra = (MODEL_FALLBACKS[primary] || []).filter((id) => !THINKING_MODELS.has(id))
   return [primary, ...extra]
     .filter((id, i, all) => id && all.indexOf(id) === i)
@@ -217,6 +278,21 @@ function textFromUnknown(value: unknown): string {
     if (typeof rec.content === 'string') return rec.content
   }
   return ''
+}
+
+/** Workers AI `env.AI.run` shapes (`{ response }` or OpenAI-compat). */
+export function extractWorkersAiText(data: unknown): string | null {
+  if (typeof data === 'string') return data.trim() || null
+  if (!data || typeof data !== 'object') return null
+  const rec = data as {
+    response?: unknown
+    result?: { response?: unknown }
+  }
+  const fromResponse = textFromUnknown(rec.response)
+  if (fromResponse.trim()) return fromResponse.trim()
+  const fromResult = textFromUnknown(rec.result?.response)
+  if (fromResult.trim()) return fromResult.trim()
+  return extractLlmText(data)
 }
 
 /** OpenAI-compat + Gemini-native shapes. Never log the payload (may echo secrets). */
@@ -279,6 +355,7 @@ function isGeminiHost(base: string): boolean {
 }
 
 export type GuideLlmCallResult = {
+  provider: GuideLlmProviderId
   text: string | null
   host: string
   modelsTried: string[]
@@ -332,16 +409,164 @@ function abortAfter(
   }
 }
 
-export async function callGuideLlmDetailed(opts: {
-  apiKey: string
+function workersAiErrorSnippet(err: unknown): string {
+  if (err instanceof Error) return err.message
+  if (typeof err === 'string') return err
+  try {
+    return JSON.stringify(err)
+  } catch {
+    return 'workers_ai_error'
+  }
+}
+
+function workersAiStatus(err: unknown): number | null {
+  if (!err || typeof err !== 'object') return null
+  const rec = err as { status?: unknown; statusCode?: unknown }
+  const raw = rec.status ?? rec.statusCode
+  return typeof raw === 'number' && Number.isFinite(raw) ? raw : null
+}
+
+function raceAbort<T>(promise: Promise<T>, signal: AbortSignal): Promise<T> {
+  if (signal.aborted) {
+    return Promise.reject(Object.assign(new Error('Aborted'), { name: 'AbortError' }))
+  }
+  return new Promise((resolve, reject) => {
+    const onAbort = () => {
+      reject(Object.assign(new Error('Aborted'), { name: 'AbortError' }))
+    }
+    signal.addEventListener('abort', onAbort, { once: true })
+    promise.then(
+      (value) => {
+        signal.removeEventListener('abort', onAbort)
+        resolve(value)
+      },
+      (err) => {
+        signal.removeEventListener('abort', onAbort)
+        reject(err)
+      },
+    )
+  })
+}
+
+export type GuideLlmCallOpts = {
+  provider?: string
+  workersAi?: GuideWorkersAi
+  apiKey?: string
   baseUrl?: string
   model?: string
   system: string
   messages: GuideLlmMessage[]
   maxTokens: number
   timeoutMs?: number
-}): Promise<GuideLlmCallResult> {
-  const key = opts.apiKey.trim()
+}
+
+export async function callGuideLlmDetailed(opts: GuideLlmCallOpts): Promise<GuideLlmCallResult> {
+  const provider = resolveGuideLlmProvider(opts.provider, {
+    hasWorkersAi: Boolean(opts.workersAi),
+    hasApiKey: Boolean(opts.apiKey?.trim()),
+  })
+  if (provider === 'workers-ai') return callWorkersAiDetailed(opts)
+  return callOpenAiCompatDetailed(opts)
+}
+
+async function callWorkersAiDetailed(opts: GuideLlmCallOpts): Promise<GuideLlmCallResult> {
+  const empty: GuideLlmCallResult = {
+    provider: 'workers-ai',
+    text: null,
+    host: 'workers-ai',
+    modelsTried: [],
+    lastStatus: null,
+    lastError: opts.workersAi ? null : 'missing_binding',
+    lastFinishReason: null,
+    lastErrorSnippet: null,
+  }
+  if (!opts.workersAi) return empty
+
+  const primary = resolveGuideLlmModel(opts.model, opts.apiKey, 'workers-ai')
+  const models = guideLlmModelCandidates(primary, 'workers-ai')
+  const maxTokens = Math.min(Math.max(1, opts.maxTokens), GUIDE_WORKERS_AI_MAX_TOKENS)
+  const controller = new AbortController()
+  const budgetMs = opts.timeoutMs ?? GUIDE_LLM_BUDGET_MS
+  const startedAt = Date.now()
+  const remainingMs = () => Math.max(0, budgetMs - (Date.now() - startedAt))
+  const budget = setTimeout(() => controller.abort(), budgetMs)
+  const messages = [{ role: 'system', content: opts.system }, ...opts.messages]
+
+  try {
+    for (let i = 0; i < models.length; i++) {
+      const model = models[i]
+      const isPrimary = i === 0
+      empty.modelsTried.push(model)
+      let retriedPrimary = false
+
+      while (true) {
+        const attemptMs = guideLlmAttemptMs({
+          isRetry: retriedPrimary,
+          remainingMs: remainingMs(),
+        })
+        if (attemptMs < GUIDE_LLM_MIN_ATTEMPT_MS) {
+          empty.lastError = empty.lastError || 'timeout'
+          return empty
+        }
+        const attempt = abortAfter(attemptMs, controller.signal)
+        try {
+          const data = await raceAbort(
+            opts.workersAi.run(model, {
+              messages,
+              max_tokens: maxTokens,
+              temperature: 0.2,
+            }),
+            attempt.signal,
+          )
+          const text = extractWorkersAiText(data)
+          empty.lastFinishReason = extractFinishReason(data)
+          if (text && !isUnusableGuideReply(text, empty.lastFinishReason)) {
+            empty.text = text
+            empty.lastError = null
+            empty.lastErrorSnippet = null
+            return empty
+          }
+          empty.lastError = text ? 'truncated' : 'empty_content'
+          empty.lastErrorSnippet = redactGuideLlmSnippet(
+            typeof data === 'string' ? data : JSON.stringify(data ?? ''),
+          )
+          return empty
+        } catch (err) {
+          const name = err instanceof Error ? err.name : 'workers_ai_error'
+          if (name === 'AbortError') {
+            empty.lastError = 'timeout'
+            return empty
+          }
+          const raw = workersAiErrorSnippet(err)
+          const status =
+            workersAiStatus(err) ??
+            (modelMissing(404, raw) || /not found|unknown model|does not exist/i.test(raw)
+              ? 404
+              : 500)
+          empty.lastStatus = status
+          empty.lastErrorSnippet = redactGuideLlmSnippet(raw)
+          empty.lastError = sanitizeProviderError(status, raw)
+          const action = guideLlmOnProviderError(status, raw, isPrimary, retriedPrimary)
+          if (action === 'retry' && guideLlmHasRetryBudget(remainingMs())) {
+            retriedPrimary = true
+            await sleep(Math.min(GUIDE_LLM_RATE_LIMIT_BACKOFF_MS, remainingMs()), controller.signal)
+            continue
+          }
+          if (action === 'fallback') break
+          return empty
+        } finally {
+          attempt.cancel()
+        }
+      }
+    }
+  } finally {
+    clearTimeout(budget)
+  }
+  return empty
+}
+
+async function callOpenAiCompatDetailed(opts: GuideLlmCallOpts): Promise<GuideLlmCallResult> {
+  const key = opts.apiKey?.trim() || ''
   const base = resolveGuideLlmBaseUrl(opts.baseUrl, key, opts.model)
   let host = 'invalid'
   try {
@@ -350,6 +575,7 @@ export async function callGuideLlmDetailed(opts: {
     host = 'invalid'
   }
   const empty: GuideLlmCallResult = {
+    provider: 'openai-compat',
     text: null,
     host,
     modelsTried: [],
@@ -367,8 +593,8 @@ export async function callGuideLlmDetailed(opts: {
   }
   if (gemini) headers['x-goog-api-key'] = key
 
-  const primary = resolveGuideLlmModel(opts.model, key)
-  const models = guideLlmModelCandidates(primary)
+  const primary = resolveGuideLlmModel(opts.model, key, 'openai-compat')
+  const models = guideLlmModelCandidates(primary, 'openai-compat')
   const controller = new AbortController()
   const budgetMs = opts.timeoutMs ?? GUIDE_LLM_BUDGET_MS
   const startedAt = Date.now()
@@ -464,15 +690,7 @@ export async function callGuideLlmDetailed(opts: {
   return empty
 }
 
-export async function callGuideLlm(opts: {
-  apiKey: string
-  baseUrl?: string
-  model?: string
-  system: string
-  messages: GuideLlmMessage[]
-  maxTokens: number
-  timeoutMs?: number
-}): Promise<string | null> {
+export async function callGuideLlm(opts: GuideLlmCallOpts): Promise<string | null> {
   const result = await callGuideLlmDetailed(opts)
   return result.text
 }
@@ -486,9 +704,9 @@ export function composeGuideSystemPrompt(
   return [
     GUIDE_MANDATE,
     policyPrompt,
-    `Visitor locale: ${locale}. Reply entirely in ${lang}. Do not mix languages. SKU names stay in English.`,
     'Reply in 4–8 short sentences unless the visitor asks for less. Do not stop mid-sentence.',
     knowledge ? `Allowlisted knowledge:\n${knowledge}` : '',
+    `LANGUAGE LOCK: Visitor locale is ${locale}. Reply 100% in ${lang}. Do not mix languages. SKU names stay in English: GTM OS, STORE OS, NEXUS OS.`,
   ]
     .filter(Boolean)
     .join('\n\n')

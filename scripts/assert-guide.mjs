@@ -235,16 +235,28 @@ if (!/resolveGuideLlmBaseUrl/.test(llm) || !/AIza/.test(llm) || !/AQ\./.test(llm
 }
 
 const wrangler = fs.readFileSync(path.join(root, 'wrangler.toml'), 'utf8')
+if (!/\n\[ai\]/.test(wrangler) || !/binding\s*=\s*"AI"/.test(wrangler)) {
+  console.error('wrangler.toml must bind Pages Workers AI as [ai] binding = "AI"')
+  process.exit(1)
+}
+if (!/GUIDE_LLM_PROVIDER\s*=\s*"workers-ai"/.test(wrangler)) {
+  console.error('wrangler [vars] must pin GUIDE_LLM_PROVIDER=workers-ai')
+  process.exit(1)
+}
+if (!/GUIDE_LLM_MODEL\s*=\s*"@cf\/meta\/llama-3.1-8b-instruct-fp8-fast"/.test(wrangler)) {
+  console.error('wrangler [vars] must pin the fast 8B Workers AI model (not 70B)')
+  process.exit(1)
+}
+if (/llama-3\.3-70b|llama-3\.1-70b/.test(wrangler.split('\n').filter((l) => l.includes('GUIDE_LLM_MODEL')).join('\n'))) {
+  console.error('do not pin 70B as GUIDE_LLM_MODEL (9s budget + neuron cap)')
+  process.exit(1)
+}
 if (!/GUIDE_LLM_BASE_URL/.test(wrangler) || !/generativelanguage.googleapis.com/.test(wrangler)) {
-  console.error('wrangler.toml must document Gemini GUIDE_LLM_BASE_URL')
+  console.error('wrangler.toml must keep Gemini GUIDE_LLM_BASE_URL for openai-compat switch')
   process.exit(1)
 }
 if (!/\n\[vars\]/.test(wrangler) || !/GUIDE_LLM_BASE_URL\s*=/.test(wrangler)) {
   console.error('wrangler.toml [vars] must pin GUIDE_LLM_BASE_URL for Direct Upload')
-  process.exit(1)
-}
-if (!/GUIDE_LLM_MODEL\s*=\s*"gemini-3.1-flash-lite"/.test(wrangler)) {
-  console.error('wrangler [vars] must pin GUIDE_LLM_MODEL=gemini-3.1-flash-lite (non-thinking)')
   process.exit(1)
 }
 const TURNSTILE_SITE_KEY = '0x4AAAAAAF6-kFpM12bv15mT'
@@ -284,8 +296,20 @@ if (!/TURNSTILE_SECRET_KEY/.test(fn) || !/enforceGuideTurnstile/.test(fn)) {
   console.error('Function must verify Turnstile via TURNSTILE_SECRET_KEY before the LLM')
   process.exit(1)
 }
-if (!/logGuideLlmFailure/.test(fn) || !/errorSnippet/.test(llm)) {
-  console.error('Function must log one redacted guide_llm_failed line when the LLM path fails')
+if (!/logGuideLlmFailure/.test(fn) || !/errorSnippet/.test(llm) || !/provider/.test(llm)) {
+  console.error('Function must log one redacted guide_llm_failed line (provider + snippet) on LLM fail')
+  process.exit(1)
+}
+if (!/resolveGuideLlmProvider/.test(fn) || !/workersAi: context\.env\.AI/.test(fn)) {
+  console.error('Function must dispatch Workers AI via env.AI without requiring GUIDE_LLM_API_KEY')
+  process.exit(1)
+}
+if (/if \(key && !skipLlm\)/.test(fn)) {
+  console.error('Function must not skip Workers AI when GUIDE_LLM_API_KEY is unset')
+  process.exit(1)
+}
+if (!/LANGUAGE LOCK/.test(llm) || !/Reply 100% in \$\{lang\}/.test(llm)) {
+  console.error('system prompt must language-lock after knowledge so es replies stay Spanish')
   process.exit(1)
 }
 if (!/enforceGuideRateLimit/.test(fn)) {

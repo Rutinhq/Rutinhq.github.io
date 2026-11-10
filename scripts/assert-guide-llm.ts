@@ -9,8 +9,11 @@ import {
 } from '../src/guide/classify-core.ts'
 import { localGuideReply } from '../src/guide/fallback.ts'
 import {
+  callGuideLlmDetailed,
+  composeGuideSystemPrompt,
   extractFinishReason,
   extractLlmText,
+  extractWorkersAiText,
   guideLlmAttemptMs,
   guideLlmFailureLog,
   guideLlmHasRetryBudget,
@@ -22,6 +25,8 @@ import {
   redactGuideLlmSnippet,
   resolveGuideLlmBaseUrl,
   resolveGuideLlmModel,
+  resolveGuideLlmProvider,
+  DEFAULT_WORKERS_AI_MODEL,
   GUIDE_LLM_BUDGET_MS,
   GUIDE_LLM_CANDIDATE_CAP,
   GUIDE_LLM_MIN_ATTEMPT_MS,
@@ -29,6 +34,7 @@ import {
   GUIDE_LLM_RATE_LIMIT_BACKOFF_MS,
   GUIDE_LLM_RETRY_ATTEMPT_MS,
   GUIDE_MANDATE,
+  GUIDE_WORKERS_AI_MAX_TOKENS,
 } from '../src/guide/llm.ts'
 
 function assert(cond: unknown, msg: string) {
@@ -81,6 +87,38 @@ assert(
     'gemini-3.1-flash-lite',
   'GUIDE_LLM_MODEL is the single primary',
 )
+assert(resolveGuideLlmProvider('workers-ai') === 'workers-ai', 'explicit workers-ai provider')
+assert(
+  resolveGuideLlmProvider('openai-compat') === 'openai-compat',
+  'openai-compat keeps Gemini/OpenAI path',
+)
+assert(resolveGuideLlmProvider('gemini') === 'openai-compat', 'gemini alias is openai-compat')
+assert(resolveGuideLlmProvider() === 'workers-ai', 'unset provider defaults to workers-ai')
+assert(
+  resolveGuideLlmModel(undefined, undefined, 'workers-ai') === DEFAULT_WORKERS_AI_MODEL,
+  'workers-ai default is the fast 8B fp8 model',
+)
+assert(
+  normalizeGuideLlmModel('@cf/meta/llama-3.1-8b-instruct-fast') === DEFAULT_WORKERS_AI_MODEL,
+  'retired -fast id aliases to fp8-fast',
+)
+assert(
+  guideLlmModelCandidates(DEFAULT_WORKERS_AI_MODEL, 'workers-ai')[0] === DEFAULT_WORKERS_AI_MODEL,
+  'workers-ai candidates start with the pinned 8B',
+)
+assert(
+  guideLlmModelCandidates(DEFAULT_WORKERS_AI_MODEL, 'workers-ai').includes(
+    '@cf/meta/llama-3.1-8b-instruct',
+  ),
+  'workers-ai 404 fallback is the non-fast 8B, not 70B',
+)
+assert(
+  !guideLlmModelCandidates(DEFAULT_WORKERS_AI_MODEL, 'workers-ai').some((id) =>
+    id.includes('70b'),
+  ),
+  'workers-ai default must not cascade onto 70B',
+)
+assert(GUIDE_WORKERS_AI_MAX_TOKENS <= 256, 'workers-ai max_tokens stay modest for 10k neurons/day')
 assert(
   resolveGuideLlmBaseUrl(undefined, 'sk-openai-shape').includes('api.openai.com'),
   'non-Gemini key keeps OpenAI default',
@@ -216,6 +254,7 @@ assert(
 assert(redactGuideLlmSnippet('x'.repeat(500)).length === 200, 'snippets cap at 200 chars')
 {
   const line = guideLlmFailureLog({
+    provider: 'openai-compat',
     model: 'gemini-3.1-flash-lite',
     status: 400,
     errorSnippet: 'API key AIzaSyFakeKeyForShapeOnly invalid',
@@ -224,6 +263,7 @@ assert(redactGuideLlmSnippet('x'.repeat(500)).length === 200, 'snippets cap at 2
   })
   const parsed = JSON.parse(line) as {
     msg: string
+    provider: string
     model: string
     status: number
     errorSnippet: string
@@ -231,12 +271,68 @@ assert(redactGuideLlmSnippet('x'.repeat(500)).length === 200, 'snippets cap at 2
     modelsTried: string[]
   }
   assert(parsed.msg === 'guide_llm_failed', 'failure log msg')
+  assert(parsed.provider === 'openai-compat', 'failure log provider')
   assert(parsed.model === 'gemini-3.1-flash-lite', 'failure log model')
   assert(parsed.status === 400, 'failure log status')
   assert(parsed.elapsedMs === 120, 'failure log elapsedMs')
   assert(parsed.modelsTried[0] === 'gemini-3.1-flash-lite', 'failure log modelsTried')
   assert(!line.includes('AIza'), 'failure log must not contain the raw key')
   assert(!/authorization|x-goog-api-key/i.test(line), 'failure log must not dump headers')
+}
+assert(extractWorkersAiText({ response: '  hola equipo  ' }) === 'hola equipo', 'Workers AI response')
+assert(
+  extractWorkersAiText({ result: { response: 'desde result' } }) === 'desde result',
+  'Workers AI nested result.response',
+)
+{
+  const esPrompt = composeGuideSystemPrompt('policy-block', 'es', 'Allowlisted knowledge body')
+  const enPrompt = composeGuideSystemPrompt('policy-block', 'en', 'Allowlisted knowledge body')
+  assert(/LANGUAGE LOCK: Visitor locale is es\. Reply 100% in Spanish/.test(esPrompt), 'es lock')
+  assert(/LANGUAGE LOCK: Visitor locale is en\. Reply 100% in English/.test(enPrompt), 'en lock')
+  assert(
+    esPrompt.lastIndexOf('LANGUAGE LOCK') > esPrompt.lastIndexOf('Allowlisted knowledge'),
+    'locale lock must follow knowledge so Llama answers in Spanish',
+  )
+}
+{
+  const missing = await callGuideLlmDetailed({
+    provider: 'workers-ai',
+    system: 'sys',
+    messages: [{ role: 'user', content: 'hola' }],
+    maxTokens: 1024,
+  })
+  assert(missing.lastError === 'missing_binding', 'workers-ai without env.AI is missing_binding')
+  assert(missing.provider === 'workers-ai', 'missing_binding keeps workers-ai provider')
+  const noKey = await callGuideLlmDetailed({
+    provider: 'openai-compat',
+    apiKey: '',
+    system: 'sys',
+    messages: [{ role: 'user', content: 'hi' }],
+    maxTokens: 1024,
+  })
+  assert(noKey.lastError === 'missing_key', 'openai-compat still requires a key')
+  let sawMaxTokens = 0
+  const usable =
+    'GTM OS es el sistema de outbound B2B que instalamos en tu equipo. Agenda https://calendly.com/rutinhq/30min para ver el fit. STORE OS y NEXUS OS no aplican a leads fríos.'
+  const result = await callGuideLlmDetailed({
+    provider: 'workers-ai',
+    workersAi: {
+      run: async (_model, input) => {
+        sawMaxTokens = Number((input as { max_tokens?: unknown }).max_tokens || 0)
+        const msgs = (input as { messages?: { role: string; content: string }[] }).messages || []
+        assert(msgs[0]?.role === 'system', 'workers-ai sends a system message')
+        assert(/LANGUAGE LOCK: Visitor locale is es/.test(msgs[0]?.content || ''), 'es lock reaches model')
+        return { response: usable }
+      },
+    },
+    system: composeGuideSystemPrompt('policy', 'es', 'kb'),
+    messages: [{ role: 'user', content: 'necesito leads' }],
+    maxTokens: 1024,
+  })
+  assert(result.provider === 'workers-ai', 'mock run is workers-ai')
+  assert(result.host === 'workers-ai', 'workers-ai host label')
+  assert(result.text === usable, 'workers-ai usable completion')
+  assert(sawMaxTokens === GUIDE_WORKERS_AI_MAX_TOKENS, 'workers-ai caps max_tokens below 1024')
 }
 
 assert(/RutinHQ Guide/.test(GUIDE_MANDATE), 'mandate names public UI')

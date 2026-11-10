@@ -1,13 +1,12 @@
 /**
  * Cloudflare Pages Function — POST /api/guide
  * Secrets (Pages → Settings → Environment variables):
- *   GUIDE_LLM_API_KEY (or OpenAI-compatible key)
- *   GUIDE_LLM_BASE_URL (optional, Gemini: https://generativelanguage.googleapis.com/v1beta/openai)
- *   GUIDE_LLM_MODEL (optional, recommended gemini-3.1-flash-lite — do not pin thinking 2.5/3.6)
+ *   GUIDE_LLM_API_KEY (only when GUIDE_LLM_PROVIDER=openai-compat)
  *   GUIDE_LEAD_WEBHOOK_URL (optional JSON POST of lead briefs)
  *   TURNSTILE_SECRET_KEY (Siteverify; fail-open only in local/dev if unset)
  *
- * Gemini runs with the full RutinHQ Guide mandate (not a bare model).
+ * Default LLM is Workers AI via the Pages `[ai] binding = "AI"`.
+ * Set GUIDE_LLM_PROVIDER=openai-compat to use Gemini/OpenAI instead.
  * Successful LLM answers return mode=llm. Security/pricing stay hard refuses.
  */
 
@@ -29,11 +28,15 @@ import {
   GUIDE_LLM_BUDGET_MS,
   isUnusableGuideReply,
   logGuideLlmFailure,
+  resolveGuideLlmProvider,
   type GuideLlmMode,
+  type GuideWorkersAi,
 } from '../../src/guide/llm'
 
 type Env = {
   ASSETS?: { fetch: (input: Request | URL | string) => Promise<Response> }
+  AI?: GuideWorkersAi
+  GUIDE_LLM_PROVIDER?: string
   GUIDE_LLM_API_KEY?: string
   GUIDE_LLM_BASE_URL?: string
   GUIDE_LLM_MODEL?: string
@@ -243,10 +246,16 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
   let reply = ensureCalendlyCta(pick(replyKey), locale, policy.calendlyUrl)
   let mode: GuideLlmMode = 'degraded'
   const key = context.env.GUIDE_LLM_API_KEY?.trim()
+  const provider = resolveGuideLlmProvider(context.env.GUIDE_LLM_PROVIDER, {
+    hasWorkersAi: Boolean(context.env.AI),
+    hasApiKey: Boolean(key),
+  })
   const skipLlm = skuIntent === 'pricing' || skuIntent === 'offTopic'
+  const canCallLlm =
+    !skipLlm && (provider === 'workers-ai' ? Boolean(context.env.AI) : Boolean(key))
 
   let llmDebug: Record<string, unknown> | null = null
-  if (key && !skipLlm) {
+  if (canCallLlm) {
     const knowledge = (kb?.documents || [])
       .map((d) => `### ${d.title}\nSource: ${d.url}\n${d.text}`)
       .join('\n\n')
@@ -254,6 +263,8 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
     const llmStarted = Date.now()
     try {
       const result = await callGuideLlmDetailed({
+        provider,
+        workersAi: context.env.AI,
         apiKey: key,
         baseUrl: context.env.GUIDE_LLM_BASE_URL,
         model: context.env.GUIDE_LLM_MODEL,
@@ -266,7 +277,9 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
         })),
       })
       llmDebug = {
-        hasKey: true,
+        provider: result.provider,
+        hasBinding: Boolean(context.env.AI),
+        hasKey: Boolean(key),
         hasBase: Boolean(context.env.GUIDE_LLM_BASE_URL),
         hasModel: Boolean(context.env.GUIDE_LLM_MODEL),
         host: result.host,
@@ -284,6 +297,7 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
       }
       if (mode !== 'llm') {
         logGuideLlmFailure({
+          provider: result.provider,
           model:
             result.modelsTried[result.modelsTried.length - 1] ||
             context.env.GUIDE_LLM_MODEL ||
@@ -295,8 +309,9 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
         })
       }
     } catch {
-      llmDebug = { hasKey: true, lastError: 'call_threw' }
+      llmDebug = { provider, hasKey: Boolean(key), lastError: 'call_threw' }
       logGuideLlmFailure({
+        provider,
         model: context.env.GUIDE_LLM_MODEL || null,
         status: null,
         errorSnippet: 'call_threw',
@@ -306,11 +321,23 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
     }
   } else {
     llmDebug = {
+      provider,
+      hasBinding: Boolean(context.env.AI),
       hasKey: Boolean(key),
       hasBase: Boolean(context.env.GUIDE_LLM_BASE_URL),
       hasModel: Boolean(context.env.GUIDE_LLM_MODEL),
       skipLlm,
       skuIntent,
+    }
+    if (!skipLlm) {
+      logGuideLlmFailure({
+        provider,
+        model: context.env.GUIDE_LLM_MODEL || null,
+        status: null,
+        errorSnippet: provider === 'workers-ai' ? 'missing_binding' : 'missing_key',
+        elapsedMs: 0,
+        modelsTried: [],
+      })
     }
   }
 
