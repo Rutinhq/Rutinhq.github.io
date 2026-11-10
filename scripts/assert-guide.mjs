@@ -172,9 +172,23 @@ if (
   !/ICP = perfil de cliente ideal/.test(policySrc.systemPrompt) ||
   !/representante de desarrollo de ventas/.test(policySrc.systemPrompt) ||
   !/tiendas ecommerce/.test(policySrc.systemPrompt) ||
-  !/Estrategia → Social → Ads/.test(policySrc.systemPrompt)
+  !/Estrategia → Social → Ads/.test(policySrc.systemPrompt) ||
+  !/prospección en frío/.test(policySrc.systemPrompt) ||
+  !/iguala mensual/.test(policySrc.systemPrompt) ||
+  !/No es para tiendas ecommerce ni para quien solo quiere anuncios/.test(policySrc.systemPrompt)
 ) {
-  console.error('systemPrompt must pin the ES acronym glossary, ecommerce audience, and NEXUS phrasing')
+  console.error('systemPrompt must pin the ES glossary, NEXUS phrasing, and GTM not-for line')
+  process.exit(1)
+}
+if (!/No es para tiendas ecommerce ni para quien solo quiere anuncios/.test(policySrc.fallbackReplies['gtm-os'].es)) {
+  console.error('GTM OS ES fallback must use the natural not-for line')
+  process.exit(1)
+}
+if (
+  !/Estrategia → Social → Ads/.test(policySrc.fallbackReplies['nexus-os'].es) ||
+  /publicidad social y publicidad/.test(policySrc.fallbackReplies['nexus-os'].es)
+) {
+  console.error('NEXUS OS ES fallback must be Estrategia → Social → Ads')
   process.exit(1)
 }
 if (

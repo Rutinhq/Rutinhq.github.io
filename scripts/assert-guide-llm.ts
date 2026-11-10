@@ -208,7 +208,10 @@ assert(
     /nunca tú/.test(GUIDE_MANDATE) &&
     /ICP = perfil de cliente ideal/.test(GUIDE_MANDATE) &&
     /tiendas ecommerce/.test(GUIDE_MANDATE) &&
-    /Estrategia → Social → Ads/.test(GUIDE_MANDATE),
+    /Estrategia → Social → Ads/.test(GUIDE_MANDATE) &&
+    /prospección en frío/.test(GUIDE_MANDATE) &&
+    /iguala mensual/.test(GUIDE_MANDATE) &&
+    /Zero English/.test(GUIDE_MANDATE),
   'mandate asks for short catalog-only usted replies that finish',
 )
 assert(GUIDE_LLM_REPLY_MAX_WORDS === 80, 'hard word cap is 80')
@@ -468,11 +471,15 @@ assert(!isGuidePreviewHost('rutinhq.com'), 'rutinhq.com is never preview')
   assert(/LANGUAGE LOCK: Visitor locale is en\. Reply 100% in English/.test(enPrompt), 'en lock')
   assert(/LENGTH LOCK: ≤80 words/.test(esPrompt), 'length lock in prompt')
   assert(/USTED LOCK: Formal usted only/.test(esPrompt), 'es usted lock')
-  assert(/sistemas que usted posee, sin retainers/.test(esPrompt), 'es glossary example')
+  assert(/sistemas que usted posee, sin iguala mensual/.test(esPrompt), 'es glossary example')
   assert(/ICP = perfil de cliente ideal/.test(esPrompt), 'es ICP glossary')
   assert(/SDR = representante de desarrollo de ventas \(externo\)/.test(esPrompt), 'es SDR glossary')
   assert(/tiendas ecommerce/.test(esPrompt) && /marcas DTC en Shopify/.test(esPrompt), 'es audience glossary')
-  assert(/NEXUS OS = "Estrategia → Social → Ads"/.test(esPrompt), 'es NEXUS phrasing')
+  assert(/NEXUS OS is always "Estrategia → Social → Ads"/.test(esPrompt), 'es NEXUS phrasing')
+  assert(/never "publicidad social y publicidad"/.test(esPrompt), 'es bans redundant NEXUS ads')
+  assert(/No es para tiendas ecommerce ni para quien solo quiere anuncios/.test(esPrompt), 'es GTM not-for')
+  assert(/outbound → prospección en frío/.test(esPrompt), 'es outbound glossary')
+  assert(/Zero English except product names/.test(esPrompt), 'es zero-english lock')
   assert(/never "ecommerceros"/.test(esPrompt), 'es bans ecommerceros')
   assert(!/USTED LOCK/.test(enPrompt), 'en prompt must not carry the Spanish usted lock')
   assert(
