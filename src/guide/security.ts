@@ -1,4 +1,5 @@
 import { fallbackReply, guidePolicy } from './config'
+import { stripGuidePresentationMarkers } from './plain-text'
 import type { GuideChatMessage, GuideLocale } from './types'
 
 const HARDCODED_SECURITY_HINTS = [
@@ -77,8 +78,9 @@ export function replyLeaksPrivate(text: string): boolean {
 }
 
 export function enforceSafeReply(reply: string, locale: GuideLocale): string {
-  if (replyLeaksPrivate(reply)) return securityReply(locale)
-  return reply
+  const plain = stripGuidePresentationMarkers(reply)
+  if (replyLeaksPrivate(plain)) return securityReply(locale)
+  return plain
 }
 
 export {

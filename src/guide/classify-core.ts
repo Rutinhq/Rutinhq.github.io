@@ -148,6 +148,93 @@ export function storeShopifyFitGuideReply(
     : `Yes. STORE OS audits and configures the Shopify admin so the store converts before you spend on ads. If it fits, book 30 min: ${url}.`
 }
 
+export type ComparedSku = 'gtm-os' | 'store-os' | 'nexus-os'
+
+const SKU_NAME_RE: Record<ComparedSku, RegExp> = {
+  'gtm-os': /\bgtm(\s*-?\s*os)?\b/i,
+  'store-os': /\bstore(\s*-?\s*os)?\b/i,
+  'nexus-os': /\bnexus(\s*-?\s*os)?\b/i,
+}
+
+const COMPARISON_CUE =
+  /diferenc|distingu|versus|\bvs\.?\b|comparar|\bcompare\b|compared|difference|frente a|en qu[eé] se/i
+
+const SKU_ONE_LINER: Record<ComparedSku, { en: string; es: string }> = {
+  'gtm-os': {
+    es: 'GTM OS es prospección en frío B2B que se queda con su equipo',
+    en: 'GTM OS is B2B cold outbound the team keeps',
+  },
+  'store-os': {
+    es: 'STORE OS audita y configura el panel de Shopify para que la tienda convierta antes de gastar en anuncios',
+    en: 'STORE OS audits and configures the Shopify admin so the store converts before ads',
+  },
+  'nexus-os': {
+    es: 'NEXUS OS es un sistema de marketing agéntico: Estrategia → Social → Ads; nada se publica ni se gasta sin aprobación explícita',
+    en: 'NEXUS OS is agentic marketing: Strategy → Social → Ads; nothing publishes or spends without an explicit GO',
+  },
+}
+
+export function namedGuideSkus(text: string): ComparedSku[] {
+  const found: ComparedSku[] = []
+  for (const key of ['gtm-os', 'store-os', 'nexus-os'] as const) {
+    if (SKU_NAME_RE[key].test(text)) found.push(key)
+  }
+  return found
+}
+
+/** Two named SKUs plus a compare cue — skip the LLM so both sides survive the 80-word cap. */
+export function isSkuComparisonTurn(messages: GuideChatMessage[]): boolean {
+  const t = lastUserText(messages)
+  return namedGuideSkus(t).length >= 2 && COMPARISON_CUE.test(t)
+}
+
+function comparisonPair(
+  keys: ComparedSku[],
+): 'gtm-nexus' | 'gtm-store' | 'store-nexus' | 'all' {
+  const set = new Set(keys)
+  if (set.size >= 3) return 'all'
+  if (set.has('gtm-os') && set.has('nexus-os')) return 'gtm-nexus'
+  if (set.has('gtm-os') && set.has('store-os')) return 'gtm-store'
+  if (set.has('store-os') && set.has('nexus-os')) return 'store-nexus'
+  return 'all'
+}
+
+function skuContrast(locale: GuideLocale, keys: ComparedSku[]): string {
+  const pair = comparisonPair(keys)
+  switch (pair) {
+    case 'gtm-nexus':
+      return locale === 'es'
+        ? 'Son cuellos distintos: prospección en frío frente a demanda en redes.'
+        : 'Different bottlenecks: cold outbound versus social demand.'
+    case 'gtm-store':
+      return locale === 'es'
+        ? 'Son cuellos distintos: prospección en frío B2B frente a conversión en Shopify.'
+        : 'Different bottlenecks: B2B cold outbound versus Shopify conversion.'
+    case 'store-nexus':
+      return locale === 'es'
+        ? 'Son cuellos distintos: conversión en Shopify frente a demanda en redes.'
+        : 'Different bottlenecks: Shopify conversion versus social demand.'
+    case 'all':
+      return locale === 'es'
+        ? 'Un cuello, un sistema: elija el que atiende su operación.'
+        : 'One bottleneck, one system: pick the one that matches the operation.'
+    default: {
+      const _never: never = pair
+      return _never
+    }
+  }
+}
+
+export function skuComparisonGuideReply(
+  locale: GuideLocale,
+  url = 'https://calendly.com/rutinhq/30min',
+  skus?: ComparedSku[],
+): string {
+  const keys: ComparedSku[] = skus && skus.length >= 2 ? skus : ['gtm-os', 'nexus-os']
+  const facts = keys.map((key) => SKU_ONE_LINER[key][locale]).join('. ')
+  return ensureCalendlyCta(`${facts}. ${skuContrast(locale, keys)}`, locale, url)
+}
+
 function uniqueSku(
   ranked: { key: 'gtm-os' | 'store-os' | 'nexus-os'; n: number }[],
 ): RecommendedSku {
