@@ -50,12 +50,12 @@ export default function BlogEsPage() {
           className="mt-4 max-w-4xl font-heading font-extrabold tracking-[-0.03em]"
           style={{ fontSize: 'clamp(36px, 6vw, 64px)' }}
         >
-          Sistemas que posees — filtrados para founders que instalan, no rentan
+          Sistemas que usted posee — filtrados para founders que instalan, no rentan
         </h1>
         <p className="mt-6 max-w-2xl text-[17px] text-muted-foreground md:text-[18px]">
-          El blog de RutinHQ es un radar: cada post deja ver si encajas en
-          nuestro ICP, si nombras un dolor real de ops/GTM y si quieres un
-          sistema que se quede con tu equipo. Dual desk — estrategia de CEO +
+          El blog de RutinHQ es un radar: cada post deja ver si encaja en
+          nuestro perfil de cliente ideal (ICP), si nombra un dolor real de ops/GTM y si desea un
+          sistema que se quede con su equipo. Dual desk — estrategia de CEO +
           install de ops. Siguiente paso: discovery; educate-forever, nunca.
         </p>
       </Section>
@@ -102,16 +102,16 @@ export default function BlogEsPage() {
             {ARTICLE01_ES.job}
           </p>
           <Button asChild className="mt-8" size="lg">
-            <Link to={ARTICLE01_ES.path}>Lee el how-to</Link>
+            <Link to={ARTICLE01_ES.path}>Lea el how-to</Link>
           </Button>
         </article>
         <article className="mt-10 max-w-2xl border-t border-border pt-10">
           <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-primary">
-            How-to · Store OS · DRAFT · EN
+            How-to · STORE OS · DRAFT · EN
           </p>
           <h2 className="mt-3 text-2xl font-heading font-extrabold tracking-[-0.03em]">
             <Link to={ARTICLE02.path} className="hover:text-primary">
-              {ARTICLE02.title}
+              Auditoría del Admin de Shopify antes de comprar anuncios
             </Link>
           </h2>
           <p className="mt-3 text-[16px] text-muted-foreground">
@@ -144,14 +144,14 @@ export default function BlogEsPage() {
       </Section>
 
       <Section>
-        <MonoTitle>Si tu cuello es…</MonoTitle>
+        <MonoTitle>Si su cuello es…</MonoTitle>
         <div className="mt-8 grid grid-cols-1 lg:grid-cols-3">
           <article className="flex flex-col py-8 lg:pr-8">
             <h2 className="text-2xl font-heading font-extrabold tracking-[-0.03em]">
-              Pipeline en frío repetible / puertas de ICP
+              Flujo de ventas en frío repetible / puertas de ICP
             </h2>
             <p className="mt-3 flex-1 text-[16px] text-muted-foreground">
-              Empieza por Article01, luego GTM OS.
+              Empiece por Article01, luego GTM OS.
             </p>
             <p className="mt-8 font-mono text-[12px] tracking-[0.04em]">
               <Link
@@ -171,10 +171,10 @@ export default function BlogEsPage() {
           </article>
           <article className="flex flex-col border-t border-border py-8 lg:border-t-0 lg:border-l lg:border-border lg:px-8">
             <h2 className="text-2xl font-heading font-extrabold tracking-[-0.03em]">
-              Fricción de Admin antes de ads
+              Fricción de Admin antes de anuncios
             </h2>
             <p className="mt-3 flex-1 text-[16px] text-muted-foreground">
-              Outline Store OS en EN (DRAFT). Ads fuera de alcance.
+              Outline STORE OS en EN (DRAFT). Anuncios fuera de alcance.
             </p>
             <p className="mt-8 font-mono text-[12px] tracking-[0.04em]">
               <Link
@@ -188,13 +188,13 @@ export default function BlogEsPage() {
                 href={WWW_STORE_ES_URL}
                 className="text-foreground underline underline-offset-4 hover:text-primary"
               >
-                Store OS
+                STORE OS
               </a>
             </p>
           </article>
           <article className="flex flex-col border-t border-border py-8 lg:border-t-0 lg:border-l lg:border-border lg:px-8">
             <h2 className="text-2xl font-heading font-extrabold tracking-[-0.03em]">
-              Currículo / mapa de sistemas
+              Temario / mapa de sistemas
             </h2>
             <p className="mt-3 flex-1 text-[16px] text-muted-foreground">
               Prueba de catálogo — no una segunda oferta.

@@ -22,7 +22,8 @@ export const OG_IMAGE = {
   blog: `${SITE}/og/og-blog.png`,
 } as const
 
-export function organizationNode() {
+export function organizationNode(locale: 'en' | 'es' = 'en') {
+  const es = locale === 'es'
   return {
     '@type': 'Organization',
     '@id': `${SITE}/#organization`,
@@ -37,9 +38,15 @@ export function organizationNode() {
       height: LOGO_HEIGHT,
     },
     image: LOGO_PNG,
-    description:
-      'RutinHQ is a B2B systems studio. We install GTM OS, STORE OS, and NEXUS OS — operating systems teams own, not retainers that vanish.',
-    knowsAbout: ['GTM OS', 'STORE OS', 'NEXUS OS', 'B2B outbound'],
+    description: es
+      ? 'RutinHQ es un estudio de sistemas B2B. Instalamos GTM OS, STORE OS y NEXUS OS — sistemas operativos que los equipos poseen, no iguala mensual que desaparece.'
+      : 'RutinHQ is a B2B systems studio. We install GTM OS, STORE OS, and NEXUS OS — operating systems teams own, not retainers that vanish.',
+    knowsAbout: [
+      'GTM OS',
+      'STORE OS',
+      'NEXUS OS',
+      es ? 'prospección en frío B2B' : 'B2B outbound',
+    ],
     contactPoint: {
       '@type': 'ContactPoint',
       email: 'strategy@rutinhq.com',
@@ -182,6 +189,7 @@ export function hubJsonLd(
   path = '/',
   name = 'RutinHQ — systems you own',
   faq: readonly FaqItem[] = [],
+  locale: 'en' | 'es' = 'en',
 ) {
   const pageUrl = `${SITE}${path === '/' ? '/' : path}`
   const graph: Record<string, unknown>[] = [
@@ -191,11 +199,13 @@ export function hubJsonLd(
       url: `${SITE}/`,
       name: 'RutinHQ',
       description:
-        'RutinHQ installs B2B operating systems — GTM OS, STORE OS, and NEXUS OS — that founding teams own.',
+        locale === 'es'
+          ? 'RutinHQ instala sistemas operativos B2B — GTM OS, STORE OS y NEXUS OS — que los equipos fundadores poseen.'
+          : 'RutinHQ installs B2B operating systems — GTM OS, STORE OS, and NEXUS OS — that founding teams own.',
       inLanguage: ['en', 'es'],
       publisher: { '@id': `${SITE}/#organization` },
     },
-    organizationNode(),
+    organizationNode(locale),
     {
       '@type': 'WebPage',
       '@id': `${pageUrl}#webpage`,
@@ -290,7 +300,7 @@ export function articleJsonLd({
   const url = `${SITE}${path}`
   const blogPath = inLanguage === 'es' ? '/es/blog' : '/blog'
   const graph: Record<string, unknown>[] = [
-    organizationNode(),
+    organizationNode(inLanguage),
     {
       '@type': 'BlogPosting',
       '@id': `${url}#article`,

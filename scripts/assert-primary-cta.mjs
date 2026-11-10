@@ -127,7 +127,7 @@ for (const file of SHELLS) {
   }
 
   if (file.endsWith('index.html') || file.endsWith('/es.html')) {
-    const emailLine = file.endsWith('/es.html') ? 'o escríbenos a' : 'or email'
+    const emailLine = file.endsWith('/es.html') ? 'o escríbanos a' : 'or email'
     if (!html.includes(emailLine)) {
       fail(`${file} must keep the secondary «${emailLine}» line next to Talk.`)
     }

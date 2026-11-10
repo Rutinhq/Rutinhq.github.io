@@ -40,7 +40,8 @@ const OG_IMAGE = {
 
 const LOGO_PNG = `${SITE}/apple-touch-icon.png`
 
-function organizationNode() {
+function organizationNode(locale = 'en') {
+  const es = locale === 'es'
   return {
     '@type': 'Organization',
     '@id': `${SITE}/#organization`,
@@ -55,9 +56,15 @@ function organizationNode() {
       height: 180,
     },
     image: LOGO_PNG,
-    description:
-      'RutinHQ is a B2B systems studio. We install GTM OS, STORE OS, and NEXUS OS — operating systems teams own, not retainers that vanish.',
-    knowsAbout: ['GTM OS', 'STORE OS', 'NEXUS OS', 'B2B outbound'],
+    description: es
+      ? 'RutinHQ es un estudio de sistemas B2B. Instalamos GTM OS, STORE OS y NEXUS OS — sistemas operativos que los equipos poseen, no iguala mensual que desaparece.'
+      : 'RutinHQ is a B2B systems studio. We install GTM OS, STORE OS, and NEXUS OS — operating systems teams own, not retainers that vanish.',
+    knowsAbout: [
+      'GTM OS',
+      'STORE OS',
+      'NEXUS OS',
+      es ? 'prospección en frío B2B' : 'B2B outbound',
+    ],
     contactPoint: {
       '@type': 'ContactPoint',
       email: 'strategy@rutinhq.com',
@@ -289,7 +296,7 @@ const ROUTES = [
   {
     path: '/es/blog',
     file: 'prerender/es-blog.html',
-    title: 'Blog — sistemas que posees',
+    title: 'Blog — sistemas que usted posee',
     description:
       'Radar para founders que instalan sistemas de GTM y ops — no asientos rentados.',
     ogType: 'website',
@@ -307,7 +314,7 @@ const ROUTES = [
           '@type': ['CollectionPage', 'Blog'],
           '@id': `${SITE}/es/blog#blog`,
           url: `${SITE}/es/blog`,
-          name: 'Blog — sistemas que posees',
+          name: 'Blog — sistemas que usted posee',
           description:
             'Radar para founders que instalan sistemas de GTM y ops — no asientos rentados.',
           inLanguage: 'es',
@@ -324,7 +331,7 @@ const ROUTES = [
             {
               '@type': 'ListItem',
               position: 1,
-              name: 'Outbound frío con ICP — sin SDR rentado',
+              name: 'Prospección en frío con perfil de cliente ideal (ICP) — sin SDR rentado',
               url: `${SITE}/es/blog/outbound-frio-con-icp-sin-sdr-rentado`,
             },
           ],
@@ -336,7 +343,7 @@ const ROUTES = [
           },
           {
             q: '¿Qué señal filtra este radar?',
-            a: 'Fit de ICP, un dolor real de ops/GTM, interés de SKU y lenguaje founder / CEO / lead de ops — luego un sistema que se queda con tu equipo.',
+            a: 'Fit de perfil de cliente ideal (ICP), un dolor real de ops/GTM, interés de producto y lenguaje founder / CEO / lead de ops — luego un sistema que se queda con su equipo.',
           },
           {
             q: '¿Esto es un pozo de contenido?',
@@ -344,7 +351,7 @@ const ROUTES = [
           },
           {
             q: '¿Dónde viven los sistemas?',
-            a: 'GTM OS, Store OS y NEXUS OS en este sitio. El currículo del catálogo también vive en docs.rutinhq.com/catalog.',
+            a: 'GTM OS, STORE OS y NEXUS OS en este sitio. El temario del catálogo también vive en docs.rutinhq.com/catalog.',
           },
         ]),
       ].filter(Boolean),
@@ -353,9 +360,9 @@ const ROUTES = [
   {
     path: '/es/blog/outbound-frio-con-icp-sin-sdr-rentado',
     file: 'prerender/es-blog-outbound-frio-con-icp-sin-sdr-rentado.html',
-    title: 'RutinHQ — Outbound frío con ICP — sin SDR rentado',
+    title: 'RutinHQ — Prospección en frío con perfil de cliente ideal (ICP) — sin SDR rentado',
     description:
-      'Mantén fijo el núcleo del outbound; cambia solo ICP, mensaje y filtros — el pipeline se queda con tu equipo cuando termina el contrato.',
+      'Mantenga fijo el núcleo de la prospección en frío; cambie solo ICP, mensaje y filtros — el pipeline se queda con su equipo cuando termina el contrato.',
     ogType: 'article',
     locale: 'es',
     image: OG_IMAGE.blog,
@@ -378,13 +385,13 @@ const ROUTES = [
     jsonLd: {
       '@context': 'https://schema.org',
       '@graph': [
-        organizationNode(),
+        organizationNode('es'),
         {
           '@type': 'BlogPosting',
           '@id': `${SITE}/es/blog/outbound-frio-con-icp-sin-sdr-rentado#article`,
-          headline: 'Outbound frío con ICP — sin SDR rentado',
+          headline: 'Prospección en frío con perfil de cliente ideal (ICP) — sin SDR rentado',
           description:
-            'Mantén fijo el núcleo del outbound; cambia solo ICP, mensaje y filtros — el pipeline se queda con tu equipo cuando termina el contrato.',
+            'Mantenga fijo el núcleo de la prospección en frío; cambie solo ICP, mensaje y filtros — el pipeline se queda con su equipo cuando termina el contrato.',
           datePublished: '2026-09-08',
           dateModified: '2026-09-08',
           inLanguage: 'es',
@@ -400,7 +407,7 @@ const ROUTES = [
           { name: 'Inicio', url: `${SITE}/` },
           { name: 'Blog', url: `${SITE}/es/blog` },
           {
-            name: 'Outbound frío con ICP — sin SDR rentado',
+            name: 'Prospección en frío con perfil de cliente ideal (ICP) — sin SDR rentado',
             url: `${SITE}/es/blog/outbound-frio-con-icp-sin-sdr-rentado`,
           },
         ]),
@@ -413,7 +420,7 @@ const ROUTES = [
               name: '¿Esto es contratar un SDR?',
               acceptedAnswer: {
                 '@type': 'Answer',
-                text: 'No. Es un sistema de prospección instalado en tu equipo para que el outbound sobreviva cuando la agencia se va.',
+                text: 'No. Es un sistema de prospección instalado en su equipo para que la prospección en frío sobreviva cuando la agencia se va.',
               },
             },
             {
@@ -429,7 +436,7 @@ const ROUTES = [
               name: '¿Qué cambia por vertical?',
               acceptedAnswer: {
                 '@type': 'Answer',
-                text: 'Lenguaje, filtros y ángulo — no el núcleo de milestones.',
+                text: 'Lenguaje, filtros y ángulo — no el núcleo de etapas.',
               },
             },
             {
@@ -437,7 +444,7 @@ const ROUTES = [
               name: '¿Dónde está la ficha del sistema?',
               acceptedAnswer: {
                 '@type': 'Answer',
-                text: 'Mira la ficha GTM OS en catalog y la página /gtm-os.',
+                text: 'Mire la ficha GTM OS en catalog y la página /gtm-os.',
               },
             },
           ],
@@ -547,9 +554,8 @@ const MARKETING_ROUTES = [
   skuRoute({
     path: '/es',
     file: 'prerender/es.html',
-    title: 'RutinHQ — sistemas que posees',
-    description:
-      'Tres sistemas operativos instalables. Elige el cuello de botella. Una página, un SKU.',
+    title: esLocale.seo.hubTitle,
+    description: esLocale.seo.hubDescription,
     locale: 'es',
     image: OG_IMAGE.hub,
     faq: esLocale.hub.faq.items,
@@ -557,9 +563,8 @@ const MARKETING_ROUTES = [
   skuRoute({
     path: '/es/gtm-os',
     file: 'prerender/es-gtm-os.html',
-    title: 'RutinHQ — GTM OS — outbound que se queda contigo',
-    description:
-      'Outbound que se queda contigo. Un sistema de prospección B2B en frío instalado en tu equipo.',
+    title: esLocale.seo.gtmTitle,
+    description: esLocale.seo.gtmDescription,
     locale: 'es',
     serviceType: 'GTM OS',
     image: OG_IMAGE.gtm,
@@ -568,9 +573,8 @@ const MARKETING_ROUTES = [
   skuRoute({
     path: '/es/store-os',
     file: 'prerender/es-store-os.html',
-    title: 'RutinHQ — Store OS — la tienda convierte antes de los ads',
-    description:
-      'Haz que la tienda convierta antes de comprar ads. Auditoría y config replicable del Admin de Shopify.',
+    title: esLocale.seo.storeTitle,
+    description: esLocale.seo.storeDescription,
     locale: 'es',
     serviceType: 'Store OS',
     image: OG_IMAGE.store,
@@ -579,9 +583,8 @@ const MARKETING_ROUTES = [
   skuRoute({
     path: '/es/nexus-os',
     file: 'prerender/es-nexus-os.html',
-    title: 'RutinHQ — NEXUS OS — marketing agéntico en papel primero',
-    description:
-      'Marketing agéntico — primero en papel, Ads solo con GO. Estrategia → Social → Ads.',
+    title: esLocale.seo.nexusTitle,
+    description: esLocale.seo.nexusDescription,
     locale: 'es',
     serviceType: 'NEXUS OS',
     image: OG_IMAGE.nexus,
@@ -659,16 +662,25 @@ if (esHub) {
     '@graph': [
       ...HUB_JSON_LD['@graph']
         .filter((node) => node['@type'] !== 'FAQPage')
-        .map((node) =>
-          node['@type'] === 'WebPage'
-            ? {
-                ...node,
-                '@id': `${SITE}/es#webpage`,
-                url: `${SITE}/es`,
-                name: esHub.title,
-              }
-            : node,
-        ),
+        .map((node) => {
+          if (node['@type'] === 'WebPage') {
+            return {
+              ...node,
+              '@id': `${SITE}/es#webpage`,
+              url: `${SITE}/es`,
+              name: esHub.title,
+            }
+          }
+          if (node['@type'] === 'Organization') return organizationNode('es')
+          if (node['@type'] === 'WebSite') {
+            return {
+              ...node,
+              description:
+                'RutinHQ instala sistemas operativos B2B — GTM OS, STORE OS y NEXUS OS — que los equipos fundadores poseen.',
+            }
+          }
+          return node
+        }),
       faqPageNode(`${SITE}/es`, esLocale.hub.faq.items),
     ].filter(Boolean),
   }

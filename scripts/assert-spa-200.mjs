@@ -910,7 +910,7 @@ if (!fs.existsSync(esBlogShell) || !fs.existsSync(esArticleShell)) {
   process.exit(1)
 }
 const esBlogHtml = fs.readFileSync(esBlogShell, 'utf8')
-const esBlogTitle = 'Blog — sistemas que posees'
+const esBlogTitle = 'Blog — sistemas que usted posee'
 if (!esBlogHtml.includes(`<title>${esBlogTitle}</title>`)) {
   console.error(`${esBlogShell} must ship unique ES index <title>.`)
   process.exit(1)
@@ -924,7 +924,7 @@ if (!esBlogHtml.includes('rel="canonical" href="https://www.rutinhq.com/es/blog"
   process.exit(1)
 }
 const esArticleHtml = fs.readFileSync(esArticleShell, 'utf8')
-const esArticleTitle = 'RutinHQ — Outbound frío con ICP — sin SDR rentado'
+const esArticleTitle = 'RutinHQ — Prospección en frío con perfil de cliente ideal (ICP) — sin SDR rentado'
 if (!esArticleHtml.includes(`<title>${esArticleTitle}</title>`)) {
   console.error(`${esArticleShell} must ship unique ES Article01 <title>.`)
   process.exit(1)
@@ -949,30 +949,30 @@ const esMarketing = [
   {
     file: 'dist/prerender/es.html',
     path: '/es',
-    title: 'RutinHQ — sistemas que posees',
+    title: 'RutinHQ — sistemas que usted posee',
     description:
-      'Tres sistemas operativos instalables. Elige el cuello de botella. Una página, un SKU.',
+      'Tres sistemas operativos instalables. Elija el cuello de botella. Una página, un producto.',
   },
   {
     file: 'dist/prerender/es-gtm-os.html',
     path: '/es/gtm-os',
-    title: 'RutinHQ — GTM OS — outbound que se queda contigo',
+    title: 'RutinHQ — GTM OS — prospección en frío que se queda con usted',
     description:
-      'Outbound que se queda contigo. Un sistema de prospección B2B en frío instalado en tu equipo.',
+      'Prospección en frío que se queda con usted. Un sistema de prospección B2B en frío instalado en su equipo.',
   },
   {
     file: 'dist/prerender/es-store-os.html',
     path: '/es/store-os',
-    title: 'RutinHQ — Store OS — la tienda convierte antes de los ads',
+    title: 'RutinHQ — STORE OS — la tienda convierte antes de los anuncios',
     description:
-      'Haz que la tienda convierta antes de comprar ads. Auditoría y config replicable del Admin de Shopify.',
+      'Haga que la tienda convierta antes de comprar anuncios. Auditoría y configuración replicable del panel de Shopify.',
   },
   {
     file: 'dist/prerender/es-nexus-os.html',
     path: '/es/nexus-os',
     title: 'RutinHQ — NEXUS OS — marketing agéntico en papel primero',
     description:
-      'Marketing agéntico — primero en papel, Ads solo con GO. Estrategia → Social → Ads.',
+      'Marketing agéntico — primero en papel, anuncios solo con GO. Estrategia → Social → Ads.',
   },
 ]
 
@@ -1252,17 +1252,17 @@ const skuShells = [
   },
   {
     file: 'dist/prerender/es.html',
-    title: 'RutinHQ — sistemas que posees',
+    title: 'RutinHQ — sistemas que usted posee',
     canonical: 'https://www.rutinhq.com/es',
   },
   {
     file: 'dist/prerender/es-gtm-os.html',
-    title: 'RutinHQ — GTM OS — outbound que se queda contigo',
+    title: 'RutinHQ — GTM OS — prospección en frío que se queda con usted',
     canonical: 'https://www.rutinhq.com/es/gtm-os',
   },
   {
     file: 'dist/prerender/es-store-os.html',
-    title: 'RutinHQ — Store OS — la tienda convierte antes de los ads',
+    title: 'RutinHQ — STORE OS — la tienda convierte antes de los anuncios',
     canonical: 'https://www.rutinhq.com/es/store-os',
   },
   {
@@ -1335,21 +1335,21 @@ const talkClusters = [
     mailto: 'mailto:strategy@rutinhq.com?subject=GTM%20OS%20%E2%80%94%20fit%20call',
     docs: 'https://docs.rutinhq.com/catalog/gtm-os/',
     read: 'Leer el sistema',
-    emailLine: 'o escríbenos a',
+    emailLine: 'o escríbanos a',
   },
   {
     file: 'dist/prerender/es-store-os.html',
     mailto: 'mailto:strategy@rutinhq.com?subject=Store%20OS%20%E2%80%94%20fit%20call',
     docs: 'https://docs.rutinhq.com/catalog/store-os/',
     read: 'Leer el sistema',
-    emailLine: 'o escríbenos a',
+    emailLine: 'o escríbanos a',
   },
   {
     file: 'dist/prerender/es-nexus-os.html',
     mailto: 'mailto:strategy@rutinhq.com?subject=NEXUS%20OS%20%E2%80%94%20fit%20call',
     docs: 'https://docs.rutinhq.com/catalog/nexus-os/',
     read: 'Leer el sistema',
-    emailLine: 'o escríbenos a',
+    emailLine: 'o escríbanos a',
   },
 ]
 const calendlyHref = 'https://calendly.com/rutinhq/30min'
@@ -1638,25 +1638,25 @@ const bodyRoutes = [
   {
     file: 'dist/prerender/es.html',
     needles: [
-      'Sistemas que posees — no retainers que desaparecen.',
+      'Sistemas que usted posee — no iguala mensual que desaparece.',
       '¿Qué instala RutinHQ?',
     ],
   },
   {
     file: 'dist/prerender/es-gtm-os.html',
-    needles: ['Outbound que se queda contigo.', '¿Qué es GTM OS?'],
+    needles: ['Prospección en frío que se queda con usted.', '¿Qué es GTM OS?'],
   },
   {
     file: 'dist/prerender/es-store-os.html',
     needles: [
-      'Haz que la tienda convierta antes de comprar ads.',
-      '¿Qué es Store OS?',
+      'Haga que la tienda convierta antes de comprar anuncios.',
+      '¿Qué es STORE OS?',
     ],
   },
   {
     file: 'dist/prerender/es-nexus-os.html',
     needles: [
-      'Marketing agéntico — primero en papel, Ads solo con GO.',
+      'Marketing agéntico — primero en papel, anuncios solo con GO.',
       '¿Qué es NEXUS OS?',
     ],
   },
@@ -1683,13 +1683,13 @@ const bodyRoutes = [
   {
     file: 'dist/prerender/es-blog.html',
     needles: [
-      'Sistemas que posees — filtrados para founders que instalan, no rentan',
+      'Sistemas que usted posee — filtrados para founders que instalan, no rentan',
       '¿Qué es el blog de RutinHQ?',
     ],
   },
   {
     file: 'dist/prerender/es-blog-outbound-frio-con-icp-sin-sdr-rentado.html',
-    needles: ['Outbound frío con ICP — sin SDR rentado'],
+    needles: ['Prospección en frío con perfil de cliente ideal (ICP) — sin SDR rentado'],
   },
   {
     file: 'dist/404.html',
