@@ -57,7 +57,7 @@ const shells = [
   },
   {
     file: 'dist/prerender/es-blog.html',
-    h1: 'Sistemas que usted posee — filtrados para founders que instalan, no rentan',
+    h1: 'Sistemas que usted posee — filtrados para fundadores que instalan, no rentan',
   },
   {
     file: 'dist/prerender/es-blog-outbound-frio-con-icp-sin-sdr-rentado.html',
