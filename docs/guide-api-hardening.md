@@ -6,7 +6,7 @@ Defense in depth for the public concierge. This repo is public: never commit sec
 
 1. **Turnstile Siteverify** before any LLM call or lead webhook write (`TURNSTILE_SECRET_KEY`). Invalid or missing token → `403`.
 2. **Widget** renders Turnstile when `VITE_TURNSTILE_SITE_KEY` is present at build time and sends `turnstileToken` on `POST /api/guide` and `POST /api/guide/lead`. No site key → no widget, requests go without a token.
-3. **Per-IP rate limit** (`CF-Connecting-IP`, then `X-Forwarded-For`) using KV if bound, else a named Cache API (`caches.open('guide-rate-limit')`) keyed off the incoming `/api/guide` URL, else isolate memory. Over the window → `429` + `Retry-After`. Best-effort only; the zone WAF rule is the real cap.
+3. **Per-IP rate limit** (`CF-Connecting-IP`, then `X-Forwarded-For`) using KV if bound, else a named Cache API (`caches.open('guide-rate-limit')`) keyed off the static `/guide-rate-limit.json` asset (Function routes are `no-store`), else isolate memory. Over the window → `429` + `Retry-After`. Best-effort only; the zone WAF rule is the real cap.
 
 ## Fail-open choice (dev only)
 

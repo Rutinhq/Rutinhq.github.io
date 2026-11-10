@@ -151,22 +151,22 @@ function kvStore(kv: GuideKvLike): GuideRateLimitStore {
 }
 
 /**
- * Cache API keys must be GET requests on a URL that belongs to this zone.
- * A dummy path like `/__guide-rate-limit/:ip` is not a real Pages route, so
- * `caches.default.put` silently no-ops on *.pages.dev. Key off the incoming
- * `/api/guide` URL (query-only) so the entry stays on-zone.
+ * Cache API keys must be GET requests on a same-zone URL that is allowed to
+ * be cached. GET `/api/guide` is a Pages 404 with Cache-Control: no-store, so
+ * putting the counter there is discarded. Key off the static JSON asset.
  */
 function cacheApiStore(cache: Cache, requestUrl?: string): GuideRateLimitStore {
   const asRequest = (key: string) => {
-    let url: URL
+    let origin = 'https://www.rutinhq.com'
     try {
-      url = new URL(requestUrl && /^https?:\/\//.test(requestUrl) ? requestUrl : 'https://www.rutinhq.com/api/guide')
+      if (requestUrl && /^https?:\/\//.test(requestUrl)) {
+        origin = new URL(requestUrl).origin
+      }
     } catch {
-      url = new URL('https://www.rutinhq.com/api/guide')
+      /* production origin */
     }
-    url.search = ''
-    url.hash = ''
-    url.searchParams.set('guide_rl', key)
+    const url = new URL('/guide-rate-limit.json', `${origin}/`)
+    url.searchParams.set('k', key)
     return new Request(url.toString(), { method: 'GET' })
   }
   return {

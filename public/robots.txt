@@ -2,6 +2,7 @@ User-agent: *
 Allow: /
 Disallow: /prerender/
 Disallow: /guide-kb.json
+Disallow: /guide-rate-limit.json
 Content-Signal: search=yes,ai-train=no,use=reference
 
 User-agent: GPTBot

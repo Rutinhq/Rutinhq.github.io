@@ -95,6 +95,13 @@
   Content-Type: application/json; charset=utf-8
   X-Robots-Tag: noindex, nofollow
 
+# Cache API rate-limit counter (Pages Functions). Must be a real, cacheable
+# static URL — Function routes are no-store and caches.default.put no-ops.
+/guide-rate-limit.json
+  Content-Type: application/json; charset=utf-8
+  Cache-Control: public, max-age=600
+  X-Robots-Tag: noindex, nofollow
+
 # Vite hashed bundles (/assets/*.js). ACAO * scoped here so
 # crossorigin module/font fetches keep working; not on HTML `/*`.
 /assets/*
