@@ -75,8 +75,9 @@ async function callLlm(
     system: composeGuideSystemPrompt(
       GUIDE_SYSTEM_PROMPT,
       locale,
-      knowledgeBlock(kb?.documents ?? []),
+      knowledgeBlock(kb?.documents ?? [], locale),
     ),
+    locale,
     messages,
   })
 }

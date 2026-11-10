@@ -28,6 +28,7 @@ import {
   appendGuideCalendlyCta,
   callGuideLlmDetailed,
   composeGuideSystemPrompt,
+  selectGuideKnowledge,
   GUIDE_LLM_BUDGET_MS,
   guideDegradedReasonFromLlm,
   logGuideLlmFailure,
@@ -276,10 +277,7 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
   let llmDebug: Record<string, unknown> | null = null
   let llmDegradedReason: string | null = null
   if (canCallLlm) {
-    const knowledge = (kb?.documents || [])
-      .map((d) => `### ${d.title}\nSource: ${d.url}\n${d.text}`)
-      .join('\n\n')
-      .slice(0, 14000)
+    const knowledge = selectGuideKnowledge(kb?.documents || [], locale)
     const llmStarted = Date.now()
     try {
       const result = await callGuideLlmDetailed({
@@ -291,6 +289,7 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
         maxTokens: limits.maxReplyTokens,
         timeoutMs: GUIDE_LLM_BUDGET_MS,
         system: composeGuideSystemPrompt(policy.systemPrompt, locale, knowledge),
+        locale,
         messages: messages.map((m) => ({
           role: m.role,
           content: String(m.content).slice(0, limits.maxInputChars),

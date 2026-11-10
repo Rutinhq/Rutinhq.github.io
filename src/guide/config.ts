@@ -31,8 +31,16 @@ export function fallbackReply(
   return (locale === 'es' ? pack?.es : pack?.en) ?? guidePolicy.fallbackReplies.unsure?.[locale === 'es' ? 'es' : 'en'] ?? guidePolicy.fallbackReplies.unsure.en
 }
 
-export function knowledgeBlock(documents: { title: string; url: string; text: string }[]) {
-  return documents
+export function knowledgeBlock(
+  documents: { title: string; url: string; text: string }[],
+  locale: GuideLocale = 'en',
+) {
+  const isEsUrl = (url: string) => /\/es(\/|$)/.test(url)
+  const ordered =
+    locale === 'es'
+      ? [...documents.filter((d) => isEsUrl(d.url)), ...documents.filter((d) => !isEsUrl(d.url))]
+      : documents
+  return ordered
     .map((doc) => `### ${doc.title}\nSource: ${doc.url}\n${doc.text}`)
     .join('\n\n')
     .slice(0, 14_000)

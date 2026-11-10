@@ -18,6 +18,8 @@ import {
   coerceGuideLlmReply,
   capGuideReplyWords,
   applyGuideEsTypoFixes,
+  GUIDE_ES_CATALOG_FACTS,
+  selectGuideKnowledge,
   countGuideWords,
   extractFirstJsonObject,
   extractWorkersAiText,
@@ -212,12 +214,14 @@ assert(
     /sistemas que usted posee/.test(GUIDE_MANDATE) &&
     /nunca tú/.test(GUIDE_MANDATE) &&
     /ICP = perfil de cliente ideal/.test(GUIDE_MANDATE) &&
-    /tiendas ecommerce/.test(GUIDE_MANDATE) &&
+    /tiendas de comercio electrónico/.test(GUIDE_MANDATE) &&
     /Estrategia → Social → Ads/.test(GUIDE_MANDATE) &&
     /prospección en frío/.test(GUIDE_MANDATE) &&
     /iguala mensual/.test(GUIDE_MANDATE) &&
     /Zero English/.test(GUIDE_MANDATE) &&
-    /STORE OS \(Shopify Admin para tiendas DTC\)/.test(GUIDE_MANDATE) &&
+    /STORE OS \(auditoría y configuración del panel de Shopify para marcas que venden directo al consumidor\)/.test(
+      GUIDE_MANDATE,
+    ) &&
     /nada se publica ni se gasta sin aprobación explícita/.test(GUIDE_MANDATE) &&
     /un sistema de marketing agéntico/.test(GUIDE_MANDATE),
   'mandate asks for short catalog-only usted replies that finish',
@@ -364,9 +368,38 @@ assert(
     'propietar / un llamada / marketing agente are rewritten',
   )
   assert(
-    polishGuideLlmReply('Puede agender una llamada. Si encaja, agende 30 min: https://calendly.com/rutinhq/30min.') ===
-      'Puede agendar una llamada. Si encaja, agende 30 min: https://calendly.com/rutinhq/30min.',
+    polishGuideLlmReply(
+      'Puede agender una llamada. Si encaja, agende 30 min: https://calendly.com/rutinhq/30min.',
+      null,
+      'es',
+    ) === 'Puede agendar una llamada. Si encaja, agende 30 min: https://calendly.com/rutinhq/30min.',
     'polish applies ES typo fixes',
+  )
+  assert(
+    applyGuideEsTypoFixes(
+      'No, GTM OS no es para tiendas ecommerce. STORE OS, que es un sistema para Shopify Admin audit + config.',
+    ) ===
+      'No, GTM OS no es para tiendas de comercio electrónico. STORE OS, que es un sistema para auditoría y configuración del panel de Shopify.',
+    'ecommerce and Shopify Admin audit + config are rewritten',
+  )
+  assert(
+    applyGuideEsTypoFixes('Founder / CEO o lead de ops en B2B con pipeline repetible y leads.') ===
+      'Fundador / director general o responsable de operaciones en B2B con flujo de ventas repetible y prospectos.',
+    'Founder/CEO/ops/pipeline/leads glossary',
+  )
+  assert(
+    applyGuideEsTypoFixes('Encaja en tiendas DTC y marcas DTC en Shopify.') ===
+      'Encaja en marcas que venden directo al consumidor y marcas que venden directo al consumidor en Shopify.',
+    'tiendas DTC / marcas DTC become marcas que venden directo al consumidor',
+  )
+  assert(
+    applyGuideEsTypoFixes('outbound B2B con ICP.') === 'prospección en frío B2B con ICP.',
+    'outbound becomes prospección en frío; B2B stays',
+  )
+  assert(
+    polishGuideLlmReply('GTM OS is B2B outbound for the team.', 'stop', 'en') ===
+      'GTM OS is B2B outbound for the team.',
+    'EN polish must not apply the ES glossary',
   )
 }
 assert(isUnusableGuideReply(null), 'empty completion is unusable')
@@ -526,7 +559,11 @@ assert(!isGuidePreviewHost('rutinhq.com'), 'rutinhq.com is never preview')
   assert(/sistemas que usted posee, sin iguala mensual/.test(esPrompt), 'es glossary example')
   assert(/ICP = perfil de cliente ideal/.test(esPrompt), 'es ICP glossary')
   assert(/SDR = representante de desarrollo de ventas \(externo\)/.test(esPrompt), 'es SDR glossary')
-  assert(/tiendas ecommerce/.test(esPrompt) && /marcas DTC en Shopify/.test(esPrompt), 'es audience glossary')
+  assert(
+    /tiendas de comercio electrónico/.test(esPrompt) &&
+      /marcas que venden directo al consumidor/.test(esPrompt),
+    'es audience glossary',
+  )
   assert(
     /NEXUS OS is always "un sistema de marketing agéntico: Estrategia → Social → Ads"/.test(esPrompt),
     'es NEXUS phrasing',
@@ -535,12 +572,21 @@ assert(!isGuidePreviewHost('rutinhq.com'), 'rutinhq.com is never preview')
   assert(/never "papel"/.test(esPrompt), 'es bans papel')
   assert(/never "publicidad social y publicidad"/.test(esPrompt), 'es bans redundant NEXUS ads')
   assert(
-    /GTM OS \(prospección en frío B2B\), STORE OS \(Shopify Admin para tiendas DTC\) y NEXUS OS \(Estrategia → Social → Ads\)/.test(
+    /GTM OS \(prospección en frío B2B\), STORE OS \(auditoría y configuración del panel de Shopify para marcas que venden directo al consumidor\) y NEXUS OS \(Estrategia → Social → Ads\)/.test(
       esPrompt,
     ),
     'es RutinHQ one-liner names all three SKUs',
   )
-  assert(/No es para tiendas ecommerce ni para quien solo quiere anuncios/.test(esPrompt), 'es GTM not-for')
+  assert(
+    /No es para tiendas de comercio electrónico ni para quien solo quiere anuncios/.test(esPrompt),
+    'es GTM not-for',
+  )
+  assert(/nunca abra con "No,"/.test(esPrompt) || /never open with "No,"/.test(esPrompt), 'es STORE lead-with')
+  assert(esPrompt.includes(GUIDE_ES_CATALOG_FACTS), 'es prompt includes Spanish catalog facts')
+  assert(
+    /fundador, director general o responsable de operaciones en empresas B2B/.test(esPrompt),
+    'es GTM for-whom',
+  )
   assert(/outbound → prospección en frío/.test(esPrompt), 'es outbound glossary')
   assert(/Zero English except product names/.test(esPrompt), 'es zero-english lock')
   assert(/never "ecommerceros"/.test(esPrompt), 'es bans ecommerceros')
@@ -552,6 +598,18 @@ assert(!isGuidePreviewHost('rutinhq.com'), 'rutinhq.com is never preview')
   assert(
     esPrompt.lastIndexOf('LANGUAGE LOCK') > esPrompt.lastIndexOf('LENGTH LOCK'),
     'locale lock stays last',
+  )
+  const ranked = selectGuideKnowledge(
+    [
+      { title: 'EN STORE', url: 'https://www.rutinhq.com/store-os', text: 'Shopify Admin audit + config' },
+      { title: 'ES STORE', url: 'https://www.rutinhq.com/es/store-os', text: 'auditoría y configuración del panel de Shopify' },
+    ],
+    'es',
+    400,
+  )
+  assert(
+    ranked.indexOf('ES STORE') < ranked.indexOf('EN STORE'),
+    'ES locale knowledge prefers /es/ catalog URLs',
   )
 }
 {

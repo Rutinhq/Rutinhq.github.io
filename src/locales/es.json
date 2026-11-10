@@ -54,8 +54,8 @@
     "who": {
       "title": "Para quién",
       "items": [
-        "Founder / CEO o lead de ops en B2B",
-        "Ya venden; el cuello es un pipeline repetible",
+        "Fundador, director general o responsable de operaciones en empresas B2B",
+        "Ya venden y buscan un flujo de ventas repetible",
         "Cold email filtrado por ICP",
         "La primera corrida siempre es en frío"
       ]
@@ -63,7 +63,7 @@
     "notFor": {
       "title": "No es para",
       "items": [
-        "Tiendas ecommerce / B2C",
+        "Tiendas de comercio electrónico / B2C",
         "Quien solo quiere anuncios",
         "Licitación enterprise sin dueño de prospección",
         "Compradores de N juntas garantizadas"
@@ -125,7 +125,7 @@
         },
         {
           "q": "¿Para quién es GTM OS?",
-          "a": "Founder / CEO o lead de ops en B2B. Ya venden; el cuello es un pipeline repetible. Cold email filtrado por ICP. La primera corrida siempre es en frío."
+          "a": "Fundador, director general o responsable de operaciones en empresas B2B que ya venden y buscan un flujo de ventas repetible. Correo en frío filtrado por ICP. La primera corrida siempre es en frío."
         },
         {
           "q": "¿Cómo funciona GTM OS?",
@@ -142,13 +142,13 @@
     "eyebrow": "Store OS",
     "hero": {
       "headline": "Haz que la tienda convierta antes de comprar ads.",
-      "subhead": "Auditoría + config replicable del Admin de Shopify — variantes, precio, peso, envío — para que la fricción de ops deje de matar la conversión."
+      "subhead": "Auditoría y configuración del panel de Shopify — variantes, precio, peso, envío — para que la tienda convierta antes de gastar en anuncios."
     },
     "who": {
       "title": "Para quién",
       "items": [
-        "Founder / lead de ecom en Shopify DTC",
-        "Fricción de ops",
+        "Marcas que venden directo al consumidor en Shopify",
+        "Fricción operativa",
         "Quiere ads pero la tienda aún no convierte"
       ]
     },
@@ -193,11 +193,11 @@
       "items": [
         {
           "q": "¿Qué es Store OS?",
-          "a": "Haz que la tienda convierta antes de comprar ads. Auditoría + config replicable del Admin de Shopify — variantes, precio, peso, envío — para que la fricción de ops deje de matar la conversión."
+          "a": "Auditoría y configuración del panel de Shopify para que la tienda convierta antes de gastar en anuncios."
         },
         {
           "q": "¿Para quién es Store OS?",
-          "a": "Founder / lead de ecom en Shopify DTC. Fricción de ops. Quiere ads pero la tienda aún no convierte."
+          "a": "Marcas que venden directo al consumidor en Shopify. Fricción operativa. Quiere anuncios pero la tienda aún no convierte."
         },
         {
           "q": "¿Cómo funciona Store OS?",
@@ -289,7 +289,7 @@
     },
     "store": {
       "name": "Store OS",
-      "thesis": "Auditoría + config del Admin de Shopify para que la tienda convierta antes de gastar en ads.",
+      "thesis": "Auditoría y configuración del panel de Shopify para que la tienda convierta antes de gastar en anuncios.",
       "cta": "Ver Store OS"
     },
     "nexus": {

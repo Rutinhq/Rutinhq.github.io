@@ -172,17 +172,25 @@ if (!/formal usted only/.test(policySrc.systemPrompt) || !/sistemas que usted po
 if (
   !/ICP = perfil de cliente ideal/.test(policySrc.systemPrompt) ||
   !/representante de desarrollo de ventas/.test(policySrc.systemPrompt) ||
-  !/tiendas ecommerce/.test(policySrc.systemPrompt) ||
+  !/tiendas de comercio electrónico/.test(policySrc.systemPrompt) ||
   !/Estrategia → Social → Ads/.test(policySrc.systemPrompt) ||
   !/prospección en frío/.test(policySrc.systemPrompt) ||
   !/iguala mensual/.test(policySrc.systemPrompt) ||
-  !/No es para tiendas ecommerce ni para quien solo quiere anuncios/.test(policySrc.systemPrompt)
+  !/No es para tiendas de comercio electrónico ni para quien solo quiere anuncios/.test(policySrc.systemPrompt)
 ) {
   console.error('systemPrompt must pin the ES glossary, NEXUS phrasing, and GTM not-for line')
   process.exit(1)
 }
-if (!/No es para tiendas ecommerce ni para quien solo quiere anuncios/.test(policySrc.fallbackReplies['gtm-os'].es)) {
+if (!/No es para tiendas de comercio electrónico ni para quien solo quiere anuncios/.test(policySrc.fallbackReplies['gtm-os'].es)) {
   console.error('GTM OS ES fallback must use the natural not-for line')
+  process.exit(1)
+}
+if (!/fundador, director general o responsable de operaciones/.test(policySrc.fallbackReplies['gtm-os'].es)) {
+  console.error('GTM OS ES fallback must name fundador / director general / operaciones')
+  process.exit(1)
+}
+if (!/auditoría y configuración del panel de Shopify para que la tienda convierta antes de gastar en anuncios/.test(policySrc.fallbackReplies['store-os'].es)) {
+  console.error('STORE OS ES fallback must describe panel de Shopify in Spanish')
   process.exit(1)
 }
 if (
@@ -202,7 +210,9 @@ if (
 }
 if (
   !/¿Qué hace RutinHQ\?/.test(policySrc.systemPrompt) ||
-  !/STORE OS \(Shopify Admin para tiendas DTC\)/.test(policySrc.systemPrompt)
+  !/STORE OS \(auditoría y configuración del panel de Shopify para marcas que venden directo al consumidor\)/.test(
+    policySrc.systemPrompt,
+  )
 ) {
   console.error('systemPrompt must pin the ¿Qué hace RutinHQ? three-SKU one-liner')
   process.exit(1)
@@ -260,8 +270,12 @@ if (!/appendGuideCalendlyCta/.test(llm) || !/appendGuideCalendlyCta/.test(fn)) {
   console.error('Function must append Calendly on LLM replies that lack the link')
   process.exit(1)
 }
-if (!/applyGuideEsTypoFixes/.test(llm) || !/agender/.test(llm)) {
-  console.error('LLM polish must rewrite known ES typos including agender→agendar')
+if (!/applyGuideEsTypoFixes/.test(llm) || !/agender/.test(llm) || !/ecommerce/.test(llm) || !/\\bpipeline\\b/.test(llm)) {
+  console.error('LLM polish must rewrite known ES typos and glossary (ecommerce, pipeline, …)')
+  process.exit(1)
+}
+if (!/GUIDE_ES_CATALOG_FACTS/.test(llm) || !/selectGuideKnowledge/.test(fn)) {
+  console.error('ES replies must be grounded on Spanish catalog facts and /es/ knowledge first')
   process.exit(1)
 }
 if (!/isSchedulingTurn/.test(fn) || !/schedulingGuideReply/.test(fn)) {
