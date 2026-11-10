@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { isGuidePreviewHost } from '../../guide/preview-host'
 
 const TURNSTILE_SRC =
@@ -15,7 +15,8 @@ export const GUIDE_TURNSTILE_TOKEN_WAIT_MS = 20_000
 export const GUIDE_TURNSTILE_HOST_MIN_HEIGHT_PX = 65
 export const GUIDE_TURNSTILE_HOST_MIN_WIDTH_PX = 300
 
-/** Unhide and size the explicit-render host so an interactive challenge can paint. */
+/** Unhide and size the explicit-render host so an interactive challenge can paint.
+ * Call this from `before-interactive-callback` *before* the checkbox paints. */
 export function armGuideTurnstileHost(node: HTMLElement | null): void {
   if (!node) return
   node.hidden = false
@@ -25,8 +26,21 @@ export function armGuideTurnstileHost(node: HTMLElement | null): void {
   node.style.overflow = 'visible'
   node.style.minHeight = `${GUIDE_TURNSTILE_HOST_MIN_HEIGHT_PX}px`
   node.style.minWidth = `${GUIDE_TURNSTILE_HOST_MIN_WIDTH_PX}px`
+  node.style.height = `${GUIDE_TURNSTILE_HOST_MIN_HEIGHT_PX}px`
   node.style.width = '100%'
   node.classList.add('guide-turnstile-armed')
+}
+
+/** Collapse the host while Turnstile is invisible so we do not show an empty dark frame. */
+export function collapseGuideTurnstileHost(node: HTMLElement | null): void {
+  if (!node) return
+  node.style.overflow = 'hidden'
+  node.style.minHeight = '0px'
+  node.style.minWidth = '0px'
+  node.style.height = '0px'
+  node.style.width = '0px'
+  node.style.visibility = 'hidden'
+  node.classList.remove('guide-turnstile-armed')
 }
 
 let scriptPromise: Promise<void> | null = null
@@ -79,6 +93,7 @@ export type GuideTurnstileRenderOptions = {
   'expired-callback'?: () => void
   'error-callback'?: () => void
   'timeout-callback'?: () => void
+  'before-interactive-callback'?: () => void
 }
 
 export type GuideTurnstileApi = {
@@ -94,12 +109,15 @@ export type GuideTurnstileClock = {
   sleep: (ms: number) => Promise<void>
 }
 
+export type GuideTurnstileChallengeUi = 'idle' | 'verifying' | 'interactive'
+
 export type GuideTurnstileControllerOpts = {
   getSiteKey: () => string | undefined
   loadScript?: () => Promise<void>
   getApi?: () => GuideTurnstileApi | undefined
   clock?: GuideTurnstileClock
   tokenWaitMs?: number
+  onChallengeUi?: (ui: GuideTurnstileChallengeUi) => void
 }
 
 export type GuideTurnstileController = {
@@ -134,6 +152,10 @@ export function createGuideTurnstileController(
   let renderPromise: Promise<void> = Promise.resolve()
   const waiters = new Set<(value: string) => void>()
 
+  const setUi = (ui: GuideTurnstileChallengeUi) => {
+    opts.onChallengeUi?.(ui)
+  }
+
   const readLive = (): string => {
     const api = getApi()
     const fromApi = widgetId != null && api ? api.getResponse(widgetId) : ''
@@ -146,11 +168,12 @@ export function createGuideTurnstileController(
     token = null
     const api = getApi()
     if (widgetId != null && api) api.reset(widgetId)
+    collapseGuideTurnstileHost(hostNode)
+    setUi('idle')
     return live
   }
 
   const executeWidget = () => {
-    armGuideTurnstileHost(hostNode)
     const api = getApi()
     if (widgetId == null || !api || typeof api.execute !== 'function') return
     api.execute(widgetId)
@@ -159,7 +182,6 @@ export function createGuideTurnstileController(
   const retryChallengeOnce = () => {
     if (!waiters.size || challengeRetryUsed || disposed) return
     challengeRetryUsed = true
-    armGuideTurnstileHost(hostNode)
     const api = getApi()
     if (widgetId == null || !api) return
     api.reset(widgetId)
@@ -192,7 +214,7 @@ export function createGuideTurnstileController(
       renderPromise = Promise.resolve()
       return
     }
-    armGuideTurnstileHost(node)
+    collapseGuideTurnstileHost(node)
 
     let settle: () => void = () => {}
     renderPromise = new Promise<void>((resolve) => {
@@ -209,7 +231,7 @@ export function createGuideTurnstileController(
           sitekey: siteKey,
           theme: 'dark',
           size: 'normal',
-          appearance: 'always',
+          appearance: 'interaction-only',
           execution: 'execute',
           action: 'guide',
           callback: (value) => {
@@ -227,6 +249,11 @@ export function createGuideTurnstileController(
             token = null
             retryChallengeOnce()
           },
+          'before-interactive-callback': () => {
+            // Size the host before the checkbox paints — never a 0-height/1×1 iframe.
+            armGuideTurnstileHost(hostNode)
+            setUi('interactive')
+          },
         })
         // Re-attach during an in-flight wait must start THIS send's challenge.
         if (waiters.size) executeWidget()
@@ -242,7 +269,8 @@ export function createGuideTurnstileController(
   const consumeToken = async (): Promise<string | undefined> => {
     if (!opts.getSiteKey()) return undefined
     challengeRetryUsed = false
-    armGuideTurnstileHost(hostNode)
+    collapseGuideTurnstileHost(hostNode)
+    setUi('verifying')
     const started = clock.now()
     const deadline = started + tokenWaitMs
 
@@ -252,6 +280,10 @@ export function createGuideTurnstileController(
         if (settled) return
         settled = true
         waiters.delete(onToken)
+        if (!value) {
+          collapseGuideTurnstileHost(hostNode)
+          setUi('idle')
+        }
         resolve(value)
       }
       const onToken = (value: string) => {
@@ -298,6 +330,8 @@ export function createGuideTurnstileController(
     disposed = true
     generation += 1
     waiters.clear()
+    collapseGuideTurnstileHost(hostNode)
+    setUi('idle')
     hostNode = null
     challengeRetryUsed = false
     removeWidget()
@@ -369,10 +403,12 @@ export async function sendGuideWithTurnstile(opts: {
 }
 
 export function useGuideTurnstile(siteKey: string | undefined) {
+  const [challengeUi, setChallengeUi] = useState<GuideTurnstileChallengeUi>('idle')
   const controller = useMemo(
     () =>
       createGuideTurnstileController({
         getSiteKey: () => siteKey,
+        onChallengeUi: setChallengeUi,
       }),
     [siteKey],
   )
@@ -393,5 +429,5 @@ export function useGuideTurnstile(siteKey: string | undefined) {
 
   const consumeToken = useCallback(() => controller.consumeToken(), [controller])
 
-  return { hostRef, consumeToken }
+  return { hostRef, consumeToken, challengeUi }
 }

@@ -13,6 +13,7 @@ import {
   sendGuideWithTurnstile,
   shouldPostGuideAfterTurnstile,
   type GuideTurnstileApi,
+  type GuideTurnstileChallengeUi,
   type GuideTurnstileClock,
   type GuideTurnstileRenderOptions,
 } from '../src/components/guide/useGuideTurnstile.ts'
@@ -104,6 +105,7 @@ function host(init?: { hidden?: boolean; display?: string; visibility?: string }
     visibility: init?.visibility ?? '',
     minHeight: '',
     minWidth: '',
+    height: '',
     width: '',
     overflow: '',
   }
@@ -114,6 +116,9 @@ function host(init?: { hidden?: boolean; display?: string; visibility?: string }
     classList: {
       add: (name: string) => {
         classes.add(name)
+      },
+      remove: (name: string) => {
+        classes.delete(name)
       },
       contains: (name: string) => classes.has(name),
     },
@@ -132,6 +137,7 @@ function controllerOf(
     loadScript?: () => Promise<void>
     tokenWaitMs?: number
     clock?: GuideTurnstileClock
+    onChallengeUi?: (ui: GuideTurnstileChallengeUi) => void
   },
 ) {
   return createGuideTurnstileController({
@@ -140,6 +146,7 @@ function controllerOf(
     getApi: () => api,
     tokenWaitMs: extra?.tokenWaitMs ?? 500,
     clock: extra?.clock,
+    onChallengeUi: extra?.onChallengeUi,
   })
 }
 
@@ -196,9 +203,14 @@ async function main() {
     assert(renderCalls[0] === node, 'render target is the mounted host')
     const widget = [...widgets.values()][0]
     assert(widget.options.sitekey === siteKey, 'explicit render keeps sitekey')
-    assert(widget.options.appearance === 'always', 'appearance always so the iframe has layout')
+    assert(widget.options.appearance === 'interaction-only', 'appearance interaction-only until a real checkbox')
+    assert(widget.options.theme === 'dark', 'theme dark matches the panel')
     assert(widget.options.execution === 'execute', 'execution execute — challenge starts at send')
     assert(widget.options.size === 'normal', 'size normal (300×65)')
+    assert(
+      typeof widget.options['before-interactive-callback'] === 'function',
+      'before-interactive-callback sizes the host before paint',
+    )
     assert(widget.options.action === 'guide', 'action guide')
     assert(typeof widget.options.callback === 'function', 'success callback')
     assert(typeof widget.options['expired-callback'] === 'function', 'expired callback')
@@ -431,15 +443,20 @@ async function main() {
     await flush()
     const pending = controller.consumeToken()
     await flush()
+    assert(
+      parseInt(node.style.minHeight, 10) === 0,
+      'host stays collapsed until before-interactive-callback',
+    )
+    const widget = [...widgets.values()][0]
+    widget.options['before-interactive-callback']?.()
     assert(node.hidden === false, 'interactive wait unhides a hidden host')
     assert(node.style.display === 'block', 'armed host is display:block')
     assert(node.style.visibility === 'visible', 'armed host is visibility:visible')
     assert(
       parseInt(node.style.minHeight, 10) >= GUIDE_TURNSTILE_HOST_MIN_HEIGHT_PX,
-      'armed host has checkbox min-height',
+      'armed host has checkbox min-height before paint',
     )
     assert(node.classList.contains('guide-turnstile-armed'), 'armed class is set')
-    const widget = [...widgets.values()][0]
     widget.options.callback?.('tok-unhidden')
     assert((await pending) === 'tok-unhidden', 'token still resolves after unhiding')
     controller.dispose()
@@ -473,6 +490,44 @@ async function main() {
     armGuideTurnstileHost(node)
     assert(node.hidden === false && node.style.visibility === 'visible', 'armGuideTurnstileHost unhides')
     assert(parseInt(node.style.minHeight, 10) >= GUIDE_TURNSTILE_HOST_MIN_HEIGHT_PX, 'arm sets minHeight')
+  }
+
+  {
+    const ui: GuideTurnstileChallengeUi[] = []
+    const { api } = mockTurnstile(true)
+    const controller = controllerOf(api, { onChallengeUi: (state) => ui.push(state) })
+    controller.attach(host())
+    await flush()
+    const token = await controller.consumeToken()
+    assert(Boolean(token), 'invisible pass still returns a token')
+    assert(ui.includes('verifying'), 'wait starts as verifying')
+    assert(!ui.includes('interactive'), 'no tick note before before-interactive-callback')
+    controller.dispose()
+  }
+
+  {
+    const ui: GuideTurnstileChallengeUi[] = []
+    const node = host()
+    const { api, widgets } = mockTurnstile(false)
+    const controller = controllerOf(api, { onChallengeUi: (state) => ui.push(state) })
+    controller.attach(node)
+    await flush()
+    const pending = controller.consumeToken()
+    await flush()
+    assert(ui[ui.length - 1] === 'verifying', 'pre-checkbox wait is verifying')
+    assert(!ui.includes('interactive'), 'tick note is absent until before-interactive-callback')
+    assert(!node.classList.contains('guide-turnstile-armed'), 'host stays collapsed while verifying')
+    const widget = [...widgets.values()][0]
+    widget.options['before-interactive-callback']?.()
+    assert(ui.includes('interactive'), 'tick note appears after before-interactive-callback')
+    assert(node.classList.contains('guide-turnstile-armed'), 'host is armed before the checkbox paints')
+    assert(
+      parseInt(node.style.minHeight, 10) >= GUIDE_TURNSTILE_HOST_MIN_HEIGHT_PX,
+      'armed host is full size before paint',
+    )
+    widget.options.callback?.('tok-after-box')
+    assert((await pending) === 'tok-after-box', 'interactive token still resolves')
+    controller.dispose()
   }
 
   console.log('guide Turnstile hook checks passed')

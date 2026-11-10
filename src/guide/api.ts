@@ -5,7 +5,6 @@ import {
   guidePolicy,
   GUIDE_LIMITS,
   GUIDE_SYSTEM_PROMPT,
-  knowledgeBlock,
 } from './config'
 import { localGuideReply } from './fallback'
 import {
@@ -18,6 +17,8 @@ import {
   callGuideLlm,
   composeGuideSystemPrompt,
   GUIDE_LLM_BUDGET_MS,
+  lastGuideUserText,
+  selectGuideKnowledge,
 } from './llm'
 import { enforceSafeReply, isSecurityProbe, securityReply } from './security'
 import type {
@@ -75,7 +76,13 @@ async function callLlm(
     system: composeGuideSystemPrompt(
       GUIDE_SYSTEM_PROMPT,
       locale,
-      knowledgeBlock(kb?.documents ?? [], locale),
+      selectGuideKnowledge(
+        kb?.documents ?? [],
+        locale,
+        14_000,
+        lastGuideUserText(messages),
+      ),
+      lastGuideUserText(messages),
     ),
     locale,
     messages,

@@ -19,7 +19,11 @@ import {
   capGuideReplyWords,
   applyGuideEsTypoFixes,
   GUIDE_ES_CATALOG_FACTS,
+  GUIDE_ES_STORE_FACTS,
+  isStoreShopifyQuery,
+  selectGuideCatalogFacts,
   selectGuideKnowledge,
+  stripStoreLeadingGtmNotFor,
   countGuideWords,
   extractFirstJsonObject,
   extractWorkersAiText,
@@ -389,8 +393,20 @@ assert(
   )
   assert(
     applyGuideEsTypoFixes('Encaja en tiendas DTC y marcas DTC en Shopify.') ===
-      'Encaja en marcas que venden directo al consumidor y marcas que venden directo al consumidor en Shopify.',
-    'tiendas DTC / marcas DTC become marcas que venden directo al consumidor',
+      'Es para marcas que venden directo al consumidor y marcas que venden directo al consumidor en Shopify.',
+    'tiendas DTC / marcas DTC become marcas que venden directo al consumidor; Encaja → Es para',
+  )
+  assert(
+    applyGuideEsTypoFixes(
+      'No es para tiendas de comercio electrónico ni para quien solo quiere anuncios. STORE OS audita el panel.',
+    ) === 'STORE OS audita el panel.',
+    'GTM not-for must not lead a STORE OS answer',
+  )
+  assert(
+    stripStoreLeadingGtmNotFor(
+      'GTM OS no es para tiendas de comercio electrónico ni para quien solo quiere anuncios. STORE OS encaja en Shopify.',
+    ) === 'STORE OS encaja en Shopify.',
+    'even a named GTM not-for must not lead STORE OS',
   )
   assert(
     applyGuideEsTypoFixes('outbound B2B con ICP.') === 'prospección en frío B2B con ICP.',
@@ -611,8 +627,8 @@ assert(!isGuidePreviewHost('rutinhq.com'), 'rutinhq.com is never preview')
     'es RutinHQ one-liner names all three SKUs',
   )
   assert(
-    /No es para tiendas de comercio electrónico ni para quien solo quiere anuncios/.test(esPrompt),
-    'es GTM not-for',
+    /GTM OS no es para tiendas de comercio electrónico ni para quien solo quiere anuncios/.test(esPrompt),
+    'es GTM not-for names GTM OS',
   )
   assert(/nunca abra con "No,"/.test(esPrompt) || /never open with "No,"/.test(esPrompt), 'es STORE lead-with')
   assert(esPrompt.includes(GUIDE_ES_CATALOG_FACTS), 'es prompt includes Spanish catalog facts')
@@ -662,6 +678,43 @@ assert(!isGuidePreviewHost('rutinhq.com'), 'rutinhq.com is never preview')
   assert(
     ranked.indexOf('ES STORE') < ranked.indexOf('EN STORE'),
     'ES locale knowledge prefers /es/ catalog URLs',
+  )
+  const storeQ = '¿Sirve para una tienda Shopify pequeña?'
+  assert(isStoreShopifyQuery(storeQ), 'Shopify tienda question is a store query')
+  assert(!isStoreShopifyQuery('¿Qué hace GTM OS?'), 'GTM questions are not store queries')
+  const storeFacts = selectGuideCatalogFacts(storeQ)
+  assert(storeFacts === GUIDE_ES_STORE_FACTS, 'store questions get only STORE OS catalog facts')
+  assert(/Es para marcas que venden directo al consumidor en Shopify/.test(storeFacts), 'STORE for-whom is Es para marcas')
+  assert(!/Encaja en marcas/.test(storeFacts), 'STORE facts must not say Encaja en marcas')
+  assert(
+    !/No es para tiendas de comercio electrónico/.test(storeFacts),
+    'STORE facts must not include the GTM not-for',
+  )
+  const storeKb = selectGuideKnowledge(
+    [
+      { title: 'GTM', url: 'https://www.rutinhq.com/es/gtm-os', text: 'prospección en frío B2B' },
+      { title: 'STORE', url: 'https://www.rutinhq.com/es/store-os', text: 'auditoría Shopify' },
+      { title: 'NEXUS', url: 'https://www.rutinhq.com/es/nexus-os', text: 'marketing agéntico' },
+    ],
+    'es',
+    14_000,
+    storeQ,
+  )
+  assert(/STORE/.test(storeKb) && /store-os/.test(storeKb), 'store query knowledge keeps STORE OS')
+  assert(!/gtm-os/.test(storeKb) && !/nexus-os/.test(storeKb), 'store query knowledge drops GTM and NEXUS')
+  const storePrompt = composeGuideSystemPrompt('policy', 'es', storeKb, storeQ)
+  assert(storePrompt.includes(GUIDE_ES_STORE_FACTS), 'store prompt includes STORE facts')
+  assert(
+    !storePrompt.includes(GUIDE_ES_CATALOG_FACTS),
+    'store prompt must not inject the full GTM+STORE+NEXUS sheet',
+  )
+  const catalogBlock = storePrompt.slice(
+    storePrompt.indexOf('Spanish catalog facts'),
+    storePrompt.indexOf('Allowlisted knowledge'),
+  )
+  assert(
+    !/No es para tiendas de comercio electrónico/.test(catalogBlock),
+    'store catalog facts block must not carry the GTM disqualifier',
   )
 }
 {

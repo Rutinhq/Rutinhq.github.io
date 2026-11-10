@@ -9,10 +9,13 @@ type TurnstileRenderOptions = {
   theme?: 'auto' | 'light' | 'dark'
   size?: 'normal' | 'flexible' | 'compact'
   appearance?: 'always' | 'execute' | 'interaction-only'
+  execution?: 'render' | 'execute'
   action?: string
   callback?: (token: string) => void
   'expired-callback'?: () => void
   'error-callback'?: () => void
+  'timeout-callback'?: () => void
+  'before-interactive-callback'?: () => void
 }
 
 interface TurnstileApi {
@@ -20,6 +23,7 @@ interface TurnstileApi {
   reset(widgetId?: string): void
   remove(widgetId?: string): void
   getResponse(widgetId?: string): string
+  execute?(widgetId?: string): void
 }
 
 interface Window {

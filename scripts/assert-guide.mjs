@@ -87,6 +87,7 @@ const guideKeys = [
   'limit',
   'disclaimer',
   'turnstileLabel',
+  'turnstileVerifying',
   'turnstileTick',
 ]
 for (const key of guideKeys) {
@@ -96,7 +97,7 @@ for (const key of guideKeys) {
   }
   if (en.guide[key] === es.guide[key] && key !== 'leadCta') {
     // brand-stable strings may match; greeting/launcher/chrome must differ
-    if (['launcher', 'uiName', 'greeting', 'subtitle', 'placeholder', 'ctaBook', 'emailCta', 'disclaimer', 'thinking', 'degradedNote', 'turnstileTick'].includes(key)) {
+    if (['launcher', 'uiName', 'greeting', 'subtitle', 'placeholder', 'ctaBook', 'emailCta', 'disclaimer', 'thinking', 'degradedNote', 'turnstileTick', 'turnstileVerifying'].includes(key)) {
       console.error(`guide.${key} is identical in EN and ES — locale leak`)
       process.exit(1)
     }
@@ -209,13 +210,13 @@ if (
   !/Estrategia → Social → Ads/.test(policySrc.systemPrompt) ||
   !/prospección en frío/.test(policySrc.systemPrompt) ||
   !/iguala mensual/.test(policySrc.systemPrompt) ||
-  !/No es para tiendas de comercio electrónico ni para quien solo quiere anuncios/.test(policySrc.systemPrompt)
+  !/GTM OS no es para tiendas de comercio electrónico ni para quien solo quiere anuncios/.test(policySrc.systemPrompt)
 ) {
   console.error('systemPrompt must pin the ES glossary, NEXUS phrasing, and GTM not-for line')
   process.exit(1)
 }
-if (!/No es para tiendas de comercio electrónico ni para quien solo quiere anuncios/.test(policySrc.fallbackReplies['gtm-os'].es)) {
-  console.error('GTM OS ES fallback must use the natural not-for line')
+if (!/GTM OS no es para tiendas de comercio electrónico ni para quien solo quiere anuncios/.test(policySrc.fallbackReplies['gtm-os'].es)) {
+  console.error('GTM OS ES fallback must name GTM OS on the not-for line')
   process.exit(1)
 }
 if (!/Es para fundadores, directores generales o responsables de operaciones/.test(policySrc.fallbackReplies['gtm-os'].es)) {
@@ -236,6 +237,13 @@ if (!/se queda con su equipo/.test(policySrc.fallbackReplies['gtm-os'].es)) {
 }
 if (!/STORE OS audita y configura el panel de Shopify para que la tienda convierta antes de gastar en anuncios/.test(policySrc.fallbackReplies['store-os'].es)) {
   console.error('STORE OS ES fallback must be a full Spanish sentence')
+  process.exit(1)
+}
+if (
+  /Encaja en marcas/.test(policySrc.fallbackReplies['store-os'].es) ||
+  !/Es para marcas que venden directo al consumidor/.test(policySrc.fallbackReplies['store-os'].es)
+) {
+  console.error('STORE OS ES fallback must say Es para marcas, not Encaja en marcas')
   process.exit(1)
 }
 if (
@@ -338,6 +346,14 @@ if (
 }
 if (!/GUIDE_ES_CATALOG_FACTS/.test(llm) || !/selectGuideKnowledge/.test(fn)) {
   console.error('ES replies must be grounded on Spanish catalog facts and /es/ knowledge first')
+  process.exit(1)
+}
+if (!/isStoreShopifyQuery/.test(llm) || !/selectGuideCatalogFacts/.test(llm) || !/lastGuideUserText/.test(fn)) {
+  console.error('store/Shopify questions must select STORE OS facts only')
+  process.exit(1)
+}
+if (!/GTM OS no es para tiendas de comercio electrónico ni para quien solo quiere anuncios/.test(llm)) {
+  console.error('GTM not-for must name GTM OS explicitly')
   process.exit(1)
 }
 if (!/isSchedulingTurn/.test(fn) || !/schedulingGuideReply/.test(fn)) {
@@ -531,14 +547,22 @@ if (!/list\.scrollTop = list\.scrollHeight/.test(widget) || !/tickNoteRef/.test(
   console.error('Guide widget must scroll the message list internally and bring the tick note into view')
   process.exit(1)
 }
-if (!/guide.turnstileTick/.test(widget)) {
-  console.error('Guide widget must show the tick-the-box note while waiting for Turnstile')
+if (!/guide.turnstileTick/.test(widget) || !/guide.turnstileVerifying/.test(widget)) {
+  console.error('Guide widget must show Verificando until before-interactive-callback, then the tick note')
+  process.exit(1)
+}
+if (!/challengeUi === 'interactive'/.test(widget) || !/challengeUi === 'verifying'/.test(widget)) {
+  console.error('tick note must be gated on challengeUi interactive, not the whole Turnstile wait')
   process.exit(1)
 }
 const esLocale = fs.readFileSync(path.join(root, 'src/locales/es.json'), 'utf8')
 const enLocale = fs.readFileSync(path.join(root, 'src/locales/en.json'), 'utf8')
 if (!/Marque la casilla para continuar/.test(esLocale) || !/Please tick the box to continue/.test(enLocale)) {
   console.error('turnstileTick copy must be ES Marque la casilla / EN Please tick the box')
+  process.exit(1)
+}
+if (!/Verificando…/.test(esLocale) || !/Verifying…/.test(enLocale)) {
+  console.error('turnstileVerifying copy must be ES Verificando… / EN Verifying…')
   process.exit(1)
 }
 const turnstileHook = fs.readFileSync(
@@ -573,12 +597,21 @@ if (!/execution: 'execute'/.test(turnstileHook) || !/api\.execute\(widgetId\)/.t
   console.error('Turnstile must execute the challenge at send, not at the previous reset')
   process.exit(1)
 }
-if (!/appearance: 'always'/.test(turnstileHook) || !/size: 'normal'/.test(turnstileHook)) {
-  console.error('Turnstile must use appearance always + size normal so the checkbox has layout')
+if (!/appearance: 'interaction-only'/.test(turnstileHook) || !/size: 'normal'/.test(turnstileHook)) {
+  console.error('Turnstile must stay interaction-only until before-interactive-callback')
   process.exit(1)
 }
-if (!/armGuideTurnstileHost/.test(turnstileHook) || !/retryChallengeOnce/.test(turnstileHook)) {
-  console.error('Turnstile must size the host and retry once on error/timeout/expired')
+if (!/theme: 'dark'/.test(turnstileHook)) {
+  console.error('Turnstile theme must match the dark panel')
+  process.exit(1)
+}
+if (
+  !/before-interactive-callback/.test(turnstileHook) ||
+  !/armGuideTurnstileHost/.test(turnstileHook) ||
+  !/collapseGuideTurnstileHost/.test(turnstileHook) ||
+  !/retryChallengeOnce/.test(turnstileHook)
+) {
+  console.error('Turnstile must arm at before-interactive-callback and collapse until then')
   process.exit(1)
 }
 if (!/token_wait_timeout@/.test(turnstileHook)) {

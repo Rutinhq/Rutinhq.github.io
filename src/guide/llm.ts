@@ -26,7 +26,7 @@ Never invent prices, retainers, legal terms, SLAs, credentials, bank data, or pr
 Primary CTA: https://calendly.com/rutinhq/30min. Secondary: strategy@rutinhq.com.
 Reply 100% in the visitor locale (English or Spanish). Keep SKU names in English: GTM OS, STORE OS, NEXUS OS.
 Reply in ≤80 words: 2–4 short sentences or ≤3 short bullets. Only facts from the provided catalog. Never invent acronym expansions or glosses (keep GTM OS, STORE OS, NEXUS OS, SDR, ICP as written). Always end with the Calendly CTA. Finish every sentence.
-When locale is Spanish: formal usted only (nunca tú). Zero English except product names GTM OS, STORE OS, NEXUS OS, Shopify, and B2B (ICP only after its first gloss). Never invent acronym expansions. If a gloss is needed, only: ICP = perfil de cliente ideal; SDR = representante de desarrollo de ventas (externo); B2B as-is. Translate: outbound → prospección en frío; ecommerce → comercio electrónico; pipeline → flujo de ventas; leads → prospectos; ops → operaciones; Founder → fundador; CEO → director general; DTC → directo al consumidor; gates/milestone → etapas con aprobación; RFP → licitación; ads → anuncios; retainers → iguala mensual; SKU → producto. Audience: "tiendas de comercio electrónico" / "marcas que venden directo al consumidor" — never "ecommerceros", "tiendas DTC", or "líderes de compras en línea". NEXUS OS is always "un sistema de marketing agéntico: Estrategia → Social → Ads" with "nada se publica ni se gasta sin aprobación explícita" (never "papel", never "se mantiene en papel", never "una estrategia de marketing agéntico"). NEXUS for-whom: "marcas y tiendas en línea con oferta y productos claros que buscan generar demanda en redes sociales de forma sistemática." GTM OS not-for: "No es para tiendas de comercio electrónico ni para quien solo quiere anuncios." GTM OS for-whom: "Es para fundadores, directores generales o responsables de operaciones en empresas B2B que ya venden y buscan un flujo de ventas repetible." GTM OS stays "que se queda con su equipo" (never "tu equipo", "tus", or "contigo" — use "su equipo" / "con usted"). STORE OS: "STORE OS audita y configura el panel de Shopify para que la tienda convierta antes de gastar en anuncios." If the visitor asks about a Shopify store, lead with STORE OS — never open with "No," or with the GTM not-for line. RutinHQ = "sistemas que usted posee, sin iguala mensual". For "¿Qué hace RutinHQ?" always name all three: GTM OS (prospección en frío B2B), STORE OS (auditoría y configuración del panel de Shopify para marcas que venden directo al consumidor) y NEXUS OS (Estrategia → Social → Ads). CTA is always "Si encaja, agende 30 min: <url>." Never "para discutir más" (use "para conversarlo"). Never "propietar", "un llamada", or "marketing agente". Translate also: retailers → minoristas; SKUs → productos; SKU → producto.
+When locale is Spanish: formal usted only (nunca tú). Zero English except product names GTM OS, STORE OS, NEXUS OS, Shopify, and B2B (ICP only after its first gloss). Never invent acronym expansions. If a gloss is needed, only: ICP = perfil de cliente ideal; SDR = representante de desarrollo de ventas (externo); B2B as-is. Translate: outbound → prospección en frío; ecommerce → comercio electrónico; pipeline → flujo de ventas; leads → prospectos; ops → operaciones; Founder → fundador; CEO → director general; DTC → directo al consumidor; gates/milestone → etapas con aprobación; RFP → licitación; ads → anuncios; retainers → iguala mensual; SKU → producto. Audience: "tiendas de comercio electrónico" / "marcas que venden directo al consumidor" — never "ecommerceros", "tiendas DTC", or "líderes de compras en línea". NEXUS OS is always "un sistema de marketing agéntico: Estrategia → Social → Ads" with "nada se publica ni se gasta sin aprobación explícita" (never "papel", never "se mantiene en papel", never "una estrategia de marketing agéntico"). NEXUS for-whom: "marcas y tiendas en línea con oferta y productos claros que buscan generar demanda en redes sociales de forma sistemática." GTM OS not-for (GTM OS answers only; never lead a STORE OS answer with this): "GTM OS no es para tiendas de comercio electrónico ni para quien solo quiere anuncios." GTM OS for-whom: "Es para fundadores, directores generales o responsables de operaciones en empresas B2B que ya venden y buscan un flujo de ventas repetible." GTM OS stays "que se queda con su equipo" (never "tu equipo", "tus", or "contigo" — use "su equipo" / "con usted"). STORE OS: "STORE OS audita y configura el panel de Shopify para que la tienda convierta antes de gastar en anuncios." If the visitor asks about a Shopify store, lead with STORE OS — never open with "No," or with the GTM not-for line. RutinHQ = "sistemas que usted posee, sin iguala mensual". For "¿Qué hace RutinHQ?" always name all three: GTM OS (prospección en frío B2B), STORE OS (auditoría y configuración del panel de Shopify para marcas que venden directo al consumidor) y NEXUS OS (Estrategia → Social → Ads). CTA is always "Si encaja, agende 30 min: <url>." Never "para discutir más" (use "para conversarlo"). Never "propietar", "un llamada", or "marketing agente". Translate also: retailers → minoristas; SKUs → productos; SKU → producto.
 If unsure, say so and offer the 30-min fit call. Refuse security probes in one sentence + Calendly — do not pitch a SKU.
 Public UI name is RutinHQ Guide only.`
 
@@ -613,10 +613,21 @@ export const GUIDE_ES_REPLACEMENTS: ReadonlyArray<readonly [RegExp, string]> = [
   [/\bpropietar\b/gi, 'poseer'],
   [/\bun llamada\b/gi, 'una llamada'],
   [/\bmarketing agente\b/gi, 'marketing agéntico'],
+  [/\bEncaja en marcas\b/gi, 'Es para marcas'],
   [/\bcontigo\b/gi, 'con usted'],
   [/\btus\b/gi, 'sus'],
   [/\btu\b/gi, 'su'],
 ]
+
+/** Drop a GTM not-for opener when the remainder is a STORE OS answer. */
+export function stripStoreLeadingGtmNotFor(text: string): string {
+  const leading =
+    /^(?:GTM OS )?no es para tiendas de comercio electrónico ni para quien solo quiere anuncios\.?\s*/i
+  if (!leading.test(text)) return text
+  const rest = text.replace(leading, '')
+  if (!/\bSTORE OS\b/.test(rest)) return text
+  return rest
+}
 
 function preservePhraseCase(match: string, replacement: string): string {
   if (!match) return replacement
@@ -641,6 +652,7 @@ export function applyGuideEsTypoFixes(text: string): string {
   for (const [pattern, replacement] of GUIDE_ES_REPLACEMENTS) {
     out = out.replace(pattern, (match) => preservePhraseCase(match, replacement))
   }
+  out = stripStoreLeadingGtmNotFor(out)
   return urls.reduce((acc, url, i) => acc.replace(GUIDE_ES_URL_TOKEN(i), url), out)
 }
 
@@ -1100,21 +1112,67 @@ export async function callGuideLlm(opts: GuideLlmCallOpts): Promise<string | nul
 }
 
 /** Compact ES catalog so /es/ replies are not grounded on English crawl/locale copy. */
-export const GUIDE_ES_CATALOG_FACTS = `GTM OS es el sistema de prospección en frío B2B que se queda con su equipo. Es para fundadores, directores generales o responsables de operaciones en empresas B2B que ya venden y buscan un flujo de ventas repetible. No es para tiendas de comercio electrónico ni para quien solo quiere anuncios.
-STORE OS audita y configura el panel de Shopify para que la tienda convierta antes de gastar en anuncios. Si preguntan por una tienda Shopify, empiece por STORE OS; nunca abra con "No," ni con el not-for de GTM OS. Encaja en marcas que venden directo al consumidor en Shopify.
-NEXUS OS es un sistema de marketing agéntico: Estrategia → Social → Ads. Nada se publica ni se gasta sin aprobación explícita. Encaja en marcas y tiendas en línea con oferta y productos claros que buscan generar demanda en redes sociales de forma sistemática.
-RutinHQ instala sistemas que usted posee, sin iguala mensual: GTM OS (prospección en frío B2B), STORE OS (auditoría y configuración del panel de Shopify para marcas que venden directo al consumidor) y NEXUS OS (Estrategia → Social → Ads).`
+export const GUIDE_ES_GTM_FACTS =
+  'GTM OS es el sistema de prospección en frío B2B que se queda con su equipo. Es para fundadores, directores generales o responsables de operaciones en empresas B2B que ya venden y buscan un flujo de ventas repetible. GTM OS no es para tiendas de comercio electrónico ni para quien solo quiere anuncios.'
+
+export const GUIDE_ES_STORE_FACTS =
+  'STORE OS audita y configura el panel de Shopify para que la tienda convierta antes de gastar en anuncios. Si preguntan por una tienda Shopify, empiece por STORE OS; nunca abra con "No," ni con el not-for de GTM OS. Es para marcas que venden directo al consumidor en Shopify.'
+
+export const GUIDE_ES_NEXUS_FACTS =
+  'NEXUS OS es un sistema de marketing agéntico: Estrategia → Social → Ads. Nada se publica ni se gasta sin aprobación explícita. Es para marcas y tiendas en línea con oferta y productos claros que buscan generar demanda en redes sociales de forma sistemática.'
+
+export const GUIDE_ES_HUB_FACTS =
+  'RutinHQ instala sistemas que usted posee, sin iguala mensual: GTM OS (prospección en frío B2B), STORE OS (auditoría y configuración del panel de Shopify para marcas que venden directo al consumidor) y NEXUS OS (Estrategia → Social → Ads).'
+
+export const GUIDE_ES_CATALOG_FACTS = [
+  GUIDE_ES_GTM_FACTS,
+  GUIDE_ES_STORE_FACTS,
+  GUIDE_ES_NEXUS_FACTS,
+  GUIDE_ES_HUB_FACTS,
+].join('\n')
+
+export function lastGuideUserText(
+  messages: { role: string; content: string }[],
+): string {
+  for (let i = messages.length - 1; i >= 0; i--) {
+    if (messages[i].role === 'user') return String(messages[i].content || '')
+  }
+  return ''
+}
+
+/** Shopify / STORE OS / tienda questions must not receive the GTM not-for sheet. */
+export function isStoreShopifyQuery(text: string): boolean {
+  const t = String(text || '').toLowerCase()
+  if (/\bstore\s*os\b/.test(t) || /\bstore-os\b/.test(t)) return true
+  if (/\bshopify\b/.test(t)) return true
+  if (/\btienda(s)?\b/.test(t)) return true
+  return false
+}
+
+export function selectGuideCatalogFacts(query = ''): string {
+  if (isStoreShopifyQuery(query)) return GUIDE_ES_STORE_FACTS
+  return GUIDE_ES_CATALOG_FACTS
+}
+
+function isStoreOsDocument(doc: { title?: string; url: string }): boolean {
+  const hay = `${doc.url} ${doc.title || ''}`.toLowerCase()
+  return /store-os|store os/.test(hay)
+}
 
 export function selectGuideKnowledge(
   documents: { title?: string; url: string; text: string }[],
   locale: 'en' | 'es',
   maxChars = 14_000,
+  query = '',
 ): string {
+  const scoped = isStoreShopifyQuery(query)
+    ? documents.filter((doc) => isStoreOsDocument(doc))
+    : documents
   const isEsUrl = (url: string) => /\/es(\/|$)/.test(url)
   const ordered =
     locale === 'es'
-      ? [...documents.filter((d) => isEsUrl(d.url)), ...documents.filter((d) => !isEsUrl(d.url))]
-      : documents
+      ? [...scoped.filter((d) => isEsUrl(d.url)), ...scoped.filter((d) => !isEsUrl(d.url))]
+      : scoped
   return ordered
     .map((doc) => `### ${doc.title || doc.url}\nSource: ${doc.url}\n${doc.text}`)
     .join('\n\n')
@@ -1125,8 +1183,10 @@ export function composeGuideSystemPrompt(
   policyPrompt: string,
   locale: 'en' | 'es',
   knowledge: string,
+  query = '',
 ): string {
   const lang = locale === 'es' ? 'Spanish' : 'English'
+  const catalogFacts = locale === 'es' ? selectGuideCatalogFacts(query) : ''
   const lengthLock =
     'LENGTH LOCK: ≤80 words. 2–4 short sentences or ≤3 short bullets. Catalog facts only. Never invent acronym expansions. Always end with the Calendly CTA. Finish every sentence.'
   const localeLock =
@@ -1134,15 +1194,17 @@ export function composeGuideSystemPrompt(
       ? [
           'LANGUAGE LOCK: Visitor locale is es. Reply 100% in Spanish. Zero English except product names GTM OS, STORE OS, NEXUS OS, Shopify, and B2B (ICP only after its first gloss).',
           'USTED LOCK: Formal usted only. Never tú, te, ti, contigo, tu, tus, or verb forms like puedes, tienes, quieres, haz, dime, agenda (tú). Always "su equipo" / "sus" / "con usted". Never "tu equipo", "tus", or "contigo". Use puede, tiene, desea, haga, agende.',
-          'GLOSSARY LOCK: Never invent acronym expansions. If a gloss is needed, only: ICP = perfil de cliente ideal; SDR = representante de desarrollo de ventas (externo); B2B as-is. Translate: outbound → prospección en frío; ecommerce → comercio electrónico; pipeline → flujo de ventas; leads → prospectos; ops → operaciones; Founder → fundador; CEO → director general; DTC → directo al consumidor; retailers → minoristas; SKUs → productos; SKU → producto; gates/milestone → etapas con aprobación; RFP → licitación; ads → anuncios; retainers → iguala mensual. Audience: "tiendas de comercio electrónico" / "marcas que venden directo al consumidor" — never "ecommerceros", "tiendas DTC", or "líderes de compras en línea". NEXUS OS is always "un sistema de marketing agéntico: Estrategia → Social → Ads". Gate: "nada se publica ni se gasta sin aprobación explícita" (never "papel", never "se mantiene en papel", never "una estrategia de marketing agéntico", never "publicidad social y publicidad"). NEXUS for-whom: "marcas y tiendas en línea con oferta y productos claros que buscan generar demanda en redes sociales de forma sistemática." GTM OS not-for: "No es para tiendas de comercio electrónico ni para quien solo quiere anuncios." GTM OS for-whom: "Es para fundadores, directores generales o responsables de operaciones en empresas B2B que ya venden y buscan un flujo de ventas repetible." GTM OS: "que se queda con su equipo." STORE OS: "STORE OS audita y configura el panel de Shopify para que la tienda convierta antes de gastar en anuncios." If the visitor asks about a Shopify store, lead with STORE OS — never open with "No," or with the GTM not-for line. RutinHQ = "sistemas que usted posee, sin iguala mensual" (never "propietar"). "una llamada" not "un llamada". "marketing agéntico" not "marketing agente". CTA LOCK: always "Si encaja, agende 30 min: https://calendly.com/rutinhq/30min." Never "para discutir más" (use "para conversarlo").',
+          'GLOSSARY LOCK: Never invent acronym expansions. If a gloss is needed, only: ICP = perfil de cliente ideal; SDR = representante de desarrollo de ventas (externo); B2B as-is. Translate: outbound → prospección en frío; ecommerce → comercio electrónico; pipeline → flujo de ventas; leads → prospectos; ops → operaciones; Founder → fundador; CEO → director general; DTC → directo al consumidor; retailers → minoristas; SKUs → productos; SKU → producto; gates/milestone → etapas con aprobación; RFP → licitación; ads → anuncios; retainers → iguala mensual. Audience: "tiendas de comercio electrónico" / "marcas que venden directo al consumidor" — never "ecommerceros", "tiendas DTC", or "líderes de compras en línea". NEXUS OS is always "un sistema de marketing agéntico: Estrategia → Social → Ads". Gate: "nada se publica ni se gasta sin aprobación explícita" (never "papel", never "se mantiene en papel", never "una estrategia de marketing agéntico", never "publicidad social y publicidad"). NEXUS for-whom: "marcas y tiendas en línea con oferta y productos claros que buscan generar demanda en redes sociales de forma sistemática." GTM OS not-for (GTM OS answers only; never lead a STORE OS answer with this): "GTM OS no es para tiendas de comercio electrónico ni para quien solo quiere anuncios." GTM OS for-whom: "Es para fundadores, directores generales o responsables de operaciones en empresas B2B que ya venden y buscan un flujo de ventas repetible." GTM OS: "que se queda con su equipo." STORE OS: "STORE OS audita y configura el panel de Shopify para que la tienda convierta antes de gastar en anuncios." If the visitor asks about a Shopify store, lead with STORE OS — never open with "No," or with the GTM not-for line. RutinHQ = "sistemas que usted posee, sin iguala mensual" (never "propietar"). "una llamada" not "un llamada". "marketing agéntico" not "marketing agente". CTA LOCK: always "Si encaja, agende 30 min: https://calendly.com/rutinhq/30min." Never "para discutir más" (use "para conversarlo").',
           'WHAT RUTINHQ DOES: For "¿Qué hace RutinHQ?" always use this one-line answer: "RutinHQ instala sistemas que usted posee, sin iguala mensual: GTM OS (prospección en frío B2B), STORE OS (auditoría y configuración del panel de Shopify para marcas que venden directo al consumidor) y NEXUS OS (Estrategia → Social → Ads). Si encaja, agende 30 min: https://calendly.com/rutinhq/30min."',
-          'NEXUS EXAMPLE: "NEXUS OS es un sistema de marketing agéntico: Estrategia → Social → Ads. Encaja en marcas y tiendas en línea con oferta y productos claros que buscan generar demanda en redes sociales de forma sistemática. Nada se publica ni se gasta sin aprobación explícita. Si encaja, agende 30 min: https://calendly.com/rutinhq/30min."',
+          'NEXUS EXAMPLE: "NEXUS OS es un sistema de marketing agéntico: Estrategia → Social → Ads. Es para marcas y tiendas en línea con oferta y productos claros que buscan generar demanda en redes sociales de forma sistemática. Nada se publica ni se gasta sin aprobación explícita. Si encaja, agende 30 min: https://calendly.com/rutinhq/30min."',
         ].join(' ')
       : `LANGUAGE LOCK: Visitor locale is ${locale}. Reply 100% in ${lang}. Do not mix languages. SKU names stay in English: GTM OS, STORE OS, NEXUS OS.`
   return [
     GUIDE_MANDATE,
     policyPrompt,
-    locale === 'es' ? `Spanish catalog facts (prefer these over English knowledge):\n${GUIDE_ES_CATALOG_FACTS}` : '',
+    catalogFacts
+      ? `Spanish catalog facts (prefer these over English knowledge):\n${catalogFacts}`
+      : '',
     knowledge ? `Allowlisted knowledge:\n${knowledge}` : '',
     lengthLock,
     localeLock,

@@ -339,6 +339,7 @@
     "limit": "That's the turn cap for this chat. Book a 30-min fit call and we'll pick it up there.",
     "disclaimer": "Answers stay on public catalog facts. No pricing or legal terms in chat.",
     "turnstileLabel": "Human check",
+    "turnstileVerifying": "Verifying…",
     "turnstileTick": "Please tick the box to continue."
   },
   "agents": {

@@ -73,7 +73,11 @@ export function GuideWidget() {
   const [messages, setMessages] = useState<UiMessage[]>([])
   const sendLock = useRef(false)
   const turnstileSiteKey = readGuideTurnstileSiteKey()
-  const { hostRef: turnstileRef, consumeToken } = useGuideTurnstile(turnstileSiteKey)
+  const {
+    hostRef: turnstileRef,
+    consumeToken,
+    challengeUi,
+  } = useGuideTurnstile(turnstileSiteKey)
 
   useEffect(() => {
     if (!open) return
@@ -104,9 +108,9 @@ export function GuideWidget() {
   }, [messages, open, pending])
 
   useEffect(() => {
-    if (!awaitingChallenge) return
+    if (challengeUi !== 'interactive') return
     tickNoteRef.current?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
-  }, [awaitingChallenge])
+  }, [challengeUi])
 
   const turnsUsed = messages.filter((m) => m.role === 'user').length
   const atCap = turnsUsed >= GUIDE_LIMITS.maxMessagesPerSession
@@ -342,24 +346,31 @@ export function GuideWidget() {
                 id="guide-human-check"
                 className={cn(
                   'mt-3 shrink-0 space-y-2 overflow-visible',
-                  awaitingChallenge && 'min-h-[85px]',
+                  challengeUi === 'interactive' && 'min-h-[85px]',
                 )}
               >
                 <div
                   ref={turnstileRef}
                   aria-label={copy('guide.turnstileLabel')}
-                  className="block min-h-[65px] min-w-[300px] w-full overflow-visible [&_iframe]:min-h-[65px] [&_iframe]:min-w-[300px]"
+                  className={
+                    challengeUi === 'interactive'
+                      ? 'block min-h-[65px] min-w-[300px] w-full overflow-visible [&_iframe]:min-h-[65px] [&_iframe]:min-w-[300px]'
+                      : 'block h-0 w-0 min-h-0 min-w-0 overflow-hidden'
+                  }
                 />
-                <p
-                  ref={tickNoteRef}
-                  className={cn(
-                    'min-h-5 text-[12px] text-muted-foreground',
-                    awaitingChallenge ? '' : 'invisible',
-                  )}
-                  role={awaitingChallenge ? 'status' : undefined}
-                >
-                  {copy('guide.turnstileTick')}
-                </p>
+                {challengeUi === 'interactive' ? (
+                  <p
+                    ref={tickNoteRef}
+                    className="min-h-5 text-[12px] text-muted-foreground"
+                    role="status"
+                  >
+                    {copy('guide.turnstileTick')}
+                  </p>
+                ) : challengeUi === 'verifying' ? (
+                  <p className="min-h-5 text-[12px] text-muted-foreground" role="status">
+                    {copy('guide.turnstileVerifying')}
+                  </p>
+                ) : null}
               </div>
             ) : null}
 

@@ -339,6 +339,7 @@
     "limit": "Llegamos al tope de turnos de este chat. Agende 30 min y lo seguimos ahí.",
     "disclaimer": "Las respuestas se quedan en hechos del catálogo público. Sin precios ni términos legales en el chat.",
     "turnstileLabel": "Comprobación humana",
+    "turnstileVerifying": "Verificando…",
     "turnstileTick": "Marque la casilla para continuar."
   },
   "agents": {

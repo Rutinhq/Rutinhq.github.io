@@ -28,6 +28,7 @@ import {
   appendGuideCalendlyCta,
   callGuideLlmDetailed,
   composeGuideSystemPrompt,
+  lastGuideUserText,
   selectGuideKnowledge,
   GUIDE_LLM_BUDGET_MS,
   guideDegradedReasonFromLlm,
@@ -277,7 +278,8 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
   let llmDebug: Record<string, unknown> | null = null
   let llmDegradedReason: string | null = null
   if (canCallLlm) {
-    const knowledge = selectGuideKnowledge(kb?.documents || [], locale)
+    const query = lastGuideUserText(messages)
+    const knowledge = selectGuideKnowledge(kb?.documents || [], locale, 14_000, query)
     const llmStarted = Date.now()
     try {
       const result = await callGuideLlmDetailed({
@@ -288,7 +290,7 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
         model: context.env.GUIDE_LLM_MODEL,
         maxTokens: limits.maxReplyTokens,
         timeoutMs: GUIDE_LLM_BUDGET_MS,
-        system: composeGuideSystemPrompt(policy.systemPrompt, locale, knowledge),
+        system: composeGuideSystemPrompt(policy.systemPrompt, locale, knowledge, query),
         locale,
         messages: messages.map((m) => ({
           role: m.role,
