@@ -83,9 +83,19 @@ export type GuideApiResponse = {
   mode: 'llm' | 'degraded'
   leadBrief?: LeadBrief
   calendlyUrl: string
+  /** Preview hosts only — never sent on rutinhq.com. */
+  degradedReason?: string
 }
 
 export type GuideEnv = {
+  AI?: {
+    run: (
+      model: string,
+      input: Record<string, unknown>,
+      options?: { signal?: AbortSignal },
+    ) => Promise<unknown>
+  }
+  GUIDE_LLM_PROVIDER?: string
   GUIDE_LLM_API_KEY?: string
   GUIDE_LLM_BASE_URL?: string
   GUIDE_LLM_MODEL?: string

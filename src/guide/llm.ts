@@ -1,11 +1,23 @@
 /**
  * Shared Guide LLM client (Pages Function + Vite middleware).
- * Speaks OpenAI chat-completions; Gemini's OpenAI-compat endpoint is first-class.
+ * Default provider: Cloudflare Workers AI (`env.AI.run`).
+ * Optional: OpenAI-compat (Gemini / OpenAI) when GUIDE_LLM_PROVIDER=openai-compat.
  */
 
 export type GuideLlmMode = 'llm' | 'degraded'
 
+export type GuideLlmProviderId = 'workers-ai' | 'openai-compat'
+
 export type GuideLlmMessage = { role: 'user' | 'assistant' | 'system'; content: string }
+
+/** Minimal Pages `env.AI` surface — avoids a workers-types dependency. */
+export type GuideWorkersAi = {
+  run: (
+    model: string,
+    input: Record<string, unknown>,
+    options?: { signal?: AbortSignal },
+  ) => Promise<unknown>
+}
 
 /** Public-safe GEMINI ENGINE mandate. Do not name internal operators. */
 export const GUIDE_MANDATE = `You are GEMINI ENGINE operating as RutinHQ Guide on www.rutinhq.com — not a generic assistant.
@@ -13,37 +25,73 @@ Public catalog only: GTM OS, STORE OS, NEXUS OS, plus public docs curriculum at 
 Never invent prices, retainers, legal terms, SLAs, credentials, bank data, or private operations.
 Primary CTA: https://calendly.com/rutinhq/30min. Secondary: strategy@rutinhq.com.
 Reply 100% in the visitor locale (English or Spanish). Keep SKU names in English: GTM OS, STORE OS, NEXUS OS.
-Reply in 4–8 short sentences unless the visitor asks for less. Do not stop mid-sentence.
+Reply in ≤80 words: 2–4 short sentences or ≤3 bullets. Only facts from the provided catalog. Never invent acronym expansions or glosses (keep GTM OS, STORE OS, NEXUS OS, SDR, ICP as written). End with the Calendly CTA only when relevant. Finish every sentence.
 If unsure, say so and offer the 30-min fit call. Refuse security probes in one sentence + Calendly — do not pitch a SKU.
 Public UI name is RutinHQ Guide only.`
 
 const GEMINI_HOST = 'generativelanguage.googleapis.com'
-const DEFAULT_GEMINI_MODEL = 'gemini-2.0-flash'
+const DEFAULT_GEMINI_MODEL = 'gemini-3.1-flash-lite'
 
-/** Thinking Gemini IDs burn max_tokens on thoughts → finish_reason=length mid-sentence. */
+/** Thinking Gemini IDs burn max_tokens on thoughts → finish_reason=length mid-sentence.
+ * gemini-3.1-flash-lite defaults to thinking_level=minimal and stays off this list
+ * so the current OpenAI-compat body (model/temperature/max_tokens/messages) is valid. */
 const THINKING_MODELS = new Set([
   'gemini-2.5-flash',
   'gemini-2.5-flash-lite',
   'gemini-3.6-flash',
 ])
 
-/** 404 / model-not-found only. Never used on 429/503. Never hop to thinking models. */
+/** Official Gemini API ids (ai.google.dev/gemini-api/docs/models, Nov 2026):
+ *   Gemini 3.1 Flash-Lite → gemini-3.1-flash-lite (stable; -preview shut down May 2026)
+ *   Gemini 3 Flash        → gemini-3-flash-preview (no unsuffixed gemini-3-flash id)
+ * 404 / model-not-found only. Never used on 429/503. Never hop to thinking models.
+ * Do not include gemini-2.0-* (zero free-tier quota). gemini-2.5-flash-lite stays
+ * out: it thinks unless reasoning_effort=none, which this request shape does not send. */
 const MODEL_FALLBACKS: Record<string, string[]> = {
-  'gemini-2.0-flash': ['gemini-2.0-flash-001', 'gemini-flash-latest'],
-  'gemini-2.0-flash-exp': ['gemini-2.0-flash', 'gemini-2.0-flash-001'],
-  'gemini-2.0-flash-001': ['gemini-2.0-flash', 'gemini-flash-latest'],
-  'gemini-flash-latest': ['gemini-2.0-flash'],
+  'gemini-3.1-flash-lite': ['gemini-3-flash-preview'],
+  'gemini-3-flash-preview': ['gemini-3.1-flash-lite'],
+  'gemini-2.0-flash': ['gemini-3.1-flash-lite', 'gemini-3-flash-preview'],
+  'gemini-2.0-flash-exp': ['gemini-3.1-flash-lite', 'gemini-3-flash-preview'],
+  'gemini-2.0-flash-001': ['gemini-3.1-flash-lite', 'gemini-3-flash-preview'],
+  'gemini-flash-latest': ['gemini-3.1-flash-lite', 'gemini-3-flash-preview'],
 }
+
+/** Bare "gemini-3-flash" is not an API id — OpenAI-compat 404s it. */
+const GEMINI_MODEL_ALIASES: Record<string, string> = {
+  'gemini-3-flash': 'gemini-3-flash-preview',
+}
+
+/** Current fast 8B in the Workers AI pricing table. The older
+ * `@cf/meta/llama-3.1-8b-instruct-fast` catalog id 404s. 70B is opt-in only
+ * (`GUIDE_LLM_MODEL`) — it risks the 9s budget and the 10k neuron/day cap. */
+export const DEFAULT_WORKERS_AI_MODEL = '@cf/meta/llama-3.1-8b-instruct-fp8-fast'
+
+const WORKERS_AI_ALIASES: Record<string, string> = {
+  '@cf/meta/llama-3.1-8b-instruct-fast': DEFAULT_WORKERS_AI_MODEL,
+}
+
+const WORKERS_AI_FALLBACKS: Record<string, string[]> = {
+  [DEFAULT_WORKERS_AI_MODEL]: ['@cf/meta/llama-3.1-8b-instruct'],
+  '@cf/meta/llama-3.1-8b-instruct-fast': [DEFAULT_WORKERS_AI_MODEL, '@cf/meta/llama-3.1-8b-instruct'],
+  '@cf/meta/llama-3.3-70b-instruct-fp8-fast': [DEFAULT_WORKERS_AI_MODEL],
+  '@cf/meta/llama-3.1-70b-instruct-fp8-fast': [DEFAULT_WORKERS_AI_MODEL],
+}
+
+/** Cap completions so ≤80-word replies from the verbose 8B stay inside the free neuron allocation. */
+export const GUIDE_WORKERS_AI_MAX_TOKENS = 450
 
 export const GUIDE_LLM_CANDIDATE_CAP = 3
 export const GUIDE_LLM_MIN_REPLY_CHARS = 80
+export const GUIDE_LLM_REPLY_MAX_CHARS = 2_500
 export const GUIDE_LLM_RATE_LIMIT_BACKOFF_MS = 600
-export const GUIDE_LLM_BUDGET_MS = 9_000
-/** First Gemini call. Leaves room for one 429 retry inside GUIDE_LLM_BUDGET_MS. */
-export const GUIDE_LLM_PRIMARY_ATTEMPT_MS = 6_800
+/** Wall budget for env.AI.run / openai-compat. Cap is 20s (Pages Function + widget). */
+export const GUIDE_LLM_BUDGET_MS = 20_000
+/** First attempt. Leaves room for one 429 retry inside GUIDE_LLM_BUDGET_MS. */
+export const GUIDE_LLM_PRIMARY_ATTEMPT_MS = 17_000
 /** Single primary retry after 429/503. Timeouts never retry. */
 export const GUIDE_LLM_RETRY_ATTEMPT_MS = 2_000
 export const GUIDE_LLM_MIN_ATTEMPT_MS = 400
+export const GUIDE_DEGRADED_REASON_MAX = 120
 
 /** Per-attempt wall time so a hung primary cannot eat the 429 retry window. */
 export function guideLlmAttemptMs(opts: { isRetry: boolean; remainingMs: number }): number {
@@ -67,6 +115,20 @@ function looksLikeGeminiKey(apiKey?: string): boolean {
   return key.startsWith('AIza') || key.startsWith('AQ.')
 }
 
+export function resolveGuideLlmProvider(
+  raw?: string,
+  hints?: { hasWorkersAi?: boolean; hasApiKey?: boolean },
+): GuideLlmProviderId {
+  const v = (raw || '').trim().toLowerCase()
+  if (v === 'openai-compat' || v === 'openai' || v === 'gemini') return 'openai-compat'
+  if (v === 'workers-ai' || v === 'workersai' || v === 'workers_ai' || v === 'cf') {
+    return 'workers-ai'
+  }
+  if (hints?.hasWorkersAi) return 'workers-ai'
+  if (hints?.hasApiKey) return 'openai-compat'
+  return 'workers-ai'
+}
+
 export function resolveGuideLlmBaseUrl(raw?: string, apiKey?: string, model?: string): string {
   const explicit = raw?.trim()
   if (explicit) return normalizeGuideLlmBaseUrl(explicit)
@@ -77,9 +139,16 @@ export function resolveGuideLlmBaseUrl(raw?: string, apiKey?: string, model?: st
   return normalizeGuideLlmBaseUrl('https://api.openai.com/v1')
 }
 
-export function resolveGuideLlmModel(raw?: string, apiKey?: string): string {
+export function resolveGuideLlmModel(
+  raw?: string,
+  apiKey?: string,
+  provider?: string,
+): string {
   const explicit = raw?.trim()
   if (explicit) return normalizeGuideLlmModel(explicit)
+  if (resolveGuideLlmProvider(provider, { hasApiKey: Boolean(apiKey) }) === 'workers-ai') {
+    return DEFAULT_WORKERS_AI_MODEL
+  }
   if (looksLikeGeminiKey(apiKey)) return DEFAULT_GEMINI_MODEL
   return 'gpt-4o-mini'
 }
@@ -106,12 +175,99 @@ export function normalizeGuideLlmBaseUrl(raw?: string): string {
 }
 
 export function normalizeGuideLlmModel(raw?: string): string {
-  const model = (raw || 'gpt-4o-mini').trim()
-  return model.replace(/^models\//, '')
+  const model = (raw || 'gpt-4o-mini').trim().replace(/^models\//, '')
+  return WORKERS_AI_ALIASES[model] || GEMINI_MODEL_ALIASES[model] || model
 }
 
-export function guideLlmModelCandidates(raw?: string): string[] {
+/** First 200 chars of a provider body with key-like strings stripped. Never log headers. */
+export function redactGuideLlmSnippet(raw: string): string {
+  return String(raw || '')
+    .replace(/\s+/g, ' ')
+    .replace(
+      /AIza[0-9A-Za-z_-]{8,}|AQ\.[0-9A-Za-z._-]{8,}|sk-[A-Za-z0-9_-]{8,}|ya29\.[A-Za-z0-9._-]+|Bearer\s+\S+/gi,
+      '[redacted]',
+    )
+    .replace(
+      /(["']?(?:api[_-]?key|authorization|secret|token|password|credential)["']?\s*[=:]\s*["']?)[^"'&\s,}]{6,}/gi,
+      '$1[redacted]',
+    )
+    .slice(0, 200)
+}
+
+export function guideLlmFailureLog(opts: {
+  provider?: string | null
+  model: string | null
+  status: number | null
+  errorSnippet: string
+  elapsedMs: number
+  modelsTried: string[]
+}): string {
+  return JSON.stringify({
+    msg: 'guide_llm_failed',
+    provider: opts.provider || null,
+    model: opts.model,
+    status: opts.status,
+    errorSnippet: redactGuideLlmSnippet(opts.errorSnippet),
+    elapsedMs: opts.elapsedMs,
+    modelsTried: opts.modelsTried,
+  })
+}
+
+export function logGuideLlmFailure(opts: {
+  provider?: string | null
+  model: string | null
+  status: number | null
+  errorSnippet: string
+  elapsedMs: number
+  modelsTried: string[]
+}): void {
+  console.error(guideLlmFailureLog(opts))
+}
+
+/** Preview-only diagnostic. Never include keys; cap at GUIDE_DEGRADED_REASON_MAX. */
+export function formatGuideAiErrorReason(
+  status: number | null,
+  message: string,
+): string {
+  const statusBit = status != null && Number.isFinite(status) ? String(status) : 'error'
+  const msg = redactGuideLlmSnippet(message).slice(0, 80)
+  const body = msg ? `${statusBit}/${msg}` : statusBit
+  return `ai_error:${body}`.slice(0, GUIDE_DEGRADED_REASON_MAX)
+}
+
+export function guideDegradedReasonFromLlm(opts: {
+  lastError: string | null
+  lastStatus: number | null
+  lastErrorSnippet: string | null
+}): string {
+  const err = (opts.lastError || '').trim()
+  if (err === 'missing_binding') return 'missing_binding'
+  if (err === 'timeout') return 'budget_timeout'
+  if (
+    err === 'truncated' ||
+    err === 'empty_content' ||
+    err.endsWith(':empty_content') ||
+    err.endsWith(':invalid_json') ||
+    err === 'invalid_json'
+  ) {
+    return 'parse_error'
+  }
+  if (!err) return 'parse_error'
+  return formatGuideAiErrorReason(opts.lastStatus, opts.lastErrorSnippet || err)
+}
+
+export function guideLlmModelCandidates(raw?: string, provider?: string): string[] {
   const primary = normalizeGuideLlmModel(raw)
+  const explicit = (provider || '').trim()
+  const workers =
+    (Boolean(explicit) && resolveGuideLlmProvider(explicit) === 'workers-ai') ||
+    primary.startsWith('@cf/')
+  if (workers) {
+    const extra = WORKERS_AI_FALLBACKS[primary] || []
+    return [primary, ...extra]
+      .filter((id, i, all) => id && all.indexOf(id) === i)
+      .slice(0, GUIDE_LLM_CANDIDATE_CAP)
+  }
   const extra = (MODEL_FALLBACKS[primary] || []).filter((id) => !THINKING_MODELS.has(id))
   return [primary, ...extra]
     .filter((id, i, all) => id && all.indexOf(id) === i)
@@ -147,20 +303,162 @@ function textFromUnknown(value: unknown): string {
       .map((part) => {
         if (typeof part === 'string') return part
         if (part && typeof part === 'object') {
-          const rec = part as { text?: unknown; content?: unknown }
+          const rec = part as { text?: unknown; content?: unknown; reply?: unknown }
           if (typeof rec.text === 'string') return rec.text
           if (typeof rec.content === 'string') return rec.content
+          if (typeof rec.reply === 'string') return rec.reply
+          if (Array.isArray(rec.content)) return textFromUnknown(rec.content)
         }
         return ''
       })
       .join('')
   }
   if (value && typeof value === 'object') {
-    const rec = value as { text?: unknown; content?: unknown }
+    const rec = value as {
+      text?: unknown
+      content?: unknown
+      reply?: unknown
+      parts?: unknown
+    }
     if (typeof rec.text === 'string') return rec.text
     if (typeof rec.content === 'string') return rec.content
+    if (typeof rec.reply === 'string') return rec.reply
+    if (Array.isArray(rec.content)) return textFromUnknown(rec.content)
+    if (Array.isArray(rec.parts)) return textFromUnknown(rec.parts)
   }
   return ''
+}
+
+function longestStringValue(value: unknown, depth = 0): string {
+  if (depth > 5) return ''
+  if (typeof value === 'string') return value
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => longestStringValue(item, depth + 1))
+      .sort((a, b) => b.length - a.length)[0] || ''
+  }
+  if (value && typeof value === 'object') {
+    return Object.values(value as Record<string, unknown>)
+      .map((item) => longestStringValue(item, depth + 1))
+      .sort((a, b) => b.length - a.length)[0] || ''
+  }
+  return ''
+}
+
+export function stripGuideMarkdownFences(raw: string): string {
+  const trimmed = String(raw || '').trim()
+  const wrapped = trimmed.match(/^```(?:json|JSON)?\s*\r?\n?([\s\S]*?)\r?\n?```$/ )
+  if (wrapped) return wrapped[1].trim()
+  return trimmed.replace(/^```(?:json|JSON)?\s*/i, '').replace(/\s*```$/u, '').trim()
+}
+
+/** First balanced `{...}` ignoring braces inside strings. */
+export function extractFirstJsonObject(raw: string): string | null {
+  const start = raw.indexOf('{')
+  if (start < 0) return null
+  let depth = 0
+  let inStr = false
+  let escape = false
+  for (let i = start; i < raw.length; i++) {
+    const c = raw[i]
+    if (inStr) {
+      if (escape) {
+        escape = false
+        continue
+      }
+      if (c === '\\') {
+        escape = true
+        continue
+      }
+      if (c === '"') inStr = false
+      continue
+    }
+    if (c === '"') {
+      inStr = true
+      continue
+    }
+    if (c === '{') depth += 1
+    else if (c === '}') {
+      depth -= 1
+      if (depth === 0) return raw.slice(start, i + 1)
+    }
+  }
+  return null
+}
+
+function replyFromJsonValue(value: unknown, depth = 0): string | null {
+  if (depth > 5) return null
+  if (typeof value === 'string') {
+    const t = value.trim()
+    return t || null
+  }
+  if (!value || typeof value !== 'object') return null
+  const rec = value as Record<string, unknown>
+  for (const key of ['reply', 'text', 'content', 'message', 'response', 'output']) {
+    const hit = rec[key]
+    if (typeof hit === 'string' && hit.trim()) return hit.trim()
+    if (hit && typeof hit === 'object') {
+      const nested = replyFromJsonValue(hit, depth + 1)
+      if (nested) return nested
+    }
+  }
+  const longest = longestStringValue(value).trim()
+  return longest || null
+}
+
+/** Strip fences, pull a reply field out of JSON if present, else keep plain text. */
+export function coerceGuideLlmReply(raw: string | null): string | null {
+  if (!raw || !String(raw).trim()) return null
+  const stripped = stripGuideMarkdownFences(String(raw))
+  if (!stripped) return null
+  const jsonText = extractFirstJsonObject(stripped)
+  if (jsonText) {
+    try {
+      const parsed: unknown = JSON.parse(jsonText)
+      const fromJson = replyFromJsonValue(parsed)
+      if (fromJson) return fromJson.slice(0, GUIDE_LLM_REPLY_MAX_CHARS)
+    } catch {
+      /* not JSON — keep plain text */
+    }
+  }
+  return stripped.slice(0, GUIDE_LLM_REPLY_MAX_CHARS)
+}
+
+function extractFromPayload(data: unknown, depth: number): string | null {
+  if (depth > 5) return null
+  if (typeof data === 'string') return data.trim() || null
+  if (!data || typeof data !== 'object') return null
+
+  const fromChoices = extractLlmText(data)
+  if (fromChoices) return fromChoices
+
+  const rec = data as {
+    response?: unknown
+    result?: unknown
+    output?: unknown
+  }
+  if (typeof rec.response === 'string' && rec.response.trim()) return rec.response.trim()
+  if (rec.response && typeof rec.response === 'object') {
+    const nested = extractFromPayload(rec.response, depth + 1)
+    if (nested) return nested
+    const fromResponse = textFromUnknown(rec.response).trim()
+    if (fromResponse) return fromResponse
+  }
+  if (rec.result && typeof rec.result === 'object') {
+    const nested = extractFromPayload(rec.result, depth + 1)
+    if (nested) return nested
+    const fromResult = textFromUnknown(rec.result).trim()
+    if (fromResult) return fromResult
+  }
+  const fromOutput = textFromUnknown(rec.output)
+  if (fromOutput.trim()) return fromOutput.trim()
+  const fallback = textFromUnknown(data).trim()
+  return fallback || null
+}
+
+/** Workers AI `env.AI.run` shapes (`{ response }`, nested objects, OpenAI-compat). */
+export function extractWorkersAiText(data: unknown): string | null {
+  return extractFromPayload(data, 0)
 }
 
 /** OpenAI-compat + Gemini-native shapes. Never log the payload (may echo secrets). */
@@ -168,15 +466,20 @@ export function extractLlmText(data: unknown): string | null {
   if (!data || typeof data !== 'object') return null
   const rec = data as {
     choices?: {
-      message?: { content?: unknown }
+      message?: { content?: unknown } | string
       text?: unknown
       delta?: { content?: unknown }
     }[]
     candidates?: { content?: { parts?: { text?: string }[] }; output?: unknown }[]
   }
   const choice = rec.choices?.[0]
+  const message = choice?.message
+  const fromMessage =
+    typeof message === 'string'
+      ? message
+      : textFromUnknown(message?.content) || textFromUnknown(message)
   const fromChoice =
-    textFromUnknown(choice?.message?.content) ||
+    fromMessage ||
     textFromUnknown(choice?.text) ||
     textFromUnknown(choice?.delta?.content)
   if (fromChoice.trim()) return fromChoice.trim()
@@ -187,18 +490,65 @@ export function extractLlmText(data: unknown): string | null {
   return fromCandidate.trim() || null
 }
 
-export function extractFinishReason(data: unknown): string | null {
-  if (!data || typeof data !== 'object') return null
+export function extractFinishReason(data: unknown, depth = 0): string | null {
+  if (depth > 4 || !data || typeof data !== 'object') return null
   const rec = data as {
     choices?: { finish_reason?: unknown; finishReason?: unknown }[]
     candidates?: { finishReason?: unknown; finish_reason?: unknown }[]
+    response?: unknown
+    result?: unknown
   }
   const raw =
     rec.choices?.[0]?.finish_reason ??
     rec.choices?.[0]?.finishReason ??
     rec.candidates?.[0]?.finishReason ??
     rec.candidates?.[0]?.finish_reason
-  return typeof raw === 'string' && raw.trim() ? raw.trim() : null
+  if (typeof raw === 'string' && raw.trim()) return raw.trim()
+  if (rec.response && typeof rec.response === 'object') {
+    const nested = extractFinishReason(rec.response, depth + 1)
+    if (nested) return nested
+  }
+  if (rec.result && typeof rec.result === 'object') {
+    const nested = extractFinishReason(rec.result, depth + 1)
+    if (nested) return nested
+  }
+  return null
+}
+
+function isLengthFinishReason(finishReason?: string | null): boolean {
+  const reason = (finishReason || '').toLowerCase().replace(/[\s_-]/g, '')
+  return reason === 'length' || reason === 'maxtokens'
+}
+
+function endsWithTerminalPunctuation(text: string): boolean {
+  const t = text.trim()
+  if (!t) return false
+  if (/https?:\/\/\S+$/i.test(t) || /\S+@\S+\.\S+$/i.test(t)) return true
+  return /[.!?…]["')\]]*$/u.test(t)
+}
+
+function sliceToLastCompleteSentence(text: string): string | null {
+  const re = /[.!?…]["')\]]*(?=\s|$)/g
+  let last = -1
+  let match: RegExpExecArray | null
+  while ((match = re.exec(text)) !== null) {
+    last = match.index + match[0].length
+  }
+  if (last <= 0) return null
+  const sliced = text.slice(0, last).trim()
+  return sliced || null
+}
+
+/** Drop a trailing fragment when the model hit max tokens or stopped mid-sentence. */
+export function trimIncompleteGuideReply(
+  text: string | null,
+  finishReason?: string | null,
+): string | null {
+  if (!text || !text.trim()) return null
+  const t = text.trim()
+  const shouldTrim = isLengthFinishReason(finishReason) || !endsWithTerminalPunctuation(t)
+  if (!shouldTrim) return t
+  return sliceToLastCompleteSentence(t) || t
 }
 
 /** Empty, <~80 chars, finish_reason=length, or mid-sentence cut → do not ship as mode=llm. */
@@ -223,12 +573,15 @@ function isGeminiHost(base: string): boolean {
 }
 
 export type GuideLlmCallResult = {
+  provider: GuideLlmProviderId
   text: string | null
   host: string
   modelsTried: string[]
   lastStatus: number | null
   lastError: string | null
   lastFinishReason: string | null
+  /** Redacted provider body snippet for server logs only — never echo to clients. */
+  lastErrorSnippet: string | null
 }
 
 function sanitizeProviderError(status: number, body: string): string {
@@ -274,16 +627,171 @@ function abortAfter(
   }
 }
 
-export async function callGuideLlmDetailed(opts: {
-  apiKey: string
+function workersAiErrorSnippet(err: unknown): string {
+  if (err instanceof Error) return err.message
+  if (typeof err === 'string') return err
+  try {
+    return JSON.stringify(err)
+  } catch {
+    return 'workers_ai_error'
+  }
+}
+
+function workersAiStatus(err: unknown): number | null {
+  if (!err || typeof err !== 'object') return null
+  const rec = err as { status?: unknown; statusCode?: unknown }
+  const raw = rec.status ?? rec.statusCode
+  return typeof raw === 'number' && Number.isFinite(raw) ? raw : null
+}
+
+function raceAbort<T>(promise: Promise<T>, signal: AbortSignal): Promise<T> {
+  if (signal.aborted) {
+    return Promise.reject(Object.assign(new Error('Aborted'), { name: 'AbortError' }))
+  }
+  return new Promise((resolve, reject) => {
+    const onAbort = () => {
+      reject(Object.assign(new Error('Aborted'), { name: 'AbortError' }))
+    }
+    signal.addEventListener('abort', onAbort, { once: true })
+    promise.then(
+      (value) => {
+        signal.removeEventListener('abort', onAbort)
+        resolve(value)
+      },
+      (err) => {
+        signal.removeEventListener('abort', onAbort)
+        reject(err)
+      },
+    )
+  })
+}
+
+export type GuideLlmCallOpts = {
+  provider?: string
+  workersAi?: GuideWorkersAi
+  apiKey?: string
   baseUrl?: string
   model?: string
   system: string
   messages: GuideLlmMessage[]
   maxTokens: number
   timeoutMs?: number
-}): Promise<GuideLlmCallResult> {
-  const key = opts.apiKey.trim()
+}
+
+export async function callGuideLlmDetailed(opts: GuideLlmCallOpts): Promise<GuideLlmCallResult> {
+  const provider = resolveGuideLlmProvider(opts.provider, {
+    hasWorkersAi: Boolean(opts.workersAi),
+    hasApiKey: Boolean(opts.apiKey?.trim()),
+  })
+  if (provider === 'workers-ai') return callWorkersAiDetailed(opts)
+  return callOpenAiCompatDetailed(opts)
+}
+
+async function callWorkersAiDetailed(opts: GuideLlmCallOpts): Promise<GuideLlmCallResult> {
+  const empty: GuideLlmCallResult = {
+    provider: 'workers-ai',
+    text: null,
+    host: 'workers-ai',
+    modelsTried: [],
+    lastStatus: null,
+    lastError: opts.workersAi ? null : 'missing_binding',
+    lastFinishReason: null,
+    lastErrorSnippet: null,
+  }
+  if (!opts.workersAi) return empty
+
+  const primary = resolveGuideLlmModel(opts.model, opts.apiKey, 'workers-ai')
+  const models = guideLlmModelCandidates(primary, 'workers-ai')
+  const maxTokens = Math.min(Math.max(1, opts.maxTokens), GUIDE_WORKERS_AI_MAX_TOKENS)
+  const controller = new AbortController()
+  const budgetMs = opts.timeoutMs ?? GUIDE_LLM_BUDGET_MS
+  const startedAt = Date.now()
+  const remainingMs = () => Math.max(0, budgetMs - (Date.now() - startedAt))
+  const budget = setTimeout(() => controller.abort(), budgetMs)
+  const messages = [{ role: 'system', content: opts.system }, ...opts.messages]
+
+  try {
+    for (let i = 0; i < models.length; i++) {
+      const model = models[i]
+      const isPrimary = i === 0
+      empty.modelsTried.push(model)
+      let retriedPrimary = false
+
+      while (true) {
+        const attemptMs = guideLlmAttemptMs({
+          isRetry: retriedPrimary,
+          remainingMs: remainingMs(),
+        })
+        if (attemptMs < GUIDE_LLM_MIN_ATTEMPT_MS) {
+          empty.lastError = empty.lastError || 'timeout'
+          return empty
+        }
+        const attempt = abortAfter(attemptMs, controller.signal)
+        try {
+          const data = await raceAbort(
+            opts.workersAi.run(
+              model,
+              {
+                messages,
+                max_tokens: maxTokens,
+                temperature: 0.2,
+              },
+              { signal: attempt.signal },
+            ),
+            attempt.signal,
+          )
+          empty.lastFinishReason = extractFinishReason(data)
+          const text = trimIncompleteGuideReply(
+            coerceGuideLlmReply(extractWorkersAiText(data)),
+            empty.lastFinishReason,
+          )
+          if (text) {
+            empty.text = text
+            empty.lastError = null
+            empty.lastErrorSnippet = null
+            return empty
+          }
+          empty.lastError = 'empty_content'
+          empty.lastErrorSnippet = redactGuideLlmSnippet(
+            typeof data === 'string' ? data : JSON.stringify(data ?? ''),
+          )
+          return empty
+        } catch (err) {
+          const name = err instanceof Error ? err.name : 'workers_ai_error'
+          if (name === 'AbortError') {
+            empty.lastError = 'timeout'
+            return empty
+          }
+          const raw = workersAiErrorSnippet(err)
+          const status =
+            workersAiStatus(err) ??
+            (modelMissing(404, raw) || /not found|unknown model|does not exist/i.test(raw)
+              ? 404
+              : 500)
+          empty.lastStatus = status
+          empty.lastErrorSnippet = redactGuideLlmSnippet(raw)
+          empty.lastError = sanitizeProviderError(status, raw)
+          const action = guideLlmOnProviderError(status, raw, isPrimary, retriedPrimary)
+          if (action === 'retry' && guideLlmHasRetryBudget(remainingMs())) {
+            retriedPrimary = true
+            await sleep(Math.min(GUIDE_LLM_RATE_LIMIT_BACKOFF_MS, remainingMs()), controller.signal)
+            continue
+          }
+          if (action === 'fallback') break
+          return empty
+        } finally {
+          attempt.cancel()
+        }
+      }
+    }
+  } finally {
+    clearTimeout(budget)
+  }
+  return empty
+}
+
+async function callOpenAiCompatDetailed(opts: GuideLlmCallOpts): Promise<GuideLlmCallResult> {
+  const key = opts.apiKey?.trim() || ''
   const base = resolveGuideLlmBaseUrl(opts.baseUrl, key, opts.model)
   let host = 'invalid'
   try {
@@ -292,12 +800,14 @@ export async function callGuideLlmDetailed(opts: {
     host = 'invalid'
   }
   const empty: GuideLlmCallResult = {
+    provider: 'openai-compat',
     text: null,
     host,
     modelsTried: [],
     lastStatus: null,
     lastError: key ? null : 'missing_key',
     lastFinishReason: null,
+    lastErrorSnippet: null,
   }
   if (!key) return empty
 
@@ -308,8 +818,8 @@ export async function callGuideLlmDetailed(opts: {
   }
   if (gemini) headers['x-goog-api-key'] = key
 
-  const primary = resolveGuideLlmModel(opts.model, key)
-  const models = guideLlmModelCandidates(primary)
+  const primary = resolveGuideLlmModel(opts.model, key, 'openai-compat')
+  const models = guideLlmModelCandidates(primary, 'openai-compat')
   const controller = new AbortController()
   const budgetMs = opts.timeoutMs ?? GUIDE_LLM_BUDGET_MS
   const startedAt = Date.now()
@@ -355,6 +865,7 @@ export async function callGuideLlmDetailed(opts: {
         try {
           const res = await postOnce(model, attempt.signal)
           empty.lastStatus = res.status
+          empty.lastErrorSnippet = redactGuideLlmSnippet(res.raw)
           if (!res.ok) {
             empty.lastError = sanitizeProviderError(res.status, res.raw)
             const action = guideLlmOnProviderError(res.status, res.raw, isPrimary, retriedPrimary)
@@ -376,14 +887,17 @@ export async function callGuideLlmDetailed(opts: {
             empty.lastError = `${res.status}:invalid_json`
             return empty
           }
-          const text = extractLlmText(data)
           empty.lastFinishReason = extractFinishReason(data)
-          if (text && !isUnusableGuideReply(text, empty.lastFinishReason)) {
+          const text = trimIncompleteGuideReply(
+            coerceGuideLlmReply(extractWorkersAiText(data) || extractLlmText(data)),
+            empty.lastFinishReason,
+          )
+          if (text) {
             empty.text = text
             empty.lastError = null
             return empty
           }
-          empty.lastError = text ? 'truncated' : `${res.status}:empty_content`
+          empty.lastError = `${res.status}:empty_content`
           return empty
         } catch (err) {
           const name = err instanceof Error ? err.name : 'fetch_failed'
@@ -404,15 +918,7 @@ export async function callGuideLlmDetailed(opts: {
   return empty
 }
 
-export async function callGuideLlm(opts: {
-  apiKey: string
-  baseUrl?: string
-  model?: string
-  system: string
-  messages: GuideLlmMessage[]
-  maxTokens: number
-  timeoutMs?: number
-}): Promise<string | null> {
+export async function callGuideLlm(opts: GuideLlmCallOpts): Promise<string | null> {
   const result = await callGuideLlmDetailed(opts)
   return result.text
 }
@@ -426,9 +932,9 @@ export function composeGuideSystemPrompt(
   return [
     GUIDE_MANDATE,
     policyPrompt,
-    `Visitor locale: ${locale}. Reply entirely in ${lang}. Do not mix languages. SKU names stay in English.`,
-    'Reply in 4–8 short sentences unless the visitor asks for less. Do not stop mid-sentence.',
     knowledge ? `Allowlisted knowledge:\n${knowledge}` : '',
+    'LENGTH LOCK: ≤80 words. 2–4 short sentences or ≤3 bullets. Catalog facts only. Never invent acronym expansions. Calendly CTA only when relevant. Finish every sentence.',
+    `LANGUAGE LOCK: Visitor locale is ${locale}. Reply 100% in ${lang}. Do not mix languages. SKU names stay in English: GTM OS, STORE OS, NEXUS OS.`,
   ]
     .filter(Boolean)
     .join('\n\n')

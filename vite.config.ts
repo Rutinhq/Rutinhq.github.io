@@ -67,6 +67,7 @@ function guideApiPlugin(): Plugin {
           ? JSON.parse(fs.readFileSync(kbPath, 'utf8'))
           : null
         const env: Record<string, string | undefined> = {
+          GUIDE_LLM_PROVIDER: process.env.GUIDE_LLM_PROVIDER,
           GUIDE_LLM_API_KEY: process.env.GUIDE_LLM_API_KEY,
           GUIDE_LLM_BASE_URL: process.env.GUIDE_LLM_BASE_URL,
           GUIDE_LLM_MODEL: process.env.GUIDE_LLM_MODEL,

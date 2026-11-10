@@ -9,17 +9,30 @@ import {
 } from '../src/guide/classify-core.ts'
 import { localGuideReply } from '../src/guide/fallback.ts'
 import {
+  callGuideLlmDetailed,
+  composeGuideSystemPrompt,
   extractFinishReason,
   extractLlmText,
+  coerceGuideLlmReply,
+  extractFirstJsonObject,
+  extractWorkersAiText,
+  formatGuideAiErrorReason,
+  stripGuideMarkdownFences,
+  trimIncompleteGuideReply,
+  guideDegradedReasonFromLlm,
   guideLlmAttemptMs,
+  guideLlmFailureLog,
   guideLlmHasRetryBudget,
   guideLlmModelCandidates,
   guideLlmOnProviderError,
   isUnusableGuideReply,
   normalizeGuideLlmBaseUrl,
   normalizeGuideLlmModel,
+  redactGuideLlmSnippet,
   resolveGuideLlmBaseUrl,
   resolveGuideLlmModel,
+  resolveGuideLlmProvider,
+  DEFAULT_WORKERS_AI_MODEL,
   GUIDE_LLM_BUDGET_MS,
   GUIDE_LLM_CANDIDATE_CAP,
   GUIDE_LLM_MIN_ATTEMPT_MS,
@@ -27,7 +40,9 @@ import {
   GUIDE_LLM_RATE_LIMIT_BACKOFF_MS,
   GUIDE_LLM_RETRY_ATTEMPT_MS,
   GUIDE_MANDATE,
+  GUIDE_WORKERS_AI_MAX_TOKENS,
 } from '../src/guide/llm.ts'
+import { isGuidePreviewHost } from '../src/guide/preview-host.ts'
 
 function assert(cond: unknown, msg: string) {
   if (!cond) {
@@ -71,35 +86,89 @@ assert(
   'AQ.-shaped AI Studio key must default to Gemini OpenAI-compat base',
 )
 assert(
-  resolveGuideLlmModel(undefined, 'AQ.FakeStudioKeyForShapeOnly') === 'gemini-2.0-flash',
-  'AQ.-shaped key must default to gemini-2.0-flash (non-thinking)',
+  resolveGuideLlmModel(undefined, 'AQ.FakeStudioKeyForShapeOnly') === 'gemini-3.1-flash-lite',
+  'AQ.-shaped key must default to gemini-3.1-flash-lite (non-thinking)',
 )
 assert(
-  resolveGuideLlmModel('gemini-2.0-flash', 'AQ.FakeStudioKeyForShapeOnly') === 'gemini-2.0-flash',
+  resolveGuideLlmModel('gemini-3.1-flash-lite', 'AQ.FakeStudioKeyForShapeOnly') ===
+    'gemini-3.1-flash-lite',
   'GUIDE_LLM_MODEL is the single primary',
+)
+assert(resolveGuideLlmProvider('workers-ai') === 'workers-ai', 'explicit workers-ai provider')
+assert(
+  resolveGuideLlmProvider('openai-compat') === 'openai-compat',
+  'openai-compat keeps Gemini/OpenAI path',
+)
+assert(resolveGuideLlmProvider('gemini') === 'openai-compat', 'gemini alias is openai-compat')
+assert(resolveGuideLlmProvider() === 'workers-ai', 'unset provider defaults to workers-ai')
+assert(
+  resolveGuideLlmModel(undefined, undefined, 'workers-ai') === DEFAULT_WORKERS_AI_MODEL,
+  'workers-ai default is the fast 8B fp8 model',
+)
+assert(
+  normalizeGuideLlmModel('@cf/meta/llama-3.1-8b-instruct-fast') === DEFAULT_WORKERS_AI_MODEL,
+  'retired -fast id aliases to fp8-fast',
+)
+assert(
+  guideLlmModelCandidates(DEFAULT_WORKERS_AI_MODEL, 'workers-ai')[0] === DEFAULT_WORKERS_AI_MODEL,
+  'workers-ai candidates start with the pinned 8B',
+)
+assert(
+  guideLlmModelCandidates(DEFAULT_WORKERS_AI_MODEL, 'workers-ai').includes(
+    '@cf/meta/llama-3.1-8b-instruct',
+  ),
+  'workers-ai 404 fallback is the non-fast 8B, not 70B',
+)
+assert(
+  !guideLlmModelCandidates(DEFAULT_WORKERS_AI_MODEL, 'workers-ai').some((id) =>
+    id.includes('70b'),
+  ),
+  'workers-ai default must not cascade onto 70B',
+)
+assert(
+  GUIDE_WORKERS_AI_MAX_TOKENS === 450,
+  'workers-ai max_tokens is 450 so the verbose 8B can finish a short reply',
 )
 assert(
   resolveGuideLlmBaseUrl(undefined, 'sk-openai-shape').includes('api.openai.com'),
   'non-Gemini key keeps OpenAI default',
 )
 
-assert(normalizeGuideLlmModel('models/gemini-2.0-flash') === 'gemini-2.0-flash', 'strip models/')
+assert(normalizeGuideLlmModel('models/gemini-3.1-flash-lite') === 'gemini-3.1-flash-lite', 'strip models/')
 assert(
-  guideLlmModelCandidates('gemini-2.0-flash')[0] === 'gemini-2.0-flash',
+  guideLlmModelCandidates('gemini-3.1-flash-lite')[0] === 'gemini-3.1-flash-lite',
   'candidates must start with the configured primary',
 )
 assert(
-  guideLlmModelCandidates('gemini-2.0-flash').includes('gemini-2.0-flash-001') ||
-    guideLlmModelCandidates('gemini-2.0-flash').includes('gemini-flash-latest'),
-  'gemini-2.0-flash 404 fallbacks stay on the 2.0 family',
+  normalizeGuideLlmModel('gemini-3-flash') === 'gemini-3-flash-preview',
+  'bare gemini-3-flash aliases to the official gemini-3-flash-preview id',
 )
 assert(
-  !guideLlmModelCandidates('gemini-2.0-flash').includes('gemini-2.5-flash') &&
-    !guideLlmModelCandidates('gemini-2.0-flash').includes('gemini-3.6-flash'),
+  guideLlmModelCandidates('gemini-3.1-flash-lite').includes('gemini-3-flash-preview'),
+  'gemini-3.1-flash-lite 404 fallback is official gemini-3-flash-preview',
+)
+assert(
+  !guideLlmModelCandidates('gemini-3.1-flash-lite').includes('gemini-3-flash'),
+  'must not spend the 9s budget 404ing a non-existent gemini-3-flash id',
+)
+assert(
+  !guideLlmModelCandidates('gemini-3.1-flash-lite').some((id) => id.includes('gemini-2.0')),
+  'fallbacks must not include zero-quota 2.0 models',
+)
+assert(
+  !guideLlmModelCandidates('gemini-3.1-flash-lite').includes('gemini-2.5-flash-lite') &&
+    !guideLlmModelCandidates('gemini-3.1-flash-lite').includes('gemini-2.5-flash') &&
+    !guideLlmModelCandidates('gemini-3.1-flash-lite').includes('gemini-3.6-flash'),
   'must never cascade onto thinking 2.5/3.6 models',
 )
 assert(
-  guideLlmModelCandidates('gemini-2.0-flash').length <= GUIDE_LLM_CANDIDATE_CAP,
+  !guideLlmModelCandidates('gemini-2.0-flash').some(
+    (id) => id.startsWith('gemini-2.0') && id !== 'gemini-2.0-flash',
+  ),
+  'a leftover 2.0 primary must not hop to other 2.0 aliases',
+)
+assert(
+  guideLlmModelCandidates('gemini-3.1-flash-lite').length <= GUIDE_LLM_CANDIDATE_CAP,
   'must not cascade 5 models',
 )
 assert(
@@ -127,8 +196,16 @@ assert(
   '404 may walk the short model-missing list',
 )
 assert(
-  /4–8 short sentences/.test(GUIDE_MANDATE) && /Do not stop mid-sentence/.test(GUIDE_MANDATE),
-  'mandate asks for multi-sentence replies that finish',
+  /≤80 words/.test(GUIDE_MANDATE) &&
+    /2–4 short sentences/.test(GUIDE_MANDATE) &&
+    /Never invent acronym expansions/.test(GUIDE_MANDATE) &&
+    /Calendly CTA only when relevant/.test(GUIDE_MANDATE),
+  'mandate asks for short catalog-only replies that finish',
+)
+assert(GUIDE_LLM_BUDGET_MS === 20_000, 'LLM budget is 20s so Workers AI cold start can finish')
+assert(
+  GUIDE_LLM_BUDGET_MS < 28_000,
+  'client fetch (28s in config.ts) must sit above the LLM budget so Pages logs still see /api/guide',
 )
 assert(
   GUIDE_LLM_PRIMARY_ATTEMPT_MS < GUIDE_LLM_BUDGET_MS,
@@ -174,6 +251,36 @@ assert(
   extractFinishReason({ choices: [{ finish_reason: 'length' }] }) === 'length',
   'OpenAI finish_reason',
 )
+assert(
+  trimIncompleteGuideReply(
+    'GTM OS es el sistema de outbound B2B que instalamos. No es un SDR rentado ni agencia de',
+    'length',
+  ) === 'GTM OS es el sistema de outbound B2B que instalamos.',
+  'finish_reason=length trims back to the last complete sentence',
+)
+assert(
+  trimIncompleteGuideReply(
+    'STORE OS es auditoría de Shopify Admin. Variants, peso y envío para que la tienda',
+  ) === 'STORE OS es auditoría de Shopify Admin.',
+  'missing terminal punctuation trims back to the last complete sentence',
+)
+assert(
+  trimIncompleteGuideReply(
+    'NEXUS OS es Strategy → Social → Ads. Agenda https://calendly.com/rutinhq/30min.',
+    'stop',
+  ) === 'NEXUS OS es Strategy → Social → Ads. Agenda https://calendly.com/rutinhq/30min.',
+  'complete reply is left intact',
+)
+assert(
+  trimIncompleteGuideReply('Agenda https://calendly.com/rutinhq/30min', 'stop') ===
+    'Agenda https://calendly.com/rutinhq/30min',
+  'URL-ending reply counts as complete',
+)
+assert(
+  trimIncompleteGuideReply('GTM OS es outbound B2B que instalamos', 'length') ===
+    'GTM OS es outbound B2B que instalamos',
+  'length cut with no prior sentence keeps the fragment',
+)
 assert(isUnusableGuideReply(null), 'empty completion is unusable')
 assert(isUnusableGuideReply('GTM OS es el sistema de outbound'), 'sub-80 mid-cut is unusable')
 assert(isUnusableGuideReply('x'.repeat(90), 'length'), 'finish_reason=length is unusable')
@@ -183,6 +290,267 @@ assert(
   ) === false,
   'complete multi-clause reply is usable',
 )
+
+assert(
+  !redactGuideLlmSnippet('auth AIzaSyFakeKeyForShapeOnly extra').includes('AIza'),
+  'snippets must redact AIza-shaped keys',
+)
+assert(
+  !redactGuideLlmSnippet('Bearer AQ.FakeStudioKeyForShapeOnly').includes('AQ.'),
+  'snippets must redact Bearer / AQ. keys',
+)
+assert(redactGuideLlmSnippet('x'.repeat(500)).length === 200, 'snippets cap at 200 chars')
+{
+  const line = guideLlmFailureLog({
+    provider: 'openai-compat',
+    model: 'gemini-3.1-flash-lite',
+    status: 400,
+    errorSnippet: 'API key AIzaSyFakeKeyForShapeOnly invalid',
+    elapsedMs: 120,
+    modelsTried: ['gemini-3.1-flash-lite'],
+  })
+  const parsed = JSON.parse(line) as {
+    msg: string
+    provider: string
+    model: string
+    status: number
+    errorSnippet: string
+    elapsedMs: number
+    modelsTried: string[]
+  }
+  assert(parsed.msg === 'guide_llm_failed', 'failure log msg')
+  assert(parsed.provider === 'openai-compat', 'failure log provider')
+  assert(parsed.model === 'gemini-3.1-flash-lite', 'failure log model')
+  assert(parsed.status === 400, 'failure log status')
+  assert(parsed.elapsedMs === 120, 'failure log elapsedMs')
+  assert(parsed.modelsTried[0] === 'gemini-3.1-flash-lite', 'failure log modelsTried')
+  assert(!line.includes('AIza'), 'failure log must not contain the raw key')
+  assert(!/authorization|x-goog-api-key/i.test(line), 'failure log must not dump headers')
+}
+assert(extractWorkersAiText({ response: '  hola equipo  ' }) === 'hola equipo', 'Workers AI response')
+assert(
+  extractWorkersAiText({ result: { response: 'desde result' } }) === 'desde result',
+  'Workers AI nested result.response',
+)
+assert(
+  extractWorkersAiText({
+    choices: [{ message: { content: 'OpenAI-compat binding shape' } }],
+  }) === 'OpenAI-compat binding shape',
+  'Workers AI OpenAI-compat choices',
+)
+{
+  const chatCompletion = {
+    id: 'chatcmpl-q1',
+    object: 'chat.completion',
+    model: '@cf/meta/llama-3.1-8b-fast-v2',
+    choices: [
+      {
+        index: 0,
+        message: {
+          role: 'assistant',
+          content:
+            'RutinHQ instala GTM OS, STORE OS y NEXUS OS en el equipo. Agenda https://calendly.com/rutinhq/30min.',
+        },
+        finish_reason: 'stop',
+      },
+    ],
+  }
+  assert(
+    extractWorkersAiText(chatCompletion) ===
+      'RutinHQ instala GTM OS, STORE OS y NEXUS OS en el equipo. Agenda https://calendly.com/rutinhq/30min.',
+    'chat.completion choices[0].message.content',
+  )
+  assert(
+    extractWorkersAiText({ response: chatCompletion }) ===
+      'RutinHQ instala GTM OS, STORE OS y NEXUS OS en el equipo. Agenda https://calendly.com/rutinhq/30min.',
+    'nested {response: chat.completion}',
+  )
+  assert(
+    extractWorkersAiText({
+      choices: [
+        {
+          message: {
+            role: 'assistant',
+            content: [{ type: 'text', text: 'Parte A. ' }, { text: 'Parte B.' }],
+          },
+        },
+      ],
+    }) === 'Parte A. Parte B.',
+    'choices content as parts array',
+  )
+  assert(
+    extractWorkersAiText({ response: { response: 'objeto anidado' } }) === 'objeto anidado',
+    '{response: object} with nested string',
+  )
+  assert(
+    extractWorkersAiText({ response: { text: 'objeto con text' } }) === 'objeto con text',
+    '{response: object} with text field',
+  )
+  assert(
+    extractWorkersAiText({ response: 'string response' }) === 'string response',
+    '{response: string}',
+  )
+  assert(
+    extractWorkersAiText({ result: { response: chatCompletion } }) ===
+      'RutinHQ instala GTM OS, STORE OS y NEXUS OS en el equipo. Agenda https://calendly.com/rutinhq/30min.',
+    '{result:{response: chat.completion}}',
+  )
+  assert(
+    stripGuideMarkdownFences('```json\n{"reply":"hola"}\n```') === '{"reply":"hola"}',
+    'strip json fences',
+  )
+  assert(extractFirstJsonObject('pre {"reply":"x"} post') === '{"reply":"x"}', 'first balanced object')
+  assert(
+    coerceGuideLlmReply('```json\n{"reply":"RutinHQ hace GTM OS para outbound B2B."}\n```') ===
+      'RutinHQ hace GTM OS para outbound B2B.',
+    'fenced JSON reply field',
+  )
+  assert(
+    coerceGuideLlmReply('RutinHQ hace GTM OS y STORE OS. {esto no es json') ===
+      'RutinHQ hace GTM OS y STORE OS. {esto no es json',
+    'plain text survives failed JSON',
+  )
+  assert(
+    coerceGuideLlmReply('¿Qué hace RutinHQ? GTM OS, STORE OS y NEXUS OS.') ===
+      '¿Qué hace RutinHQ? GTM OS, STORE OS y NEXUS OS.',
+    'short plain text is kept',
+  )
+}
+assert(guideDegradedReasonFromLlm({ lastError: 'timeout', lastStatus: null, lastErrorSnippet: null }) === 'budget_timeout', 'timeout → budget_timeout')
+assert(guideDegradedReasonFromLlm({ lastError: 'missing_binding', lastStatus: null, lastErrorSnippet: null }) === 'missing_binding', 'missing_binding')
+assert(guideDegradedReasonFromLlm({ lastError: 'empty_content', lastStatus: 200, lastErrorSnippet: '{}' }) === 'parse_error', 'empty → parse_error')
+assert(
+  formatGuideAiErrorReason(403, 'The Gemini API free tier is not available').startsWith('ai_error:403/'),
+  'ai_error includes status',
+)
+assert(isGuidePreviewHost('8645d940.rutinhq-web.pages.dev'), 'commit preview is preview host')
+assert(isGuidePreviewHost('cursor-guide-turnstile-open.rutinhq-web.pages.dev'), 'branch preview is preview host')
+assert(!isGuidePreviewHost('rutinhq-web.pages.dev'), 'Pages production alias is not preview')
+assert(!isGuidePreviewHost('www.rutinhq.com'), 'www.rutinhq.com is never preview')
+assert(!isGuidePreviewHost('rutinhq.com'), 'rutinhq.com is never preview')
+{
+  const esPrompt = composeGuideSystemPrompt('policy-block', 'es', 'Allowlisted knowledge body')
+  const enPrompt = composeGuideSystemPrompt('policy-block', 'en', 'Allowlisted knowledge body')
+  assert(/LANGUAGE LOCK: Visitor locale is es\. Reply 100% in Spanish/.test(esPrompt), 'es lock')
+  assert(/LANGUAGE LOCK: Visitor locale is en\. Reply 100% in English/.test(enPrompt), 'en lock')
+  assert(/LENGTH LOCK: ≤80 words/.test(esPrompt), 'length lock in prompt')
+  assert(
+    esPrompt.lastIndexOf('LANGUAGE LOCK') > esPrompt.lastIndexOf('Allowlisted knowledge'),
+    'locale lock must follow knowledge so Llama answers in Spanish',
+  )
+  assert(
+    esPrompt.lastIndexOf('LANGUAGE LOCK') > esPrompt.lastIndexOf('LENGTH LOCK'),
+    'locale lock stays last',
+  )
+}
+{
+  const missing = await callGuideLlmDetailed({
+    provider: 'workers-ai',
+    system: 'sys',
+    messages: [{ role: 'user', content: 'hola' }],
+    maxTokens: 1024,
+  })
+  assert(missing.lastError === 'missing_binding', 'workers-ai without env.AI is missing_binding')
+  assert(missing.provider === 'workers-ai', 'missing_binding keeps workers-ai provider')
+  const noKey = await callGuideLlmDetailed({
+    provider: 'openai-compat',
+    apiKey: '',
+    system: 'sys',
+    messages: [{ role: 'user', content: 'hi' }],
+    maxTokens: 1024,
+  })
+  assert(noKey.lastError === 'missing_key', 'openai-compat still requires a key')
+  let sawMaxTokens = 0
+  const usable =
+    'GTM OS es el sistema de outbound B2B que instalamos en tu equipo. Agenda https://calendly.com/rutinhq/30min para ver el fit. STORE OS y NEXUS OS no aplican a leads fríos.'
+  const result = await callGuideLlmDetailed({
+    provider: 'workers-ai',
+    workersAi: {
+      run: async (_model, input) => {
+        sawMaxTokens = Number((input as { max_tokens?: unknown }).max_tokens || 0)
+        const msgs = (input as { messages?: { role: string; content: string }[] }).messages || []
+        assert(msgs[0]?.role === 'system', 'workers-ai sends a system message')
+        assert(/LANGUAGE LOCK: Visitor locale is es/.test(msgs[0]?.content || ''), 'es lock reaches model')
+        return { response: usable }
+      },
+    },
+    system: composeGuideSystemPrompt('policy', 'es', 'kb'),
+    messages: [{ role: 'user', content: 'necesito leads' }],
+    maxTokens: 1024,
+  })
+  assert(result.provider === 'workers-ai', 'mock run is workers-ai')
+  assert(result.host === 'workers-ai', 'workers-ai host label')
+  assert(result.text === usable, 'workers-ai usable completion')
+  assert(sawMaxTokens === GUIDE_WORKERS_AI_MAX_TOKENS, 'workers-ai caps max_tokens below 1024')
+  const fromChat = await callGuideLlmDetailed({
+    provider: 'workers-ai',
+    workersAi: {
+      run: async () => ({
+        id: 'chatcmpl-q1',
+        object: 'chat.completion',
+        model: '@cf/meta/llama-3.1-8b-fast-v2',
+        choices: [
+          {
+            index: 0,
+            message: {
+              role: 'assistant',
+              content: 'RutinHQ instala GTM OS para outbound. Agenda https://calendly.com/rutinhq/30min.',
+            },
+            finish_reason: 'stop',
+          },
+        ],
+      }),
+    },
+    system: 'sys',
+    messages: [{ role: 'user', content: '¿Qué hace RutinHQ?' }],
+    maxTokens: 256,
+  })
+  assert(
+    fromChat.text ===
+      'RutinHQ instala GTM OS para outbound. Agenda https://calendly.com/rutinhq/30min.',
+    'chat.completion payload becomes the reply instead of parse_error',
+  )
+  const fromFence = await callGuideLlmDetailed({
+    provider: 'workers-ai',
+    workersAi: {
+      run: async () => ({
+        response:
+          '```json\n{"reply":"RutinHQ hace GTM OS, STORE OS y NEXUS OS. Agenda la llamada de 30 min."}\n```',
+      }),
+    },
+    system: 'sys',
+    messages: [{ role: 'user', content: 'hola' }],
+    maxTokens: 256,
+  })
+  assert(
+    fromFence.text === 'RutinHQ hace GTM OS, STORE OS y NEXUS OS. Agenda la llamada de 30 min.',
+    'fenced JSON reply is unwrapped',
+  )
+  const fromCut = await callGuideLlmDetailed({
+    provider: 'workers-ai',
+    workersAi: {
+      run: async () => ({
+        choices: [
+          {
+            message: {
+              role: 'assistant',
+              content:
+                'GTM OS es outbound B2B que instalamos en tu equipo. No es un SDR rentado ni agencia de',
+            },
+            finish_reason: 'length',
+          },
+        ],
+      }),
+    },
+    system: 'sys',
+    messages: [{ role: 'user', content: '¿Qué es GTM OS?' }],
+    maxTokens: 450,
+  })
+  assert(
+    fromCut.text === 'GTM OS es outbound B2B que instalamos en tu equipo.',
+    'workers-ai length cut is trimmed to the last complete sentence',
+  )
+}
 
 assert(/RutinHQ Guide/.test(GUIDE_MANDATE), 'mandate names public UI')
 assert(/GTM OS/.test(GUIDE_MANDATE) && /STORE OS/.test(GUIDE_MANDATE) && /NEXUS OS/.test(GUIDE_MANDATE), 'mandate SKUs')

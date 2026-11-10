@@ -1,13 +1,12 @@
 /**
  * Cloudflare Pages Function — POST /api/guide
  * Secrets (Pages → Settings → Environment variables):
- *   GUIDE_LLM_API_KEY (or OpenAI-compatible key)
- *   GUIDE_LLM_BASE_URL (optional, Gemini: https://generativelanguage.googleapis.com/v1beta/openai)
- *   GUIDE_LLM_MODEL (optional, recommended gemini-2.0-flash — do not pin thinking 2.5/3.6)
+ *   GUIDE_LLM_API_KEY (only when GUIDE_LLM_PROVIDER=openai-compat)
  *   GUIDE_LEAD_WEBHOOK_URL (optional JSON POST of lead briefs)
  *   TURNSTILE_SECRET_KEY (Siteverify; fail-open only in local/dev if unset)
  *
- * Gemini runs with the full RutinHQ Guide mandate (not a bare model).
+ * Default LLM is Workers AI via the Pages `[ai] binding = "AI"`.
+ * Set GUIDE_LLM_PROVIDER=openai-compat to use Gemini/OpenAI instead.
  * Successful LLM answers return mode=llm. Security/pricing stay hard refuses.
  */
 
@@ -27,12 +26,18 @@ import {
   callGuideLlmDetailed,
   composeGuideSystemPrompt,
   GUIDE_LLM_BUDGET_MS,
-  isUnusableGuideReply,
+  guideDegradedReasonFromLlm,
+  logGuideLlmFailure,
+  resolveGuideLlmProvider,
   type GuideLlmMode,
+  type GuideWorkersAi,
 } from '../../src/guide/llm'
+import { guideRequestHostname, isGuidePreviewHost } from '../../src/guide/preview-host'
 
 type Env = {
   ASSETS?: { fetch: (input: Request | URL | string) => Promise<Response> }
+  AI?: GuideWorkersAi
+  GUIDE_LLM_PROVIDER?: string
   GUIDE_LLM_API_KEY?: string
   GUIDE_LLM_BASE_URL?: string
   GUIDE_LLM_MODEL?: string
@@ -136,6 +141,13 @@ async function loadKb(context: { request: Request; env: Env }) {
 }
 
 export async function onRequestPost(context: { request: Request; env: Env }) {
+  console.log(
+    JSON.stringify({
+      msg: 'guide_request',
+      hasBinding: Boolean(context.env.AI),
+      provider: context.env.GUIDE_LLM_PROVIDER || null,
+    }),
+  )
   const limited = await enforceGuideRateLimit(context.request, context.env)
   if (limited) return limited
 
@@ -242,16 +254,26 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
   let reply = ensureCalendlyCta(pick(replyKey), locale, policy.calendlyUrl)
   let mode: GuideLlmMode = 'degraded'
   const key = context.env.GUIDE_LLM_API_KEY?.trim()
+  const provider = resolveGuideLlmProvider(context.env.GUIDE_LLM_PROVIDER, {
+    hasWorkersAi: Boolean(context.env.AI),
+    hasApiKey: Boolean(key),
+  })
   const skipLlm = skuIntent === 'pricing' || skuIntent === 'offTopic'
+  const canCallLlm =
+    !skipLlm && (provider === 'workers-ai' ? Boolean(context.env.AI) : Boolean(key))
 
   let llmDebug: Record<string, unknown> | null = null
-  if (key && !skipLlm) {
+  let llmDegradedReason: string | null = null
+  if (canCallLlm) {
     const knowledge = (kb?.documents || [])
       .map((d) => `### ${d.title}\nSource: ${d.url}\n${d.text}`)
       .join('\n\n')
       .slice(0, 14000)
+    const llmStarted = Date.now()
     try {
       const result = await callGuideLlmDetailed({
+        provider,
+        workersAi: context.env.AI,
         apiKey: key,
         baseUrl: context.env.GUIDE_LLM_BASE_URL,
         model: context.env.GUIDE_LLM_MODEL,
@@ -264,7 +286,9 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
         })),
       })
       llmDebug = {
-        hasKey: true,
+        provider: result.provider,
+        hasBinding: Boolean(context.env.AI),
+        hasKey: Boolean(key),
         hasBase: Boolean(context.env.GUIDE_LLM_BASE_URL),
         hasModel: Boolean(context.env.GUIDE_LLM_MODEL),
         host: result.host,
@@ -276,20 +300,65 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
       const text = result.text
       if (text && LEAK_RE.test(text)) {
         reply = pick('security')
-      } else if (text && !isUnusableGuideReply(text, result.lastFinishReason)) {
+      } else if (text) {
         reply = text
         mode = 'llm'
       }
+      if (mode !== 'llm') {
+        llmDegradedReason = guideDegradedReasonFromLlm({
+          lastError: result.lastError,
+          lastStatus: result.lastStatus,
+          lastErrorSnippet: result.lastErrorSnippet,
+        })
+        logGuideLlmFailure({
+          provider: result.provider,
+          model:
+            result.modelsTried[result.modelsTried.length - 1] ||
+            context.env.GUIDE_LLM_MODEL ||
+            null,
+          status: result.lastStatus,
+          errorSnippet: result.lastErrorSnippet || result.lastError || '',
+          elapsedMs: Date.now() - llmStarted,
+          modelsTried: result.modelsTried,
+        })
+      }
     } catch {
-      llmDebug = { hasKey: true, lastError: 'call_threw' }
+      llmDebug = { provider, hasKey: Boolean(key), lastError: 'call_threw' }
+      llmDegradedReason = guideDegradedReasonFromLlm({
+        lastError: 'call_threw',
+        lastStatus: null,
+        lastErrorSnippet: 'call_threw',
+      })
+      logGuideLlmFailure({
+        provider,
+        model: context.env.GUIDE_LLM_MODEL || null,
+        status: null,
+        errorSnippet: 'call_threw',
+        elapsedMs: Date.now() - llmStarted,
+        modelsTried: [],
+      })
     }
   } else {
     llmDebug = {
+      provider,
+      hasBinding: Boolean(context.env.AI),
       hasKey: Boolean(key),
       hasBase: Boolean(context.env.GUIDE_LLM_BASE_URL),
       hasModel: Boolean(context.env.GUIDE_LLM_MODEL),
       skipLlm,
       skuIntent,
+    }
+    if (!skipLlm) {
+      llmDegradedReason =
+        provider === 'workers-ai' ? 'missing_binding' : 'missing_key'
+      logGuideLlmFailure({
+        provider,
+        model: context.env.GUIDE_LLM_MODEL || null,
+        status: null,
+        errorSnippet: llmDegradedReason,
+        elapsedMs: 0,
+        modelsTried: [],
+      })
     }
   }
 
@@ -297,6 +366,13 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
     reply,
     mode,
     calendlyUrl: policy.calendlyUrl,
+  }
+  if (
+    mode === 'degraded' &&
+    llmDegradedReason &&
+    isGuidePreviewHost(guideRequestHostname(context.request))
+  ) {
+    body.degradedReason = llmDegradedReason
   }
   if (context.request.headers.get('x-rutinhq-guide-debug') === '1') {
     body.debug = llmDebug
