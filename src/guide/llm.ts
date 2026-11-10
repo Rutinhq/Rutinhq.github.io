@@ -82,6 +82,7 @@ export const GUIDE_WORKERS_AI_MAX_TOKENS = 256
 
 export const GUIDE_LLM_CANDIDATE_CAP = 3
 export const GUIDE_LLM_MIN_REPLY_CHARS = 80
+export const GUIDE_LLM_REPLY_MAX_CHARS = 2_500
 export const GUIDE_LLM_RATE_LIMIT_BACKOFF_MS = 600
 /** Wall budget for env.AI.run / openai-compat. Cap is 20s (Pages Function + widget). */
 export const GUIDE_LLM_BUDGET_MS = 20_000
@@ -302,38 +303,162 @@ function textFromUnknown(value: unknown): string {
       .map((part) => {
         if (typeof part === 'string') return part
         if (part && typeof part === 'object') {
-          const rec = part as { text?: unknown; content?: unknown }
+          const rec = part as { text?: unknown; content?: unknown; reply?: unknown }
           if (typeof rec.text === 'string') return rec.text
           if (typeof rec.content === 'string') return rec.content
+          if (typeof rec.reply === 'string') return rec.reply
+          if (Array.isArray(rec.content)) return textFromUnknown(rec.content)
         }
         return ''
       })
       .join('')
   }
   if (value && typeof value === 'object') {
-    const rec = value as { text?: unknown; content?: unknown }
+    const rec = value as {
+      text?: unknown
+      content?: unknown
+      reply?: unknown
+      parts?: unknown
+    }
     if (typeof rec.text === 'string') return rec.text
     if (typeof rec.content === 'string') return rec.content
+    if (typeof rec.reply === 'string') return rec.reply
+    if (Array.isArray(rec.content)) return textFromUnknown(rec.content)
+    if (Array.isArray(rec.parts)) return textFromUnknown(rec.parts)
   }
   return ''
 }
 
-/** Workers AI `env.AI.run` shapes (`{ response }` or OpenAI-compat `choices`). */
-export function extractWorkersAiText(data: unknown): string | null {
+function longestStringValue(value: unknown, depth = 0): string {
+  if (depth > 5) return ''
+  if (typeof value === 'string') return value
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => longestStringValue(item, depth + 1))
+      .sort((a, b) => b.length - a.length)[0] || ''
+  }
+  if (value && typeof value === 'object') {
+    return Object.values(value as Record<string, unknown>)
+      .map((item) => longestStringValue(item, depth + 1))
+      .sort((a, b) => b.length - a.length)[0] || ''
+  }
+  return ''
+}
+
+export function stripGuideMarkdownFences(raw: string): string {
+  const trimmed = String(raw || '').trim()
+  const wrapped = trimmed.match(/^```(?:json|JSON)?\s*\r?\n?([\s\S]*?)\r?\n?```$/ )
+  if (wrapped) return wrapped[1].trim()
+  return trimmed.replace(/^```(?:json|JSON)?\s*/i, '').replace(/\s*```$/u, '').trim()
+}
+
+/** First balanced `{...}` ignoring braces inside strings. */
+export function extractFirstJsonObject(raw: string): string | null {
+  const start = raw.indexOf('{')
+  if (start < 0) return null
+  let depth = 0
+  let inStr = false
+  let escape = false
+  for (let i = start; i < raw.length; i++) {
+    const c = raw[i]
+    if (inStr) {
+      if (escape) {
+        escape = false
+        continue
+      }
+      if (c === '\\') {
+        escape = true
+        continue
+      }
+      if (c === '"') inStr = false
+      continue
+    }
+    if (c === '"') {
+      inStr = true
+      continue
+    }
+    if (c === '{') depth += 1
+    else if (c === '}') {
+      depth -= 1
+      if (depth === 0) return raw.slice(start, i + 1)
+    }
+  }
+  return null
+}
+
+function replyFromJsonValue(value: unknown, depth = 0): string | null {
+  if (depth > 5) return null
+  if (typeof value === 'string') {
+    const t = value.trim()
+    return t || null
+  }
+  if (!value || typeof value !== 'object') return null
+  const rec = value as Record<string, unknown>
+  for (const key of ['reply', 'text', 'content', 'message', 'response', 'output']) {
+    const hit = rec[key]
+    if (typeof hit === 'string' && hit.trim()) return hit.trim()
+    if (hit && typeof hit === 'object') {
+      const nested = replyFromJsonValue(hit, depth + 1)
+      if (nested) return nested
+    }
+  }
+  const longest = longestStringValue(value).trim()
+  return longest || null
+}
+
+/** Strip fences, pull a reply field out of JSON if present, else keep plain text. */
+export function coerceGuideLlmReply(raw: string | null): string | null {
+  if (!raw || !String(raw).trim()) return null
+  const stripped = stripGuideMarkdownFences(String(raw))
+  if (!stripped) return null
+  const jsonText = extractFirstJsonObject(stripped)
+  if (jsonText) {
+    try {
+      const parsed: unknown = JSON.parse(jsonText)
+      const fromJson = replyFromJsonValue(parsed)
+      if (fromJson) return fromJson.slice(0, GUIDE_LLM_REPLY_MAX_CHARS)
+    } catch {
+      /* not JSON — keep plain text */
+    }
+  }
+  return stripped.slice(0, GUIDE_LLM_REPLY_MAX_CHARS)
+}
+
+function extractFromPayload(data: unknown, depth: number): string | null {
+  if (depth > 5) return null
   if (typeof data === 'string') return data.trim() || null
   if (!data || typeof data !== 'object') return null
+
+  const fromChoices = extractLlmText(data)
+  if (fromChoices) return fromChoices
+
   const rec = data as {
     response?: unknown
-    result?: { response?: unknown }
+    result?: unknown
     output?: unknown
   }
-  const fromResponse = textFromUnknown(rec.response)
-  if (fromResponse.trim()) return fromResponse.trim()
-  const fromResult = textFromUnknown(rec.result?.response)
-  if (fromResult.trim()) return fromResult.trim()
+  if (typeof rec.response === 'string' && rec.response.trim()) return rec.response.trim()
+  if (rec.response && typeof rec.response === 'object') {
+    const nested = extractFromPayload(rec.response, depth + 1)
+    if (nested) return nested
+    const fromResponse = textFromUnknown(rec.response).trim()
+    if (fromResponse) return fromResponse
+  }
+  if (rec.result && typeof rec.result === 'object') {
+    const nested = extractFromPayload(rec.result, depth + 1)
+    if (nested) return nested
+    const fromResult = textFromUnknown(rec.result).trim()
+    if (fromResult) return fromResult
+  }
   const fromOutput = textFromUnknown(rec.output)
   if (fromOutput.trim()) return fromOutput.trim()
-  return extractLlmText(data)
+  const fallback = textFromUnknown(data).trim()
+  return fallback || null
+}
+
+/** Workers AI `env.AI.run` shapes (`{ response }`, nested objects, OpenAI-compat). */
+export function extractWorkersAiText(data: unknown): string | null {
+  return extractFromPayload(data, 0)
 }
 
 /** OpenAI-compat + Gemini-native shapes. Never log the payload (may echo secrets). */
@@ -341,15 +466,20 @@ export function extractLlmText(data: unknown): string | null {
   if (!data || typeof data !== 'object') return null
   const rec = data as {
     choices?: {
-      message?: { content?: unknown }
+      message?: { content?: unknown } | string
       text?: unknown
       delta?: { content?: unknown }
     }[]
     candidates?: { content?: { parts?: { text?: string }[] }; output?: unknown }[]
   }
   const choice = rec.choices?.[0]
+  const message = choice?.message
+  const fromMessage =
+    typeof message === 'string'
+      ? message
+      : textFromUnknown(message?.content) || textFromUnknown(message)
   const fromChoice =
-    textFromUnknown(choice?.message?.content) ||
+    fromMessage ||
     textFromUnknown(choice?.text) ||
     textFromUnknown(choice?.delta?.content)
   if (fromChoice.trim()) return fromChoice.trim()
@@ -360,18 +490,29 @@ export function extractLlmText(data: unknown): string | null {
   return fromCandidate.trim() || null
 }
 
-export function extractFinishReason(data: unknown): string | null {
-  if (!data || typeof data !== 'object') return null
+export function extractFinishReason(data: unknown, depth = 0): string | null {
+  if (depth > 4 || !data || typeof data !== 'object') return null
   const rec = data as {
     choices?: { finish_reason?: unknown; finishReason?: unknown }[]
     candidates?: { finishReason?: unknown; finish_reason?: unknown }[]
+    response?: unknown
+    result?: unknown
   }
   const raw =
     rec.choices?.[0]?.finish_reason ??
     rec.choices?.[0]?.finishReason ??
     rec.candidates?.[0]?.finishReason ??
     rec.candidates?.[0]?.finish_reason
-  return typeof raw === 'string' && raw.trim() ? raw.trim() : null
+  if (typeof raw === 'string' && raw.trim()) return raw.trim()
+  if (rec.response && typeof rec.response === 'object') {
+    const nested = extractFinishReason(rec.response, depth + 1)
+    if (nested) return nested
+  }
+  if (rec.result && typeof rec.result === 'object') {
+    const nested = extractFinishReason(rec.result, depth + 1)
+    if (nested) return nested
+  }
+  return null
 }
 
 /** Empty, <~80 chars, finish_reason=length, or mid-sentence cut → do not ship as mode=llm. */
@@ -563,15 +704,15 @@ async function callWorkersAiDetailed(opts: GuideLlmCallOpts): Promise<GuideLlmCa
             ),
             attempt.signal,
           )
-          const text = extractWorkersAiText(data)
+          const text = coerceGuideLlmReply(extractWorkersAiText(data))
           empty.lastFinishReason = extractFinishReason(data)
-          if (text && !isUnusableGuideReply(text, empty.lastFinishReason)) {
+          if (text) {
             empty.text = text
             empty.lastError = null
             empty.lastErrorSnippet = null
             return empty
           }
-          empty.lastError = text ? 'truncated' : 'empty_content'
+          empty.lastError = 'empty_content'
           empty.lastErrorSnippet = redactGuideLlmSnippet(
             typeof data === 'string' ? data : JSON.stringify(data ?? ''),
           )
@@ -707,14 +848,14 @@ async function callOpenAiCompatDetailed(opts: GuideLlmCallOpts): Promise<GuideLl
             empty.lastError = `${res.status}:invalid_json`
             return empty
           }
-          const text = extractLlmText(data)
+          const text = coerceGuideLlmReply(extractWorkersAiText(data) || extractLlmText(data))
           empty.lastFinishReason = extractFinishReason(data)
-          if (text && !isUnusableGuideReply(text, empty.lastFinishReason)) {
+          if (text) {
             empty.text = text
             empty.lastError = null
             return empty
           }
-          empty.lastError = text ? 'truncated' : `${res.status}:empty_content`
+          empty.lastError = `${res.status}:empty_content`
           return empty
         } catch (err) {
           const name = err instanceof Error ? err.name : 'fetch_failed'

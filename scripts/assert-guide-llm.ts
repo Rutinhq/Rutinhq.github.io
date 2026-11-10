@@ -13,8 +13,11 @@ import {
   composeGuideSystemPrompt,
   extractFinishReason,
   extractLlmText,
+  coerceGuideLlmReply,
+  extractFirstJsonObject,
   extractWorkersAiText,
   formatGuideAiErrorReason,
+  stripGuideMarkdownFences,
   guideDegradedReasonFromLlm,
   guideLlmAttemptMs,
   guideLlmFailureLog,
@@ -298,6 +301,84 @@ assert(
   }) === 'OpenAI-compat binding shape',
   'Workers AI OpenAI-compat choices',
 )
+{
+  const chatCompletion = {
+    id: 'chatcmpl-q1',
+    object: 'chat.completion',
+    model: '@cf/meta/llama-3.1-8b-fast-v2',
+    choices: [
+      {
+        index: 0,
+        message: {
+          role: 'assistant',
+          content:
+            'RutinHQ instala GTM OS, STORE OS y NEXUS OS en el equipo. Agenda https://calendly.com/rutinhq/30min.',
+        },
+        finish_reason: 'stop',
+      },
+    ],
+  }
+  assert(
+    extractWorkersAiText(chatCompletion) ===
+      'RutinHQ instala GTM OS, STORE OS y NEXUS OS en el equipo. Agenda https://calendly.com/rutinhq/30min.',
+    'chat.completion choices[0].message.content',
+  )
+  assert(
+    extractWorkersAiText({ response: chatCompletion }) ===
+      'RutinHQ instala GTM OS, STORE OS y NEXUS OS en el equipo. Agenda https://calendly.com/rutinhq/30min.',
+    'nested {response: chat.completion}',
+  )
+  assert(
+    extractWorkersAiText({
+      choices: [
+        {
+          message: {
+            role: 'assistant',
+            content: [{ type: 'text', text: 'Parte A. ' }, { text: 'Parte B.' }],
+          },
+        },
+      ],
+    }) === 'Parte A. Parte B.',
+    'choices content as parts array',
+  )
+  assert(
+    extractWorkersAiText({ response: { response: 'objeto anidado' } }) === 'objeto anidado',
+    '{response: object} with nested string',
+  )
+  assert(
+    extractWorkersAiText({ response: { text: 'objeto con text' } }) === 'objeto con text',
+    '{response: object} with text field',
+  )
+  assert(
+    extractWorkersAiText({ response: 'string response' }) === 'string response',
+    '{response: string}',
+  )
+  assert(
+    extractWorkersAiText({ result: { response: chatCompletion } }) ===
+      'RutinHQ instala GTM OS, STORE OS y NEXUS OS en el equipo. Agenda https://calendly.com/rutinhq/30min.',
+    '{result:{response: chat.completion}}',
+  )
+  assert(
+    stripGuideMarkdownFences('```json\n{"reply":"hola"}\n```') === '{"reply":"hola"}',
+    'strip json fences',
+  )
+  assert(extractFirstJsonObject('pre {"reply":"x"} post') === '{"reply":"x"}', 'first balanced object')
+  assert(
+    coerceGuideLlmReply('```json\n{"reply":"RutinHQ hace GTM OS para outbound B2B."}\n```') ===
+      'RutinHQ hace GTM OS para outbound B2B.',
+    'fenced JSON reply field',
+  )
+  assert(
+    coerceGuideLlmReply('RutinHQ hace GTM OS y STORE OS. {esto no es json') ===
+      'RutinHQ hace GTM OS y STORE OS. {esto no es json',
+    'plain text survives failed JSON',
+  )
+  assert(
+    coerceGuideLlmReply('¿Qué hace RutinHQ? GTM OS, STORE OS y NEXUS OS.') ===
+      '¿Qué hace RutinHQ? GTM OS, STORE OS y NEXUS OS.',
+    'short plain text is kept',
+  )
+}
 assert(guideDegradedReasonFromLlm({ lastError: 'timeout', lastStatus: null, lastErrorSnippet: null }) === 'budget_timeout', 'timeout → budget_timeout')
 assert(guideDegradedReasonFromLlm({ lastError: 'missing_binding', lastStatus: null, lastErrorSnippet: null }) === 'missing_binding', 'missing_binding')
 assert(guideDegradedReasonFromLlm({ lastError: 'empty_content', lastStatus: 200, lastErrorSnippet: '{}' }) === 'parse_error', 'empty → parse_error')
@@ -359,6 +440,50 @@ assert(!isGuidePreviewHost('rutinhq.com'), 'rutinhq.com is never preview')
   assert(result.host === 'workers-ai', 'workers-ai host label')
   assert(result.text === usable, 'workers-ai usable completion')
   assert(sawMaxTokens === GUIDE_WORKERS_AI_MAX_TOKENS, 'workers-ai caps max_tokens below 1024')
+  const fromChat = await callGuideLlmDetailed({
+    provider: 'workers-ai',
+    workersAi: {
+      run: async () => ({
+        id: 'chatcmpl-q1',
+        object: 'chat.completion',
+        model: '@cf/meta/llama-3.1-8b-fast-v2',
+        choices: [
+          {
+            index: 0,
+            message: {
+              role: 'assistant',
+              content: 'RutinHQ instala GTM OS para outbound. Agenda https://calendly.com/rutinhq/30min.',
+            },
+            finish_reason: 'stop',
+          },
+        ],
+      }),
+    },
+    system: 'sys',
+    messages: [{ role: 'user', content: '¿Qué hace RutinHQ?' }],
+    maxTokens: 256,
+  })
+  assert(
+    fromChat.text ===
+      'RutinHQ instala GTM OS para outbound. Agenda https://calendly.com/rutinhq/30min.',
+    'chat.completion payload becomes the reply instead of parse_error',
+  )
+  const fromFence = await callGuideLlmDetailed({
+    provider: 'workers-ai',
+    workersAi: {
+      run: async () => ({
+        response:
+          '```json\n{"reply":"RutinHQ hace GTM OS, STORE OS y NEXUS OS. Agenda la llamada de 30 min."}\n```',
+      }),
+    },
+    system: 'sys',
+    messages: [{ role: 'user', content: 'hola' }],
+    maxTokens: 256,
+  })
+  assert(
+    fromFence.text === 'RutinHQ hace GTM OS, STORE OS y NEXUS OS. Agenda la llamada de 30 min.',
+    'fenced JSON reply is unwrapped',
+  )
 }
 
 assert(/RutinHQ Guide/.test(GUIDE_MANDATE), 'mandate names public UI')

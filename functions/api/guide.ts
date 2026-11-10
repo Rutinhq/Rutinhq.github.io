@@ -27,7 +27,6 @@ import {
   composeGuideSystemPrompt,
   GUIDE_LLM_BUDGET_MS,
   guideDegradedReasonFromLlm,
-  isUnusableGuideReply,
   logGuideLlmFailure,
   resolveGuideLlmProvider,
   type GuideLlmMode,
@@ -301,7 +300,7 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
       const text = result.text
       if (text && LEAK_RE.test(text)) {
         reply = pick('security')
-      } else if (text && !isUnusableGuideReply(text, result.lastFinishReason)) {
+      } else if (text) {
         reply = text
         mode = 'llm'
       }

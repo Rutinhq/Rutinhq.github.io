@@ -229,6 +229,10 @@ if (!/extractLlmText/.test(llm) || !/x-goog-api-key/.test(llm) || !/normalizeGui
   console.error('LLM client must normalize Gemini base URL, send x-goog-api-key, and parse compat content')
   process.exit(1)
 }
+if (!/coerceGuideLlmReply/.test(llm) || !/extractFirstJsonObject/.test(llm)) {
+  console.error('LLM client must coerce chat.completion / fenced JSON / plain text instead of parse_error')
+  process.exit(1)
+}
 if (!/resolveGuideLlmBaseUrl/.test(llm) || !/AIza/.test(llm) || !/AQ\./.test(llm)) {
   console.error('LLM client must default AIza/AQ. keys to the Gemini OpenAI-compat base')
   process.exit(1)
