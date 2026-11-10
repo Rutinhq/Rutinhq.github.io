@@ -39,7 +39,7 @@ export default function BlogOutboundFrioPage() {
       />
 
       <BlogPostLayout
-        typeLabel="How-to · GTM OS"
+        typeLabel="Guía práctica · GTM OS"
         draft={ARTICLE01_ES.draft}
         breadcrumbs={[
           { label: 'Inicio', to: '/' },
@@ -100,7 +100,7 @@ export default function BlogOutboundFrioPage() {
           rows={[
             [
               'Fit firmográfico',
-              'Vertical + rol del buyer coinciden con la hoja',
+              'Vertical + rol del comprador coinciden con la hoja',
             ],
             [
               'Fit de motion',
@@ -193,14 +193,14 @@ export default function BlogOutboundFrioPage() {
         <BlogTable
           headers={['Para', 'No para']}
           rows={[
-            ['Founder / CEO o lead de ops B2B (MX)', 'Ecom / B2C puro'],
+            ['Fundador / CEO o responsable de operación B2B (MX)', 'Ecom / B2C puro'],
             [
-              'Ya vende; el cuello es pipeline repetible',
+              'Ya vende; el cuello es flujo de ventas repetible',
               '“Solo corre anuncios”',
             ],
             [
-              'Desea poseer la máquina después del install',
-              'RFP enterprise sin dueño de prospección en frío',
+              'Desea poseer la máquina después de la instalación',
+              'Solicitud de propuesta enterprise sin dueño de prospección en frío',
             ],
             [
               'Motion cold-first',
