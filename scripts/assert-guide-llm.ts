@@ -14,11 +14,14 @@ import {
   extractFinishReason,
   extractLlmText,
   coerceGuideLlmReply,
+  capGuideReplyWords,
+  countGuideWords,
   extractFirstJsonObject,
   extractWorkersAiText,
   formatGuideAiErrorReason,
   stripGuideMarkdownFences,
   trimIncompleteGuideReply,
+  polishGuideLlmReply,
   guideDegradedReasonFromLlm,
   guideLlmAttemptMs,
   guideLlmFailureLog,
@@ -40,6 +43,7 @@ import {
   GUIDE_LLM_RATE_LIMIT_BACKOFF_MS,
   GUIDE_LLM_RETRY_ATTEMPT_MS,
   GUIDE_MANDATE,
+  GUIDE_LLM_REPLY_MAX_WORDS,
   GUIDE_WORKERS_AI_MAX_TOKENS,
 } from '../src/guide/llm.ts'
 import { isGuidePreviewHost } from '../src/guide/preview-host.ts'
@@ -199,9 +203,12 @@ assert(
   /≤80 words/.test(GUIDE_MANDATE) &&
     /2–4 short sentences/.test(GUIDE_MANDATE) &&
     /Never invent acronym expansions/.test(GUIDE_MANDATE) &&
-    /Calendly CTA only when relevant/.test(GUIDE_MANDATE),
-  'mandate asks for short catalog-only replies that finish',
+    /Calendly CTA only when relevant/.test(GUIDE_MANDATE) &&
+    /sistemas que usted posee/.test(GUIDE_MANDATE) &&
+    /nunca tú/.test(GUIDE_MANDATE),
+  'mandate asks for short catalog-only usted replies that finish',
 )
+assert(GUIDE_LLM_REPLY_MAX_WORDS === 80, 'hard word cap is 80')
 assert(GUIDE_LLM_BUDGET_MS === 20_000, 'LLM budget is 20s so Workers AI cold start can finish')
 assert(
   GUIDE_LLM_BUDGET_MS < 28_000,
@@ -281,6 +288,29 @@ assert(
     'GTM OS es outbound B2B que instalamos',
   'length cut with no prior sentence keeps the fragment',
 )
+{
+  const long =
+    'RutinHQ instala GTM OS para outbound B2B. STORE OS es auditoría de Shopify Admin. NEXUS OS es marketing agéntico. ' +
+    Array.from({ length: 70 }, () => 'detalle').join(' ') +
+    '.'
+  assert(countGuideWords(long) > 80, 'fixture exceeds the word cap')
+  const capped = capGuideReplyWords(long)
+  assert(capped !== null && countGuideWords(capped) <= 80, 'word cap stays at or under 80')
+  assert(/RutinHQ instala GTM OS/.test(capped || ''), 'word cap keeps the first complete sentence')
+  assert(
+    !/detalle detalle/.test(capped || ''),
+    'word cap drops the overflowing filler sentence',
+  )
+  const polished = polishGuideLlmReply(
+    'RutinHQ instala sistemas que usted posee, sin retainers. GTM OS es outbound B2B y además ' +
+      Array.from({ length: 90 }, () => 'palabra').join(' '),
+    'length',
+  )
+  assert(
+    polished === 'RutinHQ instala sistemas que usted posee, sin retainers.',
+    'polish trims the cut sentence then applies the word cap',
+  )
+}
 assert(isUnusableGuideReply(null), 'empty completion is unusable')
 assert(isUnusableGuideReply('GTM OS es el sistema de outbound'), 'sub-80 mid-cut is unusable')
 assert(isUnusableGuideReply('x'.repeat(90), 'length'), 'finish_reason=length is unusable')
@@ -434,6 +464,9 @@ assert(!isGuidePreviewHost('rutinhq.com'), 'rutinhq.com is never preview')
   assert(/LANGUAGE LOCK: Visitor locale is es\. Reply 100% in Spanish/.test(esPrompt), 'es lock')
   assert(/LANGUAGE LOCK: Visitor locale is en\. Reply 100% in English/.test(enPrompt), 'en lock')
   assert(/LENGTH LOCK: ≤80 words/.test(esPrompt), 'length lock in prompt')
+  assert(/USTED LOCK: Formal usted only/.test(esPrompt), 'es usted lock')
+  assert(/sistemas que usted posee, sin retainers/.test(esPrompt), 'es glossary example')
+  assert(!/USTED LOCK/.test(enPrompt), 'en prompt must not carry the Spanish usted lock')
   assert(
     esPrompt.lastIndexOf('LANGUAGE LOCK') > esPrompt.lastIndexOf('Allowlisted knowledge'),
     'locale lock must follow knowledge so Llama answers in Spanish',

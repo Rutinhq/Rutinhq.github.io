@@ -104,9 +104,9 @@ const COPY = {
   },
   es: {
     degraded:
-      'Las respuestas en vivo están en pausa aquí, así que me quedo en hechos del catálogo: GTM OS (outbound), STORE OS (Shopify Admin), NEXUS OS (demanda en paper primero). Agenda 30 min — https://calendly.com/rutinhq/30min',
+      'Las respuestas en vivo están en pausa aquí, así que me quedo en hechos del catálogo: GTM OS (outbound), STORE OS (Shopify Admin), NEXUS OS (demanda en paper primero). Agende 30 min — https://calendly.com/rutinhq/30min',
     security:
-      'No comparto credenciales, contraseñas, claves de API, datos bancarios ni operaciones privadas. Solo cubro los sistemas públicos de RutinHQ. Agenda 30 min si quieres hablar de GTM OS, STORE OS o NEXUS OS.',
+      'No comparto credenciales, contraseñas, claves de API, datos bancarios ni operaciones privadas. Solo cubro los sistemas públicos de RutinHQ. Agende 30 min si desea hablar de GTM OS, STORE OS o NEXUS OS.',
     nextStep: (url: string) => `Agendar 30 min de fit — ${url}`,
     topicUnclear: 'Fit RutinHQ (SKU por confirmar)',
     topicSku: (sku: string) => `Fit ${sku}`,

@@ -164,6 +164,10 @@ if (!/Never invent acronym expansions/.test(policySrc.systemPrompt)) {
   console.error('systemPrompt must forbid invented acronym expansions')
   process.exit(1)
 }
+if (!/formal usted only/.test(policySrc.systemPrompt) || !/sistemas que usted posee/.test(policySrc.systemPrompt)) {
+  console.error('systemPrompt must lock Spanish to usted and the public glossary')
+  process.exit(1)
+}
 if (
   !/retainers/.test(policySrc.systemPrompt) ||
   !/SLAs/.test(policySrc.systemPrompt) ||
@@ -239,6 +243,10 @@ if (!/coerceGuideLlmReply/.test(llm) || !/extractFirstJsonObject/.test(llm)) {
 }
 if (!/trimIncompleteGuideReply/.test(llm)) {
   console.error('LLM client must trim mid-sentence cuts to the last complete sentence')
+  process.exit(1)
+}
+if (!/capGuideReplyWords/.test(llm) || !/GUIDE_LLM_REPLY_MAX_WORDS/.test(llm) || !/USTED LOCK/.test(llm)) {
+  console.error('LLM client must cap replies at 80 words and lock Spanish to usted')
   process.exit(1)
 }
 if (!/resolveGuideLlmBaseUrl/.test(llm) || !/AIza/.test(llm) || !/AQ\./.test(llm)) {

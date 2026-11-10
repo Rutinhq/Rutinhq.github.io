@@ -25,7 +25,8 @@ Public catalog only: GTM OS, STORE OS, NEXUS OS, plus public docs curriculum at 
 Never invent prices, retainers, legal terms, SLAs, credentials, bank data, or private operations.
 Primary CTA: https://calendly.com/rutinhq/30min. Secondary: strategy@rutinhq.com.
 Reply 100% in the visitor locale (English or Spanish). Keep SKU names in English: GTM OS, STORE OS, NEXUS OS.
-Reply in ≤80 words: 2–4 short sentences or ≤3 bullets. Only facts from the provided catalog. Never invent acronym expansions or glosses (keep GTM OS, STORE OS, NEXUS OS, SDR, ICP as written). End with the Calendly CTA only when relevant. Finish every sentence.
+Reply in ≤80 words: 2–4 short sentences or ≤3 short bullets. Only facts from the provided catalog. Never invent acronym expansions or glosses (keep GTM OS, STORE OS, NEXUS OS, SDR, ICP as written). End with the Calendly CTA only when relevant. Finish every sentence.
+When locale is Spanish: formal usted only (nunca tú). Glossary: RutinHQ = "sistemas que usted posee, sin retainers". Never "propietar", "un llamada", or "marketing agente".
 If unsure, say so and offer the 30-min fit call. Refuse security probes in one sentence + Calendly — do not pitch a SKU.
 Public UI name is RutinHQ Guide only.`
 
@@ -83,6 +84,7 @@ export const GUIDE_WORKERS_AI_MAX_TOKENS = 450
 export const GUIDE_LLM_CANDIDATE_CAP = 3
 export const GUIDE_LLM_MIN_REPLY_CHARS = 80
 export const GUIDE_LLM_REPLY_MAX_CHARS = 2_500
+export const GUIDE_LLM_REPLY_MAX_WORDS = 80
 export const GUIDE_LLM_RATE_LIMIT_BACKOFF_MS = 600
 /** Wall budget for env.AI.run / openai-compat. Cap is 20s (Pages Function + widget). */
 export const GUIDE_LLM_BUDGET_MS = 20_000
@@ -551,6 +553,44 @@ export function trimIncompleteGuideReply(
   return sliceToLastCompleteSentence(t) || t
 }
 
+export function countGuideWords(text: string): number {
+  return String(text || '')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean).length
+}
+
+/** Hard ≤80-word cap, trimmed at the last complete sentence that still fits. */
+export function capGuideReplyWords(
+  text: string | null,
+  maxWords = GUIDE_LLM_REPLY_MAX_WORDS,
+): string | null {
+  if (!text || !text.trim()) return null
+  const t = text.trim()
+  if (countGuideWords(t) <= maxWords) return t
+  const re = /[.!?…]["')\]]*(?=\s|$)/g
+  const ends: number[] = []
+  let match: RegExpExecArray | null
+  while ((match = re.exec(t)) !== null) {
+    ends.push(match.index + match[0].length)
+  }
+  if (!ends.length) return t
+  let kept = ''
+  for (const end of ends) {
+    const candidate = t.slice(0, end).trim()
+    if (countGuideWords(candidate) <= maxWords) kept = candidate
+    else break
+  }
+  return kept || t.slice(0, ends[0]).trim()
+}
+
+export function polishGuideLlmReply(
+  text: string | null,
+  finishReason?: string | null,
+): string | null {
+  return capGuideReplyWords(trimIncompleteGuideReply(text, finishReason))
+}
+
 /** Empty, <~80 chars, finish_reason=length, or mid-sentence cut → do not ship as mode=llm. */
 export function isUnusableGuideReply(text: string | null, finishReason?: string | null): boolean {
   if (!text || !text.trim()) return true
@@ -741,7 +781,7 @@ async function callWorkersAiDetailed(opts: GuideLlmCallOpts): Promise<GuideLlmCa
             attempt.signal,
           )
           empty.lastFinishReason = extractFinishReason(data)
-          const text = trimIncompleteGuideReply(
+          const text = polishGuideLlmReply(
             coerceGuideLlmReply(extractWorkersAiText(data)),
             empty.lastFinishReason,
           )
@@ -888,7 +928,7 @@ async function callOpenAiCompatDetailed(opts: GuideLlmCallOpts): Promise<GuideLl
             return empty
           }
           empty.lastFinishReason = extractFinishReason(data)
-          const text = trimIncompleteGuideReply(
+          const text = polishGuideLlmReply(
             coerceGuideLlmReply(extractWorkersAiText(data) || extractLlmText(data)),
             empty.lastFinishReason,
           )
@@ -929,12 +969,23 @@ export function composeGuideSystemPrompt(
   knowledge: string,
 ): string {
   const lang = locale === 'es' ? 'Spanish' : 'English'
+  const lengthLock =
+    'LENGTH LOCK: ≤80 words. 2–4 short sentences or ≤3 short bullets. Catalog facts only. Never invent acronym expansions. Calendly CTA only when relevant. Finish every sentence.'
+  const localeLock =
+    locale === 'es'
+      ? [
+          'LANGUAGE LOCK: Visitor locale is es. Reply 100% in Spanish. Do not mix languages. SKU names stay in English: GTM OS, STORE OS, NEXUS OS.',
+          'USTED LOCK: Formal usted only. Never tú, te, ti, contigo, or verb forms like puedes, tienes, quieres, haz, dime, agenda (tú). Use puede, tiene, desea, haga, agende.',
+          'Glossary: RutinHQ = "sistemas que usted posee, sin retainers" (never "propietar"). "una llamada" not "un llamada". "marketing agéntico" not "marketing agente".',
+          'Example: "RutinHQ instala sistemas que usted posee, sin retainers: GTM OS (outbound B2B), STORE OS (Shopify Admin) y NEXUS OS (Strategy → Social → Ads). Si encaja, agende 30 min: https://calendly.com/rutinhq/30min."',
+        ].join(' ')
+      : `LANGUAGE LOCK: Visitor locale is ${locale}. Reply 100% in ${lang}. Do not mix languages. SKU names stay in English: GTM OS, STORE OS, NEXUS OS.`
   return [
     GUIDE_MANDATE,
     policyPrompt,
     knowledge ? `Allowlisted knowledge:\n${knowledge}` : '',
-    'LENGTH LOCK: ≤80 words. 2–4 short sentences or ≤3 bullets. Catalog facts only. Never invent acronym expansions. Calendly CTA only when relevant. Finish every sentence.',
-    `LANGUAGE LOCK: Visitor locale is ${locale}. Reply 100% in ${lang}. Do not mix languages. SKU names stay in English: GTM OS, STORE OS, NEXUS OS.`,
+    lengthLock,
+    localeLock,
   ]
     .filter(Boolean)
     .join('\n\n')

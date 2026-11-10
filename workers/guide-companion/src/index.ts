@@ -94,7 +94,7 @@ export default {
       return json(200, {
         reply:
           locale === 'es'
-            ? 'No comparto credenciales, contraseñas, claves de API, datos bancarios ni operaciones privadas. Agenda 30 min si quieres hablar de GTM OS, STORE OS o NEXUS OS.'
+            ? 'No comparto credenciales, contraseñas, claves de API, datos bancarios ni operaciones privadas. Agende 30 min si desea hablar de GTM OS, STORE OS o NEXUS OS.'
             : 'I cannot share credentials, passwords, API keys, bank details, or private operations. Book a 30-min fit call if you want to talk GTM OS, STORE OS, or NEXUS OS.',
         mode: 'degraded',
         calendlyUrl: kb?.policy?.calendlyUrl || 'https://calendly.com/rutinhq/30min',
@@ -104,7 +104,7 @@ export default {
       const pack = kb?.policy?.fallbackReplies?.[key] || kb?.policy?.fallbackReplies?.unsure
       if (!pack) {
         return locale === 'es'
-          ? 'Agenda 30 min — https://calendly.com/rutinhq/30min'
+          ? 'Agende 30 min — https://calendly.com/rutinhq/30min'
           : 'Book a 30-min fit call — https://calendly.com/rutinhq/30min'
       }
       return locale === 'es' ? pack.es : pack.en
