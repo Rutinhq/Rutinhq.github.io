@@ -1773,6 +1773,20 @@ for (const needle of [
   }
 }
 
+const TURNSTILE_SITE_KEY = '0x4AAAAAAF6-kFpM12bv15mT'
+const guideWidgetAsset = assetJs.find((file) => file.name.includes('GuideWidget'))
+if (!guideWidgetAsset) {
+  console.error('dist/assets must include a GuideWidget chunk to bake Turnstile.')
+  process.exit(1)
+}
+const guideWidgetJs = fs.readFileSync(`dist/assets/${guideWidgetAsset.name}`, 'utf8')
+if (!guideWidgetJs.includes(TURNSTILE_SITE_KEY)) {
+  console.error(
+    'GuideWidget chunk must inline VITE_TURNSTILE_SITE_KEY from .env.production (wrangler.toml [vars] are Function runtime, not Vite).',
+  )
+  process.exit(1)
+}
+
 const layoutSource = fs.readFileSync('src/layouts/RootLayout.tsx', 'utf8')
 if (
   !layoutSource.includes('href="#main-content"') ||

@@ -1,6 +1,6 @@
 # Guide API hardening (`/api/guide`)
 
-Defense in depth for the public concierge. This repo is public: names of env vars only — never commit secrets, site keys, tokens, or operator notes.
+Defense in depth for the public concierge. This repo is public: never commit secrets or tokens. The Turnstile **site** key is public by design and lives in git (`wrangler.toml` + `.env.production`).
 
 ## What the code does
 
@@ -15,17 +15,15 @@ If `TURNSTILE_SECRET_KEY` is **unset**:
 - Local / `NODE_ENV=development` / `guide.local` → **fail-open**: current catalog/LLM behavior, plus a server warning. Lets `npm run dev` work without a widget.
 - Production host without the secret → **fail-closed** (`403`). The widget already falls back to catalog copy when `/api/guide` is not OK.
 
-Do not ship production Pages without both Turnstile env vars.
+Do not ship production Pages without `TURNSTILE_SECRET_KEY` as a Pages Secret. The public site key is committed (see below).
 
 ## Pasos manuales (STACK)
 
-Dashboard only — this PR does not create widgets, env values, or WAF rules.
+Dashboard only for the **secret** and the WAF rule. The public site key is in git.
 
 - [ ] Cloudflare Dashboard → Turnstile → create a widget for `www.rutinhq.com` (and preview host if used).
-- [ ] Cloudflare Pages project → Settings → Environment variables (Production **and** Preview):
-  - `TURNSTILE_SECRET_KEY` = widget secret (encrypt / secret)
-  - `VITE_TURNSTILE_SITE_KEY` = widget site key (build-time; needed for `npm run build` on Pages)
-- [ ] Redeploy after the build-time site key is set (Vite inlines `VITE_*`).
+- [ ] Pages Secret `TURNSTILE_SECRET_KEY` (Production **and** Preview). Dashboard plaintext vars are blocked on this project — do not try to put `VITE_TURNSTILE_SITE_KEY` there.
+- [ ] Public site key: `wrangler.toml` `[vars]` **and** `.env.production` (Vite does not read wrangler.toml during `npm run build`).
 - [ ] Zone WAF / Rate limiting rule on `www.rutinhq.com/api/guide*` (POST). Suggested starting point: a tight per-IP window on those paths. **Do not** put the threshold or billing notes in git.
 - [ ] Google AI Studio → daily request cap on the Guide key (operator step; no account or billing details here).
 

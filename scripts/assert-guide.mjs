@@ -247,6 +247,27 @@ if (!/GUIDE_LLM_MODEL\s*=\s*"gemini-2.0-flash"/.test(wrangler)) {
   console.error('wrangler [vars] must pin GUIDE_LLM_MODEL=gemini-2.0-flash (non-thinking)')
   process.exit(1)
 }
+const TURNSTILE_SITE_KEY = '0x4AAAAAAF6-kFpM12bv15mT'
+if (!wrangler.includes(`VITE_TURNSTILE_SITE_KEY = "${TURNSTILE_SITE_KEY}"`)) {
+  console.error('wrangler.toml [vars] must pin the public VITE_TURNSTILE_SITE_KEY')
+  process.exit(1)
+}
+if (/^\s*TURNSTILE_SECRET_KEY\s*=/m.test(wrangler)) {
+  console.error('wrangler.toml must not assign TURNSTILE_SECRET_KEY (secret stays on Pages)')
+  process.exit(1)
+}
+const envProduction = fs.readFileSync(path.join(root, '.env.production'), 'utf8')
+if (
+  !envProduction.includes(`VITE_TURNSTILE_SITE_KEY=${TURNSTILE_SITE_KEY}`) &&
+  !envProduction.includes(`VITE_TURNSTILE_SITE_KEY="${TURNSTILE_SITE_KEY}"`)
+) {
+  console.error('.env.production must pin VITE_TURNSTILE_SITE_KEY for the Vite Pages build')
+  process.exit(1)
+}
+if (/TURNSTILE_SECRET_KEY\s*=\s*\S/.test(envProduction)) {
+  console.error('.env.production must not contain TURNSTILE_SECRET_KEY')
+  process.exit(1)
+}
 if (!/guideLlmOnProviderError/.test(llm) || !/GUIDE_LLM_CANDIDATE_CAP/.test(llm)) {
   console.error('LLM client must fail-fast on 429 and cap model candidates')
   process.exit(1)
