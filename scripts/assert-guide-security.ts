@@ -237,6 +237,44 @@ const otherIp = await handleGuideRequest(
 )
 assert(otherIp.status === 200, 'a different IP must not inherit the 429 bucket')
 
+resetGuideRateLimitMemory()
+const cacheBag = new Map<string, Response>()
+const fakeCache = {
+  async match(input: RequestInfo) {
+    const url = typeof input === 'string' ? input : new Request(input).url
+    const hit = cacheBag.get(url)
+    return hit ? hit.clone() : undefined
+  },
+  async put(input: RequestInfo, res: Response) {
+    const url = typeof input === 'string' ? input : new Request(input).url
+    cacheBag.set(url, res.clone())
+  },
+} as Pick<Cache, 'match' | 'put'>
+const previousCaches = (globalThis as { caches?: unknown }).caches
+;(globalThis as { caches: unknown }).caches = {
+  open: async () => fakeCache,
+  default: fakeCache,
+}
+let cacheLimited: Response | null = null
+for (let i = 0; i < 21; i += 1) {
+  resetGuideRateLimitMemory()
+  const res = await handleGuideRequest(
+    guideRequest(
+      { turnstileToken: 'valid-token' },
+      { url: 'https://www.rutinhq.com/api/guide', ip: '198.51.100.40' },
+    ),
+    secretEnv,
+    null,
+  )
+  if (res.status === 429) {
+    cacheLimited = res
+    break
+  }
+}
+assert(cacheLimited !== null, 'named Cache API layer must 429 even if isolate memory is empty')
+assert(cacheLimited.headers.get('Retry-After'), 'Cache API 429 must set Retry-After')
+;(globalThis as { caches?: unknown }).caches = previousCaches
+
 globalThis.fetch = originalFetch
 resetGuideRateLimitMemory()
 

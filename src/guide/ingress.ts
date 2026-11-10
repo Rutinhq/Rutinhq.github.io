@@ -150,16 +150,30 @@ function kvStore(kv: GuideKvLike): GuideRateLimitStore {
   }
 }
 
-function cacheApiStore(cache: Cache, origin?: string): GuideRateLimitStore {
-  const base =
-    origin && /^https?:\/\//.test(origin) ? origin.replace(/\/+$/, '') : 'https://www.rutinhq.com'
-  const asRequest = (key: string) =>
-    new Request(`${base}/__guide-rate-limit/${encodeURIComponent(key)}`)
+/**
+ * Cache API keys must be GET requests on a URL that belongs to this zone.
+ * A dummy path like `/__guide-rate-limit/:ip` is not a real Pages route, so
+ * `caches.default.put` silently no-ops on *.pages.dev. Key off the incoming
+ * `/api/guide` URL (query-only) so the entry stays on-zone.
+ */
+function cacheApiStore(cache: Cache, requestUrl?: string): GuideRateLimitStore {
+  const asRequest = (key: string) => {
+    let url: URL
+    try {
+      url = new URL(requestUrl && /^https?:\/\//.test(requestUrl) ? requestUrl : 'https://www.rutinhq.com/api/guide')
+    } catch {
+      url = new URL('https://www.rutinhq.com/api/guide')
+    }
+    url.search = ''
+    url.hash = ''
+    url.searchParams.set('guide_rl', key)
+    return new Request(url.toString(), { method: 'GET' })
+  }
   return {
     async get(key) {
       try {
-        const hit = await cache.match(asRequest(key))
-        if (!hit) return null
+        const hit = await cache.match(asRequest(key), { ignoreMethod: true })
+        if (!hit || !hit.ok) return null
         const parsed = (await hit.json()) as RateLimitRecord
         if (typeof parsed.n === 'number' && typeof parsed.resetAt === 'number') {
           return parsed
@@ -174,14 +188,15 @@ function cacheApiStore(cache: Cache, origin?: string): GuideRateLimitStore {
         await cache.put(
           asRequest(key),
           new Response(JSON.stringify(value), {
+            status: 200,
             headers: {
               'content-type': 'application/json',
-              'cache-control': `max-age=${Math.max(60, ttlSec)}`,
+              'cache-control': `public, max-age=${Math.max(60, ttlSec)}`,
             },
           }),
         )
       } catch {
-        /* Cache API may refuse off-zone keys; memory layer still counts. */
+        /* Cache API may refuse the key; memory layer still counts. */
       }
     },
   }
@@ -204,23 +219,32 @@ function layeredStore(
   }
 }
 
-/** KV if bound, else Cache API + isolate memory, else memory (best effort). */
-export function createGuideRateLimitStore(
-  env?: GuideGateEnv,
-  origin?: string,
-): GuideRateLimitStore {
-  if (env?.GUIDE_RATE_LIMIT) return kvStore(env.GUIDE_RATE_LIMIT)
-  let cacheLayer: GuideRateLimitStore | null = null
+async function openRuntimeCache(): Promise<Cache | null> {
   try {
-    if (typeof globalThis !== 'undefined' && 'caches' in globalThis) {
-      const runtimeCaches = (globalThis as typeof globalThis & { caches?: CacheStorage & { default?: Cache } })
-        .caches
-      if (runtimeCaches?.default) cacheLayer = cacheApiStore(runtimeCaches.default, origin)
+    if (typeof globalThis === 'undefined' || !('caches' in globalThis)) return null
+    const runtimeCaches = (
+      globalThis as typeof globalThis & {
+        caches?: CacheStorage & { default?: Cache }
+      }
+    ).caches
+    if (!runtimeCaches) return null
+    if (typeof runtimeCaches.open === 'function') {
+      return await runtimeCaches.open('guide-rate-limit')
     }
+    return runtimeCaches.default ?? null
   } catch {
-    /* Node / tests */
+    return null
   }
-  if (cacheLayer) return layeredStore(memoryStore, cacheLayer)
+}
+
+/** KV if bound, else named Cache API + isolate memory, else memory (best effort). */
+export async function createGuideRateLimitStore(
+  env?: GuideGateEnv,
+  requestUrl?: string,
+): Promise<GuideRateLimitStore> {
+  if (env?.GUIDE_RATE_LIMIT) return kvStore(env.GUIDE_RATE_LIMIT)
+  const cache = await openRuntimeCache()
+  if (cache) return layeredStore(memoryStore, cacheApiStore(cache, requestUrl))
   return memoryStore
 }
 
@@ -341,17 +365,11 @@ export async function enforceGuideRateLimit(
   request: Request,
   env: GuideGateEnv,
 ): Promise<Response | null> {
-  let origin: string | undefined
-  try {
-    origin = new URL(request.url).origin
-  } catch {
-    origin = undefined
-  }
   const decision = await consumeIpRateLimit({
     ip: clientIp(request),
     windowMs: GUIDE_LIMITS.rateLimitWindowMs,
     max: GUIDE_LIMITS.rateLimitMax,
-    store: createGuideRateLimitStore(env, origin),
+    store: await createGuideRateLimitStore(env, request.url),
   })
   if (decision.limited) return rateLimitResponse(decision.retryAfterSec)
   return null
