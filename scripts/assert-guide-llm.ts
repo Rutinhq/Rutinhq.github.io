@@ -71,11 +71,12 @@ assert(
   'AQ.-shaped AI Studio key must default to Gemini OpenAI-compat base',
 )
 assert(
-  resolveGuideLlmModel(undefined, 'AQ.FakeStudioKeyForShapeOnly') === 'gemini-2.0-flash',
-  'AQ.-shaped key must default to gemini-2.0-flash (non-thinking)',
+  resolveGuideLlmModel(undefined, 'AQ.FakeStudioKeyForShapeOnly') === 'gemini-3.1-flash-lite',
+  'AQ.-shaped key must default to gemini-3.1-flash-lite (non-thinking)',
 )
 assert(
-  resolveGuideLlmModel('gemini-2.0-flash', 'AQ.FakeStudioKeyForShapeOnly') === 'gemini-2.0-flash',
+  resolveGuideLlmModel('gemini-3.1-flash-lite', 'AQ.FakeStudioKeyForShapeOnly') ===
+    'gemini-3.1-flash-lite',
   'GUIDE_LLM_MODEL is the single primary',
 )
 assert(
@@ -83,23 +84,33 @@ assert(
   'non-Gemini key keeps OpenAI default',
 )
 
-assert(normalizeGuideLlmModel('models/gemini-2.0-flash') === 'gemini-2.0-flash', 'strip models/')
+assert(normalizeGuideLlmModel('models/gemini-3.1-flash-lite') === 'gemini-3.1-flash-lite', 'strip models/')
 assert(
-  guideLlmModelCandidates('gemini-2.0-flash')[0] === 'gemini-2.0-flash',
+  guideLlmModelCandidates('gemini-3.1-flash-lite')[0] === 'gemini-3.1-flash-lite',
   'candidates must start with the configured primary',
 )
 assert(
-  guideLlmModelCandidates('gemini-2.0-flash').includes('gemini-2.0-flash-001') ||
-    guideLlmModelCandidates('gemini-2.0-flash').includes('gemini-flash-latest'),
-  'gemini-2.0-flash 404 fallbacks stay on the 2.0 family',
+  guideLlmModelCandidates('gemini-3.1-flash-lite').includes('gemini-3-flash'),
+  'gemini-3.1-flash-lite 404 fallback is gemini-3-flash',
 )
 assert(
-  !guideLlmModelCandidates('gemini-2.0-flash').includes('gemini-2.5-flash') &&
-    !guideLlmModelCandidates('gemini-2.0-flash').includes('gemini-3.6-flash'),
+  !guideLlmModelCandidates('gemini-3.1-flash-lite').some((id) => id.includes('gemini-2.0')),
+  'fallbacks must not include zero-quota 2.0 models',
+)
+assert(
+  !guideLlmModelCandidates('gemini-3.1-flash-lite').includes('gemini-2.5-flash-lite') &&
+    !guideLlmModelCandidates('gemini-3.1-flash-lite').includes('gemini-2.5-flash') &&
+    !guideLlmModelCandidates('gemini-3.1-flash-lite').includes('gemini-3.6-flash'),
   'must never cascade onto thinking 2.5/3.6 models',
 )
 assert(
-  guideLlmModelCandidates('gemini-2.0-flash').length <= GUIDE_LLM_CANDIDATE_CAP,
+  !guideLlmModelCandidates('gemini-2.0-flash').some(
+    (id) => id.startsWith('gemini-2.0') && id !== 'gemini-2.0-flash',
+  ),
+  'a leftover 2.0 primary must not hop to other 2.0 aliases',
+)
+assert(
+  guideLlmModelCandidates('gemini-3.1-flash-lite').length <= GUIDE_LLM_CANDIDATE_CAP,
   'must not cascade 5 models',
 )
 assert(

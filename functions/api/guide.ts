@@ -3,7 +3,7 @@
  * Secrets (Pages → Settings → Environment variables):
  *   GUIDE_LLM_API_KEY (or OpenAI-compatible key)
  *   GUIDE_LLM_BASE_URL (optional, Gemini: https://generativelanguage.googleapis.com/v1beta/openai)
- *   GUIDE_LLM_MODEL (optional, recommended gemini-2.0-flash — do not pin thinking 2.5/3.6)
+ *   GUIDE_LLM_MODEL (optional, recommended gemini-3.1-flash-lite — do not pin thinking 2.5/3.6)
  *   GUIDE_LEAD_WEBHOOK_URL (optional JSON POST of lead briefs)
  *   TURNSTILE_SECRET_KEY (Siteverify; fail-open only in local/dev if unset)
  *

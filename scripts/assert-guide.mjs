@@ -243,8 +243,8 @@ if (!/\n\[vars\]/.test(wrangler) || !/GUIDE_LLM_BASE_URL\s*=/.test(wrangler)) {
   console.error('wrangler.toml [vars] must pin GUIDE_LLM_BASE_URL for Direct Upload')
   process.exit(1)
 }
-if (!/GUIDE_LLM_MODEL\s*=\s*"gemini-2.0-flash"/.test(wrangler)) {
-  console.error('wrangler [vars] must pin GUIDE_LLM_MODEL=gemini-2.0-flash (non-thinking)')
+if (!/GUIDE_LLM_MODEL\s*=\s*"gemini-3.1-flash-lite"/.test(wrangler)) {
+  console.error('wrangler [vars] must pin GUIDE_LLM_MODEL=gemini-3.1-flash-lite (non-thinking)')
   process.exit(1)
 }
 const TURNSTILE_SITE_KEY = '0x4AAAAAAF6-kFpM12bv15mT'
@@ -302,6 +302,14 @@ const turnstileHook = fs.readFileSync(
 )
 if (!/VITE_TURNSTILE_SITE_KEY/.test(turnstileHook) || !/readGuideTurnstileSiteKey/.test(widget)) {
   console.error('Guide widget must read VITE_TURNSTILE_SITE_KEY and degrade when unset')
+  process.exit(1)
+}
+if (!/createGuideTurnstileController/.test(turnstileHook) || !/attach\(node\)/.test(turnstileHook)) {
+  console.error('Turnstile hook must render via host callback ref (chat open), not hook mount')
+  process.exit(1)
+}
+if (!/api\.reset\(widgetId\)/.test(turnstileHook)) {
+  console.error('Turnstile consumeToken must reset the widget after a single-use token')
   process.exit(1)
 }
 if (!/turnstileToken/.test(widget)) {

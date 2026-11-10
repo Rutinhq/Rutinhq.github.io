@@ -18,21 +18,29 @@ If unsure, say so and offer the 30-min fit call. Refuse security probes in one s
 Public UI name is RutinHQ Guide only.`
 
 const GEMINI_HOST = 'generativelanguage.googleapis.com'
-const DEFAULT_GEMINI_MODEL = 'gemini-2.0-flash'
+const DEFAULT_GEMINI_MODEL = 'gemini-3.1-flash-lite'
 
-/** Thinking Gemini IDs burn max_tokens on thoughts → finish_reason=length mid-sentence. */
+/** Thinking Gemini IDs burn max_tokens on thoughts → finish_reason=length mid-sentence.
+ * gemini-3.1-flash-lite defaults to thinking_level=minimal and stays off this list
+ * so the current OpenAI-compat body (model/temperature/max_tokens/messages) is valid. */
 const THINKING_MODELS = new Set([
   'gemini-2.5-flash',
   'gemini-2.5-flash-lite',
   'gemini-3.6-flash',
 ])
 
-/** 404 / model-not-found only. Never used on 429/503. Never hop to thinking models. */
+/** 404 / model-not-found only. Never used on 429/503. Never hop to thinking models.
+ * Do not include gemini-2.0-* (zero free-tier quota). gemini-2.5-flash-lite stays
+ * out: it thinks unless reasoning_effort=none, which this request shape does not send.
+ * gemini-3-flash is the 404 alias; gemini-3-flash-preview covers older API ids. */
 const MODEL_FALLBACKS: Record<string, string[]> = {
-  'gemini-2.0-flash': ['gemini-2.0-flash-001', 'gemini-flash-latest'],
-  'gemini-2.0-flash-exp': ['gemini-2.0-flash', 'gemini-2.0-flash-001'],
-  'gemini-2.0-flash-001': ['gemini-2.0-flash', 'gemini-flash-latest'],
-  'gemini-flash-latest': ['gemini-2.0-flash'],
+  'gemini-3.1-flash-lite': ['gemini-3-flash', 'gemini-3-flash-preview'],
+  'gemini-3-flash': ['gemini-3.1-flash-lite', 'gemini-3-flash-preview'],
+  'gemini-3-flash-preview': ['gemini-3.1-flash-lite', 'gemini-3-flash'],
+  'gemini-2.0-flash': ['gemini-3.1-flash-lite', 'gemini-3-flash'],
+  'gemini-2.0-flash-exp': ['gemini-3.1-flash-lite', 'gemini-3-flash'],
+  'gemini-2.0-flash-001': ['gemini-3.1-flash-lite', 'gemini-3-flash'],
+  'gemini-flash-latest': ['gemini-3.1-flash-lite', 'gemini-3-flash'],
 }
 
 export const GUIDE_LLM_CANDIDATE_CAP = 3
