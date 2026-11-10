@@ -32,6 +32,6 @@ binding = "AI"
 
 [vars]
 GUIDE_LLM_PROVIDER = "workers-ai"
-GUIDE_LLM_MODEL = "@cf/meta/llama-3.1-8b-instruct-fp8-fast"
+GUIDE_LLM_MODEL = "@cf/mistralai/mistral-small-3.1-24b-instruct"
 GUIDE_LLM_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai"
 VITE_TURNSTILE_SITE_KEY = "0x4AAAAAAF6-kFpM12bv15mT"

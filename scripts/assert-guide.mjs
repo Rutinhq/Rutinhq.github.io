@@ -272,8 +272,8 @@ if (!/GUIDE_LLM_PROVIDER\s*=\s*"workers-ai"/.test(wrangler)) {
   console.error('wrangler [vars] must pin GUIDE_LLM_PROVIDER=workers-ai')
   process.exit(1)
 }
-if (!/GUIDE_LLM_MODEL\s*=\s*"@cf\/meta\/llama-3.1-8b-instruct-fp8-fast"/.test(wrangler)) {
-  console.error('wrangler [vars] must pin the fast 8B Workers AI model (not 70B)')
+if (!/GUIDE_LLM_MODEL\s*=\s*"@cf\/mistralai\/mistral-small-3.1-24b-instruct"/.test(wrangler)) {
+  console.error('bake-off [vars] must pin @cf/mistralai/mistral-small-3.1-24b-instruct')
   process.exit(1)
 }
 if (/llama-3\.3-70b|llama-3\.1-70b/.test(wrangler.split('\n').filter((l) => l.includes('GUIDE_LLM_MODEL')).join('\n'))) {
