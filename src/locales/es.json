@@ -158,13 +158,13 @@
         "Solo trabajo de theme",
         "Anuncios sin una tienda que convierta",
         "Solo creatividades",
-        "Plus enterprise puro sin dueño del Admin"
+        "Plus enterprise puro sin dueño del panel de Shopify"
       ]
     },
     "how": {
       "title": "Cómo funciona",
       "items": [
-        "1) Scorecard / diagnóstico de fricción en Admin",
+        "1) Scorecard / diagnóstico de fricción en el panel de Shopify",
         "2) Auditoría: variantes, precio, peso, envío",
         "3) Configuración del panel de Shopify al molde (sin editar archivos de theme)",
         "4) Checklist de entrega + handoff",
@@ -174,7 +174,7 @@
     "outcomes": {
       "title": "Resultados",
       "items": [
-        "Tienda que convierte con menos fricción de ops",
+        "Tienda que convierte con menos fricción de operación",
         "Configuración del panel de Shopify coherente",
         "Una base lista antes de gastar en anuncios"
       ]
@@ -201,7 +201,7 @@
         },
         {
           "q": "¿Cómo funciona STORE OS?",
-          "a": "1) Scorecard / diagnóstico de fricción en Admin. 2) Auditoría: variantes, precio, peso, envío. 3) Configuración del panel de Shopify al molde (sin editar archivos de theme). 4) Checklist de entrega + handoff. 5) Anuncios / creatividades = fuera de alcance (NEXUS OS)."
+          "a": "1) Scorecard / diagnóstico de fricción en el panel de Shopify. 2) Auditoría: variantes, precio, peso, envío. 3) Configuración del panel de Shopify al molde (sin editar archivos de theme). 4) Checklist de entrega + handoff. 5) Anuncios / creatividades = fuera de alcance (NEXUS OS)."
         },
         {
           "q": "¿Qué no es STORE OS?",
@@ -221,7 +221,7 @@
       "items": [
         "Retailer / ecom con oferta y productos claros",
         "Quiere demanda desde social como sistema",
-        "Voz de marca en ops/marketing del cliente (NEXUS no inventa perfil de cliente ideal (ICP) ni oferta)"
+        "Voz de marca en operación/marketing del cliente (NEXUS no inventa perfil de cliente ideal (ICP) ni oferta)"
       ]
     },
     "notFor": {
@@ -247,7 +247,7 @@
       "items": [
         "Sistema de contenido repetible sin claims inventados",
         "Papel listo para review antes del spend",
-        "Separación clara: NEXUS ≠ prospección en frío (GTM OS) ≠ Admin de tienda (STORE OS)"
+        "Separación clara: NEXUS ≠ prospección en frío (GTM OS) ≠ panel de Shopify de la tienda (STORE OS)"
       ]
     },
     "notWhat": {
@@ -268,7 +268,7 @@
         },
         {
           "q": "¿Para quién es NEXUS OS?",
-          "a": "Retailer / ecom con oferta y productos claros. Quiere demanda desde social como sistema. Voz de marca en ops/marketing del cliente (NEXUS no inventa ICP ni oferta)."
+          "a": "Retailer / ecom con oferta y productos claros. Quiere demanda desde social como sistema. Voz de marca en operación/marketing del cliente (NEXUS no inventa ICP ni oferta)."
         },
         {
           "q": "¿Cómo funciona NEXUS OS?",

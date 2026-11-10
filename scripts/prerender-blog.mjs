@@ -298,7 +298,7 @@ const ROUTES = [
     file: 'prerender/es-blog.html',
     title: 'Blog — sistemas que usted posee',
     description:
-      'Radar para founders que instalan sistemas de GTM y ops — no asientos rentados.',
+      'Radar para fundadores que instalan sistemas de GTM y operación — no asientos rentados.',
     ogType: 'website',
     locale: 'es',
     image: OG_IMAGE.blog,
@@ -316,7 +316,7 @@ const ROUTES = [
           url: `${SITE}/es/blog`,
           name: 'Blog — sistemas que usted posee',
           description:
-            'Radar para founders que instalan sistemas de GTM y ops — no asientos rentados.',
+            'Radar para fundadores que instalan sistemas de GTM y operación — no asientos rentados.',
           inLanguage: 'es',
           isPartOf: { '@id': `${SITE}/#website` },
           about: { '@id': `${SITE}/#organization` },
@@ -339,11 +339,11 @@ const ROUTES = [
         faqPageNode(`${SITE}/es/blog`, [
           {
             q: '¿Qué es el blog de RutinHQ?',
-            a: 'Radar para founders que instalan sistemas de GTM y ops — no asientos rentados.',
+            a: 'Radar para fundadores que instalan sistemas de GTM y operación — no asientos rentados.',
           },
           {
             q: '¿Qué señal filtra este radar?',
-            a: 'Fit de perfil de cliente ideal (ICP), un dolor real de ops/GTM, interés de producto y lenguaje founder / CEO / lead de ops — luego un sistema que se queda con su equipo.',
+            a: 'Fit de perfil de cliente ideal (ICP), un dolor real de operación/GTM, interés de producto y lenguaje de fundador / CEO / responsable de operación — luego un sistema que se queda con su equipo.',
           },
           {
             q: '¿Esto es un pozo de contenido?',
@@ -362,7 +362,7 @@ const ROUTES = [
     file: 'prerender/es-blog-outbound-frio-con-icp-sin-sdr-rentado.html',
     title: 'RutinHQ — Prospección en frío con perfil de cliente ideal (ICP) — sin SDR rentado',
     description:
-      'Mantenga fijo el núcleo de la prospección en frío; cambie solo ICP, mensaje y filtros — el pipeline se queda con su equipo cuando termina el contrato.',
+      'Mantenga fijo el núcleo de la prospección en frío; cambie solo ICP, mensaje y filtros — el flujo de ventas se queda con su equipo cuando termina el contrato.',
     ogType: 'article',
     locale: 'es',
     image: OG_IMAGE.blog,
@@ -391,7 +391,7 @@ const ROUTES = [
           '@id': `${SITE}/es/blog/outbound-frio-con-icp-sin-sdr-rentado#article`,
           headline: 'Prospección en frío con perfil de cliente ideal (ICP) — sin SDR rentado',
           description:
-            'Mantenga fijo el núcleo de la prospección en frío; cambie solo ICP, mensaje y filtros — el pipeline se queda con su equipo cuando termina el contrato.',
+            'Mantenga fijo el núcleo de la prospección en frío; cambie solo ICP, mensaje y filtros — el flujo de ventas se queda con su equipo cuando termina el contrato.',
           datePublished: '2026-09-08',
           dateModified: '2026-09-08',
           inLanguage: 'es',

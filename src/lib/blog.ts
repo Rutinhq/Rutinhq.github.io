@@ -30,11 +30,11 @@ export const BLOG_INDEX_FAQ = [
 export const BLOG_INDEX_FAQ_ES = [
   {
     q: '¿Qué es el blog de RutinHQ?',
-    a: 'Radar para founders que instalan sistemas de GTM y ops — no asientos rentados.',
+    a: 'Radar para fundadores que instalan sistemas de GTM y operación — no asientos rentados.',
   },
   {
     q: '¿Qué señal filtra este radar?',
-    a: 'Fit de perfil de cliente ideal (ICP), un dolor real de ops/GTM, interés de producto y lenguaje founder / CEO / lead de ops — luego un sistema que se queda con su equipo.',
+    a: 'Fit de perfil de cliente ideal (ICP), un dolor real de operación/GTM, interés de producto y lenguaje de fundador / CEO / responsable de operación — luego un sistema que se queda con su equipo.',
   },
   {
     q: '¿Esto es un pozo de contenido?',
@@ -60,7 +60,7 @@ export const BLOG_INDEX = {
 export const BLOG_INDEX_ES = {
   title: 'Blog — sistemas que usted posee',
   description:
-    'Radar para founders que instalan sistemas de GTM y ops — no asientos rentados.',
+    'Radar para fundadores que instalan sistemas de GTM y operación — no asientos rentados.',
   path: '/es/blog',
   alternatePath: '/blog',
   draft: false,
@@ -112,7 +112,7 @@ export const ARTICLE01 = {
 export const ARTICLE01_ES = {
   title: 'Prospección en frío con perfil de cliente ideal (ICP) — sin SDR rentado',
   description:
-    'Mantenga fijo el núcleo de la prospección en frío; cambie solo ICP, mensaje y filtros — el pipeline se queda con su equipo cuando termina el contrato.',
+    'Mantenga fijo el núcleo de la prospección en frío; cambie solo ICP, mensaje y filtros — el flujo de ventas se queda con su equipo cuando termina el contrato.',
   slug: 'outbound-frio-con-icp-sin-sdr-rentado',
   path: ARTICLE01_ES_PATH,
   alternatePath: ARTICLE01_PATH,
@@ -219,20 +219,20 @@ export const BLOG_FEATURED_COMING = [
 ] as const
 
 export const BLOG_FILTER_SIGNALS_ES = [
-  { name: 'Fit de perfil de cliente ideal (ICP)', thesis: 'Vertical / rol del buyer' },
-  { name: 'Dolor', thesis: 'Pipeline, handoff, ICP, fricción de ops lean' },
+  { name: 'Fit de perfil de cliente ideal (ICP)', thesis: 'Vertical / rol del comprador' },
+  { name: 'Dolor', thesis: 'Flujo de ventas, handoff, ICP, fricción de operación lean' },
   { name: 'Interés de producto', thesis: 'Qué página OS abren' },
-  { name: 'Seniority', thesis: 'Lenguaje founder / CEO / lead de ops' },
+  { name: 'Seniority', thesis: 'Lenguaje de fundador / CEO / responsable de operación' },
 ] as const
 
 export const BLOG_FEATURED_COMING_ES = [
   {
-    title: 'Qué significa “sistemas que usted posee” para un founder B2B',
+    title: 'Qué significa “sistemas que usted posee” para un fundador B2B',
     type: 'framework',
   },
   {
     title: 'Radar → Blueprint → OS: el cuello antes de comprar build',
-    type: 'how-to',
+    type: 'guía práctica',
   },
   {
     title: 'Iguala mensual de agencia vs instalar un OS de prospección en frío',

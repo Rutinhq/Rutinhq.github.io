@@ -30,6 +30,16 @@ const bannedEnglish = [
   { id: 'curriculum', re: /\bcurriculum\b/i },
   { id: 'ads', re: /\bads\b/i },
   { id: 'config del Admin', re: /config del Admin/i },
+  { id: 'founders', re: /\bfounders?\b/i },
+  { id: 'how-to', re: /\bhow-to\b/i },
+  { id: 'Dual desk', re: /\bdual\s+desk\b/i },
+  { id: 'pipeline', re: /\bpipelines?\b/i },
+  { id: 'ops', re: /\bops\b/i },
+  { id: 'buyer', re: /\bbuyers?\b/i },
+  { id: 'install', re: /\binstall(?:ed|s)?\b/i },
+  { id: 'RFP', re: /\bRFP\b/ },
+  { id: 'Admin', re: /\bAdmin\b/ },
+  { id: 'DRAFT', re: /\bdraft\b/i },
 ]
 
 const bannedTu = [
