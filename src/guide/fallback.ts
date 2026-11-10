@@ -2,9 +2,13 @@ import { classifyIntent, recommendSku } from './classify'
 import {
   ensureCalendlyCta,
   isSchedulingTurn,
+  isSkuComparisonTurn,
   isStoreShopifyFitTurn,
+  lastUserText,
+  namedGuideSkus,
   resolveFallbackKey,
   schedulingGuideReply,
+  skuComparisonGuideReply,
   storeShopifyFitGuideReply,
 } from './classify-core'
 import { fallbackReply, guidePolicy } from './config'
@@ -19,6 +23,13 @@ export function localGuideReply(
   }
   if (isStoreShopifyFitTurn(messages)) {
     return storeShopifyFitGuideReply(locale, guidePolicy.calendlyUrl)
+  }
+  if (isSkuComparisonTurn(messages)) {
+    return skuComparisonGuideReply(
+      locale,
+      guidePolicy.calendlyUrl,
+      namedGuideSkus(lastUserText(messages)),
+    )
   }
   const key = resolveFallbackKey(classifyIntent(messages), recommendSku(messages))
   return ensureCalendlyCta(fallbackReply(key, locale), locale, guidePolicy.calendlyUrl)

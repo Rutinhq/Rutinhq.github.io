@@ -4,10 +4,13 @@ import {
   classifyIntentWithPolicy,
   ensureCalendlyCta,
   isSchedulingTurn,
+  isSkuComparisonTurn,
   isStoreShopifyFitTurn,
+  namedGuideSkus,
   recommendSkuWithPolicy,
   resolveFallbackKey,
   schedulingGuideReply,
+  skuComparisonGuideReply,
   storeShopifyFitGuideReply,
   type ClassifyPolicy,
 } from '../src/guide/classify-core.ts'
@@ -31,6 +34,7 @@ import {
   extractWorkersAiText,
   formatGuideAiErrorReason,
   stripGuideMarkdownFences,
+  stripGuidePresentationMarkers,
   trimIncompleteGuideReply,
   polishGuideLlmReply,
   appendGuideCalendlyCta,
@@ -60,6 +64,7 @@ import {
   GUIDE_WORKERS_AI_MAX_TOKENS,
 } from '../src/guide/llm.ts'
 import { isGuidePreviewHost } from '../src/guide/preview-host.ts'
+import { enforceSafeReply } from '../src/guide/security.ts'
 
 function assert(cond: unknown, msg: string) {
   if (!cond) {
@@ -606,6 +611,8 @@ assert(!isGuidePreviewHost('rutinhq.com'), 'rutinhq.com is never preview')
   assert(/LANGUAGE LOCK: Visitor locale is es\. Reply 100% in Spanish/.test(esPrompt), 'es lock')
   assert(/LANGUAGE LOCK: Visitor locale is en\. Reply 100% in English/.test(enPrompt), 'en lock')
   assert(/LENGTH LOCK: ≤80 words/.test(esPrompt), 'length lock in prompt')
+  assert(/COMPARISON LOCK:/.test(esPrompt), 'es comparison lock names both SKUs')
+  assert(/PLAIN TEXT LOCK:/.test(esPrompt), 'es plain-text lock bans markdown')
   assert(/USTED LOCK: Formal usted only/.test(esPrompt), 'es usted lock')
   assert(/sistemas que usted posee, sin iguala mensual/.test(esPrompt), 'es glossary example')
   assert(/ICP = perfil de cliente ideal/.test(esPrompt), 'es ICP glossary')
@@ -984,5 +991,182 @@ assert(
   /calendly.com\/rutinhq\/30min/.test(degradedSku) && /STORE OS/.test(degradedSku),
   'degraded SKU copy must keep STORE OS + Calendly URL',
 )
+
+function userTurn(content: string) {
+  return [{ role: 'user' as const, content }]
+}
+
+function assertCompleteSentences(text: string, label: string) {
+  const trimmed = text.trim()
+  assert(/[.!?]$/.test(trimmed), `${label} must end on a complete sentence`)
+  const body = trimmed.replace(/https?:\/\/\S+/g, 'URL')
+  assert(
+    !/[^.!?…]\s+[A-Za-záéíóúñÁÉÍÓÚÑÜü][^.!?…]*$/.test(body) || /[.!?]$/.test(trimmed),
+    `${label} must not trail a cut sentence`,
+  )
+}
+
+function assertPlainGuideText(text: string, label: string) {
+  assert(!/\*\*/.test(text), `${label} must not keep **bold** markers`)
+  assert(!/__/.test(text), `${label} must not keep __bold__ markers`)
+  assert(!/`/.test(text), `${label} must not keep code ticks`)
+  assert(!/<\/?[a-zA-Z][^>]*>/.test(text), `${label} must not keep HTML tags`)
+  assert(!/^#{1,6}\s/m.test(text), `${label} must not keep ATX headings`)
+}
+
+{
+  const gtmNexusQ = '¿En qué se diferencian GTM OS y NEXUS OS?'
+  assert(namedGuideSkus(gtmNexusQ).join(',') === 'gtm-os,nexus-os', 'named SKUs: GTM + NEXUS')
+  assert(isSkuComparisonTurn(userTurn(gtmNexusQ)), 'GTM vs NEXUS ES is a comparison turn')
+  assert(
+    isSkuComparisonTurn(userTurn('GTM OS vs NEXUS OS')),
+    'vs cue with two SKUs is a comparison turn',
+  )
+  assert(
+    isSkuComparisonTurn(userTurn('diferencia entre STORE OS y GTM OS')),
+    'STORE vs GTM ES is a comparison turn',
+  )
+  assert(
+    isSkuComparisonTurn(userTurn('How does STORE OS compare to NEXUS OS?')),
+    'STORE vs NEXUS EN is a comparison turn',
+  )
+  assert(
+    isSkuComparisonTurn(userTurn('¿En qué se diferencian GTM OS, STORE OS y NEXUS OS?')),
+    'three-SKU comparison is a comparison turn',
+  )
+  assert(
+    !isSkuComparisonTurn(userTurn('¿Qué es GTM OS?')),
+    'what-is GTM OS is not a comparison turn',
+  )
+  assert(
+    !isSkuComparisonTurn(userTurn('¿Qué hace RutinHQ?')),
+    'what-does RutinHQ is not a comparison turn',
+  )
+  assert(
+    !isSkuComparisonTurn(userTurn('¿Sirve para una tienda Shopify pequeña?')),
+    'Q2 store-fit is not a comparison turn',
+  )
+  assert(
+    !isSkuComparisonTurn(userTurn('¿Cómo agendo una llamada?')),
+    'Q5 scheduling is not a comparison turn',
+  )
+  assert(
+    !isSkuComparisonTurn(userTurn('GTM OS y NEXUS OS para mi equipo')),
+    'two SKUs without a compare cue stay on the LLM',
+  )
+
+  const gtmNexusEs = localGuideReply(userTurn(gtmNexusQ), 'es')
+  assert(gtmNexusEs === skuComparisonGuideReply('es', undefined, ['gtm-os', 'nexus-os']), 'local GTM vs NEXUS uses canned comparison')
+  assert(/GTM OS/.test(gtmNexusEs) && /NEXUS OS/.test(gtmNexusEs), 'GTM vs NEXUS names both labels')
+  assert(
+    /prospección en frío/.test(gtmNexusEs) &&
+      /marketing agéntico/.test(gtmNexusEs) &&
+      /Estrategia → Social → Ads/.test(gtmNexusEs) &&
+      /aprobación explícita/.test(gtmNexusEs),
+    'GTM vs NEXUS names the catalog distinction for both systems',
+  )
+  assert(!/STORE OS/.test(gtmNexusEs), 'GTM vs NEXUS must not drag in STORE OS')
+  assert(/usted|su equipo|agende/i.test(gtmNexusEs), 'GTM vs NEXUS stays usted')
+  assert(!/\b(tú|tu equipo|tus |contigo)\b/i.test(gtmNexusEs), 'GTM vs NEXUS must not tú')
+  assert(/calendly\.com\/rutinhq\/30min/.test(gtmNexusEs), 'GTM vs NEXUS keeps Calendly')
+  assert(countGuideWords(gtmNexusEs) <= GUIDE_LLM_REPLY_MAX_WORDS, 'GTM vs NEXUS stays ≤80 words')
+  assertCompleteSentences(gtmNexusEs, 'GTM vs NEXUS ES')
+  assertPlainGuideText(gtmNexusEs, 'GTM vs NEXUS ES')
+
+  const gtmStoreEs = localGuideReply(userTurn('¿En qué se diferencia GTM OS de STORE OS?'), 'es')
+  assert(/GTM OS/.test(gtmStoreEs) && /STORE OS/.test(gtmStoreEs), 'GTM vs STORE names both labels')
+  assert(
+    /prospección en frío/.test(gtmStoreEs) && /Shopify/.test(gtmStoreEs),
+    'GTM vs STORE distinguishes outbound vs Shopify conversion',
+  )
+  assert(!/NEXUS OS/.test(gtmStoreEs), 'GTM vs STORE must not drag in NEXUS OS')
+  assert(countGuideWords(gtmStoreEs) <= GUIDE_LLM_REPLY_MAX_WORDS, 'GTM vs STORE stays ≤80 words')
+  assertCompleteSentences(gtmStoreEs, 'GTM vs STORE ES')
+
+  const storeNexusEs = localGuideReply(userTurn('STORE OS versus NEXUS OS'), 'es')
+  assert(/STORE OS/.test(storeNexusEs) && /NEXUS OS/.test(storeNexusEs), 'STORE vs NEXUS names both labels')
+  assert(
+    /Shopify/.test(storeNexusEs) && /marketing agéntico/.test(storeNexusEs),
+    'STORE vs NEXUS distinguishes Shopify vs agentic marketing',
+  )
+  assert(!/GTM OS/.test(storeNexusEs), 'STORE vs NEXUS must not drag in GTM OS')
+  assert(countGuideWords(storeNexusEs) <= GUIDE_LLM_REPLY_MAX_WORDS, 'STORE vs NEXUS stays ≤80 words')
+  assertCompleteSentences(storeNexusEs, 'STORE vs NEXUS ES')
+
+  const tripleEs = localGuideReply(
+    userTurn('¿En qué se diferencian GTM OS, STORE OS y NEXUS OS?'),
+    'es',
+  )
+  assert(
+    /GTM OS/.test(tripleEs) && /STORE OS/.test(tripleEs) && /NEXUS OS/.test(tripleEs),
+    'three-SKU comparison names all three labels',
+  )
+  assert(
+    /prospección en frío/.test(tripleEs) &&
+      /Shopify/.test(tripleEs) &&
+      /marketing agéntico/.test(tripleEs),
+    'three-SKU comparison keeps distinguishing facts',
+  )
+  assert(countGuideWords(tripleEs) <= GUIDE_LLM_REPLY_MAX_WORDS, 'three-SKU comparison stays ≤80 words')
+  assertCompleteSentences(tripleEs, 'three-SKU ES')
+
+  const gtmNexusEn = localGuideReply(userTurn('What is the difference between GTM OS and NEXUS OS?'), 'en')
+  assert(/GTM OS/.test(gtmNexusEn) && /NEXUS OS/.test(gtmNexusEn), 'EN GTM vs NEXUS names both labels')
+  assert(
+    /cold outbound/.test(gtmNexusEn) && /Strategy → Social → Ads/.test(gtmNexusEn),
+    'EN GTM vs NEXUS distinguishes outbound vs Strategy → Social → Ads',
+  )
+  assert(/calendly\.com\/rutinhq\/30min/.test(gtmNexusEn), 'EN GTM vs NEXUS keeps Calendly')
+  assert(countGuideWords(gtmNexusEn) <= GUIDE_LLM_REPLY_MAX_WORDS, 'EN GTM vs NEXUS stays ≤80 words')
+  assertCompleteSentences(gtmNexusEn, 'GTM vs NEXUS EN')
+
+  assert(
+    localGuideReply(userTurn('¿Sirve para una tienda Shopify pequeña?'), 'es') ===
+      storeShopifyFitGuideReply('es'),
+    'Q2 still returns the STORE OS fit one-liner',
+  )
+  assert(
+    localGuideReply(userTurn('¿Cómo agendo una llamada?'), 'es') === schedulingGuideReply('es'),
+    'Q5 still returns the scheduling one-liner',
+  )
+}
+
+{
+  const storeAuditMd =
+    'Una auditoría **STORE OS** cubre **variantes**, peso y envío. Si encaja, agende 30 min: https://calendly.com/rutinhq/30min.'
+  const stripped = stripGuidePresentationMarkers(storeAuditMd)
+  assert(!/\*\*/.test(stripped), 'strip removes **bold** from STORE audit copy')
+  assert(/STORE OS/.test(stripped) && /variantes/.test(stripped), 'strip keeps the catalog words')
+  assertPlainGuideText(stripped, 'stripped STORE audit')
+
+  const polished = polishGuideLlmReply(
+    'Una auditoría **STORE OS** incluye: **catálogo**, `peso` y <b>envío</b>.',
+    'stop',
+    'es',
+  )
+  assert(polished !== null, 'polish keeps STORE audit text')
+  assertPlainGuideText(polished || '', 'polished STORE audit')
+  assert(/STORE OS/.test(polished || '') && /catálogo/.test(polished || ''), 'polish keeps STORE facts')
+  assert(!/\*\*/.test(polished || ''), 'polish must not leave literal **')
+  assert(!/<b>/.test(polished || ''), 'polish must not leave HTML tags')
+
+  const html = stripGuidePresentationMarkers(
+    '<p>STORE OS</p><script>alert(1)</script> **NEXUS OS** [ficha](https://www.rutinhq.com/es/nexus-os)',
+  )
+  assert(!/</.test(html) && !/>/.test(html), 'strip drops tags instead of rendering HTML')
+  assert(!/script/i.test(html) || /alert/.test(html), 'strip does not keep a script tag')
+  assert(!/\*\*/.test(html), 'strip unwraps markdown around NEXUS OS')
+  assert(/STORE OS/.test(html) && /NEXUS OS/.test(html), 'strip keeps SKU labels as plain text')
+  assert(!/href=/.test(html), 'strip does not emit HTML attributes')
+  assert(
+    enforceSafeReply('**GTM OS** es <em>prospección en frío</em>.', 'es') ===
+      'GTM OS es prospección en frío.',
+    'enforceSafeReply unwraps markers and does not inject HTML',
+  )
+  assertPlainGuideText(
+    enforceSafeReply('# STORE OS\n**auditoría** del panel.', 'es'),
+    'enforceSafeReply STORE heading',
+  )
+}
 
 console.log('guide LLM client + mandate checks passed')

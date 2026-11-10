@@ -364,6 +364,18 @@ if (!/isStoreShopifyFitTurn/.test(fn) || !/storeShopifyFitGuideReply/.test(fn)) 
   console.error('Function must skip the LLM for store/Shopify-fit questions')
   process.exit(1)
 }
+if (!/isSkuComparisonTurn/.test(fn) || !/skuComparisonGuideReply/.test(fn)) {
+  console.error('Function must skip the LLM for two-SKU comparison questions')
+  process.exit(1)
+}
+if (!/stripGuidePresentationMarkers/.test(fn) && !/stripGuidePresentationMarkers/.test(llm)) {
+  console.error('Function / LLM path must strip presentation markers before the widget')
+  process.exit(1)
+}
+if (/dangerouslySetInnerHTML/.test(widget)) {
+  console.error('Guide widget must keep replies as text nodes — no HTML injection')
+  process.exit(1)
+}
 if (
   !/prospección en frío B2B que se queda con su equipo/.test(policySrc.fallbackReplies.unsure.es) ||
   !/auditoría y configuración de Shopify antes de gastar en anuncios/.test(

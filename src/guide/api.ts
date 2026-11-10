@@ -1,8 +1,12 @@
 import { classifyIntent, shouldCaptureLead } from './classify'
 import {
   isSchedulingTurn,
+  isSkuComparisonTurn,
   isStoreShopifyFitTurn,
+  lastUserText,
+  namedGuideSkus,
   schedulingGuideReply,
+  skuComparisonGuideReply,
   storeShopifyFitGuideReply,
 } from './classify-core'
 import {
@@ -196,6 +200,18 @@ export async function handleGuideRequest(
   if (isStoreShopifyFitTurn(messages)) {
     return json(200, {
       reply: storeShopifyFitGuideReply(locale, guidePolicy.calendlyUrl),
+      mode: 'llm',
+      calendlyUrl: guidePolicy.calendlyUrl,
+    })
+  }
+
+  if (isSkuComparisonTurn(messages)) {
+    return json(200, {
+      reply: skuComparisonGuideReply(
+        locale,
+        guidePolicy.calendlyUrl,
+        namedGuideSkus(lastUserText(messages)),
+      ),
       mode: 'llm',
       calendlyUrl: guidePolicy.calendlyUrl,
     })

@@ -4,6 +4,8 @@
  * Optional: OpenAI-compat (Gemini / OpenAI) when GUIDE_LLM_PROVIDER=openai-compat.
  */
 
+import { stripGuidePresentationMarkers } from './plain-text'
+
 export type GuideLlmMode = 'llm' | 'degraded'
 
 export type GuideLlmProviderId = 'workers-ai' | 'openai-compat'
@@ -354,6 +356,8 @@ export function stripGuideMarkdownFences(raw: string): string {
   return trimmed.replace(/^```(?:json|JSON)?\s*/i, '').replace(/\s*```$/u, '').trim()
 }
 
+export { stripGuidePresentationMarkers } from './plain-text'
+
 /** First balanced `{...}` ignoring braces inside strings. */
 export function extractFirstJsonObject(raw: string): string | null {
   const start = raw.indexOf('{')
@@ -661,7 +665,9 @@ export function polishGuideLlmReply(
   finishReason?: string | null,
   locale?: 'en' | 'es',
 ): string | null {
-  const capped = capGuideReplyWords(trimIncompleteGuideReply(text, finishReason))
+  if (!text || !text.trim()) return null
+  const plain = stripGuidePresentationMarkers(text)
+  const capped = capGuideReplyWords(trimIncompleteGuideReply(plain, finishReason))
   if (!capped) return capped
   return locale === 'es' ? applyGuideEsTypoFixes(capped) : capped
 }
@@ -1196,6 +1202,8 @@ export function composeGuideSystemPrompt(
           'USTED LOCK: Formal usted only. Never tú, te, ti, contigo, tu, tus, or verb forms like puedes, tienes, quieres, haz, dime, agenda (tú). Always "su equipo" / "sus" / "con usted". Never "tu equipo", "tus", or "contigo". Use puede, tiene, desea, haga, agende.',
           'GLOSSARY LOCK: Never invent acronym expansions. If a gloss is needed, only: ICP = perfil de cliente ideal; SDR = representante de desarrollo de ventas (externo); B2B as-is. Translate: outbound → prospección en frío; ecommerce → comercio electrónico; pipeline → flujo de ventas; leads → prospectos; ops → operaciones; Founder → fundador; CEO → director general; DTC → directo al consumidor; retailers → minoristas; SKUs → productos; SKU → producto; gates/milestone → etapas con aprobación; RFP → licitación; ads → anuncios; retainers → iguala mensual. Audience: "tiendas de comercio electrónico" / "marcas que venden directo al consumidor" — never "ecommerceros", "tiendas DTC", or "líderes de compras en línea". NEXUS OS is always "un sistema de marketing agéntico: Estrategia → Social → Ads". Gate: "nada se publica ni se gasta sin aprobación explícita" (never "papel", never "se mantiene en papel", never "una estrategia de marketing agéntico", never "publicidad social y publicidad"). NEXUS for-whom: "marcas y tiendas en línea con oferta y productos claros que buscan generar demanda en redes sociales de forma sistemática." GTM OS not-for (GTM OS answers only; never lead a STORE OS answer with this): "GTM OS no es para tiendas de comercio electrónico ni para quien solo quiere anuncios." GTM OS for-whom: "Es para fundadores, directores generales o responsables de operaciones en empresas B2B que ya venden y buscan un flujo de ventas repetible." GTM OS: "que se queda con su equipo." STORE OS: "STORE OS audita y configura el panel de Shopify para que la tienda convierta antes de gastar en anuncios." If the visitor asks about a Shopify store, lead with STORE OS — never open with "No," or with the GTM not-for line. RutinHQ = "sistemas que usted posee, sin iguala mensual" (never "propietar"). "una llamada" not "un llamada". "marketing agéntico" not "marketing agente". CTA LOCK: always "Si encaja, agende 30 min: https://calendly.com/rutinhq/30min." Never "para discutir más" (use "para conversarlo").',
           'WHAT RUTINHQ DOES: For "¿Qué hace RutinHQ?" always use this one-line answer: "RutinHQ instala sistemas que usted posee, sin iguala mensual: GTM OS (prospección en frío B2B), STORE OS (auditoría y configuración del panel de Shopify para marcas que venden directo al consumidor) y NEXUS OS (Estrategia → Social → Ads). Si encaja, agende 30 min: https://calendly.com/rutinhq/30min."',
+          'COMPARISON LOCK: If the visitor compares two SKUs (diferencian / vs / diferencia entre GTM OS y NEXUS OS, etc.), name BOTH systems and the catalog distinction in 2–3 short sentences, then Calendly. Never answer a two-SKU comparison with only one SKU.',
+          'PLAIN TEXT LOCK: Reply in plain sentences. Never markdown, **bold**, bullets-as-asterisks, or HTML tags.',
           'NEXUS EXAMPLE: "NEXUS OS es un sistema de marketing agéntico: Estrategia → Social → Ads. Es para marcas y tiendas en línea con oferta y productos claros que buscan generar demanda en redes sociales de forma sistemática. Nada se publica ni se gasta sin aprobación explícita. Si encaja, agende 30 min: https://calendly.com/rutinhq/30min."',
         ].join(' ')
       : `LANGUAGE LOCK: Visitor locale is ${locale}. Reply 100% in ${lang}. Do not mix languages. SKU names stay in English: GTM OS, STORE OS, NEXUS OS.`

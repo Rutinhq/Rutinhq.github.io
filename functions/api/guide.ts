@@ -16,10 +16,14 @@ import {
   hasBuyingIntentWithPolicy,
   hintMatches,
   isSchedulingTurn,
+  isSkuComparisonTurn,
   isStoreShopifyFitTurn,
+  lastUserText,
+  namedGuideSkus,
   recommendSkuWithPolicy,
   resolveFallbackKey,
   schedulingGuideReply,
+  skuComparisonGuideReply,
   storeShopifyFitGuideReply,
 } from '../../src/guide/classify-core'
 import {
@@ -32,6 +36,7 @@ import {
   composeGuideSystemPrompt,
   lastGuideUserText,
   selectGuideKnowledge,
+  stripGuidePresentationMarkers,
   GUIDE_LLM_BUDGET_MS,
   guideDegradedReasonFromLlm,
   logGuideLlmFailure,
@@ -274,6 +279,18 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
     })
   }
 
+  if (isSkuComparisonTurn(messages)) {
+    return json(200, {
+      reply: skuComparisonGuideReply(
+        locale,
+        policy.calendlyUrl,
+        namedGuideSkus(lastUserText(messages)),
+      ),
+      mode: 'llm',
+      calendlyUrl: policy.calendlyUrl,
+    })
+  }
+
   let reply = ensureCalendlyCta(pick(replyKey), locale, policy.calendlyUrl)
   let mode: GuideLlmMode = 'degraded'
   const key = context.env.GUIDE_LLM_API_KEY?.trim()
@@ -319,7 +336,7 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
         lastFinishReason: result.lastFinishReason,
         modelsTried: result.modelsTried,
       }
-      const text = result.text
+      const text = result.text ? stripGuidePresentationMarkers(result.text) : result.text
       if (text && LEAK_RE.test(text)) {
         reply = pick('security')
       } else if (text) {
