@@ -23,6 +23,7 @@ import {
   enforceGuideTurnstile,
 } from '../../src/guide/ingress'
 import {
+  appendGuideCalendlyCta,
   callGuideLlmDetailed,
   composeGuideSystemPrompt,
   GUIDE_LLM_BUDGET_MS,
@@ -301,7 +302,7 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
       if (text && LEAK_RE.test(text)) {
         reply = pick('security')
       } else if (text) {
-        reply = text
+        reply = appendGuideCalendlyCta(text, locale, policy.calendlyUrl)
         mode = 'llm'
       }
       if (mode !== 'llm') {

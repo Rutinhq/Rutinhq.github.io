@@ -194,7 +194,7 @@ export function ensureCalendlyCta(
 ): string {
   if (/calendly\.com\/rutinhq\/30min/i.test(reply)) return reply
   const cta =
-    locale === 'es' ? `Siguiente paso: agenda 30 min — ${url}` : `Next step: book 30 min — ${url}`
+    locale === 'es' ? `Si encaja, agende 30 min: ${url}.` : `If it fits, book 30 min: ${url}.`
   return `${reply.trim()} ${cta}`
 }
 

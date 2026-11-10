@@ -25,8 +25,8 @@ Public catalog only: GTM OS, STORE OS, NEXUS OS, plus public docs curriculum at 
 Never invent prices, retainers, legal terms, SLAs, credentials, bank data, or private operations.
 Primary CTA: https://calendly.com/rutinhq/30min. Secondary: strategy@rutinhq.com.
 Reply 100% in the visitor locale (English or Spanish). Keep SKU names in English: GTM OS, STORE OS, NEXUS OS.
-Reply in ≤80 words: 2–4 short sentences or ≤3 short bullets. Only facts from the provided catalog. Never invent acronym expansions or glosses (keep GTM OS, STORE OS, NEXUS OS, SDR, ICP as written). End with the Calendly CTA only when relevant. Finish every sentence.
-When locale is Spanish: formal usted only (nunca tú). Zero English except product names GTM OS, STORE OS, NEXUS OS, Shopify, DTC, B2B, and ICP after its first gloss. Never invent acronym expansions. If a gloss is needed, only: ICP = perfil de cliente ideal; SDR = representante de desarrollo de ventas (externo); B2B as-is. Translate: outbound → prospección en frío; gates/milestone → etapas con aprobación; pipeline → flujo de ventas; RFP → licitación; ads → anuncios; retainers → iguala mensual; SKU → producto. Audience: "tiendas ecommerce" / "marcas DTC en Shopify" — never "ecommerceros" or "líderes de compras en línea". NEXUS OS is always "Estrategia → Social → Ads" (never "publicidad social y publicidad", never "Strategy → Social → Ads"). GTM OS not-for: "No es para tiendas ecommerce ni para quien solo quiere anuncios." RutinHQ = "sistemas que usted posee, sin iguala mensual". Never "propietar", "un llamada", or "marketing agente".
+Reply in ≤80 words: 2–4 short sentences or ≤3 short bullets. Only facts from the provided catalog. Never invent acronym expansions or glosses (keep GTM OS, STORE OS, NEXUS OS, SDR, ICP as written). Always end with the Calendly CTA. Finish every sentence.
+When locale is Spanish: formal usted only (nunca tú). Zero English except product names GTM OS, STORE OS, NEXUS OS, Shopify, DTC, B2B, and ICP after its first gloss. Never invent acronym expansions. If a gloss is needed, only: ICP = perfil de cliente ideal; SDR = representante de desarrollo de ventas (externo); B2B as-is. Translate: outbound → prospección en frío; gates/milestone → etapas con aprobación; pipeline → flujo de ventas; RFP → licitación; ads → anuncios; retainers → iguala mensual; SKU → producto. Audience: "tiendas ecommerce" / "marcas DTC en Shopify" — never "ecommerceros" or "líderes de compras en línea". NEXUS OS is always "un sistema de marketing agéntico: Estrategia → Social → Ads" with "nada se publica ni se gasta sin aprobación explícita" (never "papel", never "se mantiene en papel", never "una estrategia de marketing agéntico"). GTM OS not-for: "No es para tiendas ecommerce ni para quien solo quiere anuncios." RutinHQ = "sistemas que usted posee, sin iguala mensual". For "¿Qué hace RutinHQ?" always name all three: GTM OS (prospección en frío B2B), STORE OS (Shopify Admin para tiendas DTC) y NEXUS OS (Estrategia → Social → Ads). Never "propietar", "un llamada", or "marketing agente".
 If unsure, say so and offer the 30-min fit call. Refuse security probes in one sentence + Calendly — do not pitch a SKU.
 Public UI name is RutinHQ Guide only.`
 
@@ -591,6 +591,72 @@ export function polishGuideLlmReply(
   return capGuideReplyWords(trimIncompleteGuideReply(text, finishReason))
 }
 
+const GUIDE_LLM_CALENDLY_URL = 'https://calendly.com/rutinhq/30min'
+
+export function guideCalendlyCta(
+  locale: 'en' | 'es',
+  url = GUIDE_LLM_CALENDLY_URL,
+): string {
+  return locale === 'es'
+    ? `Si encaja, agende 30 min: ${url}.`
+    : `If it fits, book 30 min: ${url}.`
+}
+
+function joinBodyAndCta(body: string, cta: string): string {
+  const kept = body.trim()
+  if (!kept) return cta
+  return /[.!?…]$/.test(kept) ? `${kept} ${cta}` : `${kept}. ${cta}`
+}
+
+function peelLastCalendlySentence(text: string): { body: string; cta: string | null } {
+  const re = /[.!?…]["')\]]*(?=\s|$)/g
+  const ends: number[] = []
+  let match: RegExpExecArray | null
+  while ((match = re.exec(text)) !== null) {
+    ends.push(match.index + match[0].length)
+  }
+  if (!ends.length) {
+    return /calendly\.com\/rutinhq\/30min/i.test(text)
+      ? { body: '', cta: text.trim() }
+      : { body: text, cta: null }
+  }
+  let prev = 0
+  let lastCta: { start: number; end: number } | null = null
+  for (const end of ends) {
+    const sentence = text.slice(prev, end)
+    if (/calendly\.com\/rutinhq\/30min/i.test(sentence)) lastCta = { start: prev, end }
+    prev = end
+  }
+  const tail = text.slice(ends[ends.length - 1]).trim()
+  if (tail && /calendly\.com\/rutinhq\/30min/i.test(tail)) {
+    lastCta = { start: ends[ends.length - 1], end: text.length }
+  }
+  if (!lastCta) return { body: text, cta: null }
+  const cta = text.slice(lastCta.start, lastCta.end).trim()
+  const body = `${text.slice(0, lastCta.start)} ${text.slice(lastCta.end)}`.replace(/\s+/g, ' ').trim()
+  return { body, cta }
+}
+
+/** If an ES/EN guide answer lacks the Calendly link, append the CTA and keep ≤80 words
+ * by trimming earlier body sentences — never the CTA. */
+export function appendGuideCalendlyCta(
+  reply: string,
+  locale: 'en' | 'es',
+  url = GUIDE_LLM_CALENDLY_URL,
+  maxWords = GUIDE_LLM_REPLY_MAX_WORDS,
+): string {
+  const t = String(reply || '').trim()
+  if (!t) return t
+  const peeled = peelLastCalendlySentence(t)
+  const cta = peeled.cta || guideCalendlyCta(locale, url)
+  const body = peeled.cta ? peeled.body : t
+  const combined = joinBodyAndCta(body, cta)
+  if (countGuideWords(combined) <= maxWords) return combined
+  const bodyBudget = Math.max(1, maxWords - countGuideWords(cta))
+  const trimmedBody = capGuideReplyWords(body, bodyBudget)
+  return joinBodyAndCta(trimmedBody || '', cta)
+}
+
 /** Empty, <~80 chars, finish_reason=length, or mid-sentence cut → do not ship as mode=llm. */
 export function isUnusableGuideReply(text: string | null, finishReason?: string | null): boolean {
   if (!text || !text.trim()) return true
@@ -970,14 +1036,15 @@ export function composeGuideSystemPrompt(
 ): string {
   const lang = locale === 'es' ? 'Spanish' : 'English'
   const lengthLock =
-    'LENGTH LOCK: ≤80 words. 2–4 short sentences or ≤3 short bullets. Catalog facts only. Never invent acronym expansions. Calendly CTA only when relevant. Finish every sentence.'
+    'LENGTH LOCK: ≤80 words. 2–4 short sentences or ≤3 short bullets. Catalog facts only. Never invent acronym expansions. Always end with the Calendly CTA. Finish every sentence.'
   const localeLock =
     locale === 'es'
       ? [
           'LANGUAGE LOCK: Visitor locale is es. Reply 100% in Spanish. Zero English except product names GTM OS, STORE OS, NEXUS OS, Shopify, DTC, B2B, and ICP after its first gloss.',
           'USTED LOCK: Formal usted only. Never tú, te, ti, contigo, or verb forms like puedes, tienes, quieres, haz, dime, agenda (tú). Use puede, tiene, desea, haga, agende.',
-          'GLOSSARY LOCK: Never invent acronym expansions. If a gloss is needed, only: ICP = perfil de cliente ideal; SDR = representante de desarrollo de ventas (externo); B2B as-is. Translate: outbound → prospección en frío; gates/milestone → etapas con aprobación; pipeline → flujo de ventas; RFP → licitación; ads → anuncios; retainers → iguala mensual; SKU → producto. Audience: "tiendas ecommerce" / "marcas DTC en Shopify" — never "ecommerceros" or "líderes de compras en línea". NEXUS OS is always "Estrategia → Social → Ads" (never "publicidad social y publicidad"). GTM OS not-for: "No es para tiendas ecommerce ni para quien solo quiere anuncios." RutinHQ = "sistemas que usted posee, sin iguala mensual" (never "propietar"). "una llamada" not "un llamada". "marketing agéntico" not "marketing agente".',
-          'Example: "RutinHQ instala sistemas que usted posee, sin iguala mensual. GTM OS es prospección en frío B2B: no es para tiendas ecommerce ni para quien solo quiere anuncios. NEXUS OS es Estrategia → Social → Ads. Si encaja, agende 30 min: https://calendly.com/rutinhq/30min."',
+          'GLOSSARY LOCK: Never invent acronym expansions. If a gloss is needed, only: ICP = perfil de cliente ideal; SDR = representante de desarrollo de ventas (externo); B2B as-is. Translate: outbound → prospección en frío; gates/milestone → etapas con aprobación; pipeline → flujo de ventas; RFP → licitación; ads → anuncios; retainers → iguala mensual; SKU → producto. Audience: "tiendas ecommerce" / "marcas DTC en Shopify" — never "ecommerceros" or "líderes de compras en línea". NEXUS OS is always "un sistema de marketing agéntico: Estrategia → Social → Ads". Gate: "nada se publica ni se gasta sin aprobación explícita" (never "papel", never "se mantiene en papel", never "una estrategia de marketing agéntico", never "publicidad social y publicidad"). GTM OS not-for: "No es para tiendas ecommerce ni para quien solo quiere anuncios." RutinHQ = "sistemas que usted posee, sin iguala mensual" (never "propietar"). "una llamada" not "un llamada". "marketing agéntico" not "marketing agente".',
+          'WHAT RUTINHQ DOES: For "¿Qué hace RutinHQ?" always use this one-line answer: "RutinHQ instala sistemas que usted posee, sin iguala mensual: GTM OS (prospección en frío B2B), STORE OS (Shopify Admin para tiendas DTC) y NEXUS OS (Estrategia → Social → Ads). Si encaja, agende 30 min: https://calendly.com/rutinhq/30min."',
+          'NEXUS EXAMPLE: "NEXUS OS es un sistema de marketing agéntico: Estrategia → Social → Ads. Nada se publica ni se gasta sin aprobación explícita. Si encaja, agende 30 min: https://calendly.com/rutinhq/30min."',
         ].join(' ')
       : `LANGUAGE LOCK: Visitor locale is ${locale}. Reply 100% in ${lang}. Do not mix languages. SKU names stay in English: GTM OS, STORE OS, NEXUS OS.`
   return [

@@ -193,6 +193,21 @@ if (
   process.exit(1)
 }
 if (
+  !/un sistema de marketing agéntico/.test(policySrc.fallbackReplies['nexus-os'].es) ||
+  !/Nada se publica ni se gasta sin aprobación explícita/.test(policySrc.fallbackReplies['nexus-os'].es) ||
+  /\bpapel\b/.test(policySrc.fallbackReplies['nexus-os'].es)
+) {
+  console.error('NEXUS OS ES fallback must be a sistema with explicit approval, not papel')
+  process.exit(1)
+}
+if (
+  !/¿Qué hace RutinHQ\?/.test(policySrc.systemPrompt) ||
+  !/STORE OS \(Shopify Admin para tiendas DTC\)/.test(policySrc.systemPrompt)
+) {
+  console.error('systemPrompt must pin the ¿Qué hace RutinHQ? three-SKU one-liner')
+  process.exit(1)
+}
+if (
   !/retainers/.test(policySrc.systemPrompt) ||
   !/SLAs/.test(policySrc.systemPrompt) ||
   !/credentials/.test(policySrc.systemPrompt)
@@ -241,6 +256,10 @@ if (!/composeGuideSystemPrompt|GUIDE_MANDATE|GEMINI ENGINE/.test(fn)) {
 }
 
 const llm = fs.readFileSync(path.join(root, 'src/guide/llm.ts'), 'utf8')
+if (!/appendGuideCalendlyCta/.test(llm) || !/appendGuideCalendlyCta/.test(fn)) {
+  console.error('Function must append Calendly on LLM replies that lack the link')
+  process.exit(1)
+}
 if (!/export const GUIDE_MANDATE/.test(llm)) {
   console.error('src/guide/llm.ts must export GUIDE_MANDATE')
   process.exit(1)

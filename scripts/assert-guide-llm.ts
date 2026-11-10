@@ -22,6 +22,8 @@ import {
   stripGuideMarkdownFences,
   trimIncompleteGuideReply,
   polishGuideLlmReply,
+  appendGuideCalendlyCta,
+  guideCalendlyCta,
   guideDegradedReasonFromLlm,
   guideLlmAttemptMs,
   guideLlmFailureLog,
@@ -203,7 +205,7 @@ assert(
   /≤80 words/.test(GUIDE_MANDATE) &&
     /2–4 short sentences/.test(GUIDE_MANDATE) &&
     /Never invent acronym expansions/.test(GUIDE_MANDATE) &&
-    /Calendly CTA only when relevant/.test(GUIDE_MANDATE) &&
+    /Always end with the Calendly CTA/.test(GUIDE_MANDATE) &&
     /sistemas que usted posee/.test(GUIDE_MANDATE) &&
     /nunca tú/.test(GUIDE_MANDATE) &&
     /ICP = perfil de cliente ideal/.test(GUIDE_MANDATE) &&
@@ -211,7 +213,10 @@ assert(
     /Estrategia → Social → Ads/.test(GUIDE_MANDATE) &&
     /prospección en frío/.test(GUIDE_MANDATE) &&
     /iguala mensual/.test(GUIDE_MANDATE) &&
-    /Zero English/.test(GUIDE_MANDATE),
+    /Zero English/.test(GUIDE_MANDATE) &&
+    /STORE OS \(Shopify Admin para tiendas DTC\)/.test(GUIDE_MANDATE) &&
+    /nada se publica ni se gasta sin aprobación explícita/.test(GUIDE_MANDATE) &&
+    /un sistema de marketing agéntico/.test(GUIDE_MANDATE),
   'mandate asks for short catalog-only usted replies that finish',
 )
 assert(GUIDE_LLM_REPLY_MAX_WORDS === 80, 'hard word cap is 80')
@@ -315,6 +320,35 @@ assert(
   assert(
     polished === 'RutinHQ instala sistemas que usted posee, sin retainers.',
     'polish trims the cut sentence then applies the word cap',
+  )
+}
+{
+  const missing = 'GTM OS es prospección en frío B2B. STORE OS es Shopify Admin para tiendas DTC.'
+  const esCta = appendGuideCalendlyCta(missing, 'es')
+  assert(/calendly\.com\/rutinhq\/30min/.test(esCta), 'ES reply without Calendly gets the CTA')
+  assert(/Si encaja, agende 30 min:/.test(esCta), 'ES CTA is usted agende')
+  assert(!/agenda 30 min/.test(esCta), 'ES CTA must not use tú agenda')
+  const already =
+    'NEXUS OS es un sistema de marketing agéntico: Estrategia → Social → Ads. Si encaja, agende 30 min: https://calendly.com/rutinhq/30min.'
+  assert(
+    appendGuideCalendlyCta(already, 'es') === already,
+    'reply that already has Calendly is left intact',
+  )
+  const filler = Array.from({ length: 12 }, () => 'NEXUS OS rota pilares cada semana.').join(' ')
+  const long = `GTM OS es prospección en frío B2B. STORE OS es Shopify Admin para tiendas DTC. ${filler}`
+  assert(countGuideWords(long) > 80, 'calendly-cap fixture exceeds 80 words')
+  const cappedCta = appendGuideCalendlyCta(long, 'es')
+  assert(countGuideWords(cappedCta) <= 80, 'appended CTA stays within the 80-word cap')
+  assert(/calendly\.com\/rutinhq\/30min/.test(cappedCta), 'CTA survives the word cap')
+  assert(/GTM OS es prospección en frío B2B/.test(cappedCta), 'cap trims later sentences, not the lead')
+  const longWithCta = `${long} Si encaja, agende 30 min: https://calendly.com/rutinhq/30min.`
+  const cappedExisting = appendGuideCalendlyCta(longWithCta, 'es')
+  assert(countGuideWords(cappedExisting) <= 80, 'existing CTA still fits the word cap')
+  assert(/calendly\.com\/rutinhq\/30min/.test(cappedExisting), 'existing CTA is not trimmed away')
+  const enCta = appendGuideCalendlyCta('GTM OS is B2B cold outbound the team keeps.', 'en')
+  assert(
+    enCta === `GTM OS is B2B cold outbound the team keeps. ${guideCalendlyCta('en')}`,
+    'EN reply without Calendly gets the EN CTA',
   )
 }
 assert(isUnusableGuideReply(null), 'empty completion is unusable')
@@ -475,8 +509,19 @@ assert(!isGuidePreviewHost('rutinhq.com'), 'rutinhq.com is never preview')
   assert(/ICP = perfil de cliente ideal/.test(esPrompt), 'es ICP glossary')
   assert(/SDR = representante de desarrollo de ventas \(externo\)/.test(esPrompt), 'es SDR glossary')
   assert(/tiendas ecommerce/.test(esPrompt) && /marcas DTC en Shopify/.test(esPrompt), 'es audience glossary')
-  assert(/NEXUS OS is always "Estrategia → Social → Ads"/.test(esPrompt), 'es NEXUS phrasing')
+  assert(
+    /NEXUS OS is always "un sistema de marketing agéntico: Estrategia → Social → Ads"/.test(esPrompt),
+    'es NEXUS phrasing',
+  )
+  assert(/nada se publica ni se gasta sin aprobación explícita/.test(esPrompt), 'es NEXUS gate')
+  assert(/never "papel"/.test(esPrompt), 'es bans papel')
   assert(/never "publicidad social y publicidad"/.test(esPrompt), 'es bans redundant NEXUS ads')
+  assert(
+    /GTM OS \(prospección en frío B2B\), STORE OS \(Shopify Admin para tiendas DTC\) y NEXUS OS \(Estrategia → Social → Ads\)/.test(
+      esPrompt,
+    ),
+    'es RutinHQ one-liner names all three SKUs',
+  )
   assert(/No es para tiendas ecommerce ni para quien solo quiere anuncios/.test(esPrompt), 'es GTM not-for')
   assert(/outbound → prospección en frío/.test(esPrompt), 'es outbound glossary')
   assert(/Zero English except product names/.test(esPrompt), 'es zero-english lock')
