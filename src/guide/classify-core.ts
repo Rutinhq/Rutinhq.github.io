@@ -103,6 +103,59 @@ export function isBookingTurn(messages: GuideChatMessage[], policy: ClassifyPoli
   return scoreHints(lastUserText(messages), bookingHintsOf(policy)) >= 1
 }
 
+/** Catalog STORE audit fields (source how-step 2: variants, price, weight, shipping). */
+export const STORE_AUDIT_FIELD_HINTS = [
+  'variante',
+  'variant',
+  'peso',
+  'weight',
+  'envío',
+  'envio',
+  'shipping',
+  'auditoría',
+  'auditoria',
+  'audit',
+  'scorecard',
+  'ficha de diagnóstico',
+  'ficha de diagnostico',
+] as const
+
+/** Weak: product-price field in the Shopify audit, not a SKU rate card. */
+const WEAK_PRICE_FIELD_HINTS = ['price', 'precio'] as const
+
+function strongPricingHints(policy: ClassifyPolicy): string[] {
+  const weak: Set<string> = new Set(WEAK_PRICE_FIELD_HINTS)
+  return (policy.pricingHints || []).filter((hint) => !weak.has(hint.toLowerCase()))
+}
+
+export function isRateCardTurn(messages: GuideChatMessage[], policy: ClassifyPolicy): boolean {
+  return scoreHints(lastUserText(messages), strongPricingHints(policy)) >= 1
+}
+
+function haystackIsStoreThread(messages: GuideChatMessage[], policy: ClassifyPolicy): boolean {
+  const users = userHaystack(messages)
+  return (
+    scoreHints(users, policy.intentHints['store-os']) >= 1 ||
+    /\bstore\s*-?\s*os\b/i.test(users) ||
+    /\bshopify\b/i.test(users)
+  )
+}
+
+/** Last turn is the catalog audit field (precio/peso/variantes), not "cuánto cuesta". */
+export function isStoreAuditFieldTurn(
+  messages: GuideChatMessage[],
+  policy: ClassifyPolicy,
+): boolean {
+  if (isRateCardTurn(messages, policy)) return false
+  const last = lastUserText(messages)
+  const priceField = scoreHints(last, [...WEAK_PRICE_FIELD_HINTS]) >= 1
+  const otherField = scoreHints(last, [...STORE_AUDIT_FIELD_HINTS]) >= 1
+  if (priceField && otherField) return true
+  if (!priceField && !otherField) return false
+  if (haystackIsStoreThread(messages, policy)) return true
+  return otherField && !priceField
+}
+
 /** Narrower than booking: only schedule-a-call phrasing, not "fit" / "qué más". */
 export const DEFAULT_SCHEDULING_HINTS = [
   'agendar',
@@ -146,6 +199,38 @@ export function storeShopifyFitGuideReply(
   return locale === 'es'
     ? `Sí. STORE OS audita y configura el panel de Shopify para que su tienda convierta antes de gastar en anuncios. Si encaja, agende 30 min: ${url}.`
     : `Yes. STORE OS audits and configures the Shopify admin so the store converts before you spend on ads. If it fits, book 30 min: ${url}.`
+}
+
+/** How / entregables / audit follow-ups — skip the LLM so it cannot invent handover. */
+export function isStoreDeliverablesTurn(messages: GuideChatMessage[]): boolean {
+  const last = lastUserText(messages)
+  if (/\b(gtm|nexus)\b/i.test(last) && !/\bstore\b|\bshopify\b|\btienda/i.test(last)) {
+    return false
+  }
+  const ask =
+    /entregable|qu[eé] incluye|c[oó]mo funciona|c[oó]mo entrega|lista de entrega|qu[eé] entrega|cuatro pasos|4 pasos/i.test(
+      last,
+    )
+  const storeNamed = /\bstore\b|\bshopify\b|\btienda/i.test(last)
+  const storeThread = /\bstore\s*-?\s*os\b/i.test(userHaystack(messages)) || /\bshopify\b/i.test(userHaystack(messages))
+  return ask && (storeNamed || storeThread)
+}
+
+export function isStoreCatalogTurn(
+  messages: GuideChatMessage[],
+  policy: ClassifyPolicy,
+): boolean {
+  return isStoreAuditFieldTurn(messages, policy) || isStoreDeliverablesTurn(messages)
+}
+
+/** Canonical four panel steps. No conversion guarantee, no invented handover. */
+export function storeAuditGuideReply(
+  locale: GuideLocale,
+  url = 'https://calendly.com/rutinhq/30min',
+): string {
+  return locale === 'es'
+    ? `STORE OS incluye cuatro entregables: 1) ficha de diagnóstico de fricción; 2) auditoría de variantes, precio, peso y envío; 3) configuración del panel, sin editar archivos de plantilla; 4) lista de entrega al equipo. La revisión del precio de sus productos corresponde al paso 2, no a tarifas del servicio. No incluye anuncios ni creatividades — quedan fuera de alcance y viven en NEXUS OS. Si encaja, agende 30 min: ${url}.`
+    : `STORE OS includes four deliverables: 1) friction diagnosis; 2) audit of variants, price, weight, and shipping; 3) Admin config, with no theme file edits; 4) delivery checklist. Review of your product prices is step 2, not service fees. Ads and creatives are out of scope (NEXUS OS). If it fits, book 30 min: ${url}.`
 }
 
 export type ComparedSku = 'gtm-os' | 'store-os' | 'nexus-os'
@@ -204,19 +289,19 @@ function skuContrast(locale: GuideLocale, keys: ComparedSku[]): string {
   switch (pair) {
     case 'gtm-nexus':
       return locale === 'es'
-        ? 'Son cuellos distintos: prospección en frío frente a demanda en redes.'
+        ? 'No son el mismo sistema: GTM OS cubre prospección en frío; NEXUS OS cubre demanda en redes.'
         : 'Different bottlenecks: cold outbound versus social demand.'
     case 'gtm-store':
       return locale === 'es'
-        ? 'Son cuellos distintos: prospección en frío B2B frente a conversión en Shopify.'
+        ? 'No son el mismo sistema: GTM OS cubre prospección en frío B2B; STORE OS cubre conversión en Shopify.'
         : 'Different bottlenecks: B2B cold outbound versus Shopify conversion.'
     case 'store-nexus':
       return locale === 'es'
-        ? 'Son cuellos distintos: conversión en Shopify frente a demanda en redes.'
+        ? 'No son el mismo sistema: STORE OS cubre conversión en Shopify; NEXUS OS cubre demanda en redes.'
         : 'Different bottlenecks: Shopify conversion versus social demand.'
     case 'all':
       return locale === 'es'
-        ? 'Un cuello, un sistema: elija el que atiende su operación.'
+        ? 'Cada sistema atiende un cuello distinto. Elija el que corresponde a su operación.'
         : 'One bottleneck, one system: pick the one that matches the operation.'
     default: {
       const _never: never = pair
@@ -282,6 +367,8 @@ export function classifyIntentWithPolicy(
     const sku = uniqueSku(rankKeys(last, policy, ['gtm-os', 'store-os', 'nexus-os']))
     return sku === 'unclear' ? 'fit' : sku
   }
+  if (isRateCardTurn(messages, policy)) return 'pricing'
+  if (isStoreAuditFieldTurn(messages, policy)) return 'store-os'
   if (scoreHints(last, policy.pricingHints) >= 1) return 'pricing'
   const lastRanked = rankKeys(last, policy, ['gtm-os', 'store-os', 'nexus-os', 'catalog'] as const)
   if (lastRanked[0] && lastRanked[0].n > 0) {

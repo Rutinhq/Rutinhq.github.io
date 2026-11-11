@@ -41,7 +41,7 @@ const shells = [
   },
   {
     file: 'dist/prerender/es-nexus-os.html',
-    h1: 'Marketing agéntico — primero en papel, anuncios solo con GO.',
+    h1: 'Marketing agéntico — primero en papel, anuncios solo con aprobación explícita.',
   },
   {
     file: 'dist/prerender/blog.html',
@@ -77,7 +77,7 @@ const shells = [
   },
   {
     file: 'dist/prerender/es-agents-auth.html',
-    h1: 'Público vs autenticado.',
+    h1: 'Qué es público y qué pide acceso.',
   },
   {
     file: 'dist/404.html',

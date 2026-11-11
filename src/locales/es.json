@@ -32,7 +32,7 @@
         },
         {
           "q": "¿Cuáles son los tres sistemas operativos?",
-          "a": "GTM OS — prospección en frío B2B que se queda con su equipo, en frío, filtrado por perfil de cliente ideal (ICP), con etapas con aprobación. STORE OS — auditoría y configuración del panel de Shopify para que la tienda convierta antes de gastar en anuncios. NEXUS OS — marketing agéntico, Estrategia → Social → Ads (anuncios con etapas de aprobación hasta firmar creatividades, mix y presupuesto)."
+          "a": "GTM OS — prospección en frío B2B que se queda con su equipo, en frío, filtrado por perfil de cliente ideal (ICP), con etapas con aprobación. STORE OS — auditoría y configuración del panel de Shopify para que la tienda convierta antes de gastar en anuncios. NEXUS OS — marketing agéntico, Estrategia → Social → Ads (anuncios con etapas de aprobación hasta que apruebe las creatividades, la mezcla y el presupuesto)."
         },
         {
           "q": "¿Esto es una iguala mensual?",
@@ -49,15 +49,15 @@
     "eyebrow": "GTM OS",
     "hero": {
       "headline": "Prospección en frío que se queda con usted.",
-      "subhead": "Un sistema de prospección B2B en frío instalado en su equipo — no un SDR rentado que muere cuando termina el contrato. Cambie idioma, filtros y ángulo; el núcleo se queda."
+      "subhead": "Un sistema de prospección B2B en frío instalado en su equipo — no un representante de desarrollo de ventas (SDR) externo que se va al terminar el contrato. Cambie idioma, filtros y ángulo; el núcleo se queda."
     },
     "who": {
       "title": "Para quién",
       "items": [
         "Fundador, director general o responsable de operaciones en empresas B2B",
         "Ya venden y buscan un flujo de ventas repetible",
-        "Cold email filtrado por perfil de cliente ideal (ICP)",
-        "La primera corrida siempre es en frío"
+        "Correo en frío filtrado por perfil de cliente ideal (ICP)",
+        "La primera campaña siempre es en frío"
       ]
     },
     "notFor": {
@@ -65,8 +65,8 @@
       "items": [
         "Tiendas de comercio electrónico / B2C",
         "Quien solo quiere anuncios",
-        "Licitación enterprise sin dueño de prospección",
-        "Compradores de N juntas garantizadas"
+        "Licitación de gran empresa sin alguien responsable de la prospección en frío",
+        "Compradores que exigen un número fijo de reuniones"
       ]
     },
     "how": {
@@ -74,28 +74,28 @@
       "items": [
         "M0 Investigación de sector",
         "M1 ICP + validación",
-        "M2 Framework de messaging",
-        "M3 Playbook de ventas + etapa con aprobación",
+        "M2 Marco de mensajes",
+        "M3 Guía de ventas + etapa con aprobación",
         "M4 Activación de campaña",
-        "M5 Crawl / análisis",
-        "M6 KPIs semanales (continuo)",
+        "M5 Rastreo / análisis",
+        "M6 Indicadores semanales (continuo)",
         "M7 Cierre + escala al siguiente vertical"
       ]
     },
     "roles": {
       "title": "Roles",
       "items": [
-        "Commercial Architect diseña y pone etapas con aprobación",
-        "Especialista de prospección en frío corre secuencias y clasifica replies",
-        "HoD valida el fit técnico"
+        "Quien diseña el sistema comercial define las etapas con aprobación",
+        "El especialista de prospección en frío corre las secuencias y clasifica las respuestas",
+        "El responsable de área valida el encaje técnico"
       ]
     },
     "reply": {
-      "title": "Protocolo de reply",
+      "title": "Protocolo de respuesta",
       "items": [
-        "Clasifica antes de responder: open / pregunta / referral / OOO / no interesado / silencio",
-        "Un bump si hay silencio — luego se descarta",
-        "Discovery: el lead describe su proceso con sus palabras — sin pitch de features"
+        "Clasifique antes de responder: abierto / pregunta / referido / fuera de oficina / no interesado / silencio",
+        "Un recordatorio si hay silencio — luego se descarta",
+        "Descubrimiento: el prospecto describe su proceso con sus palabras — sin discurso de funciones"
       ]
     },
     "outcomes": {
@@ -103,7 +103,7 @@
       "items": [
         "Flujo de ventas de prospección en frío que su equipo puede correr",
         "ICP con criterios verificables",
-        "Secuencias + SOP para que el sistema sobreviva sin nosotros",
+        "Secuencias + procedimiento para que el sistema sobreviva sin nosotros",
         "Valida un vertical antes de escalar el siguiente"
       ]
     },
@@ -111,9 +111,9 @@
       "title": "Qué no es",
       "items": [
         "Una agencia de anuncios o social",
-        "Una wiki del SaaS de otro",
-        "Un dump de listas / CRM / APIs",
-        "Una promesa de N juntas"
+        "Un manual de la herramienta de otro",
+        "Un volcado de listas de contactos, de CRM o de APIs",
+        "Una promesa de un número fijo de reuniones"
       ]
     },
     "faq": {
@@ -121,19 +121,19 @@
       "items": [
         {
           "q": "¿Qué es GTM OS?",
-          "a": "Prospección en frío que se queda con usted. Un sistema de prospección B2B en frío instalado en su equipo — no un SDR rentado que muere cuando termina el contrato. Cambie idioma, filtros y ángulo; el núcleo se queda."
+          "a": "Prospección en frío que se queda con usted. Un sistema de prospección B2B en frío instalado en su equipo — no un representante de desarrollo de ventas (SDR) externo que se va al terminar el contrato. Cambie idioma, filtros y ángulo; el núcleo se queda."
         },
         {
           "q": "¿Para quién es GTM OS?",
-          "a": "Fundador, director general o responsable de operaciones en empresas B2B que ya venden y buscan un flujo de ventas repetible. Correo en frío filtrado por ICP. La primera corrida siempre es en frío."
+          "a": "Fundador, director general o responsable de operaciones en empresas B2B que ya venden y buscan un flujo de ventas repetible. Correo en frío filtrado por ICP. La primera campaña siempre es en frío."
         },
         {
           "q": "¿Cómo funciona GTM OS?",
-          "a": "Con etapas con aprobación: M0 Investigación de sector, M1 ICP + validación, M2 Framework de messaging, M3 Playbook de ventas + etapa con aprobación, M4 Activación de campaña, M5 Crawl / análisis, M6 KPIs semanales (continuo), M7 Cierre + escala al siguiente vertical."
+          "a": "Con etapas con aprobación: M0 Investigación de sector, M1 ICP + validación, M2 Marco de mensajes, M3 Guía de ventas + etapa con aprobación, M4 Activación de campaña, M5 Rastreo / análisis, M6 Indicadores semanales (continuo), M7 Cierre + escala al siguiente vertical."
         },
         {
           "q": "¿Qué no es GTM OS?",
-          "a": "Una agencia de anuncios o social. Una wiki del SaaS de otro. Un dump de listas / CRM / APIs. Una promesa de N juntas."
+          "a": "Una agencia de anuncios o social. Un manual de la herramienta de otro. Un volcado de listas de contactos, de CRM o de APIs. Una promesa de un número fijo de reuniones."
         }
       ]
     }
@@ -148,27 +148,26 @@
       "title": "Para quién",
       "items": [
         "Marcas que venden directo al consumidor en Shopify",
-        "Fricción operativa",
-        "Quiere anuncios pero la tienda aún no convierte"
+        "Hay fricción en la operación de la tienda",
+        "Quiere anuncios, pero la tienda aún no convierte"
       ]
     },
     "notFor": {
       "title": "No es para",
       "items": [
-        "Solo trabajo de theme",
+        "Solo trabajo de plantilla",
         "Anuncios sin una tienda que convierta",
         "Solo creatividades",
-        "Plus enterprise puro sin dueño del panel de Shopify"
+        "Shopify Plus de gran empresa sin alguien dueño del panel"
       ]
     },
     "how": {
       "title": "Cómo funciona",
       "items": [
-        "1) Scorecard / diagnóstico de fricción en el panel de Shopify",
+        "1) Ficha de diagnóstico de fricción en el panel de Shopify",
         "2) Auditoría: variantes, precio, peso, envío",
-        "3) Configuración del panel de Shopify al molde (sin editar archivos de theme)",
-        "4) Checklist de entrega + handoff",
-        "5) Anuncios / creatividades = fuera de alcance (NEXUS OS)"
+        "3) Configuración del panel de Shopify según el patrón del sistema (sin editar archivos de plantilla)",
+        "4) Lista de entrega al equipo"
       ]
     },
     "outcomes": {
@@ -182,10 +181,10 @@
     "notWhat": {
       "title": "Qué no es",
       "items": [
-        "Edición de archivos de theme / Dawn",
-        "Una agencia de anuncios",
-        "Defaults de catálogo o tarifas de envío de otro",
-        "Bots que colocan órdenes de compra"
+        "Edición de archivos de plantilla / Dawn",
+        "Anuncios y creatividades (fuera de alcance; viven en NEXUS OS); no es una agencia de anuncios",
+        "Valores por defecto de catálogo o tarifas de envío de otro",
+        "Bots que hacen pedidos por su cuenta"
       ]
     },
     "faq": {
@@ -197,15 +196,15 @@
         },
         {
           "q": "¿Para quién es STORE OS?",
-          "a": "Marcas que venden directo al consumidor en Shopify. Fricción operativa. Quiere anuncios pero la tienda aún no convierte."
+          "a": "Marcas que venden directo al consumidor en Shopify. Hay fricción en la operación de la tienda. Quiere anuncios, pero la tienda aún no convierte."
         },
         {
           "q": "¿Cómo funciona STORE OS?",
-          "a": "1) Scorecard / diagnóstico de fricción en el panel de Shopify. 2) Auditoría: variantes, precio, peso, envío. 3) Configuración del panel de Shopify al molde (sin editar archivos de theme). 4) Checklist de entrega + handoff. 5) Anuncios / creatividades = fuera de alcance (NEXUS OS)."
+          "a": "Entrega en cuatro pasos separados: 1) ficha de diagnóstico de fricción en el panel de Shopify; 2) auditoría de variantes, precio, peso y envío; 3) configuración del panel, sin editar archivos de plantilla; 4) lista de entrega al equipo. No incluye anuncios ni creatividades — quedan fuera de alcance y viven en NEXUS OS."
         },
         {
           "q": "¿Qué no es STORE OS?",
-          "a": "Edición de archivos de theme / Dawn. Una agencia de anuncios. Defaults de catálogo o tarifas de envío de otro. Bots que colocan órdenes de compra."
+          "a": "No es edición de plantilla / Dawn. No es una agencia de anuncios. No trae anuncios ni creatividades (eso es NEXUS OS). No usa valores por defecto de catálogo o tarifas de envío de otro. No son bots que hacen pedidos por su cuenta."
         }
       ]
     }
@@ -213,50 +212,50 @@
   "nexus": {
     "eyebrow": "NEXUS OS",
     "hero": {
-      "headline": "Marketing agéntico — primero en papel, anuncios solo con GO.",
-      "subhead": "Estrategia → Social → Ads. Hasta que creatividades, mix y presupuesto tengan un GO explícito: solo papel (sin pixel, sin spend)."
+      "headline": "Marketing agéntico — primero en papel, anuncios solo con aprobación explícita.",
+      "subhead": "Estrategia → Social → Ads. Hasta que apruebe las creatividades, la mezcla y el presupuesto: solo papel (sin píxel, sin gasto)."
     },
     "who": {
       "title": "Para quién",
       "items": [
-        "Retailer / ecom con oferta y productos claros",
+        "Minorista / tienda en línea con oferta y productos claros",
         "Quiere demanda desde social como sistema",
-        "Voz de marca en operación/marketing del cliente (NEXUS no inventa perfil de cliente ideal (ICP) ni oferta)"
+        "La voz de marca la define el equipo de operación y marketing del cliente (NEXUS no inventa el perfil de cliente ideal (ICP) ni la oferta)"
       ]
     },
     "notFor": {
       "title": "No es para",
       "items": [
         "Sin oferta / producto",
-        "Anuncios con banco creativo en cero",
-        "Presupuesto 0 haciéndose pasar por “anuncios en vivo”"
+        "Anuncios sin creatividades listas",
+        "Presupuesto en cero presentado como si los anuncios ya estuvieran activos"
       ]
     },
     "how": {
       "title": "Cómo funciona",
       "items": [
-        "1) Brief + pilares de contenido (un problema, un objeto)",
-        "2) Batch semanal en papel: mensaje · post orgánico · historia de producto",
+        "1) Encargo y pilares de contenido (un problema, un producto)",
+        "2) Lote semanal en papel: mensaje · publicación orgánica · historia de producto",
         "3) Aprobación de voz por el dueño de marca del cliente",
         "4) Rotación de pilares",
-        "5) Anuncios en pausa hasta firmar fotos + mix + presupuesto"
+        "5) Anuncios en pausa hasta que apruebe las creatividades, la mezcla y el presupuesto"
       ]
     },
     "outcomes": {
       "title": "Resultados",
       "items": [
-        "Sistema de contenido repetible sin claims inventados",
-        "Papel listo para review antes del spend",
+        "Sistema de contenido repetible sin afirmaciones inventadas",
+        "Papel listo para revisión antes del gasto",
         "Separación clara: NEXUS ≠ prospección en frío (GTM OS) ≠ panel de Shopify de la tienda (STORE OS)"
       ]
     },
     "notWhat": {
       "title": "Qué no es",
       "items": [
-        "Anuncios en vivo / pixel / spend sin GO",
+        "Anuncios en vivo / píxel / gasto sin aprobación explícita",
         "Dueño del ICP o la oferta del cliente",
         "GTM OS",
-        "Edición de theme de Shopify"
+        "Edición de plantilla de Shopify"
       ]
     },
     "faq": {
@@ -264,19 +263,19 @@
       "items": [
         {
           "q": "¿Qué es NEXUS OS?",
-          "a": "Marketing agéntico — primero en papel, anuncios solo con GO. Estrategia → Social → Ads. Hasta que creatividades, mix y presupuesto tengan un GO explícito: solo papel (sin pixel, sin spend)."
+          "a": "Marketing agéntico — primero en papel, anuncios solo con aprobación explícita. Estrategia → Social → Ads. Hasta que apruebe las creatividades, la mezcla y el presupuesto: solo papel (sin píxel, sin gasto)."
         },
         {
           "q": "¿Para quién es NEXUS OS?",
-          "a": "Retailer / ecom con oferta y productos claros. Quiere demanda desde social como sistema. Voz de marca en operación/marketing del cliente (NEXUS no inventa ICP ni oferta)."
+          "a": "Minorista / tienda en línea con oferta y productos claros. Quiere demanda desde social como sistema. La voz de marca la define el equipo de operación y marketing del cliente (NEXUS no inventa el ICP ni la oferta)."
         },
         {
           "q": "¿Cómo funciona NEXUS OS?",
-          "a": "1) Brief + pilares de contenido (un problema, un objeto). 2) Batch semanal en papel: mensaje · post orgánico · historia de producto. 3) Aprobación de voz por el dueño de marca del cliente. 4) Rotación de pilares. 5) Anuncios en pausa hasta firmar fotos + mix + presupuesto."
+          "a": "1) Encargo y pilares de contenido (un problema, un producto). 2) Lote semanal en papel: mensaje · publicación orgánica · historia de producto. 3) Aprobación de voz por el dueño de marca del cliente. 4) Rotación de pilares. 5) Anuncios en pausa hasta que apruebe las creatividades, la mezcla y el presupuesto."
         },
         {
           "q": "¿Qué no es NEXUS OS?",
-          "a": "Anuncios en vivo / pixel / spend sin GO. Dueño del ICP o la oferta del cliente. GTM OS. Edición de theme de Shopify."
+          "a": "Anuncios en vivo / píxel / gasto sin aprobación explícita. Dueño del ICP o la oferta del cliente. GTM OS. Edición de plantilla de Shopify."
         }
       ]
     }
@@ -294,13 +293,13 @@
     },
     "nexus": {
       "name": "NEXUS OS",
-      "thesis": "Marketing agéntico — Estrategia → Social → Ads (anuncios con etapas de aprobación hasta firmar creatividades, mix y presupuesto).",
+      "thesis": "Marketing agéntico — Estrategia → Social → Ads (anuncios con etapas de aprobación hasta que apruebe las creatividades, la mezcla y el presupuesto).",
       "cta": "Ver NEXUS OS"
     }
   },
   "footer": {
     "location": "Tijuana / Pacífico",
-    "onePager": "One-pager"
+    "onePager": "Ficha de una página"
   },
   "notFound": {
     "title": "Página no encontrada",
@@ -315,11 +314,11 @@
     "storeTitle": "RutinHQ — STORE OS — la tienda convierte antes de los anuncios",
     "storeDescription": "Haga que la tienda convierta antes de comprar anuncios. Auditoría y configuración replicable del panel de Shopify.",
     "nexusTitle": "RutinHQ — NEXUS OS — marketing agéntico en papel primero",
-    "nexusDescription": "Marketing agéntico — primero en papel, anuncios solo con GO. Estrategia → Social → Ads.",
+    "nexusDescription": "Marketing agéntico — primero en papel, anuncios solo con aprobación explícita. Estrategia → Social → Ads.",
     "agentsTitle": "RutinHQ — catálogo para agentes",
-    "agentsDescription": "Endpoints y archivos de discovery públicos: catálogo, llms.txt, sitemap y superficies de auth.",
+    "agentsDescription": "Rutas y archivos públicos de descubrimiento: catálogo, llms.txt, sitemap y páginas de acceso.",
     "agentsAuthTitle": "RutinHQ — auth para agentes",
-    "agentsAuthDescription": "Qué es público y qué va detrás de Access. Sin secretos. Contacto strategy@rutinhq.com.",
+    "agentsAuthDescription": "Qué es público y qué va detrás de Cloudflare Access. Sin secretos. Contacto strategy@rutinhq.com.",
     "notFoundTitle": "RutinHQ — 404"
   },
   "guide": {
@@ -345,7 +344,7 @@
   "agents": {
     "eyebrow": "Catálogo para agentes",
     "headline": "Superficies públicas que un agente puede leer.",
-    "subhead": "Índice corto de endpoints y archivos de discovery. Sin secretos. El sitio comercial sigue vendiendo un producto a la vez.",
+    "subhead": "Índice corto de rutas y archivos de descubrimiento. Sin secretos. El sitio comercial sigue vendiendo un producto a la vez.",
     "resourcesTitle": "Recursos públicos",
     "resources": {
       "docs": {
@@ -354,7 +353,7 @@
       },
       "contact": {
         "name": "Contacto",
-        "blurb": "Inbox humano para preguntas de fit. Sin intercambio automático de credenciales."
+        "blurb": "Buzón atendido por personas para preguntas de encaje. Sin intercambio automático de credenciales."
       },
       "llms": {
         "name": "llms.txt",
@@ -366,41 +365,41 @@
       },
       "sitemap": {
         "name": "Sitemap",
-        "blurb": "URLs canónicas www para crawl e índice."
+        "blurb": "URLs canónicas www para rastreo e índice."
       },
       "apiCatalog": {
         "name": "api-catalog RFC 9727",
-        "blurb": "Linkset de recursos públicos en /.well-known/api-catalog."
+        "blurb": "Lista de enlaces (linkset) de recursos públicos en /.well-known/api-catalog."
       },
       "authMd": {
         "name": "auth.md",
         "blurb": "Superficies públicas vs autenticadas. Sin claves."
       }
     },
-    "authTitle": "Auth",
-    "authBody": "www y el catálogo público no pedirán credenciales. El Access home de docs.rutinhq.com es para humanos, no para agentes.",
-    "authCta": "Leer superficies de auth"
+    "authTitle": "Acceso",
+    "authBody": "www y el catálogo público no pedirán credenciales. La página de inicio de Cloudflare Access en docs.rutinhq.com es para personas, no para agentes.",
+    "authCta": "Leer qué es público y qué pide acceso"
   },
   "agentsAuth": {
-    "eyebrow": "Superficies de auth",
-    "headline": "Público vs autenticado.",
-    "subhead": "Los agentes se quedan en archivos públicos. Cloudflare Access en el home de docs no es una API pública.",
+    "eyebrow": "Páginas de acceso",
+    "headline": "Qué es público y qué pide acceso.",
+    "subhead": "Los agentes se quedan en archivos públicos. Cloudflare Access en la página de inicio de docs no es una API pública.",
     "rawNote": "La copia para máquinas vive en",
     "public": {
       "title": "Público — sin credenciales",
       "items": [
-        "www.rutinhq.com — hub, tres landings OS, blog",
+        "www.rutinhq.com — hub, tres páginas de sistema, blog",
         "docs.rutinhq.com/catalog — solo temario público",
         "llms.txt, llms-full.txt, sitemap.xml, robots.txt",
         "/.well-known/api-catalog y /auth.md",
-        "POST /api/guide — concierge anclado al catálogo, sin secretos"
+        "POST /api/guide — guía anclada al catálogo, sin secretos"
       ]
     },
     "gated": {
       "title": "Autenticado — no para agentes",
       "items": [
-        "Home de docs.rutinhq.com y otros docs de operador detrás de Access",
-        "No sondee el login de Access, cookies ni rutas de bypass",
+        "Página de inicio de docs.rutinhq.com y otros docs de operador detrás de Cloudflare Access",
+        "No sondee el login de Access, cookies ni rutas para saltarse el acceso",
         "El catálogo público es la única superficie de docs a leer"
       ]
     },
@@ -408,7 +407,7 @@
       "title": "No se ofrece en www",
       "items": [
         "No hay OAuth ni registro de agentes",
-        "No hay pay-per-crawl ni páginas de marketing de pago por máquina",
+        "No hay cobro por rastreo ni páginas de marketing de pago por máquina",
         "No hay API keys, tokens ni secretos en estos archivos"
       ]
     },

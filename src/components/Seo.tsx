@@ -2,14 +2,15 @@ import { Helmet } from '@dr.pogodin/react-helmet'
 
 export const SITE = 'https://www.rutinhq.com'
 /** HQ brand mark (green square + arrow). PNG/ICO before SVG for Google SERP. */
-const FAVICON_PNG_48 = `${SITE}/favicon-48x48.png`
-const FAVICON_PNG_192 = `${SITE}/favicon-192x192.png`
-const FAVICON_ICO = `${SITE}/favicon.ico`
-const FAVICON_SVG = `${SITE}/favicon.svg`
-const APPLE_TOUCH_ICON = `${SITE}/apple-touch-icon.png`
-const WEB_MANIFEST = `${SITE}/site.webmanifest`
+/** Same-origin icons so preview (pages.dev) is not blocked by img-src 'self'. Canonicals stay www. */
+const FAVICON_PNG_48 = '/favicon-48x48.png'
+const FAVICON_PNG_192 = '/favicon-192x192.png'
+const FAVICON_ICO = '/favicon.ico'
+const FAVICON_SVG = '/favicon.svg'
+const APPLE_TOUCH_ICON = '/apple-touch-icon.png'
+const WEB_MANIFEST = '/site.webmanifest'
 /** Existing HQ mark raster (180×180). Google Organization.logo wants a square PNG, not SVG. */
-export const LOGO_PNG = APPLE_TOUCH_ICON
+export const LOGO_PNG = `${SITE}/apple-touch-icon.png`
 const LOGO_WIDTH = 180
 const LOGO_HEIGHT = 180
 

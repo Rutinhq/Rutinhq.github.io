@@ -53,18 +53,18 @@ export default function BlogEsPage() {
           Sistemas que usted posee — filtrados para fundadores que instalan, no rentan
         </h1>
         <p className="mt-6 max-w-2xl text-[17px] text-muted-foreground md:text-[18px]">
-          El blog de RutinHQ es un radar: cada post deja ver si encaja en
-          nuestro perfil de cliente ideal (ICP), si nombra un dolor real de operación/GTM y si desea un
-          sistema que se quede con su equipo. Mesa doble — estrategia de CEO +
-          instalación de operación. Siguiente paso: llamada de encaje; educar
-          para siempre, nunca.
+          El blog de RutinHQ es un radar: cada artículo deja ver si encaja en
+          nuestro perfil de cliente ideal (ICP), si nombra un dolor real de operación o de prospección y si desea un
+          sistema que se quede con su equipo. Hay dos capas: estrategia de dirección y
+          operación instalada. El siguiente paso es una llamada de encaje, no un ciclo de
+          contenido sin fin.
         </p>
       </Section>
 
       <Section>
         <MonoTitle>Marco de filtro</MonoTitle>
         <p className="mt-6 max-w-2xl text-[16px] text-muted-foreground">
-          Este blog etiqueta señal del lector. El CTA en cada camino es una
+          Este blog etiqueta señal del lector. En cada camino, el siguiente paso es una
           llamada de encaje (strategy@) — no un pozo de contenido.
         </p>
         <div className="mt-10 grid grid-cols-1 lg:grid-cols-4">
@@ -116,8 +116,8 @@ export default function BlogEsPage() {
             </Link>
           </h2>
           <p className="mt-3 text-[16px] text-muted-foreground">
-            Esquema en inglés (borrador). Base pública en inglés — sin gemelo ES
-            todavía.
+            Esquema en inglés (borrador). El texto público sigue en inglés; aún no hay
+            versión en español.
           </p>
           <Button asChild className="mt-8" size="lg">
             <Link to={ARTICLE02.path}>Lea el esquema en inglés</Link>
@@ -149,7 +149,7 @@ export default function BlogEsPage() {
         <div className="mt-8 grid grid-cols-1 lg:grid-cols-3">
           <article className="flex flex-col py-8 lg:pr-8">
             <h2 className="text-2xl font-heading font-extrabold tracking-[-0.03em]">
-              Flujo de ventas en frío repetible / puertas de ICP
+              Flujo de ventas en frío repetible / filtros de perfil de cliente ideal (ICP)
             </h2>
             <p className="mt-3 flex-1 text-[16px] text-muted-foreground">
               Empiece por la guía práctica, luego GTM OS.
@@ -182,7 +182,7 @@ export default function BlogEsPage() {
                 to={ARTICLE02.path}
                 className="text-foreground underline underline-offset-4 hover:text-primary"
               >
-                Esquema EN
+                Esquema en inglés
               </Link>
               {' · '}
               <a
@@ -214,7 +214,7 @@ export default function BlogEsPage() {
         </div>
       </Section>
 
-      <FaqSection title="FAQ" items={BLOG_INDEX_ES.faq} />
+      <FaqSection title="Preguntas frecuentes" items={BLOG_INDEX_ES.faq} />
 
       <Section>
         <Ctas />
@@ -235,10 +235,10 @@ export default function BlogEsPage() {
             rel="noopener noreferrer"
             className="text-foreground underline underline-offset-4 hover:text-primary"
           >
-            ficha GTM
+            ficha de GTM OS
           </a>
           {' · '}
-          LP primaria{' '}
+          Página de producto{' '}
           <a
             href={WWW_GTM_ES_URL}
             className="text-foreground underline underline-offset-4 hover:text-primary"
@@ -248,12 +248,12 @@ export default function BlogEsPage() {
           .
         </p>
         <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
-          Soft-park hasta que esos desks estén GO:{' '}
+          En espera hasta que esas páginas de producto estén listas:{' '}
           <a
             href={WWW_STORE_ES_URL}
             className="underline underline-offset-4 hover:text-foreground"
           >
-            Store OS
+            STORE OS
           </a>
           {' · '}
           <a

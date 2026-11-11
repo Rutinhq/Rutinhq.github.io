@@ -30,15 +30,15 @@ export const BLOG_INDEX_FAQ = [
 export const BLOG_INDEX_FAQ_ES = [
   {
     q: '¿Qué es el blog de RutinHQ?',
-    a: 'Radar para fundadores que instalan sistemas de GTM y operación — no asientos rentados.',
+    a: 'Radar para fundadores que instalan sistemas de prospección y operación — no asientos rentados.',
   },
   {
     q: '¿Qué señal filtra este radar?',
-    a: 'Encaje de perfil de cliente ideal (ICP), un dolor real de operación/GTM, interés de producto y lenguaje de fundador / CEO / responsable de operación — luego un sistema que se queda con su equipo.',
+    a: 'Encaje de perfil de cliente ideal (ICP), un dolor real de operación o de prospección, interés de producto y lenguaje de fundador / director general / responsable de operación — luego un sistema que se queda con su equipo.',
   },
   {
     q: '¿Esto es un pozo de contenido?',
-    a: 'No. El CTA en cada camino es una llamada de encaje (strategy@) — no un pozo de contenido. Siguiente paso: llamada de encaje; educar para siempre, nunca.',
+    a: 'No. En cada camino, el siguiente paso es una llamada de encaje (strategy@) — no un pozo de contenido ni un ciclo de artículos sin fin.',
   },
   {
     q: '¿Dónde viven los sistemas?',
@@ -60,7 +60,7 @@ export const BLOG_INDEX = {
 export const BLOG_INDEX_ES = {
   title: 'Blog — sistemas que usted posee',
   description:
-    'Radar para fundadores que instalan sistemas de GTM y operación — no asientos rentados.',
+    'Radar para fundadores que instalan sistemas de prospección y operación — no asientos rentados.',
   path: '/es/blog',
   alternatePath: '/blog',
   draft: false,
@@ -141,7 +141,7 @@ export const ARTICLE01_ES = {
     },
     {
       q: '¿Dónde está la ficha del sistema?',
-      a: 'Mire la ficha GTM OS en catalog y la página /gtm-os.',
+      a: 'Mire la ficha GTM OS en el catálogo y la página /es/gtm-os.',
     },
   ],
 } as const
@@ -220,9 +220,9 @@ export const BLOG_FEATURED_COMING = [
 
 export const BLOG_FILTER_SIGNALS_ES = [
   { name: 'Encaje de perfil de cliente ideal (ICP)', thesis: 'Vertical / rol del comprador' },
-  { name: 'Dolor', thesis: 'Flujo de ventas, traspaso, ICP, fricción de operación lean' },
-  { name: 'Interés de producto', thesis: 'Qué página OS abren' },
-  { name: 'Cargo', thesis: 'Lenguaje de fundador / CEO / responsable de operación' },
+  { name: 'Dolor', thesis: 'Flujo de ventas, traspaso, ICP, poca fricción de operación' },
+  { name: 'Interés de producto', thesis: 'Qué página de sistema abren' },
+  { name: 'Cargo', thesis: 'Lenguaje de fundador / director general / responsable de operación' },
 ] as const
 
 export const BLOG_FEATURED_COMING_ES = [
@@ -231,11 +231,11 @@ export const BLOG_FEATURED_COMING_ES = [
     type: 'marco',
   },
   {
-    title: 'Radar → Blueprint → OS: el cuello antes de comprar build',
+    title: 'Radar → esquema → sistema: el cuello antes de comprar desarrollo',
     type: 'guía práctica',
   },
   {
-    title: 'Iguala mensual de agencia vs instalar un OS de prospección en frío',
+    title: 'Iguala mensual de agencia frente a instalar un sistema de prospección en frío',
     type: 'comparación',
   },
 ] as const

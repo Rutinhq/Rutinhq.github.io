@@ -3,10 +3,14 @@ import { fileURLToPath } from 'node:url'
 import {
   classifyIntentWithPolicy,
   ensureCalendlyCta,
+  isRateCardTurn,
   isSchedulingTurn,
   isSkuComparisonTurn,
+  isStoreAuditFieldTurn,
+  isStoreCatalogTurn,
   isStoreShopifyFitTurn,
   namedGuideSkus,
+  storeAuditGuideReply,
   recommendSkuWithPolicy,
   resolveFallbackKey,
   schedulingGuideReply,
@@ -15,6 +19,7 @@ import {
   type ClassifyPolicy,
 } from '../src/guide/classify-core.ts'
 import { localGuideReply } from '../src/guide/fallback.ts'
+import { isGuideOutageMode } from '../src/guide/types.ts'
 import {
   callGuideLlmDetailed,
   composeGuideSystemPrompt,
@@ -451,6 +456,16 @@ assert(
     'para discutir más becomes para conversarlo',
   )
   assert(
+    applyGuideEsTypoFixes('scorecard, checklist y handoff.') ===
+      'ficha de diagnóstico, lista de entrega y entrega al equipo.',
+    'scorecard / checklist / handoff glossary',
+  )
+  assert(
+    applyGuideEsTypoFixes('Son cuellos distintos: GTM OS cubre prospección en frío.') ===
+      'No son el mismo sistema: GTM OS cubre prospección en frío.',
+    'Son cuellos distintos is rewritten',
+  )
+  assert(
     appendGuideCalendlyCta(
       'STORE OS es auditoría. Agende 30 min para discutir más: https://calendly.com/rutinhq/30min.',
       'es',
@@ -647,6 +662,24 @@ assert(!isGuidePreviewHost('rutinhq.com'), 'rutinhq.com is never preview')
       GUIDE_ES_CATALOG_FACTS,
     ),
     'es catalog STORE OS is a full sentence',
+  )
+  assert(/STORE DELIVERABLES LOCK/.test(esPrompt), 'es STORE deliverables lock')
+  assert(/scorecard → ficha de diagnóstico/.test(esPrompt), 'es scorecard glossary')
+  assert(/Never say "Son cuellos distintos"/.test(esPrompt), 'es comparison lock bans Son cuellos distintos')
+  assert(
+    /No incluye anuncios ni creatividades/.test(GUIDE_ES_STORE_FACTS) &&
+      /ficha de diagnóstico/.test(GUIDE_ES_STORE_FACTS) &&
+      /viven en NEXUS OS/.test(GUIDE_ES_STORE_FACTS),
+    'STORE facts split deliverables vs ads/creatives exclusion',
+  )
+  assert(
+    !/Entrega:.*anuncios ni creatividades — quedan fuera/.test(
+      GUIDE_ES_STORE_FACTS.slice(
+        0,
+        GUIDE_ES_STORE_FACTS.indexOf('No incluye anuncios ni creatividades'),
+      ),
+    ),
+    'STORE facts must not list ads as a numbered deliverable',
   )
   assert(
     /Es para fundadores, directores generales o responsables de operaciones/.test(GUIDE_ES_CATALOG_FACTS),
@@ -983,6 +1016,91 @@ assert(
     'pricing',
   'explicit pricing still refuses',
 )
+{
+  const auditQ = '¿la auditoría cubre variantes, precio, peso y envío?'
+  assert(
+    classifyIntentWithPolicy(userTurn(auditQ), guidePolicy) === 'store-os',
+    'audit fields including precio classify as STORE OS, not a rate card',
+  )
+  assert(
+    isStoreAuditFieldTurn(userTurn(auditQ), guidePolicy),
+    'audit field turn detects precio next to variantes/peso/envío',
+  )
+  assert(
+    !isRateCardTurn(userTurn(auditQ), guidePolicy),
+    'audit field turn is not a rate-card verb',
+  )
+  const afterAudit = [
+    { role: 'user' as const, content: '¿Qué es STORE OS?' },
+    {
+      role: 'assistant' as const,
+      content: 'STORE OS audita variantes, precio, peso y envío. Si encaja, agende 30 min: https://calendly.com/rutinhq/30min.',
+    },
+    { role: 'user' as const, content: '¿cubre precio?' },
+  ]
+  assert(
+    classifyIntentWithPolicy(afterAudit, guidePolicy) === 'store-os',
+    'after STORE audit, ¿cubre precio? stays STORE OS',
+  )
+  assert(
+    classifyIntentWithPolicy(
+      [
+        { role: 'user' as const, content: '¿Qué es STORE OS?' },
+        { role: 'assistant' as const, content: 'STORE OS audita el panel.' },
+        { role: 'user' as const, content: 'cuánto cuesta STORE OS' },
+      ],
+      guidePolicy,
+    ) === 'pricing',
+    'cuánto cuesta after STORE is still a rate-card refusal',
+  )
+  assert(
+    /precio/.test(GUIDE_ES_STORE_FACTS),
+    'STORE ES facts keep precio as a catalog audit field',
+  )
+  assert(isStoreCatalogTurn(afterAudit, guidePolicy), '¿cubre precio? is a STORE catalog turn')
+  const auditReply = localGuideReply(afterAudit, 'es')
+  assert(
+    /cuatro entregables/.test(auditReply) &&
+      /precio de sus productos/.test(auditReply) &&
+      /paso 2/.test(auditReply) &&
+      /no a tarifas del servicio/.test(auditReply),
+    'STORE audit canned names four deliverables; product-price field is step 2, not service fees',
+  )
+  assert(
+    !/entrega cuatro pasos/.test(auditReply),
+    'STORE canned must not say entrega cuatro pasos de panel',
+  )
+  assert(
+    !/garantizar|coherente|eficiencia|recomendaciones y acciones|preparada para convertir/i.test(
+      auditReply,
+    ),
+    'STORE audit canned must not invent handover or conversion guarantees',
+  )
+  assert(
+    !/Las respuestas en vivo están en pausa/i.test(auditReply),
+    'policy STORE audit reply must not claim live answers are paused',
+  )
+  const pricingReply = localGuideReply(userTurn('¿Cuánto cuesta STORE OS?'), 'es')
+  assert(
+    /No cito precios/i.test(pricingReply),
+    'fresh STORE rate-card question still refuses a quote',
+  )
+  assert(
+    !/Las respuestas en vivo están en pausa/i.test(pricingReply),
+    'pricing refuse must not use the live-paused outage copy',
+  )
+  assert(!isGuideOutageMode('catalog'), 'catalog mode is not a live outage')
+  assert(isGuideOutageMode('degraded'), 'degraded mode is a live outage')
+  const canned = storeAuditGuideReply('es')
+  assert(
+    /sin editar archivos de plantilla/.test(canned) && /NEXUS OS/.test(canned),
+    'STORE canned keeps config vs audit split and ads exclusion',
+  )
+  assert(
+    countGuideWords(canned) <= 80,
+    `STORE canned must stay ≤80 words (got ${countGuideWords(canned)})`,
+  )
+}
 const degradedSku = ensureCalendlyCta(
   'STORE OS is Shopify Admin audit + config. GTM OS and NEXUS OS stay out of Admin.',
   'en',
@@ -1058,6 +1176,8 @@ function assertPlainGuideText(text: string, label: string) {
   const gtmNexusEs = localGuideReply(userTurn(gtmNexusQ), 'es')
   assert(gtmNexusEs === skuComparisonGuideReply('es', undefined, ['gtm-os', 'nexus-os']), 'local GTM vs NEXUS uses canned comparison')
   assert(/GTM OS/.test(gtmNexusEs) && /NEXUS OS/.test(gtmNexusEs), 'GTM vs NEXUS names both labels')
+  assert(/No son el mismo sistema/.test(gtmNexusEs), 'GTM vs NEXUS uses No son el mismo sistema')
+  assert(!/Son cuellos distintos/.test(gtmNexusEs), 'GTM vs NEXUS must not say Son cuellos distintos')
   assert(
     /prospección en frío/.test(gtmNexusEs) &&
       /marketing agéntico/.test(gtmNexusEs) &&

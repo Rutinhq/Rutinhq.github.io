@@ -19,11 +19,12 @@ import {
   strategyMailtoHref,
 } from '@/guide/lead'
 import { enforceSafeReply, isSecurityProbe, securityReply } from '@/guide/security'
-import type {
-  GuideApiResponse,
-  GuideChatMessage,
-  GuideLocale,
-  LeadBrief,
+import {
+  isGuideOutageMode,
+  type GuideApiResponse,
+  type GuideChatMessage,
+  type GuideLocale,
+  type LeadBrief,
 } from '@/guide/types'
 import { languageFromPathname } from '@/lib/i18n/paths'
 import { cn } from '@/lib/utils'
@@ -159,7 +160,7 @@ export function GuideWidget() {
             const data = (await res.json()) as GuideApiResponse
             if (data.reply) reply = data.reply
             brief = data.leadBrief
-            paused = data.mode === 'degraded' && !isSecurityProbe(conversation)
+            paused = isGuideOutageMode(data.mode) && !isSecurityProbe(conversation)
             if (paused) {
               reason = data.degradedReason || reason
             }

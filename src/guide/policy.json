@@ -65,6 +65,7 @@
       "variant",
       "shipping",
       "weight",
+      "peso",
       "dtc",
       "ecom",
       "ecommerce",
@@ -243,8 +244,8 @@
       "es": "GTM OS es el sistema de prospección en frío B2B que se queda con su equipo: prospectos filtrados por ICP (perfil de cliente ideal), con etapas de aprobación M0–M7. No es un vendedor externo ni una agencia de anuncios. GTM OS no es para tiendas de comercio electrónico ni para quien solo quiere anuncios. Es para fundadores, directores generales o responsables de operaciones en empresas B2B que ya venden y buscan un flujo de ventas repetible. Detalle: https://www.rutinhq.com/es/gtm-os. Si encaja, agende 30 min: https://calendly.com/rutinhq/30min."
     },
     "store-os": {
-      "en": "STORE OS is Shopify Admin audit + config (variants, weight, shipping) so the store converts before you buy ads. It is not theme/Dawn file work and not an ads agency — creatives/Ads sit in NEXUS OS. Best fit: DTC Shopify with ops friction. Details: https://www.rutinhq.com/store-os. If that is the bottleneck, book 30 min — https://calendly.com/rutinhq/30min.",
-      "es": "STORE OS audita y configura el panel de Shopify para que la tienda convierta antes de gastar en anuncios. No es edición de plantilla ni agencia de anuncios; creativos y anuncios viven en NEXUS OS. Es para marcas que venden directo al consumidor en Shopify. Detalle: https://www.rutinhq.com/es/store-os. Si encaja, agende 30 min: https://calendly.com/rutinhq/30min."
+      "en": "STORE OS is Shopify Admin audit + config in four separate steps: diagnosis, audit (variants, price, weight, shipping), Admin config with no theme file edits, and a delivery checklist. Ads/creatives are out of scope (NEXUS OS). Best fit: DTC Shopify with ops friction. Details: https://www.rutinhq.com/store-os. If that is the bottleneck, book 30 min — https://calendly.com/rutinhq/30min.",
+      "es": "STORE OS audita y configura el panel de Shopify para que la tienda convierta antes de gastar en anuncios. Entrega en cuatro pasos separados: ficha de diagnóstico; auditoría (variantes, precio, peso, envío); configuración del panel, sin editar archivos de plantilla; lista de entrega al equipo. El precio del catálogo entra en la auditoría, no en la configuración. No incluye anuncios ni creatividades — esos viven en NEXUS OS. Es para marcas que venden directo al consumidor en Shopify. Detalle: https://www.rutinhq.com/es/store-os. Si encaja, agende 30 min: https://calendly.com/rutinhq/30min."
     },
     "nexus-os": {
       "en": "NEXUS OS is agentic marketing: Strategy → Social → Ads. Until creatives, mix, and budget have an explicit GO, it stays paper only (no pixel, no spend). It does not invent your offer or ICP. Not GTM OS (outbound) and not STORE OS (Admin). Details: https://www.rutinhq.com/nexus-os. Book 30 min to walk the gate — https://calendly.com/rutinhq/30min.",
@@ -252,7 +253,7 @@
     },
     "catalog": {
       "en": "The public catalog at https://docs.rutinhq.com/catalog/ is curriculum: one sheet per system (what / for whom / how / outcomes / what it is not). The commercial site sells three SKUs — GTM OS, STORE OS, NEXUS OS — one page each. GROK BOT OS is a catalog sheet (bot-department curriculum), not a fourth hub card. I do not quote rate cards from the catalog. Book 30 min for scope — https://calendly.com/rutinhq/30min.",
-      "es": "El catálogo público https://docs.rutinhq.com/catalog/ es curriculum: una ficha por sistema (qué / para quién / cómo / resultados / qué no es). El sitio comercial vende tres productos — GTM OS, STORE OS, NEXUS OS — una página cada uno. GROK BOT OS es ficha de catálogo (curriculum de bots), no una cuarta tarjeta del hub. No cito tarifas. Para alcance, agende 30 min — https://calendly.com/rutinhq/30min."
+      "es": "El catálogo público https://docs.rutinhq.com/catalog/ es temario: una ficha por sistema (qué / para quién / cómo / resultados / qué no es). El sitio comercial vende tres productos — GTM OS, STORE OS, NEXUS OS — una página cada uno. GROK BOT OS es ficha de catálogo (temario de bots), no una cuarta tarjeta del hub. No cito tarifas. Para alcance, agende 30 min — https://calendly.com/rutinhq/30min."
     },
     "fit": {
       "en": "Next step is a 30-min fit call to confirm whether GTM OS, STORE OS, or NEXUS OS matches the bottleneck — https://calendly.com/rutinhq/30min. I will not quote a rate card here. Or email strategy@rutinhq.com.",

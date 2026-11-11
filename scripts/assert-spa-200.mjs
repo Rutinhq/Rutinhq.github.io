@@ -671,22 +671,79 @@ if (fs.existsSync('dist/_headers')) {
     console.error('dist/_headers must set X-Frame-Options: DENY on /*.')
     process.exit(1)
   }
-  if (
-    !/Content-Security-Policy:\s*default-src 'self';\s*script-src 'self' https:\/\/challenges\.cloudflare\.com;/i.test(
-      headers,
-    )
-  ) {
+  const cspLine = headers.match(/Content-Security-Policy:\s*(.+)/i)
+  if (!cspLine) {
+    console.error('dist/_headers must set Content-Security-Policy on /*.')
+    process.exit(1)
+  }
+  const csp = cspLine[1].trim()
+  if (!/^default-src 'self';/.test(csp)) {
+    console.error("dist/_headers CSP must start with default-src 'self'.")
+    process.exit(1)
+  }
+  const scriptSrcMatch = csp.match(/script-src\s+([^;]+)/i)
+  const connectSrcMatch = csp.match(/connect-src\s+([^;]+)/i)
+  if (!scriptSrcMatch || !connectSrcMatch) {
+    console.error('dist/_headers CSP must declare script-src and connect-src.')
+    process.exit(1)
+  }
+  const scriptSrc = scriptSrcMatch[1].trim()
+  const connectSrc = connectSrcMatch[1].trim()
+  const expectedScript =
+    "'self' https://challenges.cloudflare.com https://static.cloudflareinsights.com/beacon.min.js https://static.cloudflareinsights.com/beacon.min.js/"
+  if (scriptSrc !== expectedScript) {
     console.error(
-      "dist/_headers must set CSP default-src 'self' and script-src that allows only self + Turnstile.",
+      `dist/_headers script-src must be exactly ${expectedScript} (Turnstile + unversioned beacon.min.js + CSP3 /beacon.min.js/ prefix for /v…; no host wildcard). Got: ${scriptSrc}`,
     )
     process.exit(1)
   }
   if (
-    !/frame-src https:\/\/challenges\.cloudflare\.com/.test(headers) ||
-    !/connect-src 'self' https:\/\/challenges\.cloudflare\.com/.test(headers)
+    !scriptSrc.includes('https://static.cloudflareinsights.com/beacon.min.js/') ||
+    !/(?:^|\s)https:\/\/static\.cloudflareinsights\.com\/beacon\.min\.js(?:\s|$)/.test(
+      scriptSrc,
+    )
   ) {
     console.error(
-      'dist/_headers CSP must allow Turnstile frame-src + connect-src on challenges.cloudflare.com.',
+      'dist/_headers script-src must list both exact /beacon.min.js and directory prefix /beacon.min.js/.',
+    )
+    process.exit(1)
+  }
+  const expectedConnect = "'self' https://challenges.cloudflare.com"
+  if (connectSrc !== expectedConnect) {
+    console.error(
+      `dist/_headers connect-src must stay ${expectedConnect} (automatic Web Analytics POSTs to same-origin /cdn-cgi/rum; do not add cloudflareinsights.com). Got: ${connectSrc}`,
+    )
+    process.exit(1)
+  }
+  if (/unsafe-eval/.test(csp)) {
+    console.error('dist/_headers CSP must not include unsafe-eval.')
+    process.exit(1)
+  }
+  if (/script-src[^;]*'unsafe-inline'/.test(csp)) {
+    console.error("dist/_headers script-src must not include 'unsafe-inline'.")
+    process.exit(1)
+  }
+  if (/\*/.test(scriptSrc) || /\*/.test(connectSrc)) {
+    console.error('dist/_headers script-src/connect-src must not use wildcards.')
+    process.exit(1)
+  }
+  if (/\bdata:/.test(connectSrc) || /alg13|brunhild|hagen/.test(connectSrc)) {
+    console.error(
+      'dist/_headers connect-src must not add data: or Turnstile iframe probe hosts to silence third-party console noise.',
+    )
+    process.exit(1)
+  }
+  if (/cloudflareinsights\.com(?!\/beacon\.min\.js)/.test(csp)) {
+    console.error(
+      'dist/_headers CSP must not allow the cloudflareinsights.com host; only the official /beacon.min.js script URL.',
+    )
+    process.exit(1)
+  }
+  if (
+    !/frame-src https:\/\/challenges\.cloudflare\.com/.test(headers)
+  ) {
+    console.error(
+      'dist/_headers CSP must allow Turnstile frame-src on challenges.cloudflare.com.',
     )
     process.exit(1)
   }
@@ -974,7 +1031,7 @@ const esMarketing = [
     path: '/es/nexus-os',
     title: 'RutinHQ — NEXUS OS — marketing agéntico en papel primero',
     description:
-      'Marketing agéntico — primero en papel, anuncios solo con GO. Estrategia → Social → Ads.',
+      'Marketing agéntico — primero en papel, anuncios solo con aprobación explícita. Estrategia → Social → Ads.',
   },
 ]
 
@@ -1041,8 +1098,23 @@ function lookup(obj, path) {
 
 const enKeys = keyTree(enJson).sort()
 const esKeys = keyTree(esJson).sort()
-if (enKeys.join('|') !== esKeys.join('|')) {
+const allowedMissingOnEs = new Set(['store.how.items[4]'])
+const enOnly = enKeys.filter((key) => !esKeys.includes(key) && !allowedMissingOnEs.has(key))
+const esOnly = esKeys.filter((key) => !enKeys.includes(key))
+if (enOnly.length || esOnly.length) {
   console.error('src/locales/es.json must have the same key tree as en.json.')
+  for (const key of enOnly) console.error(`  missing on ES: ${key}`)
+  for (const key of esOnly) console.error(`  extra on ES: ${key}`)
+  process.exit(1)
+}
+if (!enKeys.includes('store.how.items[4]')) {
+  console.error('en store.how must keep source step 5 (ads/creatives = out of scope).')
+  process.exit(1)
+}
+if (esKeys.includes('store.how.items[4]')) {
+  console.error(
+    'es store.how must not keep ads/creatives as a fifth how-step; that exclusion lives in notWhat/FAQ.',
+  )
   process.exit(1)
 }
 
@@ -1334,21 +1406,21 @@ const talkClusters = [
   },
   {
     file: 'dist/prerender/es-gtm-os.html',
-    mailto: 'mailto:strategy@rutinhq.com?subject=GTM%20OS%20%E2%80%94%20fit%20call',
+    mailto: 'mailto:strategy@rutinhq.com?subject=GTM%20OS%20%E2%80%94%20llamada%20de%20encaje',
     docs: 'https://docs.rutinhq.com/catalog/gtm-os/',
     read: 'Leer el sistema',
     emailLine: 'o escríbanos a',
   },
   {
     file: 'dist/prerender/es-store-os.html',
-    mailto: 'mailto:strategy@rutinhq.com?subject=Store%20OS%20%E2%80%94%20fit%20call',
+    mailto: 'mailto:strategy@rutinhq.com?subject=STORE%20OS%20%E2%80%94%20llamada%20de%20encaje',
     docs: 'https://docs.rutinhq.com/catalog/store-os/',
     read: 'Leer el sistema',
     emailLine: 'o escríbanos a',
   },
   {
     file: 'dist/prerender/es-nexus-os.html',
-    mailto: 'mailto:strategy@rutinhq.com?subject=NEXUS%20OS%20%E2%80%94%20fit%20call',
+    mailto: 'mailto:strategy@rutinhq.com?subject=NEXUS%20OS%20%E2%80%94%20llamada%20de%20encaje',
     docs: 'https://docs.rutinhq.com/catalog/nexus-os/',
     read: 'Leer el sistema',
     emailLine: 'o escríbanos a',
@@ -1517,11 +1589,15 @@ for (const icon of [
 }
 
 const seoSource = fs.readFileSync('src/components/Seo.tsx', 'utf8')
-const png48Href = 'https://www.rutinhq.com/favicon-48x48.png'
-const png192Href = 'https://www.rutinhq.com/favicon-192x192.png'
-const svgHref = 'https://www.rutinhq.com/favicon.svg'
-if (!seoSource.includes('favicon-48x48.png') || !seoSource.includes('favicon-192x192.png')) {
-  console.error('src/components/Seo.tsx must link PNG 48 and 192 HQ icons.')
+const png48Href = '/favicon-48x48.png'
+const png192Href = '/favicon-192x192.png'
+const svgHref = '/favicon.svg'
+if (!seoSource.includes("'/favicon-48x48.png'") || !seoSource.includes("'/favicon-192x192.png'")) {
+  console.error('src/components/Seo.tsx must link same-origin PNG 48 and 192 HQ icons.')
+  process.exit(1)
+}
+if (seoSource.includes('https://www.rutinhq.com/favicon')) {
+  console.error('src/components/Seo.tsx must not load favicons from www (preview CSP img-src self).')
   process.exit(1)
 }
 if (seoSource.indexOf('favicon-48x48.png') > seoSource.indexOf('image/svg+xml')) {
@@ -1534,15 +1610,30 @@ function assertGoogleFaviconLinks(file) {
   for (const needle of [
     `type="image/png" sizes="48x48" href="${png48Href}"`,
     `type="image/png" sizes="192x192" href="${png192Href}"`,
-    `href="https://www.rutinhq.com/favicon.ico"`,
+    `href="/favicon.ico"`,
     `type="image/svg+xml" href="${svgHref}"`,
-    `rel="apple-touch-icon" href="https://www.rutinhq.com/apple-touch-icon.png"`,
-    `rel="manifest" href="https://www.rutinhq.com/site.webmanifest"`,
+    `rel="apple-touch-icon" href="/apple-touch-icon.png"`,
+    `rel="manifest" href="/site.webmanifest"`,
   ]) {
     if (!html.includes(needle)) {
-      console.error(`${file} must include Google-friendly icon link: ${needle}`)
+      console.error(`${file} must include same-origin icon link: ${needle}`)
       process.exit(1)
     }
+  }
+  if (
+    /<link[^>]+(?:rel="(?:icon|apple-touch-icon|manifest)")[^>]+https:\/\/www\.rutinhq\.com\/(?:favicon|apple-touch-icon|site\.webmanifest)/.test(
+      html,
+    ) ||
+    /<link[^>]+https:\/\/www\.rutinhq\.com\/(?:favicon|apple-touch-icon|site\.webmanifest)[^>]+rel="(?:icon|apple-touch-icon|manifest)"/.test(
+      html,
+    )
+  ) {
+    console.error(`${file} must not fetch favicon/manifest from www (CSP img-src 'self' on preview).`)
+    process.exit(1)
+  }
+  if (!html.includes('rel="canonical" href="https://www.rutinhq.com/')) {
+    console.error(`${file} must keep www canonicals while icons stay same-origin.`)
+    process.exit(1)
   }
   if (html.indexOf(png48Href) > html.indexOf(svgHref)) {
     console.error(`${file} must link PNG 48×48 before SVG so Google can pick a raster icon.`)
@@ -1591,6 +1682,14 @@ for (const route of [
 const mailto = fs.readFileSync('src/lib/links.ts', 'utf8')
 if (!mailto.includes("mailto('Store OS — fit call')")) {
   console.error('src/lib/links.ts must use Store OS — fit call.')
+  process.exit(1)
+}
+if (
+  !mailto.includes("mailto('GTM OS — llamada de encaje')") ||
+  !mailto.includes("mailto('STORE OS — llamada de encaje')") ||
+  !mailto.includes("mailto('NEXUS OS — llamada de encaje')")
+) {
+  console.error('src/lib/links.ts must use ES mailto subjects with llamada de encaje.')
   process.exit(1)
 }
 
@@ -1653,12 +1752,14 @@ const bodyRoutes = [
     needles: [
       'Haga que la tienda convierta antes de comprar anuncios.',
       '¿Qué es STORE OS?',
+      '1) Ficha de diagnóstico de fricción en el panel de Shopify',
+      'Anuncios y creatividades (fuera de alcance; viven en NEXUS OS)',
     ],
   },
   {
     file: 'dist/prerender/es-nexus-os.html',
     needles: [
-      'Marketing agéntico — primero en papel, anuncios solo con GO.',
+      'Marketing agéntico — primero en papel, anuncios solo con aprobación explícita.',
       '¿Qué es NEXUS OS?',
     ],
   },
@@ -1689,12 +1790,15 @@ const bodyRoutes = [
       '¿Qué es el blog de RutinHQ?',
       'llamada de encaje',
       'Encaje de perfil de cliente ideal (ICP)',
-      'Esquema EN',
+      'Esquema en inglés',
     ],
   },
   {
     file: 'dist/prerender/es-blog-outbound-frio-con-icp-sin-sdr-rentado.html',
-    needles: ['Prospección en frío con perfil de cliente ideal (ICP) — sin SDR rentado'],
+    needles: [
+      'Prospección en frío con perfil de cliente ideal (ICP) — sin SDR rentado',
+      'Guía de ventas y criterio de avance',
+    ],
   },
   {
     file: 'dist/404.html',
@@ -1718,7 +1822,7 @@ const bodyRoutes = [
   },
   {
     file: 'dist/prerender/es-agents-auth.html',
-    needles: ['Público vs autenticado.'],
+    needles: ['Qué es público y qué pide acceso.'],
   },
 ]
 
@@ -2302,6 +2406,49 @@ if (
   !homepage.includes('rel="api-catalog" href="https://www.rutinhq.com/.well-known/api-catalog"')
 ) {
   console.error('dist/index.html must advertise api-catalog in HTML link tags.')
+  process.exit(1)
+}
+
+const beaconHtmlFiles = [
+  'dist/index.html',
+  ...fs
+    .readdirSync('dist/prerender')
+    .filter((name) => name.endsWith('.html'))
+    .map((name) => `dist/prerender/${name}`),
+]
+for (const file of beaconHtmlFiles) {
+  const html = fs.readFileSync(file, 'utf8')
+  if (
+    /static\.cloudflareinsights\.com/i.test(html) ||
+    /data-cf-beacon/i.test(html) ||
+    /beacon\.min\.js/i.test(html)
+  ) {
+    console.error(
+      `${file} must not embed a Web Analytics beacon or token (automatic inject on prod only; no duplicate snippet).`,
+    )
+    process.exit(1)
+  }
+}
+
+const esStoreHtml = fs.readFileSync('dist/prerender/es-store-os.html', 'utf8')
+if (!esStoreHtml.includes('1) Ficha de diagnóstico de fricción en el panel de Shopify')) {
+  console.error('es-store-os must list the diagnosis sheet as STORE how-step 1.')
+  process.exit(1)
+}
+if (!esStoreHtml.includes('4) Lista de entrega al equipo')) {
+  console.error('es-store-os must list the delivery list as STORE how-step 4.')
+  process.exit(1)
+}
+if (!esStoreHtml.includes('Anuncios y creatividades (fuera de alcance; viven en NEXUS OS)')) {
+  console.error('es-store-os must name ads/creatives as an exclusion, not a deliverable.')
+  process.exit(1)
+}
+if (!esStoreHtml.includes('No incluye anuncios ni creatividades')) {
+  console.error('es-store-os FAQ must say STORE does not include ads or creatives.')
+  process.exit(1)
+}
+if (/5\)\s*Ads\b/i.test(esStoreHtml) || /Ads \/ creatives/i.test(esStoreHtml)) {
+  console.error('es-store-os must not keep source how-step 5 (ads/creatives) as a deliverable.')
   process.exit(1)
 }
 
