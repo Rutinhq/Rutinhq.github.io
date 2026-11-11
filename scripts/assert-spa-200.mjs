@@ -1790,12 +1790,15 @@ const bodyRoutes = [
       '¿Qué es el blog de RutinHQ?',
       'llamada de encaje',
       'Encaje de perfil de cliente ideal (ICP)',
-      'Esquema EN',
+      'Esquema en inglés',
     ],
   },
   {
     file: 'dist/prerender/es-blog-outbound-frio-con-icp-sin-sdr-rentado.html',
-    needles: ['Prospección en frío con perfil de cliente ideal (ICP) — sin SDR rentado'],
+    needles: [
+      'Prospección en frío con perfil de cliente ideal (ICP) — sin SDR rentado',
+      'Guía de ventas y criterio de avance',
+    ],
   },
   {
     file: 'dist/404.html',

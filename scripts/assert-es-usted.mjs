@@ -103,7 +103,7 @@ const requiredOnEsBlogIndex = [
   { id: 'Encaje de perfil', re: /Encaje de perfil de cliente ideal \(ICP\)/ },
   { id: 'comparación', re: /comparación/i },
   { id: 'esquema en inglés', re: /esquema en inglés/i },
-  { id: 'Esquema EN marker', re: /Esquema EN/ },
+  { id: 'Esquema en inglés marker', re: /Esquema en inglés/ },
   { id: 'borrador en inglés', re: /borrador/i },
 ]
 

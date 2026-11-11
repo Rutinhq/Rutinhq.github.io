@@ -182,7 +182,7 @@ export default function BlogEsPage() {
                 to={ARTICLE02.path}
                 className="text-foreground underline underline-offset-4 hover:text-primary"
               >
-                Esquema EN
+                Esquema en inglés
               </Link>
               {' · '}
               <a

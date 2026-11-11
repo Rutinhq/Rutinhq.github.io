@@ -1060,8 +1060,15 @@ assert(
   assert(isStoreCatalogTurn(afterAudit, guidePolicy), '¿cubre precio? is a STORE catalog turn')
   const auditReply = localGuideReply(afterAudit, 'es')
   assert(
-    /cuatro pasos/.test(auditReply) && /precio/.test(auditReply) && /paso 2/.test(auditReply),
-    'STORE audit canned names four separate steps and catalog precio in step 2',
+    /cuatro entregables/.test(auditReply) &&
+      /precio de sus productos/.test(auditReply) &&
+      /paso 2/.test(auditReply) &&
+      /no a tarifas del servicio/.test(auditReply),
+    'STORE audit canned names four deliverables; product-price field is step 2, not service fees',
+  )
+  assert(
+    !/entrega cuatro pasos/.test(auditReply),
+    'STORE canned must not say entrega cuatro pasos de panel',
   )
   assert(
     !/garantizar|coherente|eficiencia|recomendaciones y acciones|preparada para convertir/i.test(
@@ -1088,6 +1095,10 @@ assert(
   assert(
     /sin editar archivos de plantilla/.test(canned) && /NEXUS OS/.test(canned),
     'STORE canned keeps config vs audit split and ads exclusion',
+  )
+  assert(
+    countGuideWords(canned) <= 80,
+    `STORE canned must stay ≤80 words (got ${countGuideWords(canned)})`,
   )
 }
 const degradedSku = ensureCalendlyCta(

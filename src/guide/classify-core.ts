@@ -229,8 +229,8 @@ export function storeAuditGuideReply(
   url = 'https://calendly.com/rutinhq/30min',
 ): string {
   return locale === 'es'
-    ? `STORE OS entrega cuatro pasos de panel, por separado: 1) ficha de diagnóstico de fricción; 2) auditoría de variantes, precio, peso y envío; 3) configuración del panel, sin editar archivos de plantilla; 4) lista de entrega al equipo. El precio del catálogo entra en el paso 2, no en la configuración. No incluye anuncios ni creatividades — quedan fuera de alcance y viven en NEXUS OS. Si encaja, agende 30 min: ${url}.`
-    : `STORE OS delivers four separate Admin steps: 1) friction diagnosis; 2) audit of variants, price, weight, and shipping; 3) Admin config, with no theme file edits; 4) delivery checklist. Catalog price is step 2, not config. Ads and creatives are out of scope (NEXUS OS). If it fits, book 30 min: ${url}.`
+    ? `STORE OS incluye cuatro entregables: 1) ficha de diagnóstico de fricción; 2) auditoría de variantes, precio, peso y envío; 3) configuración del panel, sin editar archivos de plantilla; 4) lista de entrega al equipo. La revisión del precio de sus productos corresponde al paso 2, no a tarifas del servicio. No incluye anuncios ni creatividades — quedan fuera de alcance y viven en NEXUS OS. Si encaja, agende 30 min: ${url}.`
+    : `STORE OS includes four deliverables: 1) friction diagnosis; 2) audit of variants, price, weight, and shipping; 3) Admin config, with no theme file edits; 4) delivery checklist. Review of your product prices is step 2, not service fees. Ads and creatives are out of scope (NEXUS OS). If it fits, book 30 min: ${url}.`
 }
 
 export type ComparedSku = 'gtm-os' | 'store-os' | 'nexus-os'

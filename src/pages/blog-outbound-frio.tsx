@@ -161,7 +161,7 @@ export default function BlogOutboundFrioPage() {
             ['M0', 'Investigación de sector'],
             ['M1', 'ICP + validación'],
             ['M2', 'Marco de mensajes'],
-            ['M3', 'Guía de ventas + puerta'],
+            ['M3', 'Guía de ventas y criterio de avance'],
             ['M4', 'Activación de campaña'],
             ['M5', 'Rastreo / análisis'],
             ['M6', 'Indicadores semanales (continuo)'],
