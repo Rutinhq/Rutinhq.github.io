@@ -727,6 +727,12 @@ if (fs.existsSync('dist/_headers')) {
     console.error('dist/_headers script-src/connect-src must not use wildcards.')
     process.exit(1)
   }
+  if (/\bdata:/.test(connectSrc) || /alg13|brunhild|hagen/.test(connectSrc)) {
+    console.error(
+      'dist/_headers connect-src must not add data: or Turnstile iframe probe hosts to silence third-party console noise.',
+    )
+    process.exit(1)
+  }
   if (/cloudflareinsights\.com(?!\/beacon\.min\.js)/.test(csp)) {
     console.error(
       'dist/_headers CSP must not allow the cloudflareinsights.com host; only the official /beacon.min.js script URL.',
@@ -1583,11 +1589,15 @@ for (const icon of [
 }
 
 const seoSource = fs.readFileSync('src/components/Seo.tsx', 'utf8')
-const png48Href = 'https://www.rutinhq.com/favicon-48x48.png'
-const png192Href = 'https://www.rutinhq.com/favicon-192x192.png'
-const svgHref = 'https://www.rutinhq.com/favicon.svg'
-if (!seoSource.includes('favicon-48x48.png') || !seoSource.includes('favicon-192x192.png')) {
-  console.error('src/components/Seo.tsx must link PNG 48 and 192 HQ icons.')
+const png48Href = '/favicon-48x48.png'
+const png192Href = '/favicon-192x192.png'
+const svgHref = '/favicon.svg'
+if (!seoSource.includes("'/favicon-48x48.png'") || !seoSource.includes("'/favicon-192x192.png'")) {
+  console.error('src/components/Seo.tsx must link same-origin PNG 48 and 192 HQ icons.')
+  process.exit(1)
+}
+if (seoSource.includes('https://www.rutinhq.com/favicon')) {
+  console.error('src/components/Seo.tsx must not load favicons from www (preview CSP img-src self).')
   process.exit(1)
 }
 if (seoSource.indexOf('favicon-48x48.png') > seoSource.indexOf('image/svg+xml')) {
@@ -1600,15 +1610,30 @@ function assertGoogleFaviconLinks(file) {
   for (const needle of [
     `type="image/png" sizes="48x48" href="${png48Href}"`,
     `type="image/png" sizes="192x192" href="${png192Href}"`,
-    `href="https://www.rutinhq.com/favicon.ico"`,
+    `href="/favicon.ico"`,
     `type="image/svg+xml" href="${svgHref}"`,
-    `rel="apple-touch-icon" href="https://www.rutinhq.com/apple-touch-icon.png"`,
-    `rel="manifest" href="https://www.rutinhq.com/site.webmanifest"`,
+    `rel="apple-touch-icon" href="/apple-touch-icon.png"`,
+    `rel="manifest" href="/site.webmanifest"`,
   ]) {
     if (!html.includes(needle)) {
-      console.error(`${file} must include Google-friendly icon link: ${needle}`)
+      console.error(`${file} must include same-origin icon link: ${needle}`)
       process.exit(1)
     }
+  }
+  if (
+    /<link[^>]+(?:rel="(?:icon|apple-touch-icon|manifest)")[^>]+https:\/\/www\.rutinhq\.com\/(?:favicon|apple-touch-icon|site\.webmanifest)/.test(
+      html,
+    ) ||
+    /<link[^>]+https:\/\/www\.rutinhq\.com\/(?:favicon|apple-touch-icon|site\.webmanifest)[^>]+rel="(?:icon|apple-touch-icon|manifest)"/.test(
+      html,
+    )
+  ) {
+    console.error(`${file} must not fetch favicon/manifest from www (CSP img-src 'self' on preview).`)
+    process.exit(1)
+  }
+  if (!html.includes('rel="canonical" href="https://www.rutinhq.com/')) {
+    console.error(`${file} must keep www canonicals while icons stay same-origin.`)
+    process.exit(1)
   }
   if (html.indexOf(png48Href) > html.indexOf(svgHref)) {
     console.error(`${file} must link PNG 48×48 before SVG so Google can pick a raster icon.`)
@@ -1794,7 +1819,7 @@ const bodyRoutes = [
   },
   {
     file: 'dist/prerender/es-agents-auth.html',
-    needles: ['Público vs autenticado.'],
+    needles: ['Qué es público y qué pide acceso.'],
   },
 ]
 

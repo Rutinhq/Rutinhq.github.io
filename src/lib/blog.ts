@@ -38,7 +38,7 @@ export const BLOG_INDEX_FAQ_ES = [
   },
   {
     q: '¿Esto es un pozo de contenido?',
-    a: 'No. El CTA en cada camino es una llamada de encaje (strategy@) — no un pozo de contenido. Siguiente paso: llamada de encaje; educar para siempre, nunca.',
+    a: 'No. En cada camino, el siguiente paso es una llamada de encaje (strategy@) — no un pozo de contenido ni un ciclo de artículos sin fin.',
   },
   {
     q: '¿Dónde viven los sistemas?',
@@ -221,7 +221,7 @@ export const BLOG_FEATURED_COMING = [
 export const BLOG_FILTER_SIGNALS_ES = [
   { name: 'Encaje de perfil de cliente ideal (ICP)', thesis: 'Vertical / rol del comprador' },
   { name: 'Dolor', thesis: 'Flujo de ventas, traspaso, ICP, poca fricción de operación' },
-  { name: 'Interés de producto', thesis: 'Qué página OS abren' },
+  { name: 'Interés de producto', thesis: 'Qué página de sistema abren' },
   { name: 'Cargo', thesis: 'Lenguaje de fundador / director general / responsable de operación' },
 ] as const
 
@@ -235,7 +235,7 @@ export const BLOG_FEATURED_COMING_ES = [
     type: 'guía práctica',
   },
   {
-    title: 'Iguala mensual de agencia vs instalar un OS de prospección en frío',
+    title: 'Iguala mensual de agencia frente a instalar un sistema de prospección en frío',
     type: 'comparación',
   },
 ] as const

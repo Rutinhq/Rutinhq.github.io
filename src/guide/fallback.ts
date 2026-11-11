@@ -3,12 +3,14 @@ import {
   ensureCalendlyCta,
   isSchedulingTurn,
   isSkuComparisonTurn,
+  isStoreCatalogTurn,
   isStoreShopifyFitTurn,
   lastUserText,
   namedGuideSkus,
   resolveFallbackKey,
   schedulingGuideReply,
   skuComparisonGuideReply,
+  storeAuditGuideReply,
   storeShopifyFitGuideReply,
 } from './classify-core'
 import { fallbackReply, guidePolicy } from './config'
@@ -23,6 +25,9 @@ export function localGuideReply(
   }
   if (isStoreShopifyFitTurn(messages)) {
     return storeShopifyFitGuideReply(locale, guidePolicy.calendlyUrl)
+  }
+  if (isStoreCatalogTurn(messages, guidePolicy)) {
+    return storeAuditGuideReply(locale, guidePolicy.calendlyUrl)
   }
   if (isSkuComparisonTurn(messages)) {
     return skuComparisonGuideReply(

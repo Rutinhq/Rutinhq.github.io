@@ -99,11 +99,35 @@ const bannedOnEsBlogIndex = [
 
 const requiredOnEsBlogIndex = [
   { id: 'llamada de encaje', re: /llamada de encaje/i },
-  { id: 'educar para siempre', re: /educar para siempre/i },
+  { id: 'ciclo de contenido', re: /ciclo de (?:contenido|artículos) sin fin/i },
   { id: 'Encaje de perfil', re: /Encaje de perfil de cliente ideal \(ICP\)/ },
   { id: 'comparación', re: /comparación/i },
   { id: 'esquema en inglés', re: /esquema en inglés/i },
   { id: 'Esquema EN marker', re: /Esquema EN/ },
+  { id: 'borrador en inglés', re: /borrador/i },
+]
+
+const leftoverJargon = [
+  { id: 'al molde', re: /al molde/i },
+  { id: 'primera corrida', re: /primera corrida/i },
+  { id: 'Mesa doble', re: /mesa doble/i },
+  { id: 'educar para siempre', re: /educar para siempre/i },
+  { id: 'CTA leftover', re: /\bCTA\b/ },
+  { id: 'escritorios', re: /escritorios/i },
+  { id: 'Señal de pase', re: /señal de pase/i },
+  { id: 'firmográfico', re: /firmogr[aá]fico/i },
+  { id: 'gemelo ES', re: /gemelo ES/i },
+  { id: 'puertas de ICP', re: /puertas de ICP/i },
+  { id: 'página OS', re: /p[aá]gina OS/i },
+  { id: 'Linkset leftover', re: /Linkset de/ },
+  { id: 'Inbox humano', re: /inbox humano/i },
+  { id: 'Access home', re: /access home/i },
+  { id: 'endpoints leftover', re: /\bendpoints\b/i },
+  { id: 'SDR que muere', re: /muere cuando termina/i },
+  { id: 'N juntas', re: /\bN juntas\b/i },
+  { id: 'banco creativo en cero', re: /banco creativo en cero/i },
+  { id: 'un problema, un objeto', re: /un problema, un objeto/i },
+  { id: 'órdenes de compra leftover', re: /[oó]rdenes de compra/i },
 ]
 
 const requiredOnEsStore = [
@@ -117,7 +141,7 @@ const hits = []
 for (const file of files) {
   const html = fs.readFileSync(file, 'utf8')
   const masked = maskCopy(html)
-  const rules = [...bannedEnglish, ...bannedTu]
+  const rules = [...bannedEnglish, ...bannedTu, ...leftoverJargon]
   if (path.basename(file) === 'es-blog.html') {
     rules.push(...bannedOnEsBlogIndex)
     for (const rule of requiredOnEsBlogIndex) {

@@ -17,6 +17,7 @@ import {
   hintMatches,
   isSchedulingTurn,
   isSkuComparisonTurn,
+  isStoreCatalogTurn,
   isStoreShopifyFitTurn,
   lastUserText,
   namedGuideSkus,
@@ -24,6 +25,7 @@ import {
   resolveFallbackKey,
   schedulingGuideReply,
   skuComparisonGuideReply,
+  storeAuditGuideReply,
   storeShopifyFitGuideReply,
 } from '../../src/guide/classify-core'
 import {
@@ -41,9 +43,9 @@ import {
   guideDegradedReasonFromLlm,
   logGuideLlmFailure,
   resolveGuideLlmProvider,
-  type GuideLlmMode,
   type GuideWorkersAi,
 } from '../../src/guide/llm'
+import type { GuideReplyMode } from '../../src/guide/types'
 import { guideRequestHostname, isGuidePreviewHost } from '../../src/guide/preview-host'
 
 type Env = {
@@ -189,7 +191,7 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
   if (isSecurityHay(hay)) {
     return json(200, {
       reply: COPY[locale].security,
-      mode: 'degraded',
+      mode: 'catalog',
       calendlyUrl: calendly,
     })
   }
@@ -232,7 +234,7 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
     const pack = policy.fallbackReplies.security
     return json(200, {
       reply: locale === 'es' ? pack?.es || COPY.es.security : pack?.en || COPY.en.security,
-      mode: 'degraded',
+      mode: 'catalog',
       calendlyUrl: policy.calendlyUrl,
     })
   }
@@ -258,7 +260,7 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
   if (skuIntent === 'security') {
     return json(200, {
       reply: pick('security'),
-      mode: 'degraded',
+      mode: 'catalog',
       calendlyUrl: policy.calendlyUrl,
     })
   }
@@ -266,7 +268,7 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
   if (isSchedulingTurn(messages)) {
     return json(200, {
       reply: schedulingGuideReply(locale, policy.calendlyUrl),
-      mode: 'llm',
+      mode: 'catalog',
       calendlyUrl: policy.calendlyUrl,
     })
   }
@@ -274,7 +276,15 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
   if (isStoreShopifyFitTurn(messages)) {
     return json(200, {
       reply: storeShopifyFitGuideReply(locale, policy.calendlyUrl),
-      mode: 'llm',
+      mode: 'catalog',
+      calendlyUrl: policy.calendlyUrl,
+    })
+  }
+
+  if (isStoreCatalogTurn(messages, policy)) {
+    return json(200, {
+      reply: storeAuditGuideReply(locale, policy.calendlyUrl),
+      mode: 'catalog',
       calendlyUrl: policy.calendlyUrl,
     })
   }
@@ -286,19 +296,19 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
         policy.calendlyUrl,
         namedGuideSkus(lastUserText(messages)),
       ),
-      mode: 'llm',
+      mode: 'catalog',
       calendlyUrl: policy.calendlyUrl,
     })
   }
 
   let reply = ensureCalendlyCta(pick(replyKey), locale, policy.calendlyUrl)
-  let mode: GuideLlmMode = 'degraded'
+  const skipLlm = skuIntent === 'pricing' || skuIntent === 'offTopic'
+  let mode: GuideReplyMode = skipLlm ? 'catalog' : 'degraded'
   const key = context.env.GUIDE_LLM_API_KEY?.trim()
   const provider = resolveGuideLlmProvider(context.env.GUIDE_LLM_PROVIDER, {
     hasWorkersAi: Boolean(context.env.AI),
     hasApiKey: Boolean(key),
   })
-  const skipLlm = skuIntent === 'pricing' || skuIntent === 'offTopic'
   const canCallLlm =
     !skipLlm && (provider === 'workers-ai' ? Boolean(context.env.AI) : Boolean(key))
 

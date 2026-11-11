@@ -321,6 +321,10 @@ if (!/mode = 'llm'/.test(fn) && !/mode: 'llm'/.test(fn)) {
   console.error('Function must report mode=llm on successful Gemini/OpenAI completions')
   process.exit(1)
 }
+if (!/mode: 'catalog'/.test(fn) || !/skipLlm/.test(fn)) {
+  console.error('Function must return mode=catalog for policy refuses (pricing/offTopic), not live-paused')
+  process.exit(1)
+}
 if (!/composeGuideSystemPrompt|GUIDE_MANDATE|GEMINI ENGINE/.test(fn)) {
   console.error('Function must embed the GEMINI ENGINE / RutinHQ Guide mandate')
   process.exit(1)
@@ -540,6 +544,10 @@ if (!/AbortSignal\.timeout/.test(widget) || !/GUIDE_CLIENT_FETCH_MS/.test(widget
 }
 if (!/guide.degradedNote/.test(widget)) {
   console.error('Guide widget must surface degraded/paused catalog messaging')
+  process.exit(1)
+}
+if (!/isGuideOutageMode/.test(widget)) {
+  console.error('Guide widget must pause the live banner only on degraded/outage, not catalog policy')
   process.exit(1)
 }
 if (!/degradedReason/.test(widget) || !/isGuidePreviewHost/.test(widget)) {

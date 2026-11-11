@@ -2,11 +2,13 @@ import { classifyIntent, shouldCaptureLead } from './classify'
 import {
   isSchedulingTurn,
   isSkuComparisonTurn,
+  isStoreCatalogTurn,
   isStoreShopifyFitTurn,
   lastUserText,
   namedGuideSkus,
   schedulingGuideReply,
   skuComparisonGuideReply,
+  storeAuditGuideReply,
   storeShopifyFitGuideReply,
 } from './classify-core'
 import {
@@ -184,7 +186,7 @@ export async function handleGuideRequest(
   if (isSecurityProbe(messages) || classifyIntent(messages) === 'security') {
     return json(200, {
       reply: securityReply(locale),
-      mode: 'degraded',
+      mode: 'catalog',
       calendlyUrl: guidePolicy.calendlyUrl,
     })
   }
@@ -192,7 +194,7 @@ export async function handleGuideRequest(
   if (isSchedulingTurn(messages)) {
     return json(200, {
       reply: schedulingGuideReply(locale, guidePolicy.calendlyUrl),
-      mode: 'llm',
+      mode: 'catalog',
       calendlyUrl: guidePolicy.calendlyUrl,
     })
   }
@@ -200,7 +202,15 @@ export async function handleGuideRequest(
   if (isStoreShopifyFitTurn(messages)) {
     return json(200, {
       reply: storeShopifyFitGuideReply(locale, guidePolicy.calendlyUrl),
-      mode: 'llm',
+      mode: 'catalog',
+      calendlyUrl: guidePolicy.calendlyUrl,
+    })
+  }
+
+  if (isStoreCatalogTurn(messages, guidePolicy)) {
+    return json(200, {
+      reply: storeAuditGuideReply(locale, guidePolicy.calendlyUrl),
+      mode: 'catalog',
       calendlyUrl: guidePolicy.calendlyUrl,
     })
   }
@@ -212,7 +222,7 @@ export async function handleGuideRequest(
         guidePolicy.calendlyUrl,
         namedGuideSkus(lastUserText(messages)),
       ),
-      mode: 'llm',
+      mode: 'catalog',
       calendlyUrl: guidePolicy.calendlyUrl,
     })
   }
@@ -220,7 +230,7 @@ export async function handleGuideRequest(
   if (classifyIntent(messages) === 'pricing') {
     const body: GuideApiResponse = {
       reply: fallbackReply('pricing', locale),
-      mode: env.GUIDE_LLM_API_KEY ? 'llm' : 'degraded',
+      mode: 'catalog',
       calendlyUrl: guidePolicy.calendlyUrl,
     }
     if (shouldCaptureLead(messages)) {
@@ -233,7 +243,7 @@ export async function handleGuideRequest(
     const reply = fallbackReply('offTopic', locale)
     const body: GuideApiResponse = {
       reply,
-      mode: env.GUIDE_LLM_API_KEY ? 'llm' : 'degraded',
+      mode: 'catalog',
       calendlyUrl: guidePolicy.calendlyUrl,
     }
     return json(200, body)

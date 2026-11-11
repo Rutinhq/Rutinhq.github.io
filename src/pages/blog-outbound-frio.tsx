@@ -51,8 +51,8 @@ export default function BlogOutboundFrioPage() {
           <p>
             La prospección en frío funciona cuando la <strong>máquina</strong> se queda
             fija y solo cambian el lenguaje, los filtros y el ángulo. Un SDR
-            rentado se va con el contrato. Un sistema con{' '}
-            <strong>puerta de ICP</strong> se queda con su equipo.
+            externo se va con el contrato. Un sistema con{' '}
+            <strong>filtro de perfil de cliente ideal (ICP)</strong> se queda con su equipo.
           </p>
         }
         faqTitle="Preguntas frecuentes"
@@ -87,24 +87,25 @@ export default function BlogOutboundFrioPage() {
           lpLabel: 'www.rutinhq.com/es/gtm-os',
         }}
       >
-        <h2>Qué significa “con puerta de ICP”</h2>
+        <h2>Qué significa filtrar por perfil de cliente ideal (ICP)</h2>
         <p>
-          Prospección en frío con puerta de ICP <strong>no abre volumen</strong> hasta que
+          Prospección en frío con filtro de perfil de cliente ideal (ICP){' '}
+          <strong>no abre volumen</strong> hasta que
           los criterios son <strong>verificables</strong>. Nada de listas indiscriminadas.
-          Nada de “ya afinamos cuando lleguen respuestas.” La puerta es el
-          producto: si fallan las pruebas firmográficas y de modelo de venta, la secuencia
+          Nada de “ya afinamos cuando lleguen respuestas.” El filtro es el
+          producto: si fallan las pruebas de datos de la empresa y de modelo de venta, la secuencia
           no sale.
         </p>
         <BlogTable
-          headers={['Puerta', 'Señal de pase']}
+          headers={['Filtro', 'Criterio para seguir']}
           rows={[
             [
-              'Encaje firmográfico',
-              'Vertical + rol del comprador coinciden con la hoja',
+              'Encaje de datos de la empresa',
+              'Sector y cargo del comprador coinciden con la hoja',
             ],
             [
               'Encaje de modelo de venta',
-              'El correo en frío es aceptable; la primera corrida se queda en frío',
+              'El correo en frío es aceptable; el primer envío se queda en frío',
             ],
             [
               'Encaje de mensaje',
@@ -168,8 +169,8 @@ export default function BlogOutboundFrioPage() {
           ]}
         />
         <p className="note">
-          Saltar M3 para “conseguir juntas más rápido” casi siempre significa
-          que escaló ruido.
+          Si se salta M3 para conseguir reuniones más rápido, casi siempre se
+          escala ruido.
         </p>
 
         <h2>Responder antes del discurso de venta</h2>
@@ -184,8 +185,8 @@ export default function BlogOutboundFrioPage() {
             ['Pregunta', 'Encuadre de investigación; sin discurso de venta; confirma la llamada'],
             ['Referido', 'Agradezca y contacte al referido mencionando'],
             ['Fuera de oficina', 'Marque; seguimiento al regreso'],
-            ['No interesado', 'Agradezca; descarta; no persiga'],
-            ['Silencio (5–7d)', 'Un recordatorio en el hilo; luego descarta'],
+            ['No interesado', 'Agradezca, descarte y no persiga'],
+            ['Silencio (5 a 7 días)', 'Un recordatorio en el hilo; luego descarte'],
           ]}
         />
 
@@ -204,7 +205,7 @@ export default function BlogOutboundFrioPage() {
             ],
             [
               'Modelo primero en frío',
-              'Compradores que exigen N juntas garantizadas',
+              'Compradores que exigen un número fijo de reuniones',
             ],
           ]}
         />

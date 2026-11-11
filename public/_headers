@@ -28,6 +28,13 @@
 # Keep both: unversioned exact + /beacon.min.js/ prefix. Automatic setup
 # POSTs to same-origin /cdn-cgi/rum → connect-src 'self' already.
 # Do not inject a second beacon, token, or host wildcard. No Google Fonts.
+# Turnstile iframe (challenges.cloudflare.com/.../turnstile/..., line 0)
+# ships its own connect policy (hagen / brunhild / *.alg13) and may log
+# OTS WOFF2, "No available adapters", connect-src data:, PAT 401, brunhild
+# abort, and postMessage origin mismatch. Browser QA: those are NOT main-frame
+# font-src faults — inter / space-grotesk / ibm-plex-mono 400+500 are HTTP 200.
+# Do NOT add data: or host wildcards to this site CSP to silence the iframe.
+# Guide still works. Favicon/manifest must be same-origin (/favicon.ico), not www.
 # No HSTS here.
 /*
   Link: </sitemap.xml>; rel="sitemap", </llms.txt>; rel="describedby"; type="text/plain", </.well-known/api-catalog>; rel="api-catalog"; type="application/linkset+json", </auth.md>; rel="describedby"; type="text/markdown"

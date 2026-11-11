@@ -347,7 +347,7 @@ const ROUTES = [
           },
           {
             q: '¿Esto es un pozo de contenido?',
-            a: 'No. El CTA en cada camino es una llamada de encaje (strategy@) — no un pozo de contenido. Siguiente paso: llamada de encaje; educar para siempre, nunca.',
+            a: 'No. En cada camino, el siguiente paso es una llamada de encaje (strategy@) — no un pozo de contenido ni un ciclo de artículos sin fin.',
           },
           {
             q: '¿Dónde viven los sistemas?',

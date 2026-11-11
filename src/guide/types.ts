@@ -78,9 +78,26 @@ export type GuideApiRequest = {
   turnstileToken?: string
 }
 
+/** llm = model text; catalog = intentional policy/canned; degraded = live outage. */
+export type GuideReplyMode = 'llm' | 'catalog' | 'degraded'
+
+export function isGuideOutageMode(mode: GuideReplyMode): boolean {
+  switch (mode) {
+    case 'degraded':
+      return true
+    case 'llm':
+    case 'catalog':
+      return false
+    default: {
+      const _exhaustive: never = mode
+      return _exhaustive
+    }
+  }
+}
+
 export type GuideApiResponse = {
   reply: string
-  mode: 'llm' | 'degraded'
+  mode: GuideReplyMode
   leadBrief?: LeadBrief
   calendlyUrl: string
   /** Preview hosts only — never sent on rutinhq.com. */

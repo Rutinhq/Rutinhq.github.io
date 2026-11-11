@@ -7,8 +7,10 @@ import {
   isSchedulingTurn,
   isSkuComparisonTurn,
   isStoreAuditFieldTurn,
+  isStoreCatalogTurn,
   isStoreShopifyFitTurn,
   namedGuideSkus,
+  storeAuditGuideReply,
   recommendSkuWithPolicy,
   resolveFallbackKey,
   schedulingGuideReply,
@@ -17,6 +19,7 @@ import {
   type ClassifyPolicy,
 } from '../src/guide/classify-core.ts'
 import { localGuideReply } from '../src/guide/fallback.ts'
+import { isGuideOutageMode } from '../src/guide/types.ts'
 import {
   callGuideLlmDetailed,
   composeGuideSystemPrompt,
@@ -1053,6 +1056,38 @@ assert(
   assert(
     /precio/.test(GUIDE_ES_STORE_FACTS),
     'STORE ES facts keep precio as a catalog audit field',
+  )
+  assert(isStoreCatalogTurn(afterAudit, guidePolicy), '¿cubre precio? is a STORE catalog turn')
+  const auditReply = localGuideReply(afterAudit, 'es')
+  assert(
+    /cuatro pasos/.test(auditReply) && /precio/.test(auditReply) && /paso 2/.test(auditReply),
+    'STORE audit canned names four separate steps and catalog precio in step 2',
+  )
+  assert(
+    !/garantizar|coherente|eficiencia|recomendaciones y acciones|preparada para convertir/i.test(
+      auditReply,
+    ),
+    'STORE audit canned must not invent handover or conversion guarantees',
+  )
+  assert(
+    !/Las respuestas en vivo están en pausa/i.test(auditReply),
+    'policy STORE audit reply must not claim live answers are paused',
+  )
+  const pricingReply = localGuideReply(userTurn('¿Cuánto cuesta STORE OS?'), 'es')
+  assert(
+    /No cito precios/i.test(pricingReply),
+    'fresh STORE rate-card question still refuses a quote',
+  )
+  assert(
+    !/Las respuestas en vivo están en pausa/i.test(pricingReply),
+    'pricing refuse must not use the live-paused outage copy',
+  )
+  assert(!isGuideOutageMode('catalog'), 'catalog mode is not a live outage')
+  assert(isGuideOutageMode('degraded'), 'degraded mode is a live outage')
+  const canned = storeAuditGuideReply('es')
+  assert(
+    /sin editar archivos de plantilla/.test(canned) && /NEXUS OS/.test(canned),
+    'STORE canned keeps config vs audit split and ads exclusion',
   )
 }
 const degradedSku = ensureCalendlyCta(
