@@ -267,6 +267,16 @@ const ROUTES = [
     ogType: 'article',
     locale: 'en',
     image: OG_IMAGE.blog,
+    alternates: [
+      {
+        hreflang: 'en',
+        href: `${SITE}/blog/shopify-admin-audit-before-ads`,
+      },
+      {
+        hreflang: 'x-default',
+        href: `${SITE}/blog/shopify-admin-audit-before-ads`,
+      },
+    ],
     jsonLd: {
       '@context': 'https://schema.org',
       '@graph': [
@@ -521,9 +531,8 @@ const MARKETING_ROUTES = [
   skuRoute({
     path: '/gtm-os',
     file: 'prerender/gtm-os.html',
-    title: 'RutinHQ — GTM OS',
-    description:
-      'Outbound that stays yours. A cold B2B prospecting system installed in your team.',
+    title: enLocale.seo.gtmTitle,
+    description: enLocale.seo.gtmDescription,
     locale: 'en',
     serviceType: 'GTM OS',
     image: OG_IMAGE.gtm,
@@ -532,9 +541,8 @@ const MARKETING_ROUTES = [
   skuRoute({
     path: '/store-os',
     file: 'prerender/store-os.html',
-    title: 'RutinHQ — Store OS',
-    description:
-      'Make the store convert before you buy ads. Replicable Shopify Admin audit + config.',
+    title: enLocale.seo.storeTitle,
+    description: enLocale.seo.storeDescription,
     locale: 'en',
     serviceType: 'Store OS',
     image: OG_IMAGE.store,
@@ -543,9 +551,8 @@ const MARKETING_ROUTES = [
   skuRoute({
     path: '/nexus-os',
     file: 'prerender/nexus-os.html',
-    title: 'RutinHQ — NEXUS OS',
-    description:
-      'Agentic marketing — paper first, Ads only when signed. Strategy → Social → Ads.',
+    title: enLocale.seo.nexusTitle,
+    description: enLocale.seo.nexusDescription,
     locale: 'en',
     serviceType: 'NEXUS OS',
     image: OG_IMAGE.nexus,
@@ -713,6 +720,13 @@ function helmetHasRobots(head) {
   return /<meta\b[^>]*\bname=["']robots["'][^>]*>/i.test(head || '')
 }
 
+function stripHelmetAlternates(head) {
+  return (head || '').replace(
+    /<link\b[^>]*\brel=["']alternate["'][^>]*>/gi,
+    '',
+  )
+}
+
 function seoHead(route, { omitRobots = false } = {}) {
   const url = `${SITE}${route.path}`
   const ogLocale = route.locale === 'es' ? 'es_MX' : 'en_US'
@@ -870,7 +884,7 @@ async function main() {
       } else if (route.locale === 'es') {
         page = page.replace('<html lang="en">', '<html lang="es">')
       }
-      page = page.replace('<!--ssr-head-->', head || '')
+      page = page.replace('<!--ssr-head-->', stripHelmetAlternates(head))
       page = page.replace(
         '</head>',
         `    ${seoHead(route, { omitRobots: helmetHasRobots(head) })}\n  </head>`,
@@ -895,7 +909,10 @@ async function main() {
         `<html ${notFoundSsr.htmlAttributes}>`,
       )
     }
-    notFound = notFound.replace('<!--ssr-head-->', notFoundSsr.head || '')
+    notFound = notFound.replace(
+      '<!--ssr-head-->',
+      stripHelmetAlternates(notFoundSsr.head),
+    )
     notFound = notFound.replace(
       '</head>',
       `    ${seoHead(NOT_FOUND_ROUTE, { omitRobots: helmetHasRobots(notFoundSsr.head) })}\n  </head>`,

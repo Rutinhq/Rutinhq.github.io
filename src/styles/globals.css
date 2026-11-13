@@ -124,6 +124,7 @@
     font-family: var(--font-heading);
     font-weight: 800;
     letter-spacing: -0.03em;
+    overflow-wrap: anywhere;
   }
 
   button,

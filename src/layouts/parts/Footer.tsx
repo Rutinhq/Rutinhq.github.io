@@ -36,9 +36,12 @@ export function Footer() {
             href={CALENDLY_URL}
             target="_blank"
             rel="noopener noreferrer"
+            aria-label={t('common.ctaPrimary')}
             className="hover:text-foreground"
           >
-            <span className="md:hidden">{t('common.ctaPrimaryShort')}</span>
+            <span className="md:hidden" aria-hidden="true">
+              {t('common.ctaPrimaryShort')}
+            </span>
             <span className="hidden md:inline">{t('common.ctaPrimary')}</span>
           </a>
         </nav>
