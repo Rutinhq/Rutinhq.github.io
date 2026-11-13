@@ -48,6 +48,10 @@
 /es/ /prerender/es 200
 /es/gtm-os /prerender/es-gtm-os 200
 /es/gtm-os/ /prerender/es-gtm-os 200
+/gtm-os/offer /prerender/gtm-os-offer 200
+/gtm-os/offer/ /prerender/gtm-os-offer 200
+/es/gtm-os/offer /prerender/es-gtm-os-offer 200
+/es/gtm-os/offer/ /prerender/es-gtm-os-offer 200
 /es/store-os /prerender/es-store-os 200
 /es/store-os/ /prerender/es-store-os 200
 /es/nexus-os /prerender/es-nexus-os 200

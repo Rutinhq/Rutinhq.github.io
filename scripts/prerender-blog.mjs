@@ -627,7 +627,68 @@ const AGENT_ROUTES = [
   }),
 ]
 
-ROUTES.push(...MARKETING_ROUTES, ...AGENT_ROUTES)
+const OFFER_ROUTES = [
+  {
+    path: '/gtm-os/offer',
+    file: 'prerender/gtm-os-offer.html',
+    title: enLocale.seo.gtmOfferTitle,
+    description: enLocale.seo.gtmOfferDescription,
+    ogType: 'website',
+    locale: 'en',
+    noindex: true,
+    robots: 'noindex, nofollow',
+    image: OG_IMAGE.gtm,
+    alternates: [
+      { hreflang: 'en', href: `${SITE}/gtm-os/offer` },
+      { hreflang: 'es', href: `${SITE}/es/gtm-os/offer` },
+      { hreflang: 'x-default', href: `${SITE}/gtm-os/offer` },
+    ],
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@graph': [
+        organizationNode('en'),
+        {
+          '@type': 'WebPage',
+          '@id': `${SITE}/gtm-os/offer#webpage`,
+          url: `${SITE}/gtm-os/offer`,
+          name: enLocale.seo.gtmOfferTitle,
+          description: enLocale.seo.gtmOfferDescription,
+        },
+      ],
+    },
+  },
+  {
+    path: '/es/gtm-os/offer',
+    file: 'prerender/es-gtm-os-offer.html',
+    title: esLocale.seo.gtmOfferTitle,
+    description: esLocale.seo.gtmOfferDescription,
+    ogType: 'website',
+    locale: 'es',
+    noindex: true,
+    robots: 'noindex, nofollow',
+    image: OG_IMAGE.gtm,
+    alternates: [
+      { hreflang: 'en', href: `${SITE}/gtm-os/offer` },
+      { hreflang: 'es', href: `${SITE}/es/gtm-os/offer` },
+      { hreflang: 'x-default', href: `${SITE}/gtm-os/offer` },
+    ],
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@graph': [
+        organizationNode('es'),
+        {
+          '@type': 'WebPage',
+          '@id': `${SITE}/es/gtm-os/offer#webpage`,
+          url: `${SITE}/es/gtm-os/offer`,
+          name: esLocale.seo.gtmOfferTitle,
+          description: esLocale.seo.gtmOfferDescription,
+        },
+      ],
+    },
+  },
+]
+
+ROUTES.push(...MARKETING_ROUTES, ...AGENT_ROUTES, ...OFFER_ROUTES)
 
 const HUB_JSON_LD = {
   '@context': 'https://schema.org',

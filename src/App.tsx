@@ -20,6 +20,7 @@ export const BlogOutboundFrioPage = lazyPage(
 )
 export const AgentsPage = lazyPage(() => import('@/pages/agents'))
 export const AgentsAuthPage = lazyPage(() => import('@/pages/agents-auth'))
+export const GtmOsOfferPage = lazyPage(() => import('@/pages/gtm-os-offer'))
 export const NotFoundPage = lazyPage(() => import('@/pages/not-found'))
 
 const pages = [
@@ -34,6 +35,7 @@ const pages = [
   BlogOutboundFrioPage,
   AgentsPage,
   AgentsAuthPage,
+  GtmOsOfferPage,
   NotFoundPage,
 ]
 
@@ -55,6 +57,8 @@ const pageByPath: Record<string, (typeof pages)[number]> = {
   '/es/agents': AgentsPage,
   '/agents/auth': AgentsAuthPage,
   '/es/agents/auth': AgentsAuthPage,
+  '/gtm-os/offer': GtmOsOfferPage,
+  '/es/gtm-os/offer': GtmOsOfferPage,
 }
 
 export async function resolveAllPages() {
@@ -97,6 +101,8 @@ export default function App() {
         <Route path="/es/agents" element={<AgentsPage />} />
         <Route path="/agents/auth" element={<AgentsAuthPage />} />
         <Route path="/es/agents/auth" element={<AgentsAuthPage />} />
+        <Route path="/gtm-os/offer" element={<GtmOsOfferPage />} />
+        <Route path="/es/gtm-os/offer" element={<GtmOsOfferPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

@@ -319,7 +319,32 @@
     "agentsDescription": "Rutas y archivos públicos de descubrimiento: catálogo, llms.txt, sitemap y páginas de acceso.",
     "agentsAuthTitle": "RutinHQ — auth para agentes",
     "agentsAuthDescription": "Qué es público y qué va detrás de Cloudflare Access. Sin secretos. Contacto strategy@rutinhq.com.",
-    "notFoundTitle": "RutinHQ — 404"
+    "notFoundTitle": "RutinHQ — 404",
+    "gtmOfferTitle": "RutinHQ — GTM OS — oferta del piloto Legal",
+    "gtmOfferDescription": "Un sistema de prospección B2B en frío instalado en su equipo. Página no publicada del piloto Legal — sin cifras, nombres, citas, precios ni garantías."
+  },
+  "gtmOffer": {
+    "eyebrow": "GTM OS",
+    "banner": "Página no publicada — noindex. No está en el menú ni en el sitemap.",
+    "headline": "GTM OS — para el piloto Legal",
+    "pilotNote": "Esta página espera resultados del piloto Legal. Los bloques reservados de abajo deben quedar vacíos de cifras, nombres, citas, precios o garantías hasta que el piloto cierre.",
+    "slotsTitle": "Reservado para el piloto Legal",
+    "slotsIntro": "Huecos a propósito. Rellene solo cuando el piloto Legal tenga resultados — no invente números, nombres, citas, precios ni garantías.",
+    "slots": {
+      "results": {
+        "title": "Reservado — resultados del piloto Legal",
+        "body": "Sin cifras hasta que el piloto cierre. No hay métricas inventadas en esta página."
+      },
+      "testimonial": {
+        "title": "Reservado — testimonio del piloto Legal",
+        "body": "Sin nombre y sin cita hasta aprobación. No hay clientes inventados en esta página."
+      },
+      "metrics": {
+        "title": "Reservado — indicadores del piloto Legal",
+        "body": "Sin números hasta que el piloto cierre. No hay tarifas ni garantías en esta página."
+      }
+    },
+    "sourceNote": "El texto de abajo es el catálogo público de GTM OS. Fuente: docs.rutinhq.com/catalog/gtm-os/ y www.rutinhq.com/es/gtm-os."
   },
   "guide": {
     "launcher": "Guía RutinHQ",
