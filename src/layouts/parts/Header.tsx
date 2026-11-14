@@ -62,9 +62,12 @@ export function Header() {
             href={CALENDLY_URL}
             target="_blank"
             rel="noopener noreferrer"
+            aria-label={t('common.ctaPrimary')}
             className={cn(buttonVariants({ size: 'sm' }), 'relative z-10 shrink-0 px-3 md:px-4')}
           >
-            <span className="md:hidden">{t('common.ctaPrimaryShort')}</span>
+            <span className="md:hidden" aria-hidden="true">
+              {t('common.ctaPrimaryShort')}
+            </span>
             <span className="hidden md:inline">{t('common.ctaPrimary')}</span>
           </a>
         </div>

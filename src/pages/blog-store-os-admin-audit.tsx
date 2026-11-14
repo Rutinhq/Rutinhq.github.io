@@ -1,5 +1,5 @@
 import { BlogPostLayout } from '@/components/blog'
-import { OG_IMAGE, Seo, articleJsonLd } from '@/components/Seo'
+import { OG_IMAGE, SITE, Seo, articleJsonLd } from '@/components/Seo'
 import { ARTICLE02, BLOG_ROBOTS, articleSeoTitle } from '@/lib/blog'
 import {
   CALENDLY_URL,
@@ -22,6 +22,10 @@ export default function BlogStoreOsAdminAuditPage() {
         robots={BLOG_ROBOTS}
         ogType="article"
         image={OG_IMAGE.blog}
+        alternates={[
+          { hreflang: 'en', href: `${SITE}${ARTICLE02.path}` },
+          { hreflang: 'x-default', href: `${SITE}${ARTICLE02.path}` },
+        ]}
         jsonLd={articleJsonLd({
           path: ARTICLE02.path,
           headline: ARTICLE02.title,
@@ -52,8 +56,7 @@ export default function BlogStoreOsAdminAuditPage() {
           title: 'One SKU. One next step.',
           body: (
             <p>
-              Book a 30-min fit call or write strategy@rutinhq.com. Next desk is
-              Store OS — not ads.
+              Book a 30-min fit call. Next desk is Store OS — not ads.
             </p>
           ),
           mailto: MAILTO_STORE,

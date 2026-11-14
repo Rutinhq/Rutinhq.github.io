@@ -582,8 +582,8 @@ if (!/\/blog/.test(sitemapBody)) {
   console.error(`${sitemap} must include blog URLs after Capo publish GO.`)
   process.exit(1)
 }
-if (!sitemapBody.includes('<lastmod>2026-09-13</lastmod>')) {
-  console.error(`${sitemap} must lastmod hub/OS after the FAQPage residual.`)
+if (!sitemapBody.includes('<lastmod>2026-11-13</lastmod>')) {
+  console.error(`${sitemap} must lastmod hub/OS/agents after the 13 Nov SEO pass.`)
   process.exit(1)
 }
 if (!sitemapBody.includes('<lastmod>2026-09-23</lastmod>')) {
@@ -850,6 +850,20 @@ if (fs.existsSync('dist/_headers')) {
     )
     process.exit(1)
   }
+  if (
+    !/\/og\/\*[\s\S]*?Cache-Control:\s*public,\s*max-age=86400/i.test(headers)
+  ) {
+    console.error('dist/_headers must cache /og/* at max-age=86400.')
+    process.exit(1)
+  }
+  if (
+    !/\/site\.webmanifest[\s\S]*?Cache-Control:\s*public,\s*max-age=3600/i.test(
+      headers,
+    )
+  ) {
+    console.error('dist/_headers must cache /site.webmanifest at max-age=3600.')
+    process.exit(1)
+  }
   assertAgentDiscoveryCache(headers, 'dist/_headers')
 }
 
@@ -1010,7 +1024,7 @@ const esMarketing = [
     path: '/es',
     title: 'RutinHQ — sistemas que usted posee',
     description:
-      'Tres sistemas operativos instalables. Elija el cuello de botella. Una página, un producto.',
+      'Tres sistemas operativos instalables — GTM OS, STORE OS y NEXUS OS. Elija el cuello de botella. Una página, un producto.',
   },
   {
     file: 'dist/prerender/es-gtm-os.html',
@@ -1311,17 +1325,17 @@ for (const spec of [
 const skuShells = [
   {
     file: 'dist/prerender/gtm-os.html',
-    title: 'RutinHQ — GTM OS',
+    title: 'RutinHQ — GTM OS — outbound that stays yours',
     canonical: 'https://www.rutinhq.com/gtm-os',
   },
   {
     file: 'dist/prerender/store-os.html',
-    title: 'RutinHQ — Store OS',
+    title: 'RutinHQ — STORE OS — convert before you buy ads',
     canonical: 'https://www.rutinhq.com/store-os',
   },
   {
     file: 'dist/prerender/nexus-os.html',
-    title: 'RutinHQ — NEXUS OS',
+    title: 'RutinHQ — NEXUS OS — paper first, Ads only when signed',
     canonical: 'https://www.rutinhq.com/nexus-os',
   },
   {
@@ -1466,7 +1480,7 @@ if (!homepage.includes('name="twitter:title" content="RutinHQ — systems you ow
 }
 if (
   !homepage.includes(
-    'name="twitter:description" content="Three installable operating systems. Pick the bottleneck. One page, one SKU."',
+    'name="twitter:description" content="Three installable operating systems — GTM OS, STORE OS, and NEXUS OS. Pick the bottleneck. One page, one SKU."',
   )
 ) {
   console.error('dist/index.html must emit twitter:description matching the hub description.')
@@ -2010,6 +2024,10 @@ if (
   console.error('dist/index.html must preload self-hosted Inter + Space Grotesk.')
   process.exit(1)
 }
+if (!homepage.includes('fetchpriority="high"')) {
+  console.error('dist/index.html must fetchpriority=high the heading font preloads.')
+  process.exit(1)
+}
 
 const osServiceShells = [
   { file: 'dist/prerender/gtm-os.html', type: 'GTM OS' },
@@ -2154,6 +2172,25 @@ if (/not for index/i.test(article02Html) || /content=["']noindex/i.test(article0
   console.error(
     `${article02Shell} must stay indexable (Capo 4 Nov 2026) — no noindex meta or "not for index" copy.`,
   )
+  process.exit(1)
+}
+if (
+  !article02Html.includes(
+    'hreflang="en" href="https://www.rutinhq.com/blog/shopify-admin-audit-before-ads"',
+  ) ||
+  !article02Html.includes(
+    'hreflang="x-default" href="https://www.rutinhq.com/blog/shopify-admin-audit-before-ads"',
+  )
+) {
+  console.error(`${article02Shell} must emit EN + x-default hreflang (no ES twin).`)
+  process.exit(1)
+}
+if (
+  article02Html.includes(
+    'hreflang="es" href="https://www.rutinhq.com/es/blog/shopify-admin-audit-before-ads"',
+  )
+) {
+  console.error(`${article02Shell} must not invent an ES hreflang twin.`)
   process.exit(1)
 }
 
@@ -2427,6 +2464,26 @@ for (const file of beaconHtmlFiles) {
       `${file} must not embed a Web Analytics beacon or token (automatic inject on prod only; no duplicate snippet).`,
     )
     process.exit(1)
+  }
+  if (html.includes('/cdn-cgi/l/email-protection')) {
+    console.error(
+      `${file} must not emit Cloudflare email-protection hrefs (wrap emails in email_off).`,
+    )
+    process.exit(1)
+  }
+  const hreflangHits = [
+    ...html.matchAll(/hreflang="([^"]+)"\s+href="([^"]+)"/gi),
+  ]
+  const seen = new Map()
+  for (const match of hreflangHits) {
+    const key = `${match[1]}:${match[2]}`
+    seen.set(key, (seen.get(key) || 0) + 1)
+  }
+  for (const [key, count] of seen) {
+    if (count > 1) {
+      console.error(`${file} must not duplicate hreflang ${key} (${count}×).`)
+      process.exit(1)
+    }
   }
 }
 

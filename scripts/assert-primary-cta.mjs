@@ -14,17 +14,14 @@ const SOURCE_FILES = [
 
 const SHELLS = [
   'dist/index.html',
-  'dist/prerender/es.html',
-  'dist/prerender/gtm-os.html',
-  'dist/prerender/store-os.html',
-  'dist/prerender/nexus-os.html',
-  'dist/prerender/es-gtm-os.html',
-  'dist/prerender/es-store-os.html',
-  'dist/prerender/es-nexus-os.html',
-  'dist/prerender/blog.html',
-  'dist/prerender/es-blog.html',
-  'dist/prerender/agents.html',
-  'dist/prerender/es-agents.html',
+  'dist/404.html',
+  ...(fs.existsSync('dist/prerender')
+    ? fs
+        .readdirSync('dist/prerender')
+        .filter((name) => name.endsWith('.html'))
+        .sort()
+        .map((name) => path.join('dist/prerender', name))
+    : []),
 ]
 
 function fail(message) {
