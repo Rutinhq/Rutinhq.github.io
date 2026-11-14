@@ -95,6 +95,8 @@ const HTML_CACHE_REQUEST_PATHS = [
   '/agents/auth',
   '/es/agents',
   '/es/agents/auth',
+  '/gtm-os/offer',
+  '/gtm-os/offer/',
   '/prerender/gtm-os',
 ]
 
@@ -477,6 +479,8 @@ for (const pair of [
   ['/agents/auth', '/prerender/agents-auth'],
   ['/es/agents', '/prerender/es-agents'],
   ['/es/agents/auth', '/prerender/es-agents-auth'],
+  ['/gtm-os/offer', '/prerender/gtm-os-offer'],
+  ['/es/gtm-os/offer', '/prerender/es-gtm-os-offer'],
 ]) {
   const [from, to] = pair
   const escaped = `${from.replaceAll('/', '\\/')}\\s+${to.replaceAll('/', '\\/')}\\s+200`
@@ -565,6 +569,10 @@ if (
 }
 if (locs.some((url) => !url.startsWith('https://www.rutinhq.com'))) {
   console.error(`${sitemap} must stay www-only.`)
+  process.exit(1)
+}
+if (sitemapBody.includes('/gtm-os/offer') || locs.some((url) => url.includes('/offer'))) {
+  console.error(`${sitemap} must not list the unpublished GTM OS offer.`)
   process.exit(1)
 }
 const lastmods = [...sitemapBody.matchAll(/<lastmod>([^<]+)<\/lastmod>/g)].map(
@@ -1155,6 +1163,7 @@ const mustDiffer = [
   'seo.agentsTitle',
   'seo.agentsDescription',
   'seo.agentsAuthTitle',
+  'seo.gtmOfferTitle',
   'agents.headline',
   'agentsAuth.headline',
 ]
@@ -1173,6 +1182,19 @@ if (!linksSource.includes('https://calendly.com/rutinhq/30min')) {
 const headerSource = fs.readFileSync('src/layouts/parts/Header.tsx', 'utf8')
 const ctasSource = fs.readFileSync('src/components/Ctas.tsx', 'utf8')
 const footerSource = fs.readFileSync('src/layouts/parts/Footer.tsx', 'utf8')
+const hubPageSource = fs.readFileSync('src/pages/index.tsx', 'utf8')
+const gtmPageSource = fs.readFileSync('src/pages/gtm-os.tsx', 'utf8')
+for (const [name, source] of [
+  ['Header', headerSource],
+  ['Footer', footerSource],
+  ['hub', hubPageSource],
+  ['gtm-os', gtmPageSource],
+]) {
+  if (source.includes('/gtm-os/offer')) {
+    console.error(`${name} must not link the unpublished GTM OS offer.`)
+    process.exit(1)
+  }
+}
 for (const [name, source] of [
   ['Header', headerSource],
   ['Footer', footerSource],
@@ -1224,6 +1246,13 @@ if (!robotsBody.includes('Disallow: /prerender/')) {
 }
 if (!robotsBody.includes('Disallow: /guide-kb.json')) {
   console.error(`${robots} must Disallow /guide-kb.json.`)
+  process.exit(1)
+}
+if (
+  !robotsBody.includes('Disallow: /gtm-os/offer') ||
+  !robotsBody.includes('Disallow: /es/gtm-os/offer')
+) {
+  console.error(`${robots} must Disallow the unpublished GTM OS offer (EN + ES).`)
   process.exit(1)
 }
 if (!robotsBody.includes('Content-Signal: search=yes,ai-train=no,use=reference')) {
@@ -2450,6 +2479,67 @@ if (!esStoreHtml.includes('No incluye anuncios ni creatividades')) {
 if (/5\)\s*Ads\b/i.test(esStoreHtml) || /Ads \/ creatives/i.test(esStoreHtml)) {
   console.error('es-store-os must not keep source how-step 5 (ads/creatives) as a deliverable.')
   process.exit(1)
+}
+
+const offerShells = [
+  {
+    file: 'dist/prerender/gtm-os-offer.html',
+    canonical: 'https://www.rutinhq.com/gtm-os/offer',
+    title: 'RutinHQ — GTM OS — Legal-pilot offer',
+    reserved: 'Reserved — Legal-pilot results',
+  },
+  {
+    file: 'dist/prerender/es-gtm-os-offer.html',
+    canonical: 'https://www.rutinhq.com/es/gtm-os/offer',
+    title: 'RutinHQ — GTM OS — oferta del piloto Legal',
+    reserved: 'Reservado — resultados del piloto Legal',
+  },
+]
+for (const shell of offerShells) {
+  if (!fs.existsSync(shell.file)) {
+    console.error(`${shell.file} missing — unpublished GTM OS offer must prerender.`)
+    process.exit(1)
+  }
+  const html = fs.readFileSync(shell.file, 'utf8')
+  if (!html.includes(`<title>${shell.title}</title>`)) {
+    console.error(`${shell.file} must ship unique <title>${shell.title}</title>.`)
+    process.exit(1)
+  }
+  if (!html.includes(`rel="canonical" href="${shell.canonical}"`)) {
+    console.error(`${shell.file} must canonical ${shell.canonical}.`)
+    process.exit(1)
+  }
+  if (!/content=["']noindex,\s*nofollow["']/.test(html)) {
+    console.error(`${shell.file} must be noindex, nofollow.`)
+    process.exit(1)
+  }
+  if (!html.includes('calendly.com/rutinhq/30min')) {
+    console.error(`${shell.file} must keep the locked Calendly URL.`)
+    process.exit(1)
+  }
+  if (!html.includes(shell.reserved)) {
+    console.error(`${shell.file} must keep the reserved Legal-pilot slot copy.`)
+    process.exit(1)
+  }
+  if (
+    /\$\d|€\d|%\s*(?:lift|increase|ROI)/i.test(html) ||
+    /we guaranteed|garantizamos \d/i.test(html)
+  ) {
+    console.error(`${shell.file} must not invent prices, percents, or guarantees.`)
+    process.exit(1)
+  }
+}
+
+if (fs.existsSync('dist/_headers')) {
+  const offerHeaders = fs.readFileSync('dist/_headers', 'utf8')
+  if (
+    !/\/gtm-os\/offer\s*\n[\s\S]*?X-Robots-Tag:\s*noindex,\s*nofollow/.test(
+      offerHeaders,
+    )
+  ) {
+    console.error('dist/_headers must noindex /gtm-os/offer.')
+    process.exit(1)
+  }
 }
 
 console.log(

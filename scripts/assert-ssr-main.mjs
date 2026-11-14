@@ -80,6 +80,14 @@ const shells = [
     h1: 'Qué es público y qué pide acceso.',
   },
   {
+    file: 'dist/prerender/gtm-os-offer.html',
+    h1: 'GTM OS — for the Legal pilot',
+  },
+  {
+    file: 'dist/prerender/es-gtm-os-offer.html',
+    h1: 'GTM OS — para el piloto Legal',
+  },
+  {
     file: 'dist/404.html',
     h1: 'Page not found',
   },

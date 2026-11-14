@@ -62,6 +62,20 @@
 /gtm-os/
   Cache-Control: public, max-age=0, must-revalidate
 
+/gtm-os/offer
+  Cache-Control: public, max-age=0, must-revalidate
+  X-Robots-Tag: noindex, nofollow
+
+/gtm-os/offer/
+  Cache-Control: public, max-age=0, must-revalidate
+  X-Robots-Tag: noindex, nofollow
+
+/es/gtm-os/offer
+  X-Robots-Tag: noindex, nofollow
+
+/es/gtm-os/offer/
+  X-Robots-Tag: noindex, nofollow
+
 /store-os
   Cache-Control: public, max-age=0, must-revalidate
 

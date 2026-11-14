@@ -320,7 +320,32 @@
     "agentsDescription": "Public endpoints and discovery files for agents: catalog, llms.txt, sitemap, and auth surfaces.",
     "agentsAuthTitle": "RutinHQ — agent auth surfaces",
     "agentsAuthDescription": "What is public vs Access-gated. No secrets. Contact strategy@rutinhq.com.",
-    "notFoundTitle": "RutinHQ — 404"
+    "notFoundTitle": "RutinHQ — 404",
+    "gtmOfferTitle": "RutinHQ — GTM OS — Legal-pilot offer",
+    "gtmOfferDescription": "A cold B2B prospecting system installed in your team. Unpublished Legal-pilot page — no figures, names, quotes, prices, or guarantees."
+  },
+  "gtmOffer": {
+    "eyebrow": "GTM OS",
+    "banner": "Unpublished page — noindex. Not in the nav or the sitemap.",
+    "headline": "GTM OS — for the Legal pilot",
+    "pilotNote": "This page waits for Legal-pilot results. The reserved blocks below must stay empty of figures, names, quotes, prices, or guarantees until the pilot closes.",
+    "slotsTitle": "Reserved for the Legal pilot",
+    "slotsIntro": "Obvious gaps on purpose. Fill only after the Legal pilot produces results — never invent numbers, names, quotes, prices, or guarantees.",
+    "slots": {
+      "results": {
+        "title": "Reserved — Legal-pilot results",
+        "body": "No figures until the pilot closes. No invented metrics on this page."
+      },
+      "testimonial": {
+        "title": "Reserved — Legal-pilot testimonial",
+        "body": "No name and no quote until approval. No invented clients on this page."
+      },
+      "metrics": {
+        "title": "Reserved — Legal-pilot metrics",
+        "body": "No numbers until the pilot closes. No rate card and no guarantees on this page."
+      }
+    },
+    "sourceNote": "Copy below is the public GTM OS catalog. Source: docs.rutinhq.com/catalog/gtm-os/ and www.rutinhq.com/gtm-os."
   },
   "guide": {
     "launcher": "Ask RutinHQ Guide",
