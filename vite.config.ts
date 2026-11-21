@@ -16,6 +16,19 @@ import {
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url))
 
+/**
+ * Public Turnstile *site* key (not a secret). Source of truth: wrangler.toml [vars].
+ * An env var VITE_TURNSTILE_SITE_KEY (e.g. Pages build variable) wins if set.
+ * Replaces the old tracked `.env.production`, so no `.env*` file lives in git.
+ */
+function publicTurnstileSiteKey(): string {
+  const fromEnv = process.env.VITE_TURNSTILE_SITE_KEY?.trim()
+  if (fromEnv) return fromEnv
+  const toml = fs.readFileSync(path.join(rootDir, 'wrangler.toml'), 'utf8')
+  const m = toml.match(/^\s*VITE_TURNSTILE_SITE_KEY\s*=\s*"([^"]+)"/m)
+  return m ? m[1].trim() : ''
+}
+
 function readBody(req: IncomingMessage): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = []
@@ -224,7 +237,12 @@ async function degradeGuidePreview(request: Request, kb: unknown): Promise<Respo
 // Do not emit dist/<sku>/index.html — that folder form makes
 // Pages/wrangler 308 /gtm-os away from the pretty URL.
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
+  // Build only: dev keeps fail-open behaviour (no site key unless set in .env).
+  define:
+    command === 'build'
+      ? { 'import.meta.env.VITE_TURNSTILE_SITE_KEY': JSON.stringify(publicTurnstileSiteKey()) }
+      : {},
   plugins: [react(), tailwindcss(), guideApiPlugin()],
   resolve: {
     alias: {
@@ -302,4 +320,4 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 4321,
   },
-})
+}))

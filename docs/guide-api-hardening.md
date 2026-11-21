@@ -1,6 +1,6 @@
 # Guide API hardening (`/api/guide`)
 
-Defense in depth for the public concierge. This repo is public: never commit secrets or tokens. The Turnstile **site** key is public by design and lives in git (`wrangler.toml` + `.env.production`).
+Defense in depth for the public concierge. This repo is public: never commit secrets or tokens. The Turnstile **site** key is public by design and lives in git in `wrangler.toml` only (no `.env*` file is tracked).
 
 ## What the code does
 
@@ -24,7 +24,7 @@ Dashboard only for the **secret** and the WAF rule. The public site key is in gi
 
 - [ ] Cloudflare Dashboard → Turnstile → create a widget for `www.rutinhq.com` (and preview host if used).
 - [ ] Pages Secret `TURNSTILE_SECRET_KEY` (Production **and** Preview). Dashboard plaintext vars are blocked on this project — do not try to put `VITE_TURNSTILE_SITE_KEY` there.
-- [ ] Public site key: `wrangler.toml` `[vars]` **and** `.env.production` (Vite does not read wrangler.toml during `npm run build`).
+- [ ] Public site key: `wrangler.toml` `[vars]`; `vite.config.ts` inlines it at build, and `scripts/assert-spa-200.mjs` fails the build if the GuideWidget chunk lacks it.
 - [ ] Zone WAF / Rate limiting rule on `www.rutinhq.com/api/guide*` (POST). Suggested starting point: a tight per-IP window on those paths. **Do not** put the threshold or billing notes in git.
 - [ ] Workers AI is bound from `wrangler.toml` (`[ai] binding = "AI"`). No dashboard AI step unless the binding failed to attach on preview/production. Stay inside the Workers Free 10k neurons/day; do not pin 70B.
 - [ ] Gemini OpenAI-compat is optional only (`GUIDE_LLM_PROVIDER=openai-compat` + Pages secret). Skip unless billing is enabled — the free Gemini tier 403s this project.
