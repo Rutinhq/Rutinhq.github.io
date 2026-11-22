@@ -11,7 +11,8 @@
     "blog": "Blog",
     "docs": "Docs",
     "agents": "Agents",
-    "skipToContent": "Skip to content"
+    "skipToContent": "Skip to content",
+    "relatedReading": "Related reading:"
   },
   "nav": {
     "language": "Language"

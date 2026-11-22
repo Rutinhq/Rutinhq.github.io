@@ -90,7 +90,7 @@ Article EN: https://www.rutinhq.com/blog/icp-gated-cold-outbound-without-rented-
 Title: ICP-gated cold outbound without a rented SDR
 Description: Keep the outbound core fixed—change only ICP, message, and filters—so pipeline stays with your team when the contract ends.
 
-Article EN (DRAFT outline): https://www.rutinhq.com/blog/shopify-admin-audit-before-ads
+Article EN: https://www.rutinhq.com/blog/shopify-admin-audit-before-ads
 Title: Shopify Admin audit before you buy ads
 Description: Replicable Shopify Admin audit + config — variants, price, weight, shipping — so ops friction stops killing conversion.
 

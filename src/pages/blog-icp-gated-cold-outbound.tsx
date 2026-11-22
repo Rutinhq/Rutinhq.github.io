@@ -37,7 +37,6 @@ export default function BlogIcpGatedColdOutboundPage() {
 
       <BlogPostLayout
         typeLabel="How-to · GTM OS"
-        draft={ARTICLE01.draft}
         breadcrumbs={[
           { label: 'Home', to: '/' },
           { label: 'Blog', to: '/blog' },

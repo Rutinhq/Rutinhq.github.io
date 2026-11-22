@@ -38,7 +38,6 @@ export default function BlogStoreOsAdminAuditPage() {
 
       <BlogPostLayout
         typeLabel="How-to · Store OS · DRAFT"
-        draft={ARTICLE02.draft}
         breadcrumbs={[
           { label: 'Home', to: '/' },
           { label: 'Blog', to: '/blog' },

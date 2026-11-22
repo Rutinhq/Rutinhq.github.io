@@ -587,8 +587,33 @@ if (!sitemapBody.includes('<lastmod>2026-11-13</lastmod>')) {
   process.exit(1)
 }
 if (!sitemapBody.includes('<lastmod>2026-09-23</lastmod>')) {
-  console.error(`${sitemap} must lastmod blog URLs on the Capo publish GO date.`)
+  console.error(`${sitemap} must lastmod blog index URLs on the Capo publish GO date.`)
   process.exit(1)
+}
+
+const sitemapUrlBlocks = [...sitemapBody.matchAll(/<url>([\s\S]*?)<\/url>/g)].map(
+  (m) => m[1],
+)
+function sitemapLastmodFor(loc) {
+  const block = sitemapUrlBlocks.find((entry) =>
+    entry.includes(`<loc>${loc}</loc>`),
+  )
+  return (block?.match(/<lastmod>([^<]+)<\/lastmod>/) || [])[1]
+}
+const expectedPostLastmods = {
+  'https://www.rutinhq.com/blog/icp-gated-cold-outbound-without-rented-sdr':
+    '2026-09-08',
+  'https://www.rutinhq.com/es/blog/outbound-frio-con-icp-sin-sdr-rentado':
+    '2026-09-08',
+  'https://www.rutinhq.com/blog/shopify-admin-audit-before-ads': '2026-09-13',
+}
+for (const [loc, date] of Object.entries(expectedPostLastmods)) {
+  if (sitemapLastmodFor(loc) !== date) {
+    console.error(
+      `${sitemap} lastmod for ${loc} must equal that post's JSON-LD dateModified (${date}).`,
+    )
+    process.exit(1)
+  }
 }
 
 const crawlHtml = [
@@ -1324,6 +1349,10 @@ for (const spec of [
     )
     process.exit(1)
   }
+  if (/DRAFT outline/i.test(body)) {
+    console.error(`${spec.file} must not label the Shopify article as a DRAFT outline.`)
+    process.exit(1)
+  }
   for (const needle of spec.required) {
     if (!body.includes(needle)) {
       console.error(`${spec.file} must include ${needle}.`)
@@ -1404,6 +1433,51 @@ for (const shell of skuShells) {
     console.error(`${shell.file} must keep og:site_name.`)
     process.exit(1)
   }
+}
+
+const relatedReadingNeedles = [
+  {
+    file: 'dist/prerender/gtm-os.html',
+    href: '/blog/icp-gated-cold-outbound-without-rented-sdr',
+    label: 'Related reading:',
+    title: 'ICP-gated cold outbound without a rented SDR',
+  },
+  {
+    file: 'dist/prerender/es-gtm-os.html',
+    href: '/es/blog/outbound-frio-con-icp-sin-sdr-rentado',
+    label: 'Lectura relacionada:',
+    title:
+      'Prospección en frío con perfil de cliente ideal (ICP) — sin SDR rentado',
+  },
+  {
+    file: 'dist/prerender/store-os.html',
+    href: '/blog/shopify-admin-audit-before-ads',
+    label: 'Related reading:',
+    title: 'Shopify Admin audit before you buy ads',
+  },
+]
+for (const spec of relatedReadingNeedles) {
+  const html = fs.readFileSync(spec.file, 'utf8')
+  if (
+    !html.includes(spec.label) ||
+    !html.includes(`href="${spec.href}"`) ||
+    !html.includes(spec.title)
+  ) {
+    console.error(
+      `${spec.file} must include a related-reading link to ${spec.href}.`,
+    )
+    process.exit(1)
+  }
+}
+const esStoreRelatedHtml = fs.readFileSync(
+  'dist/prerender/es-store-os.html',
+  'utf8',
+)
+if (esStoreRelatedHtml.includes('/blog/shopify-admin-audit-before-ads')) {
+  console.error(
+    'dist/prerender/es-store-os.html must not link the EN-only Store OS article.',
+  )
+  process.exit(1)
 }
 
 const talkClusters = [
@@ -2168,6 +2242,12 @@ if (!fs.existsSync(article02Shell)) {
 const article02Html = fs.readFileSync(article02Shell, 'utf8')
 if (/"@type":"FAQPage"/.test(article02Html)) {
   console.error('Article02 draft shell must not invent FAQPage.')
+  process.exit(1)
+}
+if (article02Html.includes('DRAFT outline — catalog language only.')) {
+  console.error(
+    `${article02Shell} must not show the public DRAFT outline label.`,
+  )
   process.exit(1)
 }
 if (
