@@ -1324,6 +1324,10 @@ for (const spec of [
     )
     process.exit(1)
   }
+  if (/DRAFT outline/i.test(body)) {
+    console.error(`${spec.file} must not label the Shopify article as a DRAFT outline.`)
+    process.exit(1)
+  }
   for (const needle of spec.required) {
     if (!body.includes(needle)) {
       console.error(`${spec.file} must include ${needle}.`)
@@ -2168,6 +2172,12 @@ if (!fs.existsSync(article02Shell)) {
 const article02Html = fs.readFileSync(article02Shell, 'utf8')
 if (/"@type":"FAQPage"/.test(article02Html)) {
   console.error('Article02 draft shell must not invent FAQPage.')
+  process.exit(1)
+}
+if (article02Html.includes('DRAFT outline — catalog language only.')) {
+  console.error(
+    `${article02Shell} must not show the public DRAFT outline label.`,
+  )
   process.exit(1)
 }
 if (
