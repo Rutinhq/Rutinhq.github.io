@@ -587,8 +587,33 @@ if (!sitemapBody.includes('<lastmod>2026-11-13</lastmod>')) {
   process.exit(1)
 }
 if (!sitemapBody.includes('<lastmod>2026-09-23</lastmod>')) {
-  console.error(`${sitemap} must lastmod blog URLs on the Capo publish GO date.`)
+  console.error(`${sitemap} must lastmod blog index URLs on the Capo publish GO date.`)
   process.exit(1)
+}
+
+const sitemapUrlBlocks = [...sitemapBody.matchAll(/<url>([\s\S]*?)<\/url>/g)].map(
+  (m) => m[1],
+)
+function sitemapLastmodFor(loc) {
+  const block = sitemapUrlBlocks.find((entry) =>
+    entry.includes(`<loc>${loc}</loc>`),
+  )
+  return (block?.match(/<lastmod>([^<]+)<\/lastmod>/) || [])[1]
+}
+const expectedPostLastmods = {
+  'https://www.rutinhq.com/blog/icp-gated-cold-outbound-without-rented-sdr':
+    '2026-09-08',
+  'https://www.rutinhq.com/es/blog/outbound-frio-con-icp-sin-sdr-rentado':
+    '2026-09-08',
+  'https://www.rutinhq.com/blog/shopify-admin-audit-before-ads': '2026-09-13',
+}
+for (const [loc, date] of Object.entries(expectedPostLastmods)) {
+  if (sitemapLastmodFor(loc) !== date) {
+    console.error(
+      `${sitemap} lastmod for ${loc} must equal that post's JSON-LD dateModified (${date}).`,
+    )
+    process.exit(1)
+  }
 }
 
 const crawlHtml = [
