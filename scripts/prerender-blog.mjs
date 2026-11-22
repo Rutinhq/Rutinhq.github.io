@@ -727,6 +727,81 @@ function stripHelmetAlternates(head) {
   )
 }
 
+function jsonLdScriptRe() {
+  return /<script\b[^>]*\btype=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi
+}
+
+function decodeJsonLdInner(inner) {
+  return inner
+    .replaceAll('&quot;', '"')
+    .replaceAll('&#x27;', "'")
+    .replaceAll('&lt;', '<')
+    .replaceAll('&gt;', '>')
+    .replaceAll('&amp;', '&')
+}
+
+function extractJsonLdBlocks(html) {
+  const blocks = []
+  for (const match of (html || '').matchAll(jsonLdScriptRe())) {
+    try {
+      blocks.push(JSON.parse(decodeJsonLdInner(match[1])))
+    } catch {
+      // Helmet/prerender must still emit one valid graph below.
+    }
+  }
+  return blocks
+}
+
+function stripJsonLdScripts(html) {
+  return (html || '').replace(jsonLdScriptRe(), '')
+}
+
+function jsonLdNodes(data) {
+  if (!data) return []
+  if (Array.isArray(data)) return data.flatMap(jsonLdNodes)
+  if (Array.isArray(data['@graph'])) return data['@graph']
+  const node = { ...data }
+  delete node['@context']
+  return [node]
+}
+
+function jsonLdNodeKey(node) {
+  if (node?.['@id']) return `id:${node['@id']}`
+  const type = node?.['@type']
+  const typeKey = Array.isArray(type) ? [...type].sort().join(',') : String(type || '')
+  return `type:${typeKey}`
+}
+
+function pickRicherJsonLd(a, b) {
+  return JSON.stringify(b).length > JSON.stringify(a).length ? b : a
+}
+
+function mergeJsonLd(routeLd, extraBlocks) {
+  const merged = new Map()
+  for (const node of [...jsonLdNodes(routeLd), ...extraBlocks.flatMap(jsonLdNodes)]) {
+    const key = jsonLdNodeKey(node)
+    const prev = merged.get(key)
+    merged.set(key, prev ? pickRicherJsonLd(prev, node) : node)
+  }
+  const graph = [...merged.values()]
+  if (graph.length === 0) return routeLd
+  if (
+    graph.length === 1 &&
+    !routeLd?.['@graph'] &&
+    extraBlocks.length === 0
+  ) {
+    return routeLd
+  }
+  return {
+    '@context': 'https://schema.org',
+    '@graph': graph,
+  }
+}
+
+function helmetHeadWithoutJsonLd(head) {
+  return stripHelmetAlternates(stripJsonLdScripts(head))
+}
+
 function seoHead(route, { omitRobots = false } = {}) {
   const url = `${SITE}${route.path}`
   const ogLocale = route.locale === 'es' ? 'es_MX' : 'en_US'
@@ -884,7 +959,8 @@ async function main() {
       } else if (route.locale === 'es') {
         page = page.replace('<html lang="en">', '<html lang="es">')
       }
-      page = page.replace('<!--ssr-head-->', stripHelmetAlternates(head))
+      route.jsonLd = mergeJsonLd(route.jsonLd, extractJsonLdBlocks(head))
+      page = page.replace('<!--ssr-head-->', helmetHeadWithoutJsonLd(head))
       page = page.replace(
         '</head>',
         `    ${seoHead(route, { omitRobots: helmetHasRobots(head) })}\n  </head>`,
@@ -909,9 +985,13 @@ async function main() {
         `<html ${notFoundSsr.htmlAttributes}>`,
       )
     }
+    NOT_FOUND_ROUTE.jsonLd = mergeJsonLd(
+      NOT_FOUND_ROUTE.jsonLd,
+      extractJsonLdBlocks(notFoundSsr.head),
+    )
     notFound = notFound.replace(
       '<!--ssr-head-->',
-      stripHelmetAlternates(notFoundSsr.head),
+      helmetHeadWithoutJsonLd(notFoundSsr.head),
     )
     notFound = notFound.replace(
       '</head>',
