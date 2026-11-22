@@ -1410,6 +1410,51 @@ for (const shell of skuShells) {
   }
 }
 
+const relatedReadingNeedles = [
+  {
+    file: 'dist/prerender/gtm-os.html',
+    href: '/blog/icp-gated-cold-outbound-without-rented-sdr',
+    label: 'Related reading:',
+    title: 'ICP-gated cold outbound without a rented SDR',
+  },
+  {
+    file: 'dist/prerender/es-gtm-os.html',
+    href: '/es/blog/outbound-frio-con-icp-sin-sdr-rentado',
+    label: 'Lectura relacionada:',
+    title:
+      'Prospección en frío con perfil de cliente ideal (ICP) — sin SDR rentado',
+  },
+  {
+    file: 'dist/prerender/store-os.html',
+    href: '/blog/shopify-admin-audit-before-ads',
+    label: 'Related reading:',
+    title: 'Shopify Admin audit before you buy ads',
+  },
+]
+for (const spec of relatedReadingNeedles) {
+  const html = fs.readFileSync(spec.file, 'utf8')
+  if (
+    !html.includes(spec.label) ||
+    !html.includes(`href="${spec.href}"`) ||
+    !html.includes(spec.title)
+  ) {
+    console.error(
+      `${spec.file} must include a related-reading link to ${spec.href}.`,
+    )
+    process.exit(1)
+  }
+}
+const esStoreRelatedHtml = fs.readFileSync(
+  'dist/prerender/es-store-os.html',
+  'utf8',
+)
+if (esStoreRelatedHtml.includes('/blog/shopify-admin-audit-before-ads')) {
+  console.error(
+    'dist/prerender/es-store-os.html must not link the EN-only Store OS article.',
+  )
+  process.exit(1)
+}
+
 const talkClusters = [
   {
     file: 'dist/prerender/gtm-os.html',
