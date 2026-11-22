@@ -671,6 +671,16 @@ if (fs.existsSync('dist/_headers')) {
     console.error('dist/_headers must set X-Frame-Options: DENY on /*.')
     process.exit(1)
   }
+  if (
+    !/Permissions-Policy:\s*camera=\(\),\s*microphone=\(\),\s*geolocation=\(\),\s*payment=\(\),\s*usb=\(\),\s*interest-cohort=\(\)/i.test(
+      headers,
+    )
+  ) {
+    console.error(
+      'dist/_headers must set Permissions-Policy disabling unused camera/microphone/geolocation/payment/usb/interest-cohort.',
+    )
+    process.exit(1)
+  }
   const cspLine = headers.match(/Content-Security-Policy:\s*(.+)/i)
   if (!cspLine) {
     console.error('dist/_headers must set Content-Security-Policy on /*.')
@@ -2448,6 +2458,7 @@ if (
 
 const beaconHtmlFiles = [
   'dist/index.html',
+  'dist/404.html',
   ...fs
     .readdirSync('dist/prerender')
     .filter((name) => name.endsWith('.html'))
@@ -2484,6 +2495,17 @@ for (const file of beaconHtmlFiles) {
       console.error(`${file} must not duplicate hreflang ${key} (${count}×).`)
       process.exit(1)
     }
+  }
+  const jsonLdScripts = [
+    ...html.matchAll(
+      /<script\b[^>]*\btype=["']application\/ld\+json["'][^>]*>/gi,
+    ),
+  ]
+  if (jsonLdScripts.length !== 1) {
+    console.error(
+      `${file} must emit exactly one JSON-LD graph (found ${jsonLdScripts.length}).`,
+    )
+    process.exit(1)
   }
 }
 
