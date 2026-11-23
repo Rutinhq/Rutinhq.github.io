@@ -911,8 +911,14 @@ if (fs.existsSync('dist/_headers')) {
     )
     process.exit(1)
   }
-  if (/Strict-Transport-Security/i.test(active)) {
-    console.error('dist/_headers must not enable HSTS (still park).')
+  if (
+    !/Strict-Transport-Security:\s*max-age=31536000;\s*includeSubDomains;\s*preload/i.test(
+      splatBlock,
+    )
+  ) {
+    console.error(
+      'dist/_headers /* must set Strict-Transport-Security: max-age=31536000; includeSubDomains; preload.',
+    )
     process.exit(1)
   }
   if (!/^\/\s*\n\s*Cache-Control:\s*public,\s*max-age=0/m.test(headers)) {
@@ -1107,6 +1113,14 @@ if (!blogHtml.includes('rel="canonical" href="https://www.rutinhq.com/blog"')) {
   console.error(`${blogShell} must canonical https://www.rutinhq.com/blog.`)
   process.exit(1)
 }
+if (/\bficha\b/i.test(rootInner(blogHtml))) {
+  console.error(`${blogShell} EN index must not contain "ficha" (use GTM system sheet).`)
+  process.exit(1)
+}
+if (!rootInner(blogHtml).includes('GTM system sheet')) {
+  console.error(`${blogShell} EN index must link GTM system sheet, not GTM ficha.`)
+  process.exit(1)
+}
 
 if (!articleHtml.includes(`<title>${articleTitle}</title>`)) {
   console.error(`${articleShell} must ship unique <title>${articleTitle}</title>.`)
@@ -1156,6 +1170,16 @@ if (esBlogHtml.includes(`<title>${homepageTitle}</title>`)) {
 }
 if (!esBlogHtml.includes('rel="canonical" href="https://www.rutinhq.com/es/blog"')) {
   console.error(`${esBlogShell} must canonical https://www.rutinhq.com/es/blog.`)
+  process.exit(1)
+}
+if (/\bficha\b/i.test(rootInner(esBlogHtml))) {
+  console.error(
+    `${esBlogShell} ES index must not contain "ficha" (use hoja de sistema GTM).`,
+  )
+  process.exit(1)
+}
+if (!rootInner(esBlogHtml).includes('hoja de sistema GTM')) {
+  console.error(`${esBlogShell} ES index must link hoja de sistema GTM.`)
   process.exit(1)
 }
 const esArticleHtml = fs.readFileSync(esArticleShell, 'utf8')
