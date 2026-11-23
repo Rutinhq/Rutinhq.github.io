@@ -33,7 +33,7 @@ export default function StoreOsPage() {
           path,
           t('seo.storeTitle'),
           t('seo.storeDescription'),
-          { serviceType: 'Store OS' },
+          { serviceType: 'STORE OS' },
           faq,
         )}
       />

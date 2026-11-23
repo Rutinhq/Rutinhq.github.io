@@ -13,10 +13,31 @@ const localesEs = JSON.parse(fs.readFileSync(path.join(root, 'src/locales/es.jso
 const documents = []
 const sources = []
 
+function normalizeBrandNames(value) {
+  return String(value)
+    .replace(/\bStoreOS\b/g, 'STORE OS')
+    .replace(/\bStore-OS\b/g, 'STORE OS')
+    .replace(/\bStore OS\b/g, 'STORE OS')
+    .replace(/\bNexusOS\b/g, 'NEXUS OS')
+    .replace(/\bNexus-OS\b/g, 'NEXUS OS')
+    .replace(/\bNexus OS\b/g, 'NEXUS OS')
+    .replace(/\bGtmOS\b/g, 'GTM OS')
+    .replace(/\bGTMOS\b/g, 'GTM OS')
+    .replace(/\bGtm-OS\b/g, 'GTM OS')
+    .replace(/\bGTM-OS\b/g, 'GTM OS')
+    .replace(/\bGtm OS\b/g, 'GTM OS')
+}
+
 function addDoc(id, url, title, text, source) {
-  const clean = text.replace(/\s+/g, ' ').trim()
+  const clean = normalizeBrandNames(text.replace(/\s+/g, ' ').trim())
   if (!clean) return
-  documents.push({ id, url, title, text: clean.slice(0, 6000), source })
+  documents.push({
+    id,
+    url,
+    title: normalizeBrandNames(title),
+    text: clean.slice(0, 6000),
+    source,
+  })
   sources.push({ url, ok: true, source })
 }
 
