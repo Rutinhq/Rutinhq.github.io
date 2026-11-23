@@ -29,7 +29,7 @@ function mailto(subject: string) {
 
 export const MAILTO_HUB = mailto('RutinHQ')
 export const MAILTO_GTM = mailto('GTM OS — fit call')
-export const MAILTO_STORE = mailto('Store OS — fit call')
+export const MAILTO_STORE = mailto('STORE OS — fit call')
 export const MAILTO_NEXUS = mailto('NEXUS OS — fit call')
 export const MAILTO_GTM_ES = mailto('GTM OS — llamada de encaje')
 export const MAILTO_STORE_ES = mailto('STORE OS — llamada de encaje')

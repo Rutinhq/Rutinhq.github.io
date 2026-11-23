@@ -33,7 +33,7 @@
         },
         {
           "q": "What are the three operating systems?",
-          "a": "GTM OS — B2B outbound that stays with your team, cold, ICP-filtered, milestone-gated. Store OS — Shopify Admin audit + config so the store converts before you spend on ads. NEXUS OS — agentic marketing, Strategy → Social → Ads (Ads gated until creatives, mix, and budget are signed)."
+          "a": "GTM OS — B2B outbound that stays with your team, cold, ICP-filtered, milestone-gated. STORE OS — Shopify Admin audit + config so the store converts before you spend on ads. NEXUS OS — agentic marketing, Strategy → Social → Ads (Ads gated until creatives, mix, and budget are signed)."
         },
         {
           "q": "Are these retainers?",
@@ -140,7 +140,7 @@
     }
   },
   "store": {
-    "eyebrow": "Store OS",
+    "eyebrow": "STORE OS",
     "hero": {
       "headline": "Make the store convert before you buy ads.",
       "subhead": "Replicable Shopify Admin audit + config — variants, price, weight, shipping — so ops friction stops killing conversion."
@@ -193,19 +193,19 @@
       "title": "FAQ",
       "items": [
         {
-          "q": "What is Store OS?",
+          "q": "What is STORE OS?",
           "a": "Make the store convert before you buy ads. Replicable Shopify Admin audit + config — variants, price, weight, shipping — so ops friction stops killing conversion."
         },
         {
-          "q": "Who is Store OS for?",
+          "q": "Who is STORE OS for?",
           "a": "Founder / ecom lead on DTC Shopify. Ops friction. Wants ads but store doesn’t convert yet."
         },
         {
-          "q": "How does Store OS work?",
+          "q": "How does STORE OS work?",
           "a": "1) Scorecard / Admin friction diagnosis. 2) Audit: variants, price, weight, shipping. 3) Admin config to the mold (no theme file edits). 4) Delivery checklist + handoff. 5) Ads / creatives = out of scope (NEXUS OS)."
         },
         {
-          "q": "What is Store OS not?",
+          "q": "What is STORE OS not?",
           "a": "Theme / Dawn file editing. An ads agency. Someone else’s catalog defaults or shipping rates. Bots placing purchase orders."
         }
       ]
@@ -248,7 +248,7 @@
       "items": [
         "Repeatable content system without invented claims",
         "Paper ready for review before spend",
-        "Clear separation: NEXUS ≠ outbound (GTM OS) ≠ store Admin (Store OS)"
+        "Clear separation: NEXUS ≠ outbound (GTM OS) ≠ store Admin (STORE OS)"
       ]
     },
     "notWhat": {
@@ -289,9 +289,9 @@
       "cta": "View GTM OS"
     },
     "store": {
-      "name": "Store OS",
+      "name": "STORE OS",
       "thesis": "Shopify Admin audit + config so the store converts before you spend on ads.",
-      "cta": "View Store OS"
+      "cta": "View STORE OS"
     },
     "nexus": {
       "name": "NEXUS OS",

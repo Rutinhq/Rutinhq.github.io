@@ -31,7 +31,7 @@ export const BLOG_INDEX_FAQ = [
   },
   {
     q: 'Where do the systems live?',
-    a: 'GTM OS, Store OS, and NEXUS OS on this site. Catalog curriculum also lives at docs.rutinhq.com/catalog.',
+    a: 'GTM OS, STORE OS, and NEXUS OS on this site. Catalog curriculum also lives at docs.rutinhq.com/catalog.',
   },
 ] as const
 

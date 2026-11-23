@@ -619,7 +619,7 @@ if (
   expectedLocs.some((url) => !locs.includes(url))
 ) {
   console.error(
-    `${sitemap} must list exactly the 20 indexable www URLs (hub + 3 SKUs + agents/auth + blog EN/ES, including Store OS ES and NEXUS OS articles).`,
+    `${sitemap} must list exactly the 20 indexable www URLs (hub + 3 SKUs + agents/auth + blog EN/ES, including STORE OS ES and NEXUS OS articles).`,
   )
   process.exit(1)
 }
@@ -1671,7 +1671,7 @@ const esStoreRelatedHtml = fs.readFileSync(
 )
 if (esStoreRelatedHtml.includes('/blog/shopify-admin-audit-before-ads')) {
   console.error(
-    'dist/prerender/es-store-os.html must link the ES Store OS article, not the EN URL.',
+    'dist/prerender/es-store-os.html must link the ES STORE OS article, not the EN URL.',
   )
   process.exit(1)
 }
@@ -1686,7 +1686,7 @@ const talkClusters = [
   },
   {
     file: 'dist/prerender/store-os.html',
-    mailto: 'mailto:strategy@rutinhq.com?subject=Store%20OS%20%E2%80%94%20fit%20call',
+    mailto: 'mailto:strategy@rutinhq.com?subject=STORE%20OS%20%E2%80%94%20fit%20call',
     docs: 'https://docs.rutinhq.com/catalog/store-os/',
     read: 'Read the system',
     emailLine: 'or email',
@@ -1974,8 +1974,8 @@ for (const route of [
 }
 
 const mailto = fs.readFileSync('src/lib/links.ts', 'utf8')
-if (!mailto.includes("mailto('Store OS — fit call')")) {
-  console.error('src/lib/links.ts must use Store OS — fit call.')
+if (!mailto.includes("mailto('STORE OS — fit call')")) {
+  console.error('src/lib/links.ts must use STORE OS — fit call.')
   process.exit(1)
 }
 if (
@@ -2010,7 +2010,7 @@ const bodyRoutes = [
     needles: [
       'Systems you own — not retainers that vanish.',
       'GTM OS',
-      'Store OS',
+      'STORE OS',
       'NEXUS OS',
       'What does RutinHQ install?',
     ],
@@ -2021,7 +2021,7 @@ const bodyRoutes = [
   },
   {
     file: 'dist/prerender/store-os.html',
-    needles: ['Make the store convert before you buy ads.', 'What is Store OS?'],
+    needles: ['Make the store convert before you buy ads.', 'What is STORE OS?'],
   },
   {
     file: 'dist/prerender/nexus-os.html',
@@ -2346,10 +2346,10 @@ if (!homepage.includes('fetchpriority="high"')) {
 
 const osServiceShells = [
   { file: 'dist/prerender/gtm-os.html', type: 'GTM OS' },
-  { file: 'dist/prerender/store-os.html', type: 'Store OS' },
+  { file: 'dist/prerender/store-os.html', type: 'STORE OS' },
   { file: 'dist/prerender/nexus-os.html', type: 'NEXUS OS' },
   { file: 'dist/prerender/es-gtm-os.html', type: 'GTM OS' },
-  { file: 'dist/prerender/es-store-os.html', type: 'Store OS' },
+  { file: 'dist/prerender/es-store-os.html', type: 'STORE OS' },
   { file: 'dist/prerender/es-nexus-os.html', type: 'NEXUS OS' },
 ]
 function ldNodes(html) {
@@ -2472,7 +2472,7 @@ if (!fs.existsSync(article02Shell)) {
 }
 const article02Html = fs.readFileSync(article02Shell, 'utf8')
 if (!/"@type":"FAQPage"/.test(article02Html)) {
-  console.error(`${article02Shell} must emit FAQPage for the Store OS article FAQ.`)
+  console.error(`${article02Shell} must emit FAQPage for the STORE OS article FAQ.`)
   process.exit(1)
 }
 if (!article02Html.includes('"@type":"BreadcrumbList"')) {
@@ -2519,7 +2519,7 @@ if (
     'hreflang="es" href="https://www.rutinhq.com/es/blog/auditoria-panel-shopify-antes-de-anuncios"',
   )
 ) {
-  console.error(`${article02Shell} must hreflang to the ES Store OS article.`)
+  console.error(`${article02Shell} must hreflang to the ES STORE OS article.`)
   process.exit(1)
 }
 const article02EsShell =
@@ -2531,7 +2531,7 @@ if (!fs.existsSync(article02EsShell)) {
 const article02EsHtml = fs.readFileSync(article02EsShell, 'utf8')
 assertBlogPublishRobots(article02EsShell)
 if (!/"@type":"FAQPage"/.test(article02EsHtml)) {
-  console.error(`${article02EsShell} must emit FAQPage for the Store OS ES FAQ.`)
+  console.error(`${article02EsShell} must emit FAQPage for the STORE OS ES FAQ.`)
   process.exit(1)
 }
 if (!article02EsHtml.includes('"@type":"BreadcrumbList"')) {
