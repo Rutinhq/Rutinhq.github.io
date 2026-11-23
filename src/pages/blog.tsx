@@ -243,7 +243,7 @@ export default function BlogPage() {
             rel="noopener noreferrer"
             className="text-foreground underline underline-offset-4 hover:text-primary"
           >
-            GTM ficha
+            GTM system sheet
           </a>
           {' · '}
           primary LP{' '}

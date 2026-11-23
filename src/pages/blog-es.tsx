@@ -258,7 +258,7 @@ export default function BlogEsPage() {
             rel="noopener noreferrer"
             className="text-foreground underline underline-offset-4 hover:text-primary"
           >
-            ficha de GTM OS
+            hoja de sistema GTM
           </a>
           {' · '}
           Página de producto{' '}
