@@ -127,7 +127,7 @@ const ROUTES = [
           '@type': 'ItemList',
           '@id': `${SITE}/blog#featured`,
           name: 'Featured',
-          numberOfItems: 2,
+          numberOfItems: 3,
           itemListElement: [
             {
               '@type': 'ListItem',
@@ -140,6 +140,12 @@ const ROUTES = [
               position: 2,
               name: 'Shopify Admin audit before you buy ads',
               url: `${SITE}/blog/shopify-admin-audit-before-ads`,
+            },
+            {
+              '@type': 'ListItem',
+              position: 3,
+              name: 'Agentic marketing: paper first, Ads only when signed',
+              url: `${SITE}/blog/agentic-marketing-paper-first-before-ads`,
             },
           ],
         },
@@ -387,7 +393,7 @@ const ROUTES = [
           '@type': 'ItemList',
           '@id': `${SITE}/es/blog#featured`,
           name: 'Destacado',
-          numberOfItems: 2,
+          numberOfItems: 3,
           itemListElement: [
             {
               '@type': 'ListItem',
@@ -400,6 +406,12 @@ const ROUTES = [
               position: 2,
               name: 'Auditoría del panel de Shopify antes de comprar anuncios',
               url: `${SITE}/es/blog/auditoria-panel-shopify-antes-de-anuncios`,
+            },
+            {
+              '@type': 'ListItem',
+              position: 3,
+              name: 'Marketing agéntico en papel antes de comprar anuncios',
+              url: `${SITE}/es/blog/marketing-agentico-en-papel-antes-de-anuncios`,
             },
           ],
         },
@@ -607,6 +619,199 @@ const ROUTES = [
               acceptedAnswer: {
                 '@type': 'Answer',
                 text: 'Mire la ficha STORE OS en el catálogo y la página www.rutinhq.com/es/store-os.',
+              },
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    path: '/blog/agentic-marketing-paper-first-before-ads',
+    file: 'prerender/blog-agentic-marketing-paper-first-before-ads.html',
+    title: 'RutinHQ — Agentic marketing: paper first, Ads only when signed',
+    description:
+      'Strategy → Social → Ads. Until creatives, mix, and budget have an explicit sign-off: paper only (no pixel, no spend).',
+    ogType: 'article',
+    locale: 'en',
+    image: OG_IMAGE.blog,
+    datePublished: CONTENT_STAMP,
+    dateModified: CONTENT_STAMP,
+    alternates: [
+      {
+        hreflang: 'en',
+        href: `${SITE}/blog/agentic-marketing-paper-first-before-ads`,
+      },
+      {
+        hreflang: 'es',
+        href: `${SITE}/es/blog/marketing-agentico-en-papel-antes-de-anuncios`,
+      },
+      {
+        hreflang: 'x-default',
+        href: `${SITE}/blog/agentic-marketing-paper-first-before-ads`,
+      },
+    ],
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@graph': [
+        organizationNode(),
+        {
+          '@type': 'BlogPosting',
+          '@id': `${SITE}/blog/agentic-marketing-paper-first-before-ads#article`,
+          headline: 'Agentic marketing: paper first, Ads only when signed',
+          description:
+            'Strategy → Social → Ads. Until creatives, mix, and budget have an explicit sign-off: paper only (no pixel, no spend).',
+          datePublished: CONTENT_STAMP,
+          dateModified: CONTENT_STAMP,
+          inLanguage: 'en',
+          url: `${SITE}/blog/agentic-marketing-paper-first-before-ads`,
+          mainEntityOfPage: {
+            '@type': 'WebPage',
+            '@id': `${SITE}/blog/agentic-marketing-paper-first-before-ads`,
+          },
+          author: { '@id': `${SITE}/#organization` },
+          publisher: { '@id': `${SITE}/#organization` },
+        },
+        breadcrumbList(`${SITE}/blog/agentic-marketing-paper-first-before-ads`, [
+          { name: 'Home', url: `${SITE}/` },
+          { name: 'Blog', url: `${SITE}/blog` },
+          {
+            name: 'Agentic marketing: paper first, Ads only when signed',
+            url: `${SITE}/blog/agentic-marketing-paper-first-before-ads`,
+          },
+        ]),
+        {
+          '@type': 'FAQPage',
+          '@id': `${SITE}/blog/agentic-marketing-paper-first-before-ads#faq`,
+          mainEntity: [
+            {
+              '@type': 'Question',
+              name: 'What is NEXUS OS?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Agentic marketing — paper first, Ads only when signed. Strategy → Social → Ads. Until creatives, mix, and budget have an explicit sign-off: paper only (no pixel, no spend).',
+              },
+            },
+            {
+              '@type': 'Question',
+              name: 'Who is NEXUS OS for?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Retailer / ecom with clear offer and SKUs. Wants demand from social as a system. Brand voice owned by client’s ops/marketing (NEXUS does not invent ICP or offer).',
+              },
+            },
+            {
+              '@type': 'Question',
+              name: 'When do Ads go live?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Ads stay parked until creatives, mix, and budget are signed. Until that explicit sign-off: paper only (no pixel, no spend). Live Ads, pixel, or spend without explicit sign-off is out of scope.',
+              },
+            },
+            {
+              '@type': 'Question',
+              name: 'Where’s the full system sheet?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'See the NEXUS OS system sheet and the www.rutinhq.com/nexus-os page.',
+              },
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    path: '/es/blog/marketing-agentico-en-papel-antes-de-anuncios',
+    file: 'prerender/es-blog-marketing-agentico-en-papel-antes-de-anuncios.html',
+    title: 'RutinHQ — Marketing agéntico en papel antes de comprar anuncios',
+    description:
+      'Estrategia → Social → Ads. Hasta que apruebe las creatividades, la mezcla y el presupuesto: solo papel (sin píxel, sin gasto).',
+    ogType: 'article',
+    locale: 'es',
+    image: OG_IMAGE.blog,
+    datePublished: CONTENT_STAMP,
+    dateModified: CONTENT_STAMP,
+    alternates: [
+      {
+        hreflang: 'en',
+        href: `${SITE}/blog/agentic-marketing-paper-first-before-ads`,
+      },
+      {
+        hreflang: 'es',
+        href: `${SITE}/es/blog/marketing-agentico-en-papel-antes-de-anuncios`,
+      },
+      {
+        hreflang: 'x-default',
+        href: `${SITE}/blog/agentic-marketing-paper-first-before-ads`,
+      },
+    ],
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@graph': [
+        organizationNode('es'),
+        {
+          '@type': 'BlogPosting',
+          '@id': `${SITE}/es/blog/marketing-agentico-en-papel-antes-de-anuncios#article`,
+          headline: 'Marketing agéntico en papel antes de comprar anuncios',
+          description:
+            'Estrategia → Social → Ads. Hasta que apruebe las creatividades, la mezcla y el presupuesto: solo papel (sin píxel, sin gasto).',
+          datePublished: CONTENT_STAMP,
+          dateModified: CONTENT_STAMP,
+          inLanguage: 'es',
+          url: `${SITE}/es/blog/marketing-agentico-en-papel-antes-de-anuncios`,
+          mainEntityOfPage: {
+            '@type': 'WebPage',
+            '@id': `${SITE}/es/blog/marketing-agentico-en-papel-antes-de-anuncios`,
+          },
+          author: { '@id': `${SITE}/#organization` },
+          publisher: { '@id': `${SITE}/#organization` },
+        },
+        breadcrumbList(
+          `${SITE}/es/blog/marketing-agentico-en-papel-antes-de-anuncios`,
+          [
+            { name: 'Inicio', url: `${SITE}/es` },
+            { name: 'Blog', url: `${SITE}/es/blog` },
+            {
+              name: 'Marketing agéntico en papel antes de comprar anuncios',
+              url: `${SITE}/es/blog/marketing-agentico-en-papel-antes-de-anuncios`,
+            },
+          ],
+        ),
+        {
+          '@type': 'FAQPage',
+          '@id': `${SITE}/es/blog/marketing-agentico-en-papel-antes-de-anuncios#faq`,
+          mainEntity: [
+            {
+              '@type': 'Question',
+              name: '¿Qué es NEXUS OS?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Marketing agéntico — primero en papel, anuncios solo con aprobación explícita. Estrategia → Social → Ads. Hasta que apruebe las creatividades, la mezcla y el presupuesto: solo papel (sin píxel, sin gasto).',
+              },
+            },
+            {
+              '@type': 'Question',
+              name: '¿Para quién es NEXUS OS?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Minorista / tienda en línea con oferta y productos claros. Quiere demanda desde social como sistema. La voz de marca la define el equipo de operación y marketing del cliente (NEXUS no inventa el perfil de cliente ideal (ICP) ni la oferta).',
+              },
+            },
+            {
+              '@type': 'Question',
+              name: '¿Cuándo se activan los anuncios?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Anuncios en pausa hasta que apruebe las creatividades, la mezcla y el presupuesto. Hasta esa aprobación explícita: solo papel (sin píxel, sin gasto). Anuncios en vivo, píxel o gasto sin aprobación explícita quedan fuera de NEXUS OS.',
+              },
+            },
+            {
+              '@type': 'Question',
+              name: '¿Dónde está la ficha del sistema?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Mire la ficha NEXUS OS en el catálogo y la página www.rutinhq.com/es/nexus-os.',
               },
             },
           ],
@@ -1168,6 +1373,12 @@ function stampSitemapLastmod() {
     'https://www.rutinhq.com/blog/shopify-admin-audit-before-ads':
       CONTENT_STAMP,
     'https://www.rutinhq.com/es/blog/auditoria-panel-shopify-antes-de-anuncios':
+      CONTENT_STAMP,
+    'https://www.rutinhq.com/nexus-os': CONTENT_STAMP,
+    'https://www.rutinhq.com/es/nexus-os': CONTENT_STAMP,
+    'https://www.rutinhq.com/blog/agentic-marketing-paper-first-before-ads':
+      CONTENT_STAMP,
+    'https://www.rutinhq.com/es/blog/marketing-agentico-en-papel-antes-de-anuncios':
       CONTENT_STAMP,
   }
   const xml = fs.readFileSync(file, 'utf8').replace(

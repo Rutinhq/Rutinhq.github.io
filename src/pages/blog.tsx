@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import {
   ARTICLE01,
   ARTICLE02,
+  ARTICLE03,
   BLOG_FEATURED_COMING,
   BLOG_FILTER_SIGNALS,
   BLOG_INDEX,
@@ -111,6 +112,20 @@ export default function BlogPage() {
             <Link to={ARTICLE02.path}>Read the how-to</Link>
           </Button>
         </article>
+        <article className="mt-10 max-w-2xl border-t border-border pt-10">
+          <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-primary">
+            How-to · NEXUS OS
+          </p>
+          <h2 className="mt-3 text-2xl font-heading font-extrabold tracking-[-0.03em]">
+            <Link to={ARTICLE03.path} className="hover:text-primary">
+              {ARTICLE03.title}
+            </Link>
+          </h2>
+          <p className="mt-3 text-[16px] text-muted-foreground">{ARTICLE03.job}</p>
+          <Button asChild className="mt-8" size="lg">
+            <Link to={ARTICLE03.path}>Read the how-to</Link>
+          </Button>
+        </article>
         <div className="mt-12 grid grid-cols-1 border-t border-border lg:grid-cols-3">
           {BLOG_FEATURED_COMING.map((item, index) => (
             <article
@@ -183,19 +198,24 @@ export default function BlogPage() {
           </article>
           <article className="flex flex-col border-t border-border py-8 lg:border-t-0 lg:border-l lg:border-border lg:px-8">
             <h2 className="text-2xl font-heading font-extrabold tracking-[-0.03em]">
-              Curriculum / systems map
+              Social demand without live Ads
             </h2>
             <p className="mt-3 flex-1 text-[16px] text-muted-foreground">
-              Catalog proof — not a second offer.
+              NEXUS OS: paper first. Ads parked until signed.
             </p>
             <p className="mt-8 font-mono text-[12px] tracking-[0.04em]">
-              <a
-                href={DOCS_CATALOG_URL}
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                to={ARTICLE03.path}
                 className="text-foreground underline underline-offset-4 hover:text-primary"
               >
-                docs.rutinhq.com/catalog/
+                Article03
+              </Link>
+              {' · '}
+              <a
+                href={WWW_NEXUS_URL}
+                className="text-foreground underline underline-offset-4 hover:text-primary"
+              >
+                NEXUS OS
               </a>
             </p>
           </article>

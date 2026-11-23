@@ -68,6 +68,14 @@ const shells = [
     h1: 'Auditoría del panel de Shopify antes de comprar anuncios',
   },
   {
+    file: 'dist/prerender/blog-agentic-marketing-paper-first-before-ads.html',
+    h1: 'Agentic marketing: paper first, Ads only when signed',
+  },
+  {
+    file: 'dist/prerender/es-blog-marketing-agentico-en-papel-antes-de-anuncios.html',
+    h1: 'Marketing agéntico en papel antes de comprar anuncios',
+  },
+  {
     file: 'dist/prerender/agents.html',
     h1: 'Public surfaces agents can read.',
   },

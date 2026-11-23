@@ -37,7 +37,7 @@ Catalog: https://docs.rutinhq.com/catalog/store-os/
 URL: https://www.rutinhq.com/nexus-os
 Hub thesis: Agentic marketing — Strategy → Social → Ads (Ads gated until creatives, mix, and budget are signed).
 Headline: Agentic marketing — paper first, Ads only when signed.
-Subhead: Strategy → Social → Ads. Until creatives, mix, and budget have an explicit GO: paper only (no pixel, no spend).
+Subhead: Strategy → Social → Ads. Until creatives, mix, and budget have an explicit sign-off: paper only (no pixel, no spend).
 Catalog: https://docs.rutinhq.com/catalog/nexus-os/
 
 ## Public www URLs (current sitemap — hub + SKUs + blog)
@@ -57,9 +57,11 @@ Catalog: https://docs.rutinhq.com/catalog/nexus-os/
 - https://www.rutinhq.com/blog
 - https://www.rutinhq.com/blog/icp-gated-cold-outbound-without-rented-sdr
 - https://www.rutinhq.com/blog/shopify-admin-audit-before-ads
+- https://www.rutinhq.com/blog/agentic-marketing-paper-first-before-ads
 - https://www.rutinhq.com/es/blog
 - https://www.rutinhq.com/es/blog/outbound-frio-con-icp-sin-sdr-rentado
 - https://www.rutinhq.com/es/blog/auditoria-panel-shopify-antes-de-anuncios
+- https://www.rutinhq.com/es/blog/marketing-agentico-en-papel-antes-de-anuncios
 - https://www.rutinhq.com/auth.md
 - https://www.rutinhq.com/agents.md
 - https://www.rutinhq.com/.well-known/api-catalog
@@ -104,3 +106,11 @@ Title: Outbound frío con ICP — sin SDR rentado
 Article ES: https://www.rutinhq.com/es/blog/auditoria-panel-shopify-antes-de-anuncios
 Title: Auditoría del panel de Shopify antes de comprar anuncios
 Description: Auditoría y configuración del panel de Shopify — variantes, precio, peso, envío — para que la tienda convierta antes de gastar en anuncios.
+
+Article EN: https://www.rutinhq.com/blog/agentic-marketing-paper-first-before-ads
+Title: Agentic marketing: paper first, Ads only when signed
+Description: Strategy → Social → Ads. Until creatives, mix, and budget have an explicit sign-off: paper only (no pixel, no spend).
+
+Article ES: https://www.rutinhq.com/es/blog/marketing-agentico-en-papel-antes-de-anuncios
+Title: Marketing agéntico en papel antes de comprar anuncios
+Description: Estrategia → Social → Ads. Hasta que apruebe las creatividades, la mezcla y el presupuesto: solo papel (sin píxel, sin gasto).

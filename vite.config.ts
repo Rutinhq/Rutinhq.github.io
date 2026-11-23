@@ -286,6 +286,14 @@ export default defineConfig({
               test: /src[\\/]pages[\\/]blog-auditoria-panel-shopify\.tsx$/,
             },
             {
+              name: 'page-article-nexus',
+              test: /src[\\/]pages[\\/]blog-nexus-paper-first\.tsx$/,
+            },
+            {
+              name: 'page-article-nexus-es',
+              test: /src[\\/]pages[\\/]blog-marketing-agentico-papel\.tsx$/,
+            },
+            {
               name: 'page-not-found',
               test: /src[\\/]pages[\\/]not-found\.tsx$/,
             },
