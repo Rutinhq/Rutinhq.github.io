@@ -8,8 +8,8 @@ pages_build_output_dir = "dist"
 #   GUIDE_LEAD_WEBHOOK_URL
 #   TURNSTILE_SECRET_KEY
 # Public Turnstile site key lives in [vars] (this project's dashboard only
-# accepts Secrets). Vite does not read wrangler.toml — `.env.production` is
-# what `vite build` inlines as import.meta.env.VITE_TURNSTILE_SITE_KEY.
+# accepts Secrets). vite.config.ts reads this value at `vite build` and inlines
+# it as import.meta.env.VITE_TURNSTILE_SITE_KEY (no .env file in git).
 # No [env.preview]/[env.production] blocks: top-level [vars] and [ai] apply
 # to local, preview, and production (Pages wrangler config; non-inheritable
 # keys are only split when an env.* override exists).

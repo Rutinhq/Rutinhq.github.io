@@ -27,3 +27,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Env files: never commit. Public Turnstile site key lives in wrangler.toml [vars]
+# and is inlined at build by vite.config.ts (see docs/guide-api-hardening.md).
+.env
+.env.*
+!.env.example

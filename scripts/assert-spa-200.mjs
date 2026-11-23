@@ -2217,7 +2217,7 @@ if (!guideWidgetAsset) {
 const guideWidgetJs = fs.readFileSync(`dist/assets/${guideWidgetAsset.name}`, 'utf8')
 if (!guideWidgetJs.includes(TURNSTILE_SITE_KEY)) {
   console.error(
-    'GuideWidget chunk must inline VITE_TURNSTILE_SITE_KEY from .env.production (wrangler.toml [vars] are Function runtime, not Vite).',
+    'GuideWidget chunk must inline VITE_TURNSTILE_SITE_KEY (vite.config.ts reads wrangler.toml [vars] at build).',
   )
   process.exit(1)
 }

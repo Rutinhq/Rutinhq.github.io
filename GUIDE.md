@@ -60,9 +60,9 @@ Recommended path: **Workers AI** (`GUIDE_LLM_PROVIDER=workers-ai`). `[ai] bindin
 | `GUIDE_LLM_BASE_URL` | openai-compat only | Gemini: `https://generativelanguage.googleapis.com/v1beta/openai`. Alternative OpenAI: `https://api.openai.com/v1` |
 | `GUIDE_LEAD_WEBHOOK_URL` | no | `POST { type: "lead_brief", leadBrief }`. Capo sets this Pages secret; do not invent a local webhook URL. Unset is valid (`delivered: false`). |
 | `TURNSTILE_SECRET_KEY` | production | Server Siteverify. Unset fail-opens **only** in local/dev (warning). Production without it returns `403` before LLM or lead write. |
-| `VITE_TURNSTILE_SITE_KEY` | production | Public widget site key. Pinned in `wrangler.toml` `[vars]` (dashboard plaintext is blocked) **and** `.env.production` so `vite build` inlines `import.meta.env.VITE_TURNSTILE_SITE_KEY`. |
+| `VITE_TURNSTILE_SITE_KEY` | production | Public widget site key. Pinned in `wrangler.toml` `[vars]` (dashboard plaintext is blocked); `vite.config.ts` reads it at build and inlines `import.meta.env.VITE_TURNSTILE_SITE_KEY`. A `VITE_TURNSTILE_SITE_KEY` build env var overrides it. |
 
-Local: copy `.env.example` → `.env` (Vite + the guide middleware read `process.env`). `npm run build` / Pages preview+production load `.env.production`.
+Local: copy `.env.example` → `.env` (Vite + the guide middleware read `process.env`). `npm run build` / Pages preview+production take the public site key from `wrangler.toml`.
 
 Operator checklist (Turnstile widget, Pages env, WAF `/api/guide*`, AI Studio daily cap): [`docs/guide-api-hardening.md`](docs/guide-api-hardening.md). The WAF rule is a dashboard step — this repo does not create it.
 

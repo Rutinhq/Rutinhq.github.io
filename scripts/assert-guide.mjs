@@ -470,15 +470,17 @@ if (/^\s*TURNSTILE_SECRET_KEY\s*=/m.test(wrangler)) {
   console.error('wrangler.toml must not assign TURNSTILE_SECRET_KEY (secret stays on Pages)')
   process.exit(1)
 }
-const envProduction = fs.readFileSync(path.join(root, '.env.production'), 'utf8')
+// No .env* file is tracked: vite.config.ts inlines the public site key from wrangler.toml [vars].
+const viteConfig = fs.readFileSync(path.join(root, 'vite.config.ts'), 'utf8')
 if (
-  !envProduction.includes(`VITE_TURNSTILE_SITE_KEY=${TURNSTILE_SITE_KEY}`) &&
-  !envProduction.includes(`VITE_TURNSTILE_SITE_KEY="${TURNSTILE_SITE_KEY}"`)
+  !viteConfig.includes('publicTurnstileSiteKey') ||
+  !viteConfig.includes("'import.meta.env.VITE_TURNSTILE_SITE_KEY'")
 ) {
-  console.error('.env.production must pin VITE_TURNSTILE_SITE_KEY for the Vite Pages build')
+  console.error('vite.config.ts must inline VITE_TURNSTILE_SITE_KEY from wrangler.toml [vars] at build')
   process.exit(1)
 }
-if (/TURNSTILE_SECRET_KEY\s*=\s*\S/.test(envProduction)) {
+const envProductionPath = path.join(root, '.env.production')
+if (fs.existsSync(envProductionPath) && /TURNSTILE_SECRET_KEY\s*=\s*\S/.test(fs.readFileSync(envProductionPath, 'utf8'))) {
   console.error('.env.production must not contain TURNSTILE_SECRET_KEY')
   process.exit(1)
 }
