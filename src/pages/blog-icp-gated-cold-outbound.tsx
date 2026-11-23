@@ -63,7 +63,7 @@ export default function BlogIcpGatedColdOutboundPage() {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      GTM OS catalog ficha
+                      GTM OS catalog system sheet
                     </a>{' '}
                     and the{' '}
                     <a href={WWW_GTM_URL}>www.rutinhq.com/gtm-os</a> page.
@@ -121,7 +121,7 @@ export default function BlogIcpGatedColdOutboundPage() {
           installing a system and renting a seat.
         </p>
         <p className="note">
-          Curriculum proof:{' '}
+          Proof of work:{' '}
           <a
             href={DOCS_GTM_URL}
             target="_blank"

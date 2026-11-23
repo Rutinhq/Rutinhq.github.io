@@ -139,7 +139,7 @@ export default function BlogStoreOsAdminAuditPage() {
           Admin.
         </p>
         <p className="note">
-          Curriculum proof:{' '}
+          Proof of work:{' '}
           <a href={DOCS_STORE_URL} target="_blank" rel="noopener noreferrer">
             STORE OS catalog
           </a>

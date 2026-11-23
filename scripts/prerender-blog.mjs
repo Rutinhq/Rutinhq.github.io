@@ -257,7 +257,7 @@ const ROUTES = [
               name: 'Where’s the full system sheet?',
               acceptedAnswer: {
                 '@type': 'Answer',
-                text: 'See the GTM OS catalog ficha at https://docs.rutinhq.com/catalog/gtm-os/ and the https://www.rutinhq.com/gtm-os page.',
+                text: 'See the GTM OS catalog system sheet at https://docs.rutinhq.com/catalog/gtm-os/ and the https://www.rutinhq.com/gtm-os page.',
               },
             },
           ],
@@ -534,14 +534,14 @@ const ROUTES = [
   {
     path: '/es/blog/auditoria-panel-shopify-antes-de-anuncios',
     file: 'prerender/es-blog-auditoria-panel-shopify-antes-de-anuncios.html',
-    title: 'RutinHQ — Auditoría del panel de Shopify antes de comprar anuncios',
+    title: 'RutinHQ — Auditoría panel Shopify antes de anuncios',
     description:
       'Auditoría y configuración del panel de Shopify — variantes, precio, peso, envío — para que la tienda convierta antes de gastar en anuncios.',
     ogType: 'article',
     locale: 'es',
     image: OG_IMAGE.blog,
-    datePublished: CONTENT_STAMP,
-    dateModified: CONTENT_STAMP,
+    datePublished: '2026-11-22',
+    dateModified: '2026-11-22',
     alternates: [
       {
         hreflang: 'en',
@@ -566,8 +566,8 @@ const ROUTES = [
           headline: 'Auditoría del panel de Shopify antes de comprar anuncios',
           description:
             'Auditoría y configuración del panel de Shopify — variantes, precio, peso, envío — para que la tienda convierta antes de gastar en anuncios.',
-          datePublished: CONTENT_STAMP,
-          dateModified: CONTENT_STAMP,
+          datePublished: '2026-11-22',
+          dateModified: '2026-11-22',
           inLanguage: 'es',
           url: `${SITE}/es/blog/auditoria-panel-shopify-antes-de-anuncios`,
           mainEntityOfPage: {
@@ -635,8 +635,8 @@ const ROUTES = [
     ogType: 'article',
     locale: 'en',
     image: OG_IMAGE.blog,
-    datePublished: CONTENT_STAMP,
-    dateModified: CONTENT_STAMP,
+    datePublished: '2026-11-22',
+    dateModified: '2026-11-22',
     alternates: [
       {
         hreflang: 'en',
@@ -661,8 +661,8 @@ const ROUTES = [
           headline: 'Agentic marketing: paper first, Ads only when signed',
           description:
             'Strategy → Social → Ads. Until creatives, mix, and budget have an explicit sign-off: paper only (no pixel, no spend).',
-          datePublished: CONTENT_STAMP,
-          dateModified: CONTENT_STAMP,
+          datePublished: '2026-11-22',
+          dateModified: '2026-11-22',
           inLanguage: 'en',
           url: `${SITE}/blog/agentic-marketing-paper-first-before-ads`,
           mainEntityOfPage: {
@@ -730,8 +730,8 @@ const ROUTES = [
     ogType: 'article',
     locale: 'es',
     image: OG_IMAGE.blog,
-    datePublished: CONTENT_STAMP,
-    dateModified: CONTENT_STAMP,
+    datePublished: '2026-11-22',
+    dateModified: '2026-11-22',
     alternates: [
       {
         hreflang: 'en',
@@ -756,8 +756,8 @@ const ROUTES = [
           headline: 'Marketing agéntico en papel antes de comprar anuncios',
           description:
             'Estrategia → Social → Ads. Hasta que apruebe las creatividades, la mezcla y el presupuesto: solo papel (sin píxel, sin gasto).',
-          datePublished: CONTENT_STAMP,
-          dateModified: CONTENT_STAMP,
+          datePublished: '2026-11-22',
+          dateModified: '2026-11-22',
           inLanguage: 'es',
           url: `${SITE}/es/blog/marketing-agentico-en-papel-antes-de-anuncios`,
           mainEntityOfPage: {
@@ -1373,13 +1373,13 @@ function stampSitemapLastmod() {
     'https://www.rutinhq.com/blog/shopify-admin-audit-before-ads':
       CONTENT_STAMP,
     'https://www.rutinhq.com/es/blog/auditoria-panel-shopify-antes-de-anuncios':
-      CONTENT_STAMP,
+      '2026-11-22',
     'https://www.rutinhq.com/nexus-os': CONTENT_STAMP,
     'https://www.rutinhq.com/es/nexus-os': CONTENT_STAMP,
     'https://www.rutinhq.com/blog/agentic-marketing-paper-first-before-ads':
-      CONTENT_STAMP,
+      '2026-11-22',
     'https://www.rutinhq.com/es/blog/marketing-agentico-en-papel-antes-de-anuncios':
-      CONTENT_STAMP,
+      '2026-11-22',
   }
   const xml = fs.readFileSync(file, 'utf8').replace(
     /<url>([\s\S]*?)<\/url>/g,
