@@ -99,7 +99,7 @@ export default function BlogPage() {
         </article>
         <article className="mt-10 max-w-2xl border-t border-border pt-10">
           <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-primary">
-            How-to · Store OS · DRAFT
+            How-to · Store OS
           </p>
           <h2 className="mt-3 text-2xl font-heading font-extrabold tracking-[-0.03em]">
             <Link to={ARTICLE02.path} className="hover:text-primary">
@@ -107,12 +107,8 @@ export default function BlogPage() {
             </Link>
           </h2>
           <p className="mt-3 text-[16px] text-muted-foreground">{ARTICLE02.job}</p>
-          <p className="mt-3 text-[15px] text-muted-foreground">
-            Placeholder outline — catalog language only. Full how-to pending
-            publish GO.
-          </p>
           <Button asChild className="mt-8" size="lg">
-            <Link to={ARTICLE02.path}>Read the outline</Link>
+            <Link to={ARTICLE02.path}>Read the how-to</Link>
           </Button>
         </article>
         <div className="mt-12 grid grid-cols-1 border-t border-border lg:grid-cols-3">
@@ -167,7 +163,7 @@ export default function BlogPage() {
               Admin friction before ads
             </h2>
             <p className="mt-3 flex-1 text-[16px] text-muted-foreground">
-              Store OS Admin audit outline (DRAFT). Ads stay out of scope.
+              Store OS Admin audit. Ads stay out of scope.
             </p>
             <p className="mt-8 font-mono text-[12px] tracking-[0.04em]">
               <Link

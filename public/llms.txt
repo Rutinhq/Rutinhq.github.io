@@ -20,10 +20,11 @@ Indexable. Soft-linked from the footer only.
 - [ICP-gated cold outbound without a rented SDR](https://www.rutinhq.com/blog/icp-gated-cold-outbound-without-rented-sdr)
 - [Shopify Admin audit before you buy ads](https://www.rutinhq.com/blog/shopify-admin-audit-before-ads)
 
-Spanish index and article:
+Spanish index and articles:
 
 - https://www.rutinhq.com/es/blog
 - https://www.rutinhq.com/es/blog/outbound-frio-con-icp-sin-sdr-rentado
+- https://www.rutinhq.com/es/blog/auditoria-panel-shopify-antes-de-anuncios
 
 ## Docs
 

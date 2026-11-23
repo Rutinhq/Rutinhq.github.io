@@ -323,7 +323,7 @@ export function articleJsonLd({
           '@type': 'ListItem',
           position: 1,
           name: breadcrumbHome,
-          item: `${SITE}/`,
+          item: inLanguage === 'es' ? `${SITE}/es` : `${SITE}/`,
         },
         {
           '@type': 'ListItem',
