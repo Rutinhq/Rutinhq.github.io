@@ -97,7 +97,6 @@ export default function BlogNexusPaperFirstPage() {
         </p>
         <p>
           Live Ads, pixel, or spend without explicit sign-off is out of scope.
-          Budget 0 pretending to be “live Ads” is in the not-for list.
         </p>
 
         <h2>How NEXUS OS works</h2>
@@ -135,7 +134,7 @@ export default function BlogNexusPaperFirstPage() {
           system without invented claims.
         </p>
         <p className="note">
-          Curriculum proof:{' '}
+          Proof of work:{' '}
           <a href={DOCS_NEXUS_URL} target="_blank" rel="noopener noreferrer">
             NEXUS OS catalog
           </a>

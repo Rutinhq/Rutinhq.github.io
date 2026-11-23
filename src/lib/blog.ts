@@ -112,7 +112,7 @@ export const ARTICLE01 = {
     },
     {
       q: 'Where’s the full system sheet?',
-      a: 'See the GTM OS catalog ficha at https://docs.rutinhq.com/catalog/gtm-os/ and the https://www.rutinhq.com/gtm-os page.',
+      a: 'See the GTM OS catalog system sheet at https://docs.rutinhq.com/catalog/gtm-os/ and the https://www.rutinhq.com/gtm-os page.',
     },
   ],
 } as const
@@ -206,8 +206,8 @@ export const ARTICLE02_ES = {
   noindex: false,
   inLanguage: 'es',
   author: 'RutinHQ',
-  datePublished: CONTENT_STAMP,
-  dateModified: CONTENT_STAMP,
+  datePublished: '2026-11-22',
+  dateModified: '2026-11-22',
   faq: [
     {
       q: '¿Qué es STORE OS?',
@@ -243,8 +243,8 @@ export const ARTICLE03 = {
   noindex: false,
   inLanguage: 'en',
   author: 'RutinHQ',
-  datePublished: CONTENT_STAMP,
-  dateModified: CONTENT_STAMP,
+  datePublished: '2026-11-22',
+  dateModified: '2026-11-22',
   faq: [
     {
       q: 'What is NEXUS OS?',
@@ -280,8 +280,8 @@ export const ARTICLE03_ES = {
   noindex: false,
   inLanguage: 'es',
   author: 'RutinHQ',
-  datePublished: CONTENT_STAMP,
-  dateModified: CONTENT_STAMP,
+  datePublished: '2026-11-22',
+  dateModified: '2026-11-22',
   faq: [
     {
       q: '¿Qué es NEXUS OS?',

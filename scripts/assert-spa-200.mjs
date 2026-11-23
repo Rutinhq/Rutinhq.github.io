@@ -699,11 +699,11 @@ const expectedPostLastmods = {
     '2026-09-08',
   'https://www.rutinhq.com/blog/shopify-admin-audit-before-ads': CONTENT_STAMP,
   'https://www.rutinhq.com/es/blog/auditoria-panel-shopify-antes-de-anuncios':
-    CONTENT_STAMP,
+    '2026-11-22',
   'https://www.rutinhq.com/blog/agentic-marketing-paper-first-before-ads':
-    CONTENT_STAMP,
+    '2026-11-22',
   'https://www.rutinhq.com/es/blog/marketing-agentico-en-papel-antes-de-anuncios':
-    CONTENT_STAMP,
+    '2026-11-22',
 }
 for (const [loc, date] of Object.entries(expectedPostLastmods)) {
   if (sitemapLastmodFor(loc) !== date) {
@@ -2592,8 +2592,8 @@ assertPostingDates(article02Shell, article02Html, {
   modified: CONTENT_STAMP,
 })
 assertPostingDates(article02EsShell, article02EsHtml, {
-  published: CONTENT_STAMP,
-  modified: CONTENT_STAMP,
+  published: '2026-11-22',
+  modified: '2026-11-22',
 })
 assertFaq4MatchesVisible(article02Shell, article02Html)
 assertFaq4MatchesVisible(article02EsShell, article02EsHtml)
@@ -2664,12 +2664,12 @@ if (
   process.exit(1)
 }
 assertPostingDates(article03Shell, article03Html, {
-  published: CONTENT_STAMP,
-  modified: CONTENT_STAMP,
+  published: '2026-11-22',
+  modified: '2026-11-22',
 })
 assertPostingDates(article03EsShell, article03EsHtml, {
-  published: CONTENT_STAMP,
-  modified: CONTENT_STAMP,
+  published: '2026-11-22',
+  modified: '2026-11-22',
 })
 assertFaq4MatchesVisible(article03Shell, article03Html)
 assertFaq4MatchesVisible(article03EsShell, article03EsHtml)

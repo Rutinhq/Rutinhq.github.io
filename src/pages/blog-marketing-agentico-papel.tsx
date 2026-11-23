@@ -110,7 +110,7 @@ export default function BlogMarketingAgenticoPapelPage() {
         <h2>Cómo funciona NEXUS OS</h2>
         <p>
           La secuencia se queda fija. Los anuncios siguen en pausa hasta que
-          se firme la puerta.
+          se firme la compuerta.
         </p>
         <BlogTable
           headers={['Paso', 'Qué ocurre']}
@@ -156,7 +156,7 @@ export default function BlogMarketingAgenticoPapelPage() {
           </a>
         </p>
 
-        <h2>Aprobación de voz, luego la puerta de anuncios</h2>
+        <h2>Aprobación de voz, luego la compuerta de anuncios</h2>
         <p>
           La aprobación de voz corresponde al dueño de marca del cliente. La
           rotación de pilares mantiene el lote en movimiento. Los anuncios

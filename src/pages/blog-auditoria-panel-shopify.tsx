@@ -8,7 +8,9 @@ import {
   WWW_STORE_ES_URL,
 } from '@/lib/links'
 
-const TITLE = articleSeoTitle(ARTICLE02_ES.title)
+const TITLE = articleSeoTitle(
+  'Auditoría panel Shopify antes de anuncios',
+)
 const FAQ_SHEET = ARTICLE02_ES.faq.find(
   (item) => item.q === '¿Dónde está la ficha del sistema?',
 )!
