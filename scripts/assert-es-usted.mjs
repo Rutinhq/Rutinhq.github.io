@@ -102,9 +102,10 @@ const requiredOnEsBlogIndex = [
   { id: 'ciclo de contenido', re: /ciclo de (?:contenido|artículos) sin fin/i },
   { id: 'Encaje de perfil', re: /Encaje de perfil de cliente ideal \(ICP\)/ },
   { id: 'comparación', re: /comparación/i },
-  { id: 'esquema en inglés', re: /esquema en inglés/i },
-  { id: 'Esquema en inglés marker', re: /Esquema en inglés/ },
-  { id: 'borrador en inglés', re: /borrador/i },
+  {
+    id: 'artículo STORE OS ES',
+    re: /Auditoría del panel de Shopify antes de comprar anuncios/,
+  },
 ]
 
 const leftoverJargon = [

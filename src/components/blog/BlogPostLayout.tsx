@@ -30,7 +30,6 @@ type BlogPostLayoutProps = {
   title: string
   lede: ReactNode
   children: ReactNode
-  draft?: boolean
   faqTitle?: string
   faq?: readonly BlogFaqItem[]
   cta: BlogPostCta
@@ -90,7 +89,6 @@ export function BlogPostLayout({
   title,
   lede,
   children,
-  draft = false,
   faqTitle,
   faq = [],
   cta,
@@ -98,11 +96,6 @@ export function BlogPostLayout({
   return (
     <article className="blog-post">
       <div className="blog-post-column">
-        {draft ? (
-          <p className="blog-kicker" role="status">
-            DRAFT outline — catalog language only.
-          </p>
-        ) : null}
         <p className="blog-kicker">{typeLabel}</p>
         <nav aria-label="Breadcrumb" className="blog-breadcrumb">
           {breadcrumbs.map((crumb, index) => (

@@ -13,6 +13,8 @@ import {
   resolveFallbackKey,
   type ClassifyPolicy,
 } from './src/guide/classify-core.ts'
+// @ts-expect-error — plain ESM helper, no types
+import { CONTENT_STAMP } from './scripts/content-stamp.mjs'
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url))
 
@@ -238,11 +240,14 @@ async function degradeGuidePreview(request: Request, kb: unknown): Promise<Respo
 // Pages/wrangler 308 /gtm-os away from the pretty URL.
 
 export default defineConfig(({ command }) => ({
-  // Build only: dev keeps fail-open behaviour (no site key unless set in .env).
-  define:
-    command === 'build'
+  // Build only: Turnstile site key is inlined at `vite build`. Dev stays
+  // fail-open (no key unless set in .env). CONTENT_STAMP is always defined.
+  define: {
+    __CONTENT_STAMP__: JSON.stringify(CONTENT_STAMP),
+    ...(command === 'build'
       ? { 'import.meta.env.VITE_TURNSTILE_SITE_KEY': JSON.stringify(publicTurnstileSiteKey()) }
-      : {},
+      : {}),
+  },
   plugins: [react(), tailwindcss(), guideApiPlugin()],
   resolve: {
     alias: {
@@ -293,6 +298,18 @@ export default defineConfig(({ command }) => ({
             {
               name: 'page-article-es',
               test: /src[\\/]pages[\\/]blog-outbound-frio\.tsx$/,
+            },
+            {
+              name: 'page-article-store-es',
+              test: /src[\\/]pages[\\/]blog-auditoria-panel-shopify\.tsx$/,
+            },
+            {
+              name: 'page-article-nexus',
+              test: /src[\\/]pages[\\/]blog-nexus-paper-first\.tsx$/,
+            },
+            {
+              name: 'page-article-nexus-es',
+              test: /src[\\/]pages[\\/]blog-marketing-agentico-papel\.tsx$/,
             },
             {
               name: 'page-not-found',

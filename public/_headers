@@ -13,8 +13,9 @@
 # is repeated). Do not enable CF Markdown Negotiation or Zero Trust
 # bypass from this file.
 #
-# P1 headers: X-Frame-Options + CSP on `/*`. Do NOT put
-# Access-Control-Allow-Origin on `/*` (live had ACAO * on HTML).
+# P1 headers: X-Frame-Options + CSP + Permissions-Policy on `/*`. Do NOT put
+# Access-Control-Allow-Origin on `/*` (live custom-domain HTML still shows
+# ACAO * from the Cloudflare zone / Pages static path — not this file).
 # Scope `*` to fonts/assets (crossorigin preload) + discovery files
 # agents fetch cross-origin. CSP stays first-party for hub fonts/scripts
 # except Cloudflare Turnstile (script + iframe + connect) and the
@@ -35,14 +36,18 @@
 # font-src faults — inter / space-grotesk / ibm-plex-mono 400+500 are HTTP 200.
 # Do NOT add data: or host wildcards to this site CSP to silence the iframe.
 # Guide still works. Favicon/manifest must be same-origin (/favicon.ico), not www.
-# No HSTS here.
+# HSTS on `/*` (repo origin). includeSubDomains+preload after HTTPS check of
+# apex / www / docs. Do not submit to hstspreload.org from this change.
+# Zone SSL HSTS on the custom domain may still omit `preload` (see PR notes).
 /*
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
   Link: </sitemap.xml>; rel="sitemap", </llms.txt>; rel="describedby"; type="text/plain", </.well-known/api-catalog>; rel="api-catalog"; type="application/linkset+json", </auth.md>; rel="describedby"; type="text/markdown"
   Content-Signal: search=yes, ai-train=no, use=reference
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   X-Frame-Options: DENY
   Content-Security-Policy: default-src 'self'; script-src 'self' https://challenges.cloudflare.com https://static.cloudflareinsights.com/beacon.min.js https://static.cloudflareinsights.com/beacon.min.js/; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self' https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()
 
 # HTML SPA request paths (pretty URLs + shells). Short cache so copy/SEO
 # updates land. New pretty HTML routes need a rule here or a safe prefix

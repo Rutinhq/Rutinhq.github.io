@@ -6,7 +6,8 @@ import { OG_IMAGE, Seo, blogIndexJsonLd, hreflangPair } from '@/components/Seo'
 import { Button } from '@/components/ui/button'
 import {
   ARTICLE01_ES,
-  ARTICLE02,
+  ARTICLE02_ES,
+  ARTICLE03_ES,
   BLOG_FEATURED_COMING_ES,
   BLOG_FILTER_SIGNALS_ES,
   BLOG_INDEX,
@@ -108,19 +109,34 @@ export default function BlogEsPage() {
         </article>
         <article className="mt-10 max-w-2xl border-t border-border pt-10">
           <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-primary">
-            Guía práctica · STORE OS · borrador · EN
+            Guía práctica · STORE OS
           </p>
           <h2 className="mt-3 text-2xl font-heading font-extrabold tracking-[-0.03em]">
-            <Link to={ARTICLE02.path} className="hover:text-primary">
-              Auditoría del panel de Shopify antes de comprar anuncios
+            <Link to={ARTICLE02_ES.path} className="hover:text-primary">
+              {ARTICLE02_ES.title}
             </Link>
           </h2>
           <p className="mt-3 text-[16px] text-muted-foreground">
-            Esquema en inglés (borrador). El texto público sigue en inglés; aún no hay
-            versión en español.
+            {ARTICLE02_ES.job}
           </p>
           <Button asChild className="mt-8" size="lg">
-            <Link to={ARTICLE02.path}>Lea el esquema en inglés</Link>
+            <Link to={ARTICLE02_ES.path}>Lea la guía práctica</Link>
+          </Button>
+        </article>
+        <article className="mt-10 max-w-2xl border-t border-border pt-10">
+          <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-primary">
+            Guía práctica · NEXUS OS
+          </p>
+          <h2 className="mt-3 text-2xl font-heading font-extrabold tracking-[-0.03em]">
+            <Link to={ARTICLE03_ES.path} className="hover:text-primary">
+              {ARTICLE03_ES.title}
+            </Link>
+          </h2>
+          <p className="mt-3 text-[16px] text-muted-foreground">
+            {ARTICLE03_ES.job}
+          </p>
+          <Button asChild className="mt-8" size="lg">
+            <Link to={ARTICLE03_ES.path}>Lea la guía práctica</Link>
           </Button>
         </article>
         <div className="mt-12 grid grid-cols-1 border-t border-border lg:grid-cols-3">
@@ -175,14 +191,15 @@ export default function BlogEsPage() {
               Fricción del panel de Shopify antes de anuncios
             </h2>
             <p className="mt-3 flex-1 text-[16px] text-muted-foreground">
-              Esquema STORE OS en inglés (borrador). Anuncios fuera de alcance.
+              STORE OS: auditoría del panel de Shopify antes de anuncios.
+              Anuncios fuera de alcance.
             </p>
             <p className="mt-8 font-mono text-[12px] tracking-[0.04em]">
               <Link
-                to={ARTICLE02.path}
+                to={ARTICLE02_ES.path}
                 className="text-foreground underline underline-offset-4 hover:text-primary"
               >
-                Esquema en inglés
+                Guía práctica
               </Link>
               {' · '}
               <a
@@ -195,19 +212,25 @@ export default function BlogEsPage() {
           </article>
           <article className="flex flex-col border-t border-border py-8 lg:border-t-0 lg:border-l lg:border-border lg:px-8">
             <h2 className="text-2xl font-heading font-extrabold tracking-[-0.03em]">
-              Temario / mapa de sistemas
+              Demanda desde social sin anuncios en vivo
             </h2>
             <p className="mt-3 flex-1 text-[16px] text-muted-foreground">
-              Prueba de catálogo — no una segunda oferta.
+              NEXUS OS: primero en papel. Anuncios en pausa hasta la
+              aprobación explícita.
             </p>
             <p className="mt-8 font-mono text-[12px] tracking-[0.04em]">
-              <a
-                href={DOCS_CATALOG_URL}
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                to={ARTICLE03_ES.path}
                 className="text-foreground underline underline-offset-4 hover:text-primary"
               >
-                docs.rutinhq.com/catalog/
+                Guía práctica
+              </Link>
+              {' · '}
+              <a
+                href={WWW_NEXUS_ES_URL}
+                className="text-foreground underline underline-offset-4 hover:text-primary"
+              >
+                NEXUS OS
               </a>
             </p>
           </article>
@@ -235,7 +258,7 @@ export default function BlogEsPage() {
             rel="noopener noreferrer"
             className="text-foreground underline underline-offset-4 hover:text-primary"
           >
-            ficha de GTM OS
+            hoja de sistema GTM
           </a>
           {' · '}
           Página de producto{' '}

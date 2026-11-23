@@ -40,9 +40,8 @@ export default function BlogOutboundFrioPage() {
 
       <BlogPostLayout
         typeLabel="Guía práctica · GTM OS"
-        draft={ARTICLE01_ES.draft}
         breadcrumbs={[
-          { label: 'Inicio', to: '/' },
+          { label: 'Inicio', to: '/es' },
           { label: 'Blog', to: '/es/blog' },
           { label: ARTICLE01_ES.title },
         ]}

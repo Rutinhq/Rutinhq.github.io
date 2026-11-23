@@ -1,6 +1,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { CONTENT_STAMP } from './content-stamp.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const root = path.resolve(__dirname, '..')
@@ -126,7 +127,7 @@ const ROUTES = [
           '@type': 'ItemList',
           '@id': `${SITE}/blog#featured`,
           name: 'Featured',
-          numberOfItems: 2,
+          numberOfItems: 3,
           itemListElement: [
             {
               '@type': 'ListItem',
@@ -139,6 +140,12 @@ const ROUTES = [
               position: 2,
               name: 'Shopify Admin audit before you buy ads',
               url: `${SITE}/blog/shopify-admin-audit-before-ads`,
+            },
+            {
+              '@type': 'ListItem',
+              position: 3,
+              name: 'Agentic marketing: paper first, Ads only when signed',
+              url: `${SITE}/blog/agentic-marketing-paper-first-before-ads`,
             },
           ],
         },
@@ -250,7 +257,7 @@ const ROUTES = [
               name: 'Where’s the full system sheet?',
               acceptedAnswer: {
                 '@type': 'Answer',
-                text: 'See the GTM OS catalog ficha at https://docs.rutinhq.com/catalog/gtm-os/ and the https://www.rutinhq.com/gtm-os page.',
+                text: 'See the GTM OS catalog system sheet at https://docs.rutinhq.com/catalog/gtm-os/ and the https://www.rutinhq.com/gtm-os page.',
               },
             },
           ],
@@ -267,10 +274,16 @@ const ROUTES = [
     ogType: 'article',
     locale: 'en',
     image: OG_IMAGE.blog,
+    datePublished: '2026-09-13',
+    dateModified: CONTENT_STAMP,
     alternates: [
       {
         hreflang: 'en',
         href: `${SITE}/blog/shopify-admin-audit-before-ads`,
+      },
+      {
+        hreflang: 'es',
+        href: `${SITE}/es/blog/auditoria-panel-shopify-antes-de-anuncios`,
       },
       {
         hreflang: 'x-default',
@@ -280,13 +293,7 @@ const ROUTES = [
     jsonLd: {
       '@context': 'https://schema.org',
       '@graph': [
-        {
-          '@type': 'Organization',
-          '@id': `${SITE}/#organization`,
-          name: 'RutinHQ',
-          url: `${SITE}/`,
-          email: 'strategy@rutinhq.com',
-        },
+        organizationNode(),
         {
           '@type': 'BlogPosting',
           '@id': `${SITE}/blog/shopify-admin-audit-before-ads#article`,
@@ -294,11 +301,61 @@ const ROUTES = [
           description:
             'Replicable Shopify Admin audit + config — variants, price, weight, shipping — so ops friction stops killing conversion.',
           datePublished: '2026-09-13',
-          dateModified: '2026-09-13',
+          dateModified: CONTENT_STAMP,
           inLanguage: 'en',
           url: `${SITE}/blog/shopify-admin-audit-before-ads`,
+          mainEntityOfPage: {
+            '@type': 'WebPage',
+            '@id': `${SITE}/blog/shopify-admin-audit-before-ads`,
+          },
           author: { '@id': `${SITE}/#organization` },
           publisher: { '@id': `${SITE}/#organization` },
+        },
+        breadcrumbList(`${SITE}/blog/shopify-admin-audit-before-ads`, [
+          { name: 'Home', url: `${SITE}/` },
+          { name: 'Blog', url: `${SITE}/blog` },
+          {
+            name: 'Shopify Admin audit before you buy ads',
+            url: `${SITE}/blog/shopify-admin-audit-before-ads`,
+          },
+        ]),
+        {
+          '@type': 'FAQPage',
+          '@id': `${SITE}/blog/shopify-admin-audit-before-ads#faq`,
+          mainEntity: [
+            {
+              '@type': 'Question',
+              name: 'What is STORE OS?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Make the store convert before you buy ads. Replicable Shopify Admin audit + config — variants, price, weight, shipping — so ops friction stops killing conversion.',
+              },
+            },
+            {
+              '@type': 'Question',
+              name: 'Who is STORE OS for?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Founder / ecom lead on DTC Shopify. Ops friction. Wants ads but store doesn’t convert yet.',
+              },
+            },
+            {
+              '@type': 'Question',
+              name: 'Does STORE OS buy ads or edit the theme?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'No. Ads / creatives = out of scope (NEXUS OS). Theme / Dawn file editing is not STORE OS. Config only — no theme file edits.',
+              },
+            },
+            {
+              '@type': 'Question',
+              name: 'Where’s the full system sheet?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'See the STORE OS system sheet and the www.rutinhq.com/store-os page.',
+              },
+            },
+          ],
         },
       ],
     },
@@ -336,13 +393,25 @@ const ROUTES = [
           '@type': 'ItemList',
           '@id': `${SITE}/es/blog#featured`,
           name: 'Destacado',
-          numberOfItems: 1,
+          numberOfItems: 3,
           itemListElement: [
             {
               '@type': 'ListItem',
               position: 1,
               name: 'Prospección en frío con perfil de cliente ideal (ICP) — sin SDR rentado',
               url: `${SITE}/es/blog/outbound-frio-con-icp-sin-sdr-rentado`,
+            },
+            {
+              '@type': 'ListItem',
+              position: 2,
+              name: 'Auditoría del panel de Shopify antes de comprar anuncios',
+              url: `${SITE}/es/blog/auditoria-panel-shopify-antes-de-anuncios`,
+            },
+            {
+              '@type': 'ListItem',
+              position: 3,
+              name: 'Marketing agéntico en papel antes de comprar anuncios',
+              url: `${SITE}/es/blog/marketing-agentico-en-papel-antes-de-anuncios`,
             },
           ],
         },
@@ -414,7 +483,7 @@ const ROUTES = [
           publisher: { '@id': `${SITE}/#organization` },
         },
         breadcrumbList(`${SITE}/es/blog/outbound-frio-con-icp-sin-sdr-rentado`, [
-          { name: 'Inicio', url: `${SITE}/` },
+          { name: 'Inicio', url: `${SITE}/es` },
           { name: 'Blog', url: `${SITE}/es/blog` },
           {
             name: 'Prospección en frío con perfil de cliente ideal (ICP) — sin SDR rentado',
@@ -455,6 +524,294 @@ const ROUTES = [
               acceptedAnswer: {
                 '@type': 'Answer',
                 text: 'Mire la ficha GTM OS en el catálogo y la página /es/gtm-os.',
+              },
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    path: '/es/blog/auditoria-panel-shopify-antes-de-anuncios',
+    file: 'prerender/es-blog-auditoria-panel-shopify-antes-de-anuncios.html',
+    title: 'RutinHQ — Auditoría panel Shopify antes de anuncios',
+    description:
+      'Auditoría y configuración del panel de Shopify — variantes, precio, peso, envío — para que la tienda convierta antes de gastar en anuncios.',
+    ogType: 'article',
+    locale: 'es',
+    image: OG_IMAGE.blog,
+    datePublished: '2026-11-22',
+    dateModified: '2026-11-22',
+    alternates: [
+      {
+        hreflang: 'en',
+        href: `${SITE}/blog/shopify-admin-audit-before-ads`,
+      },
+      {
+        hreflang: 'es',
+        href: `${SITE}/es/blog/auditoria-panel-shopify-antes-de-anuncios`,
+      },
+      {
+        hreflang: 'x-default',
+        href: `${SITE}/blog/shopify-admin-audit-before-ads`,
+      },
+    ],
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@graph': [
+        organizationNode('es'),
+        {
+          '@type': 'BlogPosting',
+          '@id': `${SITE}/es/blog/auditoria-panel-shopify-antes-de-anuncios#article`,
+          headline: 'Auditoría del panel de Shopify antes de comprar anuncios',
+          description:
+            'Auditoría y configuración del panel de Shopify — variantes, precio, peso, envío — para que la tienda convierta antes de gastar en anuncios.',
+          datePublished: '2026-11-22',
+          dateModified: '2026-11-22',
+          inLanguage: 'es',
+          url: `${SITE}/es/blog/auditoria-panel-shopify-antes-de-anuncios`,
+          mainEntityOfPage: {
+            '@type': 'WebPage',
+            '@id': `${SITE}/es/blog/auditoria-panel-shopify-antes-de-anuncios`,
+          },
+          author: { '@id': `${SITE}/#organization` },
+          publisher: { '@id': `${SITE}/#organization` },
+        },
+        breadcrumbList(`${SITE}/es/blog/auditoria-panel-shopify-antes-de-anuncios`, [
+          { name: 'Inicio', url: `${SITE}/es` },
+          { name: 'Blog', url: `${SITE}/es/blog` },
+          {
+            name: 'Auditoría del panel de Shopify antes de comprar anuncios',
+            url: `${SITE}/es/blog/auditoria-panel-shopify-antes-de-anuncios`,
+          },
+        ]),
+        {
+          '@type': 'FAQPage',
+          '@id': `${SITE}/es/blog/auditoria-panel-shopify-antes-de-anuncios#faq`,
+          mainEntity: [
+            {
+              '@type': 'Question',
+              name: '¿Qué es STORE OS?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Auditoría y configuración del panel de Shopify para que la tienda convierta antes de gastar en anuncios.',
+              },
+            },
+            {
+              '@type': 'Question',
+              name: '¿Para quién es STORE OS?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Marcas que venden directo al consumidor en Shopify. Hay fricción en la operación de la tienda. Quiere anuncios, pero la tienda aún no convierte.',
+              },
+            },
+            {
+              '@type': 'Question',
+              name: '¿STORE OS compra anuncios o edita la plantilla?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'No. No incluye anuncios ni creatividades — quedan fuera de alcance y viven en NEXUS OS. No es edición de plantilla / Dawn. Configuración del panel, sin editar archivos de plantilla.',
+              },
+            },
+            {
+              '@type': 'Question',
+              name: '¿Dónde está la ficha del sistema?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Mire la ficha STORE OS en el catálogo y la página www.rutinhq.com/es/store-os.',
+              },
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    path: '/blog/agentic-marketing-paper-first-before-ads',
+    file: 'prerender/blog-agentic-marketing-paper-first-before-ads.html',
+    title: 'RutinHQ — Agentic marketing: paper first, Ads only when signed',
+    description:
+      'Strategy → Social → Ads. Until creatives, mix, and budget have an explicit sign-off: paper only (no pixel, no spend).',
+    ogType: 'article',
+    locale: 'en',
+    image: OG_IMAGE.blog,
+    datePublished: '2026-11-22',
+    dateModified: '2026-11-22',
+    alternates: [
+      {
+        hreflang: 'en',
+        href: `${SITE}/blog/agentic-marketing-paper-first-before-ads`,
+      },
+      {
+        hreflang: 'es',
+        href: `${SITE}/es/blog/marketing-agentico-en-papel-antes-de-anuncios`,
+      },
+      {
+        hreflang: 'x-default',
+        href: `${SITE}/blog/agentic-marketing-paper-first-before-ads`,
+      },
+    ],
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@graph': [
+        organizationNode(),
+        {
+          '@type': 'BlogPosting',
+          '@id': `${SITE}/blog/agentic-marketing-paper-first-before-ads#article`,
+          headline: 'Agentic marketing: paper first, Ads only when signed',
+          description:
+            'Strategy → Social → Ads. Until creatives, mix, and budget have an explicit sign-off: paper only (no pixel, no spend).',
+          datePublished: '2026-11-22',
+          dateModified: '2026-11-22',
+          inLanguage: 'en',
+          url: `${SITE}/blog/agentic-marketing-paper-first-before-ads`,
+          mainEntityOfPage: {
+            '@type': 'WebPage',
+            '@id': `${SITE}/blog/agentic-marketing-paper-first-before-ads`,
+          },
+          author: { '@id': `${SITE}/#organization` },
+          publisher: { '@id': `${SITE}/#organization` },
+        },
+        breadcrumbList(`${SITE}/blog/agentic-marketing-paper-first-before-ads`, [
+          { name: 'Home', url: `${SITE}/` },
+          { name: 'Blog', url: `${SITE}/blog` },
+          {
+            name: 'Agentic marketing: paper first, Ads only when signed',
+            url: `${SITE}/blog/agentic-marketing-paper-first-before-ads`,
+          },
+        ]),
+        {
+          '@type': 'FAQPage',
+          '@id': `${SITE}/blog/agentic-marketing-paper-first-before-ads#faq`,
+          mainEntity: [
+            {
+              '@type': 'Question',
+              name: 'What is NEXUS OS?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Agentic marketing — paper first, Ads only when signed. Strategy → Social → Ads. Until creatives, mix, and budget have an explicit sign-off: paper only (no pixel, no spend).',
+              },
+            },
+            {
+              '@type': 'Question',
+              name: 'Who is NEXUS OS for?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Retailer / ecom with clear offer and SKUs. Wants demand from social as a system. Brand voice owned by client’s ops/marketing (NEXUS does not invent ICP or offer).',
+              },
+            },
+            {
+              '@type': 'Question',
+              name: 'When do Ads go live?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Ads stay parked until creatives, mix, and budget are signed. Until that explicit sign-off: paper only (no pixel, no spend). Live Ads, pixel, or spend without explicit sign-off is out of scope.',
+              },
+            },
+            {
+              '@type': 'Question',
+              name: 'Where’s the full system sheet?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'See the NEXUS OS system sheet and the www.rutinhq.com/nexus-os page.',
+              },
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    path: '/es/blog/marketing-agentico-en-papel-antes-de-anuncios',
+    file: 'prerender/es-blog-marketing-agentico-en-papel-antes-de-anuncios.html',
+    title: 'RutinHQ — Marketing agéntico en papel antes de comprar anuncios',
+    description:
+      'Estrategia → Social → Ads. Hasta que apruebe las creatividades, la mezcla y el presupuesto: solo papel (sin píxel, sin gasto).',
+    ogType: 'article',
+    locale: 'es',
+    image: OG_IMAGE.blog,
+    datePublished: '2026-11-22',
+    dateModified: '2026-11-22',
+    alternates: [
+      {
+        hreflang: 'en',
+        href: `${SITE}/blog/agentic-marketing-paper-first-before-ads`,
+      },
+      {
+        hreflang: 'es',
+        href: `${SITE}/es/blog/marketing-agentico-en-papel-antes-de-anuncios`,
+      },
+      {
+        hreflang: 'x-default',
+        href: `${SITE}/blog/agentic-marketing-paper-first-before-ads`,
+      },
+    ],
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@graph': [
+        organizationNode('es'),
+        {
+          '@type': 'BlogPosting',
+          '@id': `${SITE}/es/blog/marketing-agentico-en-papel-antes-de-anuncios#article`,
+          headline: 'Marketing agéntico en papel antes de comprar anuncios',
+          description:
+            'Estrategia → Social → Ads. Hasta que apruebe las creatividades, la mezcla y el presupuesto: solo papel (sin píxel, sin gasto).',
+          datePublished: '2026-11-22',
+          dateModified: '2026-11-22',
+          inLanguage: 'es',
+          url: `${SITE}/es/blog/marketing-agentico-en-papel-antes-de-anuncios`,
+          mainEntityOfPage: {
+            '@type': 'WebPage',
+            '@id': `${SITE}/es/blog/marketing-agentico-en-papel-antes-de-anuncios`,
+          },
+          author: { '@id': `${SITE}/#organization` },
+          publisher: { '@id': `${SITE}/#organization` },
+        },
+        breadcrumbList(
+          `${SITE}/es/blog/marketing-agentico-en-papel-antes-de-anuncios`,
+          [
+            { name: 'Inicio', url: `${SITE}/es` },
+            { name: 'Blog', url: `${SITE}/es/blog` },
+            {
+              name: 'Marketing agéntico en papel antes de comprar anuncios',
+              url: `${SITE}/es/blog/marketing-agentico-en-papel-antes-de-anuncios`,
+            },
+          ],
+        ),
+        {
+          '@type': 'FAQPage',
+          '@id': `${SITE}/es/blog/marketing-agentico-en-papel-antes-de-anuncios#faq`,
+          mainEntity: [
+            {
+              '@type': 'Question',
+              name: '¿Qué es NEXUS OS?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Marketing agéntico — primero en papel, anuncios solo con aprobación explícita. Estrategia → Social → Ads. Hasta que apruebe las creatividades, la mezcla y el presupuesto: solo papel (sin píxel, sin gasto).',
+              },
+            },
+            {
+              '@type': 'Question',
+              name: '¿Para quién es NEXUS OS?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Minorista / tienda en línea con oferta y productos claros. Quiere demanda desde social como sistema. La voz de marca la define el equipo de operación y marketing del cliente (NEXUS no inventa el perfil de cliente ideal (ICP) ni la oferta).',
+              },
+            },
+            {
+              '@type': 'Question',
+              name: '¿Cuándo se activan los anuncios?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Anuncios en pausa hasta que apruebe las creatividades, la mezcla y el presupuesto. Hasta esa aprobación explícita: solo papel (sin píxel, sin gasto). Anuncios en vivo, píxel o gasto sin aprobación explícita quedan fuera de NEXUS OS.',
+              },
+            },
+            {
+              '@type': 'Question',
+              name: '¿Dónde está la ficha del sistema?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Mire la ficha NEXUS OS en el catálogo y la página www.rutinhq.com/es/nexus-os.',
               },
             },
           ],
@@ -727,6 +1084,81 @@ function stripHelmetAlternates(head) {
   )
 }
 
+function jsonLdScriptRe() {
+  return /<script\b[^>]*\btype=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi
+}
+
+function decodeJsonLdInner(inner) {
+  return inner
+    .replaceAll('&quot;', '"')
+    .replaceAll('&#x27;', "'")
+    .replaceAll('&lt;', '<')
+    .replaceAll('&gt;', '>')
+    .replaceAll('&amp;', '&')
+}
+
+function extractJsonLdBlocks(html) {
+  const blocks = []
+  for (const match of (html || '').matchAll(jsonLdScriptRe())) {
+    try {
+      blocks.push(JSON.parse(decodeJsonLdInner(match[1])))
+    } catch {
+      // Helmet/prerender must still emit one valid graph below.
+    }
+  }
+  return blocks
+}
+
+function stripJsonLdScripts(html) {
+  return (html || '').replace(jsonLdScriptRe(), '')
+}
+
+function jsonLdNodes(data) {
+  if (!data) return []
+  if (Array.isArray(data)) return data.flatMap(jsonLdNodes)
+  if (Array.isArray(data['@graph'])) return data['@graph']
+  const node = { ...data }
+  delete node['@context']
+  return [node]
+}
+
+function jsonLdNodeKey(node) {
+  if (node?.['@id']) return `id:${node['@id']}`
+  const type = node?.['@type']
+  const typeKey = Array.isArray(type) ? [...type].sort().join(',') : String(type || '')
+  return `type:${typeKey}`
+}
+
+function pickRicherJsonLd(a, b) {
+  return JSON.stringify(b).length > JSON.stringify(a).length ? b : a
+}
+
+function mergeJsonLd(routeLd, extraBlocks) {
+  const merged = new Map()
+  for (const node of [...jsonLdNodes(routeLd), ...extraBlocks.flatMap(jsonLdNodes)]) {
+    const key = jsonLdNodeKey(node)
+    const prev = merged.get(key)
+    merged.set(key, prev ? pickRicherJsonLd(prev, node) : node)
+  }
+  const graph = [...merged.values()]
+  if (graph.length === 0) return routeLd
+  if (
+    graph.length === 1 &&
+    !routeLd?.['@graph'] &&
+    extraBlocks.length === 0
+  ) {
+    return routeLd
+  }
+  return {
+    '@context': 'https://schema.org',
+    '@graph': graph,
+  }
+}
+
+function helmetHeadWithoutJsonLd(head) {
+  return stripHelmetAlternates(stripJsonLdScripts(head))
+}
+
 function seoHead(route, { omitRobots = false } = {}) {
   const url = `${SITE}${route.path}`
   const ogLocale = route.locale === 'es' ? 'es_MX' : 'en_US'
@@ -884,7 +1316,8 @@ async function main() {
       } else if (route.locale === 'es') {
         page = page.replace('<html lang="en">', '<html lang="es">')
       }
-      page = page.replace('<!--ssr-head-->', stripHelmetAlternates(head))
+      route.jsonLd = mergeJsonLd(route.jsonLd, extractJsonLdBlocks(head))
+      page = page.replace('<!--ssr-head-->', helmetHeadWithoutJsonLd(head))
       page = page.replace(
         '</head>',
         `    ${seoHead(route, { omitRobots: helmetHasRobots(head) })}\n  </head>`,
@@ -909,9 +1342,13 @@ async function main() {
         `<html ${notFoundSsr.htmlAttributes}>`,
       )
     }
+    NOT_FOUND_ROUTE.jsonLd = mergeJsonLd(
+      NOT_FOUND_ROUTE.jsonLd,
+      extractJsonLdBlocks(notFoundSsr.head),
+    )
     notFound = notFound.replace(
       '<!--ssr-head-->',
-      stripHelmetAlternates(notFoundSsr.head),
+      helmetHeadWithoutJsonLd(notFoundSsr.head),
     )
     notFound = notFound.replace(
       '</head>',
@@ -919,9 +1356,44 @@ async function main() {
     )
     notFound = injectSsrBody(notFound, notFoundSsr.html, NOT_FOUND_ROUTE.renderPath)
     writePage(NOT_FOUND_ROUTE.file, notFound, NOT_FOUND_ROUTE.renderPath)
+    stampSitemapLastmod()
   } finally {
     await close()
   }
+}
+
+function stampSitemapLastmod() {
+  const file = path.join(dist, 'sitemap.xml')
+  if (!fs.existsSync(file)) return
+  const locStamps = {
+    'https://www.rutinhq.com/blog': CONTENT_STAMP,
+    'https://www.rutinhq.com/es/blog': CONTENT_STAMP,
+    'https://www.rutinhq.com/store-os': CONTENT_STAMP,
+    'https://www.rutinhq.com/es/store-os': CONTENT_STAMP,
+    'https://www.rutinhq.com/blog/shopify-admin-audit-before-ads':
+      CONTENT_STAMP,
+    'https://www.rutinhq.com/es/blog/auditoria-panel-shopify-antes-de-anuncios':
+      '2026-11-22',
+    'https://www.rutinhq.com/nexus-os': CONTENT_STAMP,
+    'https://www.rutinhq.com/es/nexus-os': CONTENT_STAMP,
+    'https://www.rutinhq.com/blog/agentic-marketing-paper-first-before-ads':
+      '2026-11-22',
+    'https://www.rutinhq.com/es/blog/marketing-agentico-en-papel-antes-de-anuncios':
+      '2026-11-22',
+  }
+  const xml = fs.readFileSync(file, 'utf8').replace(
+    /<url>([\s\S]*?)<\/url>/g,
+    (block) => {
+      const loc = (block.match(/<loc>([^<]+)<\/loc>/) || [])[1]
+      const stamp = locStamps[loc]
+      if (!stamp) return block
+      return block.replace(
+        /<lastmod>[^<]+<\/lastmod>/,
+        `<lastmod>${stamp}</lastmod>`,
+      )
+    },
+  )
+  fs.writeFileSync(file, xml)
 }
 
 await main()

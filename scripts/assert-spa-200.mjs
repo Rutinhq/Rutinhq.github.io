@@ -1,4 +1,5 @@
 import fs from 'node:fs'
+import { CONTENT_STAMP } from './content-stamp.mjs'
 
 function rootInner(html) {
   const match = html.match(/<div id="root">([\s\S]*)<\/div>\s*<\/body>/i)
@@ -91,6 +92,9 @@ const HTML_CACHE_REQUEST_PATHS = [
   '/blog/icp-gated-cold-outbound-without-rented-sdr',
   '/blog/shopify-admin-audit-before-ads',
   '/es/blog/outbound-frio-con-icp-sin-sdr-rentado',
+  '/es/blog/auditoria-panel-shopify-antes-de-anuncios',
+  '/blog/agentic-marketing-paper-first-before-ads',
+  '/es/blog/marketing-agentico-en-papel-antes-de-anuncios',
   '/agents',
   '/agents/auth',
   '/es/agents',
@@ -291,6 +295,32 @@ if (fs.existsSync('dist/blog/shopify-admin-audit-before-ads/index.html')) {
   )
   process.exit(1)
 }
+if (
+  fs.existsSync(
+    'dist/es/blog/auditoria-panel-shopify-antes-de-anuncios/index.html',
+  )
+) {
+  console.error(
+    'dist/es/blog/<slug>/index.html must not ship — pretty /es/blog/<slug> would 308.',
+  )
+  process.exit(1)
+}
+if (fs.existsSync('dist/blog/agentic-marketing-paper-first-before-ads/index.html')) {
+  console.error(
+    'dist/blog/<slug>/index.html must not ship — pretty /blog/<slug> would 308.',
+  )
+  process.exit(1)
+}
+if (
+  fs.existsSync(
+    'dist/es/blog/marketing-agentico-en-papel-antes-de-anuncios/index.html',
+  )
+) {
+  console.error(
+    'dist/es/blog/<slug>/index.html must not ship — pretty /es/blog/<slug> would 308.',
+  )
+  process.exit(1)
+}
 if (fs.existsSync('dist/es/blog/index.html')) {
   console.error(
     'dist/es/blog/index.html must not ship — pretty /es/blog would 308.',
@@ -434,6 +464,36 @@ if (
   )
   process.exit(1)
 }
+if (
+  !/\/es\/blog\/auditoria-panel-shopify-antes-de-anuncios\s+\/prerender\/es-blog-auditoria-panel-shopify-antes-de-anuncios\s+200/.test(
+    redirects,
+  )
+) {
+  console.error(
+    'dist/_redirects must 200-rewrite Article02 ES to /prerender/<slug> (not .html).',
+  )
+  process.exit(1)
+}
+if (
+  !/\/blog\/agentic-marketing-paper-first-before-ads\s+\/prerender\/blog-agentic-marketing-paper-first-before-ads\s+200/.test(
+    redirects,
+  )
+) {
+  console.error(
+    'dist/_redirects must 200-rewrite Article03 to /prerender/<slug> (not .html).',
+  )
+  process.exit(1)
+}
+if (
+  !/\/es\/blog\/marketing-agentico-en-papel-antes-de-anuncios\s+\/prerender\/es-blog-marketing-agentico-en-papel-antes-de-anuncios\s+200/.test(
+    redirects,
+  )
+) {
+  console.error(
+    'dist/_redirects must 200-rewrite Article03 ES to /prerender/<slug> (not .html).',
+  )
+  process.exit(1)
+}
 if (!/\/es\/blog\s+\/prerender\/es-blog\s+200/.test(redirects)) {
   console.error(
     'dist/_redirects must 200-rewrite /es/blog to /prerender/es-blog.',
@@ -542,15 +602,15 @@ const expectedLocs = [
   'https://www.rutinhq.com/blog/shopify-admin-audit-before-ads',
   'https://www.rutinhq.com/es/blog',
   'https://www.rutinhq.com/es/blog/outbound-frio-con-icp-sin-sdr-rentado',
+  'https://www.rutinhq.com/es/blog/auditoria-panel-shopify-antes-de-anuncios',
+  'https://www.rutinhq.com/blog/agentic-marketing-paper-first-before-ads',
+  'https://www.rutinhq.com/es/blog/marketing-agentico-en-papel-antes-de-anuncios',
 ]
-const article02Loc =
-  'https://www.rutinhq.com/blog/shopify-admin-audit-before-ads'
-const pairedLocs = expectedLocs.filter((url) => url !== article02Loc)
 const xhtmlCount = (sitemapBody.match(/xhtml:link rel="alternate"/g) || [])
   .length
-if (xhtmlCount < pairedLocs.length * 3 + 2) {
+if (xhtmlCount !== expectedLocs.length * 3) {
   console.error(
-    `${sitemap} must emit xhtml:link hreflang (en + es + x-default) on paired URLs; Article02 is EN-only (en + x-default).`,
+    `${sitemap} must emit xhtml:link hreflang (en + es + x-default) on every URL.`,
   )
   process.exit(1)
 }
@@ -559,7 +619,7 @@ if (
   expectedLocs.some((url) => !locs.includes(url))
 ) {
   console.error(
-    `${sitemap} must list exactly the 17 indexable www URLs (hub + 3 SKUs + agents/auth + blog EN/ES).`,
+    `${sitemap} must list exactly the 20 indexable www URLs (hub + 3 SKUs + agents/auth + blog EN/ES, including Store OS ES and NEXUS OS articles).`,
   )
   process.exit(1)
 }
@@ -586,9 +646,72 @@ if (!sitemapBody.includes('<lastmod>2026-11-13</lastmod>')) {
   console.error(`${sitemap} must lastmod hub/OS/agents after the 13 Nov SEO pass.`)
   process.exit(1)
 }
-if (!sitemapBody.includes('<lastmod>2026-09-23</lastmod>')) {
-  console.error(`${sitemap} must lastmod blog URLs on the Capo publish GO date.`)
+
+const sitemapUrlBlocks = [...sitemapBody.matchAll(/<url>([\s\S]*?)<\/url>/g)].map(
+  (m) => m[1],
+)
+function sitemapLastmodFor(loc) {
+  const block = sitemapUrlBlocks.find((entry) =>
+    entry.includes(`<loc>${loc}</loc>`),
+  )
+  return (block?.match(/<lastmod>([^<]+)<\/lastmod>/) || [])[1]
+}
+if (sitemapLastmodFor('https://www.rutinhq.com/blog') !== CONTENT_STAMP) {
+  console.error(
+    `${sitemap} lastmod for /blog must equal the build CONTENT_STAMP (${CONTENT_STAMP}).`,
+  )
   process.exit(1)
+}
+if (sitemapLastmodFor('https://www.rutinhq.com/es/blog') !== CONTENT_STAMP) {
+  console.error(
+    `${sitemap} lastmod for /es/blog must equal the build CONTENT_STAMP (${CONTENT_STAMP}).`,
+  )
+  process.exit(1)
+}
+if (sitemapLastmodFor('https://www.rutinhq.com/store-os') !== CONTENT_STAMP) {
+  console.error(
+    `${sitemap} lastmod for /store-os must equal the build CONTENT_STAMP (${CONTENT_STAMP}).`,
+  )
+  process.exit(1)
+}
+if (sitemapLastmodFor('https://www.rutinhq.com/es/store-os') !== CONTENT_STAMP) {
+  console.error(
+    `${sitemap} lastmod for /es/store-os must equal the build CONTENT_STAMP (${CONTENT_STAMP}).`,
+  )
+  process.exit(1)
+}
+if (sitemapLastmodFor('https://www.rutinhq.com/nexus-os') !== CONTENT_STAMP) {
+  console.error(
+    `${sitemap} lastmod for /nexus-os must equal the build CONTENT_STAMP (${CONTENT_STAMP}).`,
+  )
+  process.exit(1)
+}
+if (sitemapLastmodFor('https://www.rutinhq.com/es/nexus-os') !== CONTENT_STAMP) {
+  console.error(
+    `${sitemap} lastmod for /es/nexus-os must equal the build CONTENT_STAMP (${CONTENT_STAMP}).`,
+  )
+  process.exit(1)
+}
+const expectedPostLastmods = {
+  'https://www.rutinhq.com/blog/icp-gated-cold-outbound-without-rented-sdr':
+    '2026-09-08',
+  'https://www.rutinhq.com/es/blog/outbound-frio-con-icp-sin-sdr-rentado':
+    '2026-09-08',
+  'https://www.rutinhq.com/blog/shopify-admin-audit-before-ads': CONTENT_STAMP,
+  'https://www.rutinhq.com/es/blog/auditoria-panel-shopify-antes-de-anuncios':
+    '2026-11-22',
+  'https://www.rutinhq.com/blog/agentic-marketing-paper-first-before-ads':
+    '2026-11-22',
+  'https://www.rutinhq.com/es/blog/marketing-agentico-en-papel-antes-de-anuncios':
+    '2026-11-22',
+}
+for (const [loc, date] of Object.entries(expectedPostLastmods)) {
+  if (sitemapLastmodFor(loc) !== date) {
+    console.error(
+      `${sitemap} lastmod for ${loc} must equal that post's JSON-LD dateModified (${date}).`,
+    )
+    process.exit(1)
+  }
 }
 
 const crawlHtml = [
@@ -669,6 +792,16 @@ if (fs.existsSync('dist/_headers')) {
   }
   if (!/X-Frame-Options:\s*DENY/i.test(headers)) {
     console.error('dist/_headers must set X-Frame-Options: DENY on /*.')
+    process.exit(1)
+  }
+  if (
+    !/Permissions-Policy:\s*camera=\(\),\s*microphone=\(\),\s*geolocation=\(\),\s*payment=\(\),\s*usb=\(\),\s*interest-cohort=\(\)/i.test(
+      headers,
+    )
+  ) {
+    console.error(
+      'dist/_headers must set Permissions-Policy disabling unused camera/microphone/geolocation/payment/usb/interest-cohort.',
+    )
     process.exit(1)
   }
   const cspLine = headers.match(/Content-Security-Policy:\s*(.+)/i)
@@ -778,8 +911,14 @@ if (fs.existsSync('dist/_headers')) {
     )
     process.exit(1)
   }
-  if (/Strict-Transport-Security/i.test(active)) {
-    console.error('dist/_headers must not enable HSTS (still park).')
+  if (
+    !/Strict-Transport-Security:\s*max-age=31536000;\s*includeSubDomains;\s*preload/i.test(
+      splatBlock,
+    )
+  ) {
+    console.error(
+      'dist/_headers /* must set Strict-Transport-Security: max-age=31536000; includeSubDomains; preload.',
+    )
     process.exit(1)
   }
   if (!/^\/\s*\n\s*Cache-Control:\s*public,\s*max-age=0/m.test(headers)) {
@@ -912,6 +1051,35 @@ if (
   )
   process.exit(1)
 }
+const article03Flag = blogFlags.match(
+  /export const ARTICLE03 = \{[\s\S]*?\n\} as const/,
+)?.[0]
+if (
+  !article03Flag ||
+  !/noindex:\s*false/.test(article03Flag) ||
+  /noindex:\s*true/.test(article03Flag)
+) {
+  console.error(
+    `${blogSource} Article03 must stay indexable (noindex: false).`,
+  )
+  process.exit(1)
+}
+const article03Page = 'src/pages/blog-nexus-paper-first.tsx'
+if (!fs.existsSync(article03Page)) {
+  console.error(`${article03Page} missing — Article03 route cannot stay indexable.`)
+  process.exit(1)
+}
+const article03PageSrc = fs.readFileSync(article03Page, 'utf8')
+if (
+  !article03PageSrc.includes('robots={BLOG_ROBOTS}') ||
+  !article03PageSrc.includes('noindex={ARTICLE03.noindex}') ||
+  /robots=["']noindex/i.test(article03PageSrc)
+) {
+  console.error(
+    `${article03Page} must pass BLOG_ROBOTS (index, follow).`,
+  )
+  process.exit(1)
+}
 
 const homepageTitle = 'RutinHQ — systems you own'
 const blogShell = 'dist/prerender/blog.html'
@@ -943,6 +1111,14 @@ if (blogHtml.includes(`<title>${homepageTitle}</title>`)) {
 }
 if (!blogHtml.includes('rel="canonical" href="https://www.rutinhq.com/blog"')) {
   console.error(`${blogShell} must canonical https://www.rutinhq.com/blog.`)
+  process.exit(1)
+}
+if (/\bficha\b/i.test(rootInner(blogHtml))) {
+  console.error(`${blogShell} EN index must not contain "ficha" (use GTM system sheet).`)
+  process.exit(1)
+}
+if (!rootInner(blogHtml).includes('GTM system sheet')) {
+  console.error(`${blogShell} EN index must link GTM system sheet, not GTM ficha.`)
   process.exit(1)
 }
 
@@ -996,6 +1172,16 @@ if (!esBlogHtml.includes('rel="canonical" href="https://www.rutinhq.com/es/blog"
   console.error(`${esBlogShell} must canonical https://www.rutinhq.com/es/blog.`)
   process.exit(1)
 }
+if (/\bficha\b/i.test(rootInner(esBlogHtml))) {
+  console.error(
+    `${esBlogShell} ES index must not contain "ficha" (use hoja de sistema GTM).`,
+  )
+  process.exit(1)
+}
+if (!rootInner(esBlogHtml).includes('hoja de sistema GTM')) {
+  console.error(`${esBlogShell} ES index must link hoja de sistema GTM.`)
+  process.exit(1)
+}
 const esArticleHtml = fs.readFileSync(esArticleShell, 'utf8')
 const esArticleTitle = 'RutinHQ — Prospección en frío con perfil de cliente ideal (ICP) — sin SDR rentado'
 if (!esArticleHtml.includes(`<title>${esArticleTitle}</title>`)) {
@@ -1008,12 +1194,21 @@ if (esArticleHtml.includes(`<title>${homepageTitle}</title>`)) {
 }
 
 const article02Shell = 'dist/prerender/blog-shopify-admin-audit-before-ads.html'
+const article02EsShellEarly =
+  'dist/prerender/es-blog-auditoria-panel-shopify-antes-de-anuncios.html'
+const article03Shell =
+  'dist/prerender/blog-agentic-marketing-paper-first-before-ads.html'
+const article03EsShell =
+  'dist/prerender/es-blog-marketing-agentico-en-papel-antes-de-anuncios.html'
 for (const file of [
   blogShell,
   articleShell,
   article02Shell,
+  article03Shell,
   esBlogShell,
   esArticleShell,
+  article02EsShellEarly,
+  article03EsShell,
 ]) {
   assertBlogPublishRobots(file)
 }
@@ -1271,6 +1466,7 @@ const llmsRequired = [
   'https://www.rutinhq.com/blog',
   'https://www.rutinhq.com/blog/icp-gated-cold-outbound-without-rented-sdr',
   'https://www.rutinhq.com/blog/shopify-admin-audit-before-ads',
+  'https://www.rutinhq.com/blog/agentic-marketing-paper-first-before-ads',
   'https://docs.rutinhq.com/catalog/',
   'strategy@rutinhq.com',
   'https://calendly.com/rutinhq/30min',
@@ -1283,6 +1479,8 @@ const llmsFullRequired = [
   ...llmsRequired,
   'https://www.rutinhq.com/es/blog',
   'https://www.rutinhq.com/es/blog/outbound-frio-con-icp-sin-sdr-rentado',
+  'https://www.rutinhq.com/es/blog/auditoria-panel-shopify-antes-de-anuncios',
+  'https://www.rutinhq.com/es/blog/marketing-agentico-en-papel-antes-de-anuncios',
   'https://docs.rutinhq.com/catalog/gtm-os/',
   'https://docs.rutinhq.com/catalog/store-os/',
   'https://docs.rutinhq.com/catalog/nexus-os/',
@@ -1314,11 +1512,30 @@ for (const spec of [
     )
     process.exit(1)
   }
+  if (/DRAFT outline/i.test(body)) {
+    console.error(`${spec.file} must not label the Shopify article as a DRAFT outline.`)
+    process.exit(1)
+  }
   for (const needle of spec.required) {
     if (!body.includes(needle)) {
       console.error(`${spec.file} must include ${needle}.`)
       process.exit(1)
     }
+  }
+}
+const builtTextRoots = [
+  'dist/llms.txt',
+  'dist/llms-full.txt',
+  ...fs
+    .readdirSync('dist/prerender')
+    .filter((name) => name.endsWith('.html'))
+    .map((name) => `dist/prerender/${name}`),
+]
+for (const file of builtTextRoots) {
+  const body = fs.readFileSync(file, 'utf8')
+  if (/draft outline/i.test(body)) {
+    console.error(`${file} must not contain "draft outline".`)
+    process.exit(1)
   }
 }
 
@@ -1394,6 +1611,69 @@ for (const shell of skuShells) {
     console.error(`${shell.file} must keep og:site_name.`)
     process.exit(1)
   }
+}
+
+const relatedReadingNeedles = [
+  {
+    file: 'dist/prerender/gtm-os.html',
+    href: '/blog/icp-gated-cold-outbound-without-rented-sdr',
+    label: 'Related reading:',
+    title: 'ICP-gated cold outbound without a rented SDR',
+  },
+  {
+    file: 'dist/prerender/es-gtm-os.html',
+    href: '/es/blog/outbound-frio-con-icp-sin-sdr-rentado',
+    label: 'Lectura relacionada:',
+    title:
+      'Prospección en frío con perfil de cliente ideal (ICP) — sin SDR rentado',
+  },
+  {
+    file: 'dist/prerender/store-os.html',
+    href: '/blog/shopify-admin-audit-before-ads',
+    label: 'Related reading:',
+    title: 'Shopify Admin audit before you buy ads',
+  },
+  {
+    file: 'dist/prerender/es-store-os.html',
+    href: '/es/blog/auditoria-panel-shopify-antes-de-anuncios',
+    label: 'Lectura relacionada:',
+    title: 'Auditoría del panel de Shopify antes de comprar anuncios',
+  },
+  {
+    file: 'dist/prerender/nexus-os.html',
+    href: '/blog/agentic-marketing-paper-first-before-ads',
+    label: 'Related reading:',
+    title: 'Agentic marketing: paper first, Ads only when signed',
+  },
+  {
+    file: 'dist/prerender/es-nexus-os.html',
+    href: '/es/blog/marketing-agentico-en-papel-antes-de-anuncios',
+    label: 'Lectura relacionada:',
+    title: 'Marketing agéntico en papel antes de comprar anuncios',
+  },
+]
+for (const spec of relatedReadingNeedles) {
+  const html = fs.readFileSync(spec.file, 'utf8')
+  if (
+    !html.includes(spec.label) ||
+    !html.includes(`href="${spec.href}"`) ||
+    !html.includes(spec.title)
+  ) {
+    console.error(
+      `${spec.file} must include a related-reading link to ${spec.href}.`,
+    )
+    process.exit(1)
+  }
+}
+const esStoreRelatedHtml = fs.readFileSync(
+  'dist/prerender/es-store-os.html',
+  'utf8',
+)
+if (esStoreRelatedHtml.includes('/blog/shopify-admin-audit-before-ads')) {
+  console.error(
+    'dist/prerender/es-store-os.html must link the ES Store OS article, not the EN URL.',
+  )
+  process.exit(1)
 }
 
 const talkClusters = [
@@ -1782,6 +2062,8 @@ const bodyRoutes = [
     needles: [
       'Systems you own — filtered for founders who install, not rent',
       'What is the RutinHQ blog?',
+      'Shopify Admin audit before you buy ads',
+      'Agentic marketing: paper first, Ads only when signed',
     ],
   },
   {
@@ -1792,7 +2074,9 @@ const bodyRoutes = [
     file: 'dist/prerender/blog-shopify-admin-audit-before-ads.html',
     needles: [
       'Shopify Admin audit before you buy ads',
-      'DRAFT',
+      'What is STORE OS?',
+      'system sheet',
+      'Book 30 min',
       'strategy@rutinhq.com',
       'calendly.com/rutinhq/30min',
     ],
@@ -1804,7 +2088,16 @@ const bodyRoutes = [
       '¿Qué es el blog de RutinHQ?',
       'llamada de encaje',
       'Encaje de perfil de cliente ideal (ICP)',
-      'Esquema en inglés',
+      'Auditoría del panel de Shopify antes de comprar anuncios',
+      'Marketing agéntico en papel antes de comprar anuncios',
+    ],
+  },
+  {
+    file: 'dist/prerender/es-blog-auditoria-panel-shopify-antes-de-anuncios.html',
+    needles: [
+      'Auditoría del panel de Shopify antes de comprar anuncios',
+      '¿Qué es STORE OS?',
+      'Agendar 30 min',
     ],
   },
   {
@@ -1812,6 +2105,25 @@ const bodyRoutes = [
     needles: [
       'Prospección en frío con perfil de cliente ideal (ICP) — sin SDR rentado',
       'Guía de ventas y criterio de avance',
+    ],
+  },
+  {
+    file: 'dist/prerender/blog-agentic-marketing-paper-first-before-ads.html',
+    needles: [
+      'Agentic marketing: paper first, Ads only when signed',
+      'What is NEXUS OS?',
+      'creatives, mix, and budget',
+      'system sheet',
+      'Book 30 min',
+      'strategy@rutinhq.com',
+    ],
+  },
+  {
+    file: 'dist/prerender/es-blog-marketing-agentico-en-papel-antes-de-anuncios.html',
+    needles: [
+      'Marketing agéntico en papel antes de comprar anuncios',
+      '¿Qué es NEXUS OS?',
+      'Agendar 30 min',
     ],
   },
   {
@@ -1980,6 +2292,9 @@ const twitterShells = [
   articleShell,
   'dist/prerender/blog-shopify-admin-audit-before-ads.html',
   'dist/prerender/es-blog-outbound-frio-con-icp-sin-sdr-rentado.html',
+  'dist/prerender/es-blog-auditoria-panel-shopify-antes-de-anuncios.html',
+  'dist/prerender/blog-agentic-marketing-paper-first-before-ads.html',
+  'dist/prerender/es-blog-marketing-agentico-en-papel-antes-de-anuncios.html',
   'dist/prerender/agents.html',
   'dist/prerender/agents-auth.html',
   'dist/prerender/es-agents.html',
@@ -2152,12 +2467,26 @@ if (
 }
 
 if (!fs.existsSync(article02Shell)) {
-  console.error(`${article02Shell} missing — Article02 draft shell must prerender.`)
+  console.error(`${article02Shell} missing — Article02 shell must prerender.`)
   process.exit(1)
 }
 const article02Html = fs.readFileSync(article02Shell, 'utf8')
-if (/"@type":"FAQPage"/.test(article02Html)) {
-  console.error('Article02 draft shell must not invent FAQPage.')
+if (!/"@type":"FAQPage"/.test(article02Html)) {
+  console.error(`${article02Shell} must emit FAQPage for the Store OS article FAQ.`)
+  process.exit(1)
+}
+if (!article02Html.includes('"@type":"BreadcrumbList"')) {
+  console.error(`${article02Shell} must emit BreadcrumbList matching the visible crumbs.`)
+  process.exit(1)
+}
+if (article02Html.includes('DRAFT outline — catalog language only.')) {
+  console.error(
+    `${article02Shell} must not show the public DRAFT outline label.`,
+  )
+  process.exit(1)
+}
+if (/\bDRAFT\b/.test(rootInner(article02Html))) {
+  console.error(`${article02Shell} must not show DRAFT in the article body.`)
   process.exit(1)
 }
 if (
@@ -2182,15 +2511,209 @@ if (
     'hreflang="x-default" href="https://www.rutinhq.com/blog/shopify-admin-audit-before-ads"',
   )
 ) {
-  console.error(`${article02Shell} must emit EN + x-default hreflang (no ES twin).`)
+  console.error(`${article02Shell} must emit EN + x-default hreflang.`)
   process.exit(1)
 }
 if (
-  article02Html.includes(
-    'hreflang="es" href="https://www.rutinhq.com/es/blog/shopify-admin-audit-before-ads"',
+  !article02Html.includes(
+    'hreflang="es" href="https://www.rutinhq.com/es/blog/auditoria-panel-shopify-antes-de-anuncios"',
   )
 ) {
-  console.error(`${article02Shell} must not invent an ES hreflang twin.`)
+  console.error(`${article02Shell} must hreflang to the ES Store OS article.`)
+  process.exit(1)
+}
+const article02EsShell =
+  'dist/prerender/es-blog-auditoria-panel-shopify-antes-de-anuncios.html'
+if (!fs.existsSync(article02EsShell)) {
+  console.error(`${article02EsShell} missing — Article02 ES twin must prerender.`)
+  process.exit(1)
+}
+const article02EsHtml = fs.readFileSync(article02EsShell, 'utf8')
+assertBlogPublishRobots(article02EsShell)
+if (!/"@type":"FAQPage"/.test(article02EsHtml)) {
+  console.error(`${article02EsShell} must emit FAQPage for the Store OS ES FAQ.`)
+  process.exit(1)
+}
+if (!article02EsHtml.includes('"@type":"BreadcrumbList"')) {
+  console.error(`${article02EsShell} must emit BreadcrumbList matching the visible crumbs.`)
+  process.exit(1)
+}
+if (
+  !article02EsHtml.includes(
+    'rel="canonical" href="https://www.rutinhq.com/es/blog/auditoria-panel-shopify-antes-de-anuncios"',
+  )
+) {
+  console.error(`${article02EsShell} must canonical the Article02 ES www URL.`)
+  process.exit(1)
+}
+if (
+  !article02EsHtml.includes(
+    'hreflang="en" href="https://www.rutinhq.com/blog/shopify-admin-audit-before-ads"',
+  ) ||
+  !article02EsHtml.includes(
+    'hreflang="es" href="https://www.rutinhq.com/es/blog/auditoria-panel-shopify-antes-de-anuncios"',
+  ) ||
+  !article02EsHtml.includes(
+    'hreflang="x-default" href="https://www.rutinhq.com/blog/shopify-admin-audit-before-ads"',
+  )
+) {
+  console.error(`${article02EsShell} must emit en/es/x-default hreflang.`)
+  process.exit(1)
+}
+if (/\bDRAFT\b|\bborrador\b/i.test(rootInner(article02EsHtml))) {
+  console.error(`${article02EsShell} must not show DRAFT/borrador in the article body.`)
+  process.exit(1)
+}
+
+function ldGraph(html) {
+  const scripts = [
+    ...html.matchAll(
+      /<script type="application\/ld\+json">([\s\S]*?)<\/script>/g,
+    ),
+  ]
+  if (scripts.length !== 1) {
+    console.error('article must emit exactly one JSON-LD block')
+    process.exit(1)
+  }
+  return JSON.parse(scripts[0][1])['@graph']
+}
+function visibleText(html) {
+  return rootInner(html)
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<[^>]+>/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+function assertFaq4MatchesVisible(file, html) {
+  const faq = ldGraph(html).find((n) => n['@type'] === 'FAQPage')
+  const last = faq?.mainEntity?.at(-1)?.acceptedAnswer?.text
+  if (!last || !visibleText(html).includes(last)) {
+    console.error(
+      `${file} FAQ #4 JSON-LD must match the visible FAQ text exactly (${last}).`,
+    )
+    process.exit(1)
+  }
+}
+function assertPostingDates(file, html, { published, modified }) {
+  const posting = ldGraph(html).find((n) => n['@type'] === 'BlogPosting')
+  if (posting?.datePublished !== published) {
+    console.error(
+      `${file} datePublished must be ${published} (got ${posting?.datePublished}).`,
+    )
+    process.exit(1)
+  }
+  if (posting?.dateModified !== modified) {
+    console.error(
+      `${file} dateModified must be ${modified} (got ${posting?.dateModified}).`,
+    )
+    process.exit(1)
+  }
+}
+
+assertPostingDates(article02Shell, article02Html, {
+  published: '2026-09-13',
+  modified: CONTENT_STAMP,
+})
+assertPostingDates(article02EsShell, article02EsHtml, {
+  published: '2026-11-22',
+  modified: '2026-11-22',
+})
+assertFaq4MatchesVisible(article02Shell, article02Html)
+assertFaq4MatchesVisible(article02EsShell, article02EsHtml)
+if (/\bficha\b/i.test(rootInner(article02Html))) {
+  console.error(`${article02Shell} EN copy must say "system sheet", not "ficha".`)
+  process.exit(1)
+}
+if (
+  !article02EsHtml.includes('"item":"https://www.rutinhq.com/es"') ||
+  !rootInner(article02EsHtml).includes('href="/es"')
+) {
+  console.error(
+    `${article02EsShell} ES breadcrumb Inicio must point to /es (visible + JSON-LD).`,
+  )
+  process.exit(1)
+}
+
+if (!fs.existsSync(article03Shell) || !fs.existsSync(article03EsShell)) {
+  console.error('Article03 EN/ES prerender shells missing.')
+  process.exit(1)
+}
+const article03Html = fs.readFileSync(article03Shell, 'utf8')
+const article03EsHtml = fs.readFileSync(article03EsShell, 'utf8')
+if (!/"@type":"FAQPage"/.test(article03Html) || !/"@type":"BreadcrumbList"/.test(article03Html)) {
+  console.error(`${article03Shell} must emit FAQPage and BreadcrumbList.`)
+  process.exit(1)
+}
+if (!/"@type":"FAQPage"/.test(article03EsHtml) || !/"@type":"BreadcrumbList"/.test(article03EsHtml)) {
+  console.error(`${article03EsShell} must emit FAQPage and BreadcrumbList.`)
+  process.exit(1)
+}
+if (
+  !article03Html.includes(
+    'rel="canonical" href="https://www.rutinhq.com/blog/agentic-marketing-paper-first-before-ads"',
+  )
+) {
+  console.error(`${article03Shell} must canonical the Article03 www URL.`)
+  process.exit(1)
+}
+if (
+  !article03EsHtml.includes(
+    'rel="canonical" href="https://www.rutinhq.com/es/blog/marketing-agentico-en-papel-antes-de-anuncios"',
+  )
+) {
+  console.error(`${article03EsShell} must canonical the Article03 ES www URL.`)
+  process.exit(1)
+}
+if (
+  !article03Html.includes(
+    'hreflang="es" href="https://www.rutinhq.com/es/blog/marketing-agentico-en-papel-antes-de-anuncios"',
+  ) ||
+  !article03Html.includes(
+    'hreflang="x-default" href="https://www.rutinhq.com/blog/agentic-marketing-paper-first-before-ads"',
+  )
+) {
+  console.error(`${article03Shell} must emit en/es/x-default hreflang.`)
+  process.exit(1)
+}
+if (
+  !article03EsHtml.includes(
+    'hreflang="en" href="https://www.rutinhq.com/blog/agentic-marketing-paper-first-before-ads"',
+  ) ||
+  !article03EsHtml.includes(
+    'hreflang="x-default" href="https://www.rutinhq.com/blog/agentic-marketing-paper-first-before-ads"',
+  )
+) {
+  console.error(`${article03EsShell} must emit en/es/x-default hreflang.`)
+  process.exit(1)
+}
+assertPostingDates(article03Shell, article03Html, {
+  published: '2026-11-22',
+  modified: '2026-11-22',
+})
+assertPostingDates(article03EsShell, article03EsHtml, {
+  published: '2026-11-22',
+  modified: '2026-11-22',
+})
+assertFaq4MatchesVisible(article03Shell, article03Html)
+assertFaq4MatchesVisible(article03EsShell, article03EsHtml)
+if (
+  !article03EsHtml.includes('"item":"https://www.rutinhq.com/es"') ||
+  !rootInner(article03EsHtml).includes('href="/es"')
+) {
+  console.error(
+    `${article03EsShell} ES breadcrumb Inicio must point to /es (visible + JSON-LD).`,
+  )
+  process.exit(1)
+}
+if (!article03Html.includes('creatives, mix, and budget')) {
+  console.error(
+    `${article03Shell} must use the exact phrase "creatives, mix, and budget".`,
+  )
+  process.exit(1)
+}
+if (/\bficha\b/i.test(rootInner(article03Html))) {
+  console.error(`${article03Shell} EN copy must say "system sheet", not "ficha".`)
   process.exit(1)
 }
 
@@ -2259,6 +2782,18 @@ const ogShells = [
   },
   {
     file: 'dist/prerender/es-blog-outbound-frio-con-icp-sin-sdr-rentado.html',
+    image: 'https://www.rutinhq.com/og/og-blog.png',
+  },
+  {
+    file: 'dist/prerender/es-blog-auditoria-panel-shopify-antes-de-anuncios.html',
+    image: 'https://www.rutinhq.com/og/og-blog.png',
+  },
+  {
+    file: 'dist/prerender/blog-agentic-marketing-paper-first-before-ads.html',
+    image: 'https://www.rutinhq.com/og/og-blog.png',
+  },
+  {
+    file: 'dist/prerender/es-blog-marketing-agentico-en-papel-antes-de-anuncios.html',
     image: 'https://www.rutinhq.com/og/og-blog.png',
   },
   { file: 'dist/prerender/agents.html', image: 'https://www.rutinhq.com/og/og-hub.png' },
@@ -2448,6 +2983,7 @@ if (
 
 const beaconHtmlFiles = [
   'dist/index.html',
+  'dist/404.html',
   ...fs
     .readdirSync('dist/prerender')
     .filter((name) => name.endsWith('.html'))
@@ -2484,6 +3020,17 @@ for (const file of beaconHtmlFiles) {
       console.error(`${file} must not duplicate hreflang ${key} (${count}×).`)
       process.exit(1)
     }
+  }
+  const jsonLdScripts = [
+    ...html.matchAll(
+      /<script\b[^>]*\btype=["']application\/ld\+json["'][^>]*>/gi,
+    ),
+  ]
+  if (jsonLdScripts.length !== 1) {
+    console.error(
+      `${file} must emit exactly one JSON-LD graph (found ${jsonLdScripts.length}).`,
+    )
+    process.exit(1)
   }
 }
 
