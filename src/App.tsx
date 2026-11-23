@@ -18,6 +18,12 @@ export const BlogStoreOsAdminAuditPage = lazyPage(
 export const BlogOutboundFrioPage = lazyPage(
   () => import('@/pages/blog-outbound-frio'),
 )
+export const BlogNexusPaperFirstPage = lazyPage(
+  () => import('@/pages/blog-nexus-paper-first'),
+)
+export const BlogMarketingAgenticoPapelPage = lazyPage(
+  () => import('@/pages/blog-marketing-agentico-papel'),
+)
 export const AgentsPage = lazyPage(() => import('@/pages/agents'))
 export const AgentsAuthPage = lazyPage(() => import('@/pages/agents-auth'))
 export const NotFoundPage = lazyPage(() => import('@/pages/not-found'))
@@ -32,6 +38,8 @@ const pages = [
   BlogIcpGatedColdOutboundPage,
   BlogStoreOsAdminAuditPage,
   BlogOutboundFrioPage,
+  BlogNexusPaperFirstPage,
+  BlogMarketingAgenticoPapelPage,
   AgentsPage,
   AgentsAuthPage,
   NotFoundPage,
@@ -51,6 +59,9 @@ const pageByPath: Record<string, (typeof pages)[number]> = {
   '/blog/icp-gated-cold-outbound-without-rented-sdr': BlogIcpGatedColdOutboundPage,
   '/blog/shopify-admin-audit-before-ads': BlogStoreOsAdminAuditPage,
   '/es/blog/outbound-frio-con-icp-sin-sdr-rentado': BlogOutboundFrioPage,
+  '/blog/agentic-marketing-paper-first-before-ads': BlogNexusPaperFirstPage,
+  '/es/blog/marketing-agentico-en-papel-antes-de-anuncios':
+    BlogMarketingAgenticoPapelPage,
   '/agents': AgentsPage,
   '/es/agents': AgentsPage,
   '/agents/auth': AgentsAuthPage,
@@ -92,6 +103,14 @@ export default function App() {
         <Route
           path="/es/blog/outbound-frio-con-icp-sin-sdr-rentado"
           element={<BlogOutboundFrioPage />}
+        />
+        <Route
+          path="/blog/agentic-marketing-paper-first-before-ads"
+          element={<BlogNexusPaperFirstPage />}
+        />
+        <Route
+          path="/es/blog/marketing-agentico-en-papel-antes-de-anuncios"
+          element={<BlogMarketingAgenticoPapelPage />}
         />
         <Route path="/agents" element={<AgentsPage />} />
         <Route path="/es/agents" element={<AgentsPage />} />

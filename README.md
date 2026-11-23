@@ -15,6 +15,8 @@ Catálogo público (`/`) y tres landings de un SKU cada una:
 | `/blog/shopify-admin-audit-before-ads` | Article02 — STORE OS Admin audit outline (EN; indexable, outline still marked DRAFT) |
 | `/es/blog` | Índice ES (hreflang ↔ EN; `index,follow`) |
 | `/es/blog/outbound-frio-con-icp-sin-sdr-rentado` | Article01 ES — Outbound frío con ICP (tuteo) |
+| `/blog/agentic-marketing-paper-first-before-ads` | Article03 — NEXUS OS paper-first Ads gate (EN; `index,follow`) |
+| `/es/blog/marketing-agentico-en-papel-antes-de-anuncios` | Article03 ES — Marketing agéntico en papel |
 | `/agents` `/es/agents` | Public agent catalog (thin index of public endpoints) |
 | `/agents.md` | Machine-readable agent catalog (text/markdown twin of `/agents`) |
 | `/agents/auth` `/es/agents/auth` | Public vs Access-gated surfaces (pairs with `/auth.md`) |
@@ -39,7 +41,7 @@ Stack: Vite + React + Tailwind + i18next. Default **EN** (commercial copy). Togg
   2. Wildcard: Request URL `https://rutinhq.com/*` → Target `https://www.rutinhq.com/${1}` → **301** → Preserve query string **On**
   3. Enable **Always Use HTTPS** (or a second wildcard for `http://rutinhq.com/*`)
   4. Verify: `curl -sI https://rutinhq.com/gtm-os` → `301` + `location: https://www.rutinhq.com/gtm-os`
-- **Blog + SKUs:** Hub + 3 OS landings (EN+ES) + `/agents` + `/agents/auth` (EN+ES) + blog index/articles (EN+ES) stay **indexable** in `sitemap.xml` (17 www URLs). Soft-link `/blog` from the footer only (not hub nav) so the hub stays one-SKU-clear. Build prerenders crawl shells under `dist/prerender/*.html` and `_redirects` 200-rewrites the pretty URLs to the **extensionless** `/prerender/…` path (that path is already a 200). Do **not** emit `dist/blog.html` / `dist/es/blog.html` / `dist/gtm-os.html` or rewrite those to `*.html` 200 — html-handling 308s `*.html` → pretty URL and that pair **self-loops**. Do **not** 301 `/es` onto `/es/blog`. Do **not** emit `dist/blog/index.html` or `dist/es/index.html`. hreflang EN ↔ ES; EN is `x-default`. Soft-park STORE/NEXUS on the blog footer only. No 3-SKU strip on `/blog`.
+- **Blog + SKUs:** Hub + 3 OS landings (EN+ES) + `/agents` + `/agents/auth` (EN+ES) + blog index/articles (EN+ES) stay **indexable** in `sitemap.xml` (19 www URLs). Soft-link `/blog` from the footer only (not hub nav) so the hub stays one-SKU-clear. Build prerenders crawl shells under `dist/prerender/*.html` and `_redirects` 200-rewrites the pretty URLs to the **extensionless** `/prerender/…` path (that path is already a 200). Do **not** emit `dist/blog.html` / `dist/es/blog.html` / `dist/gtm-os.html` or rewrite those to `*.html` 200 — html-handling 308s `*.html` → pretty URL and that pair **self-loops**. Do **not** 301 `/es` onto `/es/blog`. Do **not** emit `dist/blog/index.html` or `dist/es/index.html`. hreflang EN ↔ ES; EN is `x-default`. Soft-park STORE/NEXUS on the blog footer only. No 3-SKU strip on `/blog`.
 - **No tocar** `docs.rutinhq.com`. CORTEX redeploya `rutinhq-web`.
 
 ## Local

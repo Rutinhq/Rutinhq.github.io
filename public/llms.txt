@@ -19,11 +19,13 @@ Indexable. Soft-linked from the footer only.
 - [Blog](https://www.rutinhq.com/blog): Radar for founders who install GTM and ops systems — not rented seats.
 - [ICP-gated cold outbound without a rented SDR](https://www.rutinhq.com/blog/icp-gated-cold-outbound-without-rented-sdr)
 - [Shopify Admin audit before you buy ads](https://www.rutinhq.com/blog/shopify-admin-audit-before-ads)
+- [Agentic marketing: paper first, Ads only when signed](https://www.rutinhq.com/blog/agentic-marketing-paper-first-before-ads)
 
-Spanish index and article:
+Spanish index and articles:
 
 - https://www.rutinhq.com/es/blog
 - https://www.rutinhq.com/es/blog/outbound-frio-con-icp-sin-sdr-rentado
+- https://www.rutinhq.com/es/blog/marketing-agentico-en-papel-antes-de-anuncios
 
 ## Docs
 

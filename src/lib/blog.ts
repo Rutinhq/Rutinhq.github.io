@@ -3,6 +3,10 @@ export const ARTICLE01_PATH =
 export const ARTICLE01_ES_PATH =
   '/es/blog/outbound-frio-con-icp-sin-sdr-rentado' as const
 export const ARTICLE02_PATH = '/blog/shopify-admin-audit-before-ads' as const
+export const ARTICLE03_PATH =
+  '/blog/agentic-marketing-paper-first-before-ads' as const
+export const ARTICLE03_ES_PATH =
+  '/es/blog/marketing-agentico-en-papel-antes-de-anuncios' as const
 
 /** Capo GO 23 Sep: blog index + articles are indexable.
  *  Capo 4 Nov 2026: Article02 stays indexable (do not apply the noindex option). */
@@ -191,9 +195,84 @@ export const ARTICLE02 = {
   ],
 } as const
 
+export const ARTICLE03 = {
+  title: 'Agentic marketing: paper first, Ads only when signed',
+  description:
+    'Strategy → Social → Ads. Until creatives, mix, and budget have an explicit GO: paper only (no pixel, no spend).',
+  slug: 'agentic-marketing-paper-first-before-ads',
+  path: ARTICLE03_PATH,
+  alternatePath: ARTICLE03_ES_PATH,
+  type: 'how-to',
+  sku: 'nexus-os',
+  job: 'Park Ads until creatives, mix, and budget are signed.',
+  cta: 'strategy@',
+  draft: false,
+  noindex: false,
+  inLanguage: 'en',
+  author: 'RutinHQ',
+  datePublished: '2026-11-23',
+  dateModified: '2026-11-23',
+  faq: [
+    {
+      q: 'What is NEXUS OS?',
+      a: 'Agentic marketing — paper first, Ads only when signed. Strategy → Social → Ads. Until creatives, mix, and budget have an explicit GO: paper only (no pixel, no spend).',
+    },
+    {
+      q: 'Who is NEXUS OS for?',
+      a: 'Retailer / ecom with clear offer and SKUs. Wants demand from social as a system. Brand voice owned by client’s ops/marketing (NEXUS does not invent ICP or offer).',
+    },
+    {
+      q: 'When do Ads go live?',
+      a: 'Ads parked until photos + mix + budget are signed. Until that explicit GO: paper only (no pixel, no spend). Live Ads / pixel / spend without GO is what NEXUS OS is not.',
+    },
+    {
+      q: 'Where’s the full system sheet?',
+      a: 'See the NEXUS OS catalog ficha at https://docs.rutinhq.com/catalog/nexus-os/ and the https://www.rutinhq.com/nexus-os page.',
+    },
+  ],
+} as const
+
+export const ARTICLE03_ES = {
+  title: 'Marketing agéntico en papel antes de comprar anuncios',
+  description:
+    'Estrategia → Social → Ads. Hasta que apruebe las creatividades, la mezcla y el presupuesto: solo papel (sin píxel, sin gasto).',
+  slug: 'marketing-agentico-en-papel-antes-de-anuncios',
+  path: ARTICLE03_ES_PATH,
+  alternatePath: ARTICLE03_PATH,
+  type: 'how-to',
+  sku: 'nexus-os',
+  job: 'Anuncios en pausa hasta que apruebe creatividades, mezcla y presupuesto.',
+  cta: 'strategy@',
+  draft: false,
+  noindex: false,
+  inLanguage: 'es',
+  author: 'RutinHQ',
+  datePublished: '2026-11-23',
+  dateModified: '2026-11-23',
+  faq: [
+    {
+      q: '¿Qué es NEXUS OS?',
+      a: 'Marketing agéntico — primero en papel, anuncios solo con aprobación explícita. Estrategia → Social → Ads. Hasta que apruebe las creatividades, la mezcla y el presupuesto: solo papel (sin píxel, sin gasto).',
+    },
+    {
+      q: '¿Para quién es NEXUS OS?',
+      a: 'Minorista / tienda en línea con oferta y productos claros. Quiere demanda desde social como sistema. La voz de marca la define el equipo de operación y marketing del cliente (NEXUS no inventa el perfil de cliente ideal (ICP) ni la oferta).',
+    },
+    {
+      q: '¿Cuándo se activan los anuncios?',
+      a: 'Anuncios en pausa hasta que apruebe las creatividades, la mezcla y el presupuesto. Hasta esa aprobación explícita: solo papel (sin píxel, sin gasto). Anuncios en vivo / píxel / gasto sin aprobación explícita es lo que NEXUS OS no es.',
+    },
+    {
+      q: '¿Dónde está la ficha del sistema?',
+      a: 'Mire la ficha NEXUS OS en el catálogo y la página /es/nexus-os.',
+    },
+  ],
+} as const
+
 export const BLOG_FEATURED = [
   { path: ARTICLE01.path, name: ARTICLE01.title },
   { path: ARTICLE02.path, name: ARTICLE02.title },
+  { path: ARTICLE03.path, name: ARTICLE03.title },
 ] as const
 
 export const BLOG_FILTER_SIGNALS = [

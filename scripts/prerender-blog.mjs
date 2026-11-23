@@ -126,7 +126,7 @@ const ROUTES = [
           '@type': 'ItemList',
           '@id': `${SITE}/blog#featured`,
           name: 'Featured',
-          numberOfItems: 2,
+          numberOfItems: 3,
           itemListElement: [
             {
               '@type': 'ListItem',
@@ -139,6 +139,12 @@ const ROUTES = [
               position: 2,
               name: 'Shopify Admin audit before you buy ads',
               url: `${SITE}/blog/shopify-admin-audit-before-ads`,
+            },
+            {
+              '@type': 'ListItem',
+              position: 3,
+              name: 'Agentic marketing: paper first, Ads only when signed',
+              url: `${SITE}/blog/agentic-marketing-paper-first-before-ads`,
             },
           ],
         },
@@ -336,13 +342,19 @@ const ROUTES = [
           '@type': 'ItemList',
           '@id': `${SITE}/es/blog#featured`,
           name: 'Destacado',
-          numberOfItems: 1,
+          numberOfItems: 2,
           itemListElement: [
             {
               '@type': 'ListItem',
               position: 1,
               name: 'Prospección en frío con perfil de cliente ideal (ICP) — sin SDR rentado',
               url: `${SITE}/es/blog/outbound-frio-con-icp-sin-sdr-rentado`,
+            },
+            {
+              '@type': 'ListItem',
+              position: 2,
+              name: 'Marketing agéntico en papel antes de comprar anuncios',
+              url: `${SITE}/es/blog/marketing-agentico-en-papel-antes-de-anuncios`,
             },
           ],
         },
@@ -455,6 +467,199 @@ const ROUTES = [
               acceptedAnswer: {
                 '@type': 'Answer',
                 text: 'Mire la ficha GTM OS en el catálogo y la página /es/gtm-os.',
+              },
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    path: '/blog/agentic-marketing-paper-first-before-ads',
+    file: 'prerender/blog-agentic-marketing-paper-first-before-ads.html',
+    title: 'RutinHQ — Agentic marketing: paper first, Ads only when signed',
+    description:
+      'Strategy → Social → Ads. Until creatives, mix, and budget have an explicit GO: paper only (no pixel, no spend).',
+    ogType: 'article',
+    locale: 'en',
+    image: OG_IMAGE.blog,
+    datePublished: '2026-11-23',
+    dateModified: '2026-11-23',
+    alternates: [
+      {
+        hreflang: 'en',
+        href: `${SITE}/blog/agentic-marketing-paper-first-before-ads`,
+      },
+      {
+        hreflang: 'es',
+        href: `${SITE}/es/blog/marketing-agentico-en-papel-antes-de-anuncios`,
+      },
+      {
+        hreflang: 'x-default',
+        href: `${SITE}/blog/agentic-marketing-paper-first-before-ads`,
+      },
+    ],
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@graph': [
+        organizationNode(),
+        {
+          '@type': 'BlogPosting',
+          '@id': `${SITE}/blog/agentic-marketing-paper-first-before-ads#article`,
+          headline: 'Agentic marketing: paper first, Ads only when signed',
+          description:
+            'Strategy → Social → Ads. Until creatives, mix, and budget have an explicit GO: paper only (no pixel, no spend).',
+          datePublished: '2026-11-23',
+          dateModified: '2026-11-23',
+          inLanguage: 'en',
+          url: `${SITE}/blog/agentic-marketing-paper-first-before-ads`,
+          mainEntityOfPage: {
+            '@type': 'WebPage',
+            '@id': `${SITE}/blog/agentic-marketing-paper-first-before-ads`,
+          },
+          author: { '@id': `${SITE}/#organization` },
+          publisher: { '@id': `${SITE}/#organization` },
+        },
+        breadcrumbList(`${SITE}/blog/agentic-marketing-paper-first-before-ads`, [
+          { name: 'Home', url: `${SITE}/` },
+          { name: 'Blog', url: `${SITE}/blog` },
+          {
+            name: 'Agentic marketing: paper first, Ads only when signed',
+            url: `${SITE}/blog/agentic-marketing-paper-first-before-ads`,
+          },
+        ]),
+        {
+          '@type': 'FAQPage',
+          '@id': `${SITE}/blog/agentic-marketing-paper-first-before-ads#faq`,
+          mainEntity: [
+            {
+              '@type': 'Question',
+              name: 'What is NEXUS OS?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Agentic marketing — paper first, Ads only when signed. Strategy → Social → Ads. Until creatives, mix, and budget have an explicit GO: paper only (no pixel, no spend).',
+              },
+            },
+            {
+              '@type': 'Question',
+              name: 'Who is NEXUS OS for?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Retailer / ecom with clear offer and SKUs. Wants demand from social as a system. Brand voice owned by client’s ops/marketing (NEXUS does not invent ICP or offer).',
+              },
+            },
+            {
+              '@type': 'Question',
+              name: 'When do Ads go live?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Ads parked until photos + mix + budget are signed. Until that explicit GO: paper only (no pixel, no spend). Live Ads / pixel / spend without GO is what NEXUS OS is not.',
+              },
+            },
+            {
+              '@type': 'Question',
+              name: 'Where’s the full system sheet?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'See the NEXUS OS catalog ficha at https://docs.rutinhq.com/catalog/nexus-os/ and the https://www.rutinhq.com/nexus-os page.',
+              },
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    path: '/es/blog/marketing-agentico-en-papel-antes-de-anuncios',
+    file: 'prerender/es-blog-marketing-agentico-en-papel-antes-de-anuncios.html',
+    title: 'RutinHQ — Marketing agéntico en papel antes de comprar anuncios',
+    description:
+      'Estrategia → Social → Ads. Hasta que apruebe las creatividades, la mezcla y el presupuesto: solo papel (sin píxel, sin gasto).',
+    ogType: 'article',
+    locale: 'es',
+    image: OG_IMAGE.blog,
+    datePublished: '2026-11-23',
+    dateModified: '2026-11-23',
+    alternates: [
+      {
+        hreflang: 'en',
+        href: `${SITE}/blog/agentic-marketing-paper-first-before-ads`,
+      },
+      {
+        hreflang: 'es',
+        href: `${SITE}/es/blog/marketing-agentico-en-papel-antes-de-anuncios`,
+      },
+      {
+        hreflang: 'x-default',
+        href: `${SITE}/blog/agentic-marketing-paper-first-before-ads`,
+      },
+    ],
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@graph': [
+        organizationNode('es'),
+        {
+          '@type': 'BlogPosting',
+          '@id': `${SITE}/es/blog/marketing-agentico-en-papel-antes-de-anuncios#article`,
+          headline: 'Marketing agéntico en papel antes de comprar anuncios',
+          description:
+            'Estrategia → Social → Ads. Hasta que apruebe las creatividades, la mezcla y el presupuesto: solo papel (sin píxel, sin gasto).',
+          datePublished: '2026-11-23',
+          dateModified: '2026-11-23',
+          inLanguage: 'es',
+          url: `${SITE}/es/blog/marketing-agentico-en-papel-antes-de-anuncios`,
+          mainEntityOfPage: {
+            '@type': 'WebPage',
+            '@id': `${SITE}/es/blog/marketing-agentico-en-papel-antes-de-anuncios`,
+          },
+          author: { '@id': `${SITE}/#organization` },
+          publisher: { '@id': `${SITE}/#organization` },
+        },
+        breadcrumbList(
+          `${SITE}/es/blog/marketing-agentico-en-papel-antes-de-anuncios`,
+          [
+            { name: 'Inicio', url: `${SITE}/` },
+            { name: 'Blog', url: `${SITE}/es/blog` },
+            {
+              name: 'Marketing agéntico en papel antes de comprar anuncios',
+              url: `${SITE}/es/blog/marketing-agentico-en-papel-antes-de-anuncios`,
+            },
+          ],
+        ),
+        {
+          '@type': 'FAQPage',
+          '@id': `${SITE}/es/blog/marketing-agentico-en-papel-antes-de-anuncios#faq`,
+          mainEntity: [
+            {
+              '@type': 'Question',
+              name: '¿Qué es NEXUS OS?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Marketing agéntico — primero en papel, anuncios solo con aprobación explícita. Estrategia → Social → Ads. Hasta que apruebe las creatividades, la mezcla y el presupuesto: solo papel (sin píxel, sin gasto).',
+              },
+            },
+            {
+              '@type': 'Question',
+              name: '¿Para quién es NEXUS OS?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Minorista / tienda en línea con oferta y productos claros. Quiere demanda desde social como sistema. La voz de marca la define el equipo de operación y marketing del cliente (NEXUS no inventa el perfil de cliente ideal (ICP) ni la oferta).',
+              },
+            },
+            {
+              '@type': 'Question',
+              name: '¿Cuándo se activan los anuncios?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Anuncios en pausa hasta que apruebe las creatividades, la mezcla y el presupuesto. Hasta esa aprobación explícita: solo papel (sin píxel, sin gasto). Anuncios en vivo / píxel / gasto sin aprobación explícita es lo que NEXUS OS no es.',
+              },
+            },
+            {
+              '@type': 'Question',
+              name: '¿Dónde está la ficha del sistema?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Mire la ficha NEXUS OS en el catálogo y la página /es/nexus-os.',
               },
             },
           ],

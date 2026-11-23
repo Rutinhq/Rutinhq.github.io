@@ -91,6 +91,8 @@ const HTML_CACHE_REQUEST_PATHS = [
   '/blog/icp-gated-cold-outbound-without-rented-sdr',
   '/blog/shopify-admin-audit-before-ads',
   '/es/blog/outbound-frio-con-icp-sin-sdr-rentado',
+  '/blog/agentic-marketing-paper-first-before-ads',
+  '/es/blog/marketing-agentico-en-papel-antes-de-anuncios',
   '/agents',
   '/agents/auth',
   '/es/agents',
@@ -291,6 +293,22 @@ if (fs.existsSync('dist/blog/shopify-admin-audit-before-ads/index.html')) {
   )
   process.exit(1)
 }
+if (fs.existsSync('dist/blog/agentic-marketing-paper-first-before-ads/index.html')) {
+  console.error(
+    'dist/blog/<slug>/index.html must not ship — pretty /blog/<slug> would 308.',
+  )
+  process.exit(1)
+}
+if (
+  fs.existsSync(
+    'dist/es/blog/marketing-agentico-en-papel-antes-de-anuncios/index.html',
+  )
+) {
+  console.error(
+    'dist/es/blog/<slug>/index.html must not ship — pretty /es/blog/<slug> would 308.',
+  )
+  process.exit(1)
+}
 if (fs.existsSync('dist/es/blog/index.html')) {
   console.error(
     'dist/es/blog/index.html must not ship — pretty /es/blog would 308.',
@@ -434,6 +452,26 @@ if (
   )
   process.exit(1)
 }
+if (
+  !/\/blog\/agentic-marketing-paper-first-before-ads\s+\/prerender\/blog-agentic-marketing-paper-first-before-ads\s+200/.test(
+    redirects,
+  )
+) {
+  console.error(
+    'dist/_redirects must 200-rewrite Article03 to /prerender/<slug> (not .html).',
+  )
+  process.exit(1)
+}
+if (
+  !/\/es\/blog\/marketing-agentico-en-papel-antes-de-anuncios\s+\/prerender\/es-blog-marketing-agentico-en-papel-antes-de-anuncios\s+200/.test(
+    redirects,
+  )
+) {
+  console.error(
+    'dist/_redirects must 200-rewrite Article03 ES to /prerender/<slug> (not .html).',
+  )
+  process.exit(1)
+}
 if (!/\/es\/blog\s+\/prerender\/es-blog\s+200/.test(redirects)) {
   console.error(
     'dist/_redirects must 200-rewrite /es/blog to /prerender/es-blog.',
@@ -542,6 +580,8 @@ const expectedLocs = [
   'https://www.rutinhq.com/blog/shopify-admin-audit-before-ads',
   'https://www.rutinhq.com/es/blog',
   'https://www.rutinhq.com/es/blog/outbound-frio-con-icp-sin-sdr-rentado',
+  'https://www.rutinhq.com/blog/agentic-marketing-paper-first-before-ads',
+  'https://www.rutinhq.com/es/blog/marketing-agentico-en-papel-antes-de-anuncios',
 ]
 const article02Loc =
   'https://www.rutinhq.com/blog/shopify-admin-audit-before-ads'
@@ -559,7 +599,7 @@ if (
   expectedLocs.some((url) => !locs.includes(url))
 ) {
   console.error(
-    `${sitemap} must list exactly the 17 indexable www URLs (hub + 3 SKUs + agents/auth + blog EN/ES).`,
+    `${sitemap} must list exactly the 19 indexable www URLs (hub + 3 SKUs + agents/auth + blog EN/ES, including NEXUS OS articles).`,
   )
   process.exit(1)
 }
@@ -606,6 +646,10 @@ const expectedPostLastmods = {
   'https://www.rutinhq.com/es/blog/outbound-frio-con-icp-sin-sdr-rentado':
     '2026-09-08',
   'https://www.rutinhq.com/blog/shopify-admin-audit-before-ads': '2026-09-13',
+  'https://www.rutinhq.com/blog/agentic-marketing-paper-first-before-ads':
+    '2026-11-23',
+  'https://www.rutinhq.com/es/blog/marketing-agentico-en-papel-antes-de-anuncios':
+    '2026-11-23',
 }
 for (const [loc, date] of Object.entries(expectedPostLastmods)) {
   if (sitemapLastmodFor(loc) !== date) {
@@ -1043,12 +1087,18 @@ if (esArticleHtml.includes(`<title>${homepageTitle}</title>`)) {
 }
 
 const article02Shell = 'dist/prerender/blog-shopify-admin-audit-before-ads.html'
+const article03Shell =
+  'dist/prerender/blog-agentic-marketing-paper-first-before-ads.html'
+const article03EsShell =
+  'dist/prerender/es-blog-marketing-agentico-en-papel-antes-de-anuncios.html'
 for (const file of [
   blogShell,
   articleShell,
   article02Shell,
+  article03Shell,
   esBlogShell,
   esArticleShell,
+  article03EsShell,
 ]) {
   assertBlogPublishRobots(file)
 }
@@ -1306,6 +1356,7 @@ const llmsRequired = [
   'https://www.rutinhq.com/blog',
   'https://www.rutinhq.com/blog/icp-gated-cold-outbound-without-rented-sdr',
   'https://www.rutinhq.com/blog/shopify-admin-audit-before-ads',
+  'https://www.rutinhq.com/blog/agentic-marketing-paper-first-before-ads',
   'https://docs.rutinhq.com/catalog/',
   'strategy@rutinhq.com',
   'https://calendly.com/rutinhq/30min',
@@ -1318,6 +1369,8 @@ const llmsFullRequired = [
   ...llmsRequired,
   'https://www.rutinhq.com/es/blog',
   'https://www.rutinhq.com/es/blog/outbound-frio-con-icp-sin-sdr-rentado',
+  'https://www.rutinhq.com/blog/agentic-marketing-paper-first-before-ads',
+  'https://www.rutinhq.com/es/blog/marketing-agentico-en-papel-antes-de-anuncios',
   'https://docs.rutinhq.com/catalog/gtm-os/',
   'https://docs.rutinhq.com/catalog/store-os/',
   'https://docs.rutinhq.com/catalog/nexus-os/',
@@ -1454,6 +1507,18 @@ const relatedReadingNeedles = [
     href: '/blog/shopify-admin-audit-before-ads',
     label: 'Related reading:',
     title: 'Shopify Admin audit before you buy ads',
+  },
+  {
+    file: 'dist/prerender/nexus-os.html',
+    href: '/blog/agentic-marketing-paper-first-before-ads',
+    label: 'Related reading:',
+    title: 'Agentic marketing: paper first, Ads only when signed',
+  },
+  {
+    file: 'dist/prerender/es-nexus-os.html',
+    href: '/es/blog/marketing-agentico-en-papel-antes-de-anuncios',
+    label: 'Lectura relacionada:',
+    title: 'Marketing agéntico en papel antes de comprar anuncios',
   },
 ]
 for (const spec of relatedReadingNeedles) {
@@ -1899,6 +1964,23 @@ const bodyRoutes = [
     ],
   },
   {
+    file: 'dist/prerender/blog-agentic-marketing-paper-first-before-ads.html',
+    needles: [
+      'Agentic marketing: paper first, Ads only when signed',
+      'What is NEXUS OS?',
+      'Book 30 min',
+      'strategy@rutinhq.com',
+    ],
+  },
+  {
+    file: 'dist/prerender/es-blog-marketing-agentico-en-papel-antes-de-anuncios.html',
+    needles: [
+      'Marketing agéntico en papel antes de comprar anuncios',
+      '¿Qué es NEXUS OS?',
+      'Agendar 30 min',
+    ],
+  },
+  {
     file: 'dist/404.html',
     needles: ['Page not found', 'That route does not exist.'],
   },
@@ -2064,6 +2146,8 @@ const twitterShells = [
   articleShell,
   'dist/prerender/blog-shopify-admin-audit-before-ads.html',
   'dist/prerender/es-blog-outbound-frio-con-icp-sin-sdr-rentado.html',
+  'dist/prerender/blog-agentic-marketing-paper-first-before-ads.html',
+  'dist/prerender/es-blog-marketing-agentico-en-papel-antes-de-anuncios.html',
   'dist/prerender/agents.html',
   'dist/prerender/agents-auth.html',
   'dist/prerender/es-agents.html',
@@ -2284,6 +2368,52 @@ if (
   process.exit(1)
 }
 
+if (!fs.existsSync(article03Shell) || !fs.existsSync(article03EsShell)) {
+  console.error('Article03 EN/ES prerender shells missing.')
+  process.exit(1)
+}
+const article03Html = fs.readFileSync(article03Shell, 'utf8')
+const article03EsHtml = fs.readFileSync(article03EsShell, 'utf8')
+if (!/"@type":"FAQPage"/.test(article03Html) || !/"@type":"BreadcrumbList"/.test(article03Html)) {
+  console.error(`${article03Shell} must emit FAQPage and BreadcrumbList.`)
+  process.exit(1)
+}
+if (!/"@type":"FAQPage"/.test(article03EsHtml) || !/"@type":"BreadcrumbList"/.test(article03EsHtml)) {
+  console.error(`${article03EsShell} must emit FAQPage and BreadcrumbList.`)
+  process.exit(1)
+}
+if (
+  !article03Html.includes(
+    'rel="canonical" href="https://www.rutinhq.com/blog/agentic-marketing-paper-first-before-ads"',
+  )
+) {
+  console.error(`${article03Shell} must canonical the Article03 www URL.`)
+  process.exit(1)
+}
+if (
+  !article03EsHtml.includes(
+    'rel="canonical" href="https://www.rutinhq.com/es/blog/marketing-agentico-en-papel-antes-de-anuncios"',
+  )
+) {
+  console.error(`${article03EsShell} must canonical the Article03 ES www URL.`)
+  process.exit(1)
+}
+if (
+  !article03Html.includes(
+    'hreflang="es" href="https://www.rutinhq.com/es/blog/marketing-agentico-en-papel-antes-de-anuncios"',
+  ) ||
+  !article03Html.includes(
+    'hreflang="x-default" href="https://www.rutinhq.com/blog/agentic-marketing-paper-first-before-ads"',
+  )
+) {
+  console.error(`${article03Shell} must emit en/es/x-default hreflang.`)
+  process.exit(1)
+}
+if (!article03Html.includes('"datePublished":"2026-11-23"')) {
+  console.error(`${article03Shell} BlogPosting must datePublished today (2026-11-23).`)
+  process.exit(1)
+}
+
 const OG_PACK = [
   'og-hub.png',
   'og-gtm.png',
@@ -2349,6 +2479,14 @@ const ogShells = [
   },
   {
     file: 'dist/prerender/es-blog-outbound-frio-con-icp-sin-sdr-rentado.html',
+    image: 'https://www.rutinhq.com/og/og-blog.png',
+  },
+  {
+    file: 'dist/prerender/blog-agentic-marketing-paper-first-before-ads.html',
+    image: 'https://www.rutinhq.com/og/og-blog.png',
+  },
+  {
+    file: 'dist/prerender/es-blog-marketing-agentico-en-papel-antes-de-anuncios.html',
     image: 'https://www.rutinhq.com/og/og-blog.png',
   },
   { file: 'dist/prerender/agents.html', image: 'https://www.rutinhq.com/og/og-hub.png' },

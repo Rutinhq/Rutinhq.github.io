@@ -1,8 +1,10 @@
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
 import { Ctas } from '@/components/Ctas'
 import { FaqSection } from '@/components/Faq'
 import { BulletList, MonoTitle, Section } from '@/components/Section'
 import { OG_IMAGE, Seo, skuJsonLd } from '@/components/Seo'
+import { ARTICLE03, ARTICLE03_ES } from '@/lib/blog'
 import { useObjectList } from '@/lib/i18n/lists'
 import { usePageLocale } from '@/lib/i18n/usePageLocale'
 import { DOCS_NEXUS_URL, talkMailtoForPath } from '@/lib/links'
@@ -79,6 +81,15 @@ export default function NexusOsPage() {
         <MonoTitle muted>{t('nexus.notWhat.title')}</MonoTitle>
         <BulletList items={notWhat} muted />
         <Ctas className="mt-10" docsHref={DOCS_NEXUS_URL} mailtoHref={talkMailtoForPath(path)} />
+        <p className="mt-10 max-w-2xl text-sm text-muted-foreground">
+          {t('common.relatedReading')}{' '}
+          <Link
+            to={locale === 'es' ? ARTICLE03_ES.path : ARTICLE03.path}
+            className="text-foreground underline underline-offset-4 hover:text-primary"
+          >
+            {locale === 'es' ? ARTICLE03_ES.title : ARTICLE03.title}
+          </Link>
+        </p>
       </Section>
 
       <FaqSection title={t('nexus.faq.title')} items={faq} />
