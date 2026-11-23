@@ -13,6 +13,8 @@ import {
   resolveFallbackKey,
   type ClassifyPolicy,
 } from './src/guide/classify-core.ts'
+// @ts-expect-error — plain ESM helper, no types
+import { CONTENT_STAMP } from './scripts/content-stamp.mjs'
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url))
 
@@ -225,6 +227,9 @@ async function degradeGuidePreview(request: Request, kb: unknown): Promise<Respo
 // Pages/wrangler 308 /gtm-os away from the pretty URL.
 
 export default defineConfig({
+  define: {
+    __CONTENT_STAMP__: JSON.stringify(CONTENT_STAMP),
+  },
   plugins: [react(), tailwindcss(), guideApiPlugin()],
   resolve: {
     alias: {

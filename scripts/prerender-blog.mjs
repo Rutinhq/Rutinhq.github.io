@@ -1,6 +1,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { CONTENT_STAMP } from './content-stamp.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const root = path.resolve(__dirname, '..')
@@ -268,7 +269,7 @@ const ROUTES = [
     locale: 'en',
     image: OG_IMAGE.blog,
     datePublished: '2026-09-13',
-    dateModified: '2026-11-23',
+    dateModified: CONTENT_STAMP,
     alternates: [
       {
         hreflang: 'en',
@@ -294,7 +295,7 @@ const ROUTES = [
           description:
             'Replicable Shopify Admin audit + config — variants, price, weight, shipping — so ops friction stops killing conversion.',
           datePublished: '2026-09-13',
-          dateModified: '2026-11-23',
+          dateModified: CONTENT_STAMP,
           inLanguage: 'en',
           url: `${SITE}/blog/shopify-admin-audit-before-ads`,
           mainEntityOfPage: {
@@ -318,7 +319,7 @@ const ROUTES = [
           mainEntity: [
             {
               '@type': 'Question',
-              name: 'What is Store OS?',
+              name: 'What is STORE OS?',
               acceptedAnswer: {
                 '@type': 'Answer',
                 text: 'Make the store convert before you buy ads. Replicable Shopify Admin audit + config — variants, price, weight, shipping — so ops friction stops killing conversion.',
@@ -326,7 +327,7 @@ const ROUTES = [
             },
             {
               '@type': 'Question',
-              name: 'Who is Store OS for?',
+              name: 'Who is STORE OS for?',
               acceptedAnswer: {
                 '@type': 'Answer',
                 text: 'Founder / ecom lead on DTC Shopify. Ops friction. Wants ads but store doesn’t convert yet.',
@@ -334,10 +335,10 @@ const ROUTES = [
             },
             {
               '@type': 'Question',
-              name: 'Does Store OS buy ads or edit the theme?',
+              name: 'Does STORE OS buy ads or edit the theme?',
               acceptedAnswer: {
                 '@type': 'Answer',
-                text: 'No. Ads / creatives = out of scope (NEXUS OS). Theme / Dawn file editing is not Store OS. Config only — no theme file edits.',
+                text: 'No. Ads / creatives = out of scope (NEXUS OS). Theme / Dawn file editing is not STORE OS. Config only — no theme file edits.',
               },
             },
             {
@@ -345,7 +346,7 @@ const ROUTES = [
               name: 'Where’s the full system sheet?',
               acceptedAnswer: {
                 '@type': 'Answer',
-                text: 'See the Store OS catalog ficha at https://docs.rutinhq.com/catalog/store-os/ and the https://www.rutinhq.com/store-os page.',
+                text: 'See the STORE OS system sheet and the www.rutinhq.com/store-os page.',
               },
             },
           ],
@@ -470,7 +471,7 @@ const ROUTES = [
           publisher: { '@id': `${SITE}/#organization` },
         },
         breadcrumbList(`${SITE}/es/blog/outbound-frio-con-icp-sin-sdr-rentado`, [
-          { name: 'Inicio', url: `${SITE}/` },
+          { name: 'Inicio', url: `${SITE}/es` },
           { name: 'Blog', url: `${SITE}/es/blog` },
           {
             name: 'Prospección en frío con perfil de cliente ideal (ICP) — sin SDR rentado',
@@ -527,8 +528,8 @@ const ROUTES = [
     ogType: 'article',
     locale: 'es',
     image: OG_IMAGE.blog,
-    datePublished: '2026-11-23',
-    dateModified: '2026-11-23',
+    datePublished: CONTENT_STAMP,
+    dateModified: CONTENT_STAMP,
     alternates: [
       {
         hreflang: 'en',
@@ -553,8 +554,8 @@ const ROUTES = [
           headline: 'Auditoría del panel de Shopify antes de comprar anuncios',
           description:
             'Auditoría y configuración del panel de Shopify — variantes, precio, peso, envío — para que la tienda convierta antes de gastar en anuncios.',
-          datePublished: '2026-11-23',
-          dateModified: '2026-11-23',
+          datePublished: CONTENT_STAMP,
+          dateModified: CONTENT_STAMP,
           inLanguage: 'es',
           url: `${SITE}/es/blog/auditoria-panel-shopify-antes-de-anuncios`,
           mainEntityOfPage: {
@@ -565,7 +566,7 @@ const ROUTES = [
           publisher: { '@id': `${SITE}/#organization` },
         },
         breadcrumbList(`${SITE}/es/blog/auditoria-panel-shopify-antes-de-anuncios`, [
-          { name: 'Inicio', url: `${SITE}/` },
+          { name: 'Inicio', url: `${SITE}/es` },
           { name: 'Blog', url: `${SITE}/es/blog` },
           {
             name: 'Auditoría del panel de Shopify antes de comprar anuncios',
@@ -605,7 +606,7 @@ const ROUTES = [
               name: '¿Dónde está la ficha del sistema?',
               acceptedAnswer: {
                 '@type': 'Answer',
-                text: 'Mire la ficha STORE OS en el catálogo y la página /es/store-os.',
+                text: 'Mire la ficha STORE OS en el catálogo y la página www.rutinhq.com/es/store-os.',
               },
             },
           ],
@@ -1150,9 +1151,38 @@ async function main() {
     )
     notFound = injectSsrBody(notFound, notFoundSsr.html, NOT_FOUND_ROUTE.renderPath)
     writePage(NOT_FOUND_ROUTE.file, notFound, NOT_FOUND_ROUTE.renderPath)
+    stampSitemapLastmod()
   } finally {
     await close()
   }
+}
+
+function stampSitemapLastmod() {
+  const file = path.join(dist, 'sitemap.xml')
+  if (!fs.existsSync(file)) return
+  const locStamps = {
+    'https://www.rutinhq.com/blog': CONTENT_STAMP,
+    'https://www.rutinhq.com/es/blog': CONTENT_STAMP,
+    'https://www.rutinhq.com/store-os': CONTENT_STAMP,
+    'https://www.rutinhq.com/es/store-os': CONTENT_STAMP,
+    'https://www.rutinhq.com/blog/shopify-admin-audit-before-ads':
+      CONTENT_STAMP,
+    'https://www.rutinhq.com/es/blog/auditoria-panel-shopify-antes-de-anuncios':
+      CONTENT_STAMP,
+  }
+  const xml = fs.readFileSync(file, 'utf8').replace(
+    /<url>([\s\S]*?)<\/url>/g,
+    (block) => {
+      const loc = (block.match(/<loc>([^<]+)<\/loc>/) || [])[1]
+      const stamp = locStamps[loc]
+      if (!stamp) return block
+      return block.replace(
+        /<lastmod>[^<]+<\/lastmod>/,
+        `<lastmod>${stamp}</lastmod>`,
+      )
+    },
+  )
+  fs.writeFileSync(file, xml)
 }
 
 await main()

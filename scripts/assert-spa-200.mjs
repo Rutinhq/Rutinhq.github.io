@@ -1,4 +1,5 @@
 import fs from 'node:fs'
+import { CONTENT_STAMP } from './content-stamp.mjs'
 
 function rootInner(html) {
   const match = html.match(/<div id="root">([\s\S]*)<\/div>\s*<\/body>/i)
@@ -605,10 +606,6 @@ if (!sitemapBody.includes('<lastmod>2026-11-13</lastmod>')) {
   console.error(`${sitemap} must lastmod hub/OS/agents after the 13 Nov SEO pass.`)
   process.exit(1)
 }
-if (!sitemapBody.includes('<lastmod>2026-09-23</lastmod>')) {
-  console.error(`${sitemap} must lastmod blog index URLs on the Capo publish GO date.`)
-  process.exit(1)
-}
 
 const sitemapUrlBlocks = [...sitemapBody.matchAll(/<url>([\s\S]*?)<\/url>/g)].map(
   (m) => m[1],
@@ -619,14 +616,38 @@ function sitemapLastmodFor(loc) {
   )
   return (block?.match(/<lastmod>([^<]+)<\/lastmod>/) || [])[1]
 }
+if (sitemapLastmodFor('https://www.rutinhq.com/blog') !== CONTENT_STAMP) {
+  console.error(
+    `${sitemap} lastmod for /blog must equal the build CONTENT_STAMP (${CONTENT_STAMP}).`,
+  )
+  process.exit(1)
+}
+if (sitemapLastmodFor('https://www.rutinhq.com/es/blog') !== CONTENT_STAMP) {
+  console.error(
+    `${sitemap} lastmod for /es/blog must equal the build CONTENT_STAMP (${CONTENT_STAMP}).`,
+  )
+  process.exit(1)
+}
+if (sitemapLastmodFor('https://www.rutinhq.com/store-os') !== CONTENT_STAMP) {
+  console.error(
+    `${sitemap} lastmod for /store-os must equal the build CONTENT_STAMP (${CONTENT_STAMP}).`,
+  )
+  process.exit(1)
+}
+if (sitemapLastmodFor('https://www.rutinhq.com/es/store-os') !== CONTENT_STAMP) {
+  console.error(
+    `${sitemap} lastmod for /es/store-os must equal the build CONTENT_STAMP (${CONTENT_STAMP}).`,
+  )
+  process.exit(1)
+}
 const expectedPostLastmods = {
   'https://www.rutinhq.com/blog/icp-gated-cold-outbound-without-rented-sdr':
     '2026-09-08',
   'https://www.rutinhq.com/es/blog/outbound-frio-con-icp-sin-sdr-rentado':
     '2026-09-08',
-  'https://www.rutinhq.com/blog/shopify-admin-audit-before-ads': '2026-11-23',
+  'https://www.rutinhq.com/blog/shopify-admin-audit-before-ads': CONTENT_STAMP,
   'https://www.rutinhq.com/es/blog/auditoria-panel-shopify-antes-de-anuncios':
-    '2026-11-23',
+    CONTENT_STAMP,
 }
 for (const [loc, date] of Object.entries(expectedPostLastmods)) {
   if (sitemapLastmodFor(loc) !== date) {
@@ -1922,7 +1943,7 @@ const bodyRoutes = [
     file: 'dist/prerender/blog-shopify-admin-audit-before-ads.html',
     needles: [
       'Shopify Admin audit before you buy ads',
-      'What is Store OS?',
+      'What is STORE OS?',
       'Book 30 min',
       'strategy@rutinhq.com',
       'calendly.com/rutinhq/30min',
@@ -2387,6 +2408,72 @@ if (
 }
 if (/\bDRAFT\b|\bborrador\b/i.test(rootInner(article02EsHtml))) {
   console.error(`${article02EsShell} must not show DRAFT/borrador in the article body.`)
+  process.exit(1)
+}
+
+function ldGraph(html) {
+  const scripts = [
+    ...html.matchAll(
+      /<script type="application\/ld\+json">([\s\S]*?)<\/script>/g,
+    ),
+  ]
+  if (scripts.length !== 1) {
+    console.error('article must emit exactly one JSON-LD block')
+    process.exit(1)
+  }
+  return JSON.parse(scripts[0][1])['@graph']
+}
+function visibleText(html) {
+  return rootInner(html)
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<[^>]+>/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+function assertFaq4MatchesVisible(file, html) {
+  const faq = ldGraph(html).find((n) => n['@type'] === 'FAQPage')
+  const last = faq?.mainEntity?.at(-1)?.acceptedAnswer?.text
+  if (!last || !visibleText(html).includes(last)) {
+    console.error(
+      `${file} FAQ #4 JSON-LD must match the visible FAQ text exactly (${last}).`,
+    )
+    process.exit(1)
+  }
+}
+function assertPostingDates(file, html, { published, modified }) {
+  const posting = ldGraph(html).find((n) => n['@type'] === 'BlogPosting')
+  if (posting?.datePublished !== published) {
+    console.error(
+      `${file} datePublished must be ${published} (got ${posting?.datePublished}).`,
+    )
+    process.exit(1)
+  }
+  if (posting?.dateModified !== modified) {
+    console.error(
+      `${file} dateModified must be ${modified} (got ${posting?.dateModified}).`,
+    )
+    process.exit(1)
+  }
+}
+
+assertPostingDates(article02Shell, article02Html, {
+  published: '2026-09-13',
+  modified: CONTENT_STAMP,
+})
+assertPostingDates(article02EsShell, article02EsHtml, {
+  published: CONTENT_STAMP,
+  modified: CONTENT_STAMP,
+})
+assertFaq4MatchesVisible(article02Shell, article02Html)
+assertFaq4MatchesVisible(article02EsShell, article02EsHtml)
+if (
+  !article02EsHtml.includes('"item":"https://www.rutinhq.com/es"') ||
+  !rootInner(article02EsHtml).includes('href="/es"')
+) {
+  console.error(
+    `${article02EsShell} ES breadcrumb Inicio must point to /es (visible + JSON-LD).`,
+  )
   process.exit(1)
 }
 

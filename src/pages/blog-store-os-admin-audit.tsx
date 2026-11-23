@@ -9,6 +9,9 @@ import {
 } from '@/lib/links'
 
 const TITLE = articleSeoTitle(ARTICLE02.title)
+const FAQ_SHEET = ARTICLE02.faq.find(
+  (item) => item.q === 'Where’s the full system sheet?',
+)!
 
 export default function BlogStoreOsAdminAuditPage() {
   return (
@@ -36,7 +39,7 @@ export default function BlogStoreOsAdminAuditPage() {
       />
 
       <BlogPostLayout
-        typeLabel="How-to · Store OS"
+        typeLabel="How-to · STORE OS"
         breadcrumbs={[
           { label: 'Home', to: '/' },
           { label: 'Blog', to: '/blog' },
@@ -48,12 +51,12 @@ export default function BlogStoreOsAdminAuditPage() {
             Make the store convert before you buy ads. STORE OS is a{' '}
             <strong>replicable Shopify Admin audit + config</strong> — variants,
             price, weight, shipping — so ops friction stops killing conversion.
-            The next desk is Store OS, not an ads campaign.
+            The next step is STORE OS, not an ads campaign.
           </p>
         }
         faqTitle="FAQ"
         faq={ARTICLE02.faq.map((item) =>
-          item.q === 'Where’s the full system sheet?'
+          item.q === FAQ_SHEET.q
             ? {
                 q: item.q,
                 a: (
@@ -64,7 +67,7 @@ export default function BlogStoreOsAdminAuditPage() {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      Store OS catalog ficha
+                      STORE OS system sheet
                     </a>{' '}
                     and the{' '}
                     <a href={WWW_STORE_URL}>www.rutinhq.com/store-os</a> page.
@@ -76,7 +79,7 @@ export default function BlogStoreOsAdminAuditPage() {
         cta={{
           title: 'One SKU. One next step.',
           body: (
-            <p>Book a 30-min fit call. Next desk is Store OS — not ads.</p>
+            <p>Book a 30-min fit call. The next step is STORE OS — not ads.</p>
           ),
           mailto: MAILTO_STORE,
           mailtoLabel: 'strategy@rutinhq.com',
@@ -96,7 +99,7 @@ export default function BlogStoreOsAdminAuditPage() {
           friction, coherent Admin config, and a base ready before ad spend.
         </p>
 
-        <h2>How Store OS works</h2>
+        <h2>How STORE OS works</h2>
         <p>
           The machine stays fixed. Each install follows the same order. Nothing
           skipped. Theme files stay out of the path.
@@ -131,14 +134,14 @@ export default function BlogStoreOsAdminAuditPage() {
         <h2>Admin config to the mold</h2>
         <p>
           After the audit, Admin config follows the mold. Config only — no
-          theme file edits. The mold is the delivery pattern from the Store OS
+          theme file edits. The mold is the delivery pattern from the STORE OS
           sheet, not a second theme and not an ads campaign parked inside
           Admin.
         </p>
         <p className="note">
           Curriculum proof:{' '}
           <a href={DOCS_STORE_URL} target="_blank" rel="noopener noreferrer">
-            Store OS catalog
+            STORE OS catalog
           </a>
         </p>
 
@@ -162,7 +165,7 @@ export default function BlogStoreOsAdminAuditPage() {
             ],
             [
               'Willing to own the Admin after install',
-              'Pure Plus enterprise with no Admin owner',
+              'Shopify Plus with no Admin owner',
             ],
           ]}
         />

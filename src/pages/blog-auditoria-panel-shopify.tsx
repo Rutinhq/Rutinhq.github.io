@@ -9,6 +9,9 @@ import {
 } from '@/lib/links'
 
 const TITLE = articleSeoTitle(ARTICLE02_ES.title)
+const FAQ_SHEET = ARTICLE02_ES.faq.find(
+  (item) => item.q === '¿Dónde está la ficha del sistema?',
+)!
 
 export default function BlogAuditoriaPanelShopifyPage() {
   return (
@@ -41,7 +44,7 @@ export default function BlogAuditoriaPanelShopifyPage() {
       <BlogPostLayout
         typeLabel="Guía práctica · STORE OS"
         breadcrumbs={[
-          { label: 'Inicio', to: '/' },
+          { label: 'Inicio', to: '/es' },
           { label: 'Blog', to: '/es/blog' },
           { label: ARTICLE02_ES.title },
         ]}
@@ -57,7 +60,7 @@ export default function BlogAuditoriaPanelShopifyPage() {
         }
         faqTitle="Preguntas frecuentes"
         faq={ARTICLE02_ES.faq.map((item) =>
-          item.q === '¿Dónde está la ficha del sistema?'
+          item.q === FAQ_SHEET.q
             ? {
                 q: item.q,
                 a: (
@@ -121,12 +124,12 @@ export default function BlogAuditoriaPanelShopifyPage() {
               'Configuración del panel de Shopify según el patrón del sistema (sin editar archivos de plantilla)',
             ],
             ['4', 'Lista de entrega al equipo'],
+            [
+              '5',
+              'Anuncios y creatividades quedan fuera de alcance (NEXUS OS)',
+            ],
           ]}
         />
-        <p className="note">
-          No incluye anuncios ni creatividades — quedan fuera de alcance y
-          viven en NEXUS OS.
-        </p>
 
         <h2>Ficha de diagnóstico de fricción</h2>
         <p>
@@ -139,23 +142,23 @@ export default function BlogAuditoriaPanelShopifyPage() {
         <h2>Auditoría: variantes, precio, peso, envío</h2>
         <p>
           La auditoría es replicable y acotada. STORE OS toca cuatro campos del
-          panel: variantes, precio, peso, envío. Valores por defecto de
-          catálogo o tarifas de envío de otro no son el entregable. Bots que
-          hacen pedidos por su cuenta no son el entregable. La auditoría no se
-          convierte en edición de archivos de plantilla / Dawn.
+          panel: variantes, precio, peso, envío. El catálogo o las tarifas de
+          envío de otra tienda no son el entregable. Bots que hacen pedidos por
+          su cuenta no son el entregable. La auditoría no se convierte en
+          edición de archivos de plantilla / Dawn.
         </p>
 
         <h2>Configuración del panel según el patrón del sistema</h2>
         <p>
           Después de la auditoría, la configuración del panel sigue el patrón
           del sistema. Solo configuración — sin editar archivos de plantilla.
-          El patrón es el de la ficha STORE OS, no una segunda plantilla ni
-          una campaña de anuncios metida en el panel.
+          El patrón es el de STORE OS en el catálogo, no una segunda plantilla
+          ni una campaña de anuncios metida en el panel.
         </p>
         <p className="note">
-          Prueba de temario:{' '}
+          Temario:{' '}
           <a href={DOCS_STORE_URL} target="_blank" rel="noopener noreferrer">
-            ficha STORE OS
+            STORE OS en el catálogo
           </a>
         </p>
 
@@ -185,7 +188,7 @@ export default function BlogAuditoriaPanelShopifyPage() {
             ],
             [
               'Desea poseer el panel después de la instalación',
-              'Shopify Plus de gran empresa sin alguien dueño del panel',
+              'Shopify Plus de gran empresa sin un responsable del panel',
             ],
           ]}
         />
@@ -193,10 +196,10 @@ export default function BlogAuditoriaPanelShopifyPage() {
         <h2>Fuera de alcance</h2>
         <p>
           STORE OS no es una agencia de anuncios. No es edición de archivos de
-          plantilla / Dawn. No usa valores por defecto de catálogo o tarifas de
-          envío de otro. No son bots que hacen pedidos por su cuenta. Anuncios
-          y creatividades quedan fuera de alcance y viven en NEXUS OS. La
-          tienda convierte primero; el gasto viene después.
+          plantilla / Dawn. No usa el catálogo ni las tarifas de envío de otra
+          tienda. No son bots que hacen pedidos por su cuenta. Anuncios y
+          creatividades quedan fuera de alcance y viven en NEXUS OS. La tienda
+          convierte primero; el gasto viene después.
         </p>
       </BlogPostLayout>
     </>

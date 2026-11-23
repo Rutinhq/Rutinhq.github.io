@@ -1,3 +1,5 @@
+import { CONTENT_STAMP } from './content-stamp'
+
 export const ARTICLE01_PATH =
   '/blog/icp-gated-cold-outbound-without-rented-sdr' as const
 export const ARTICLE01_ES_PATH =
@@ -164,23 +166,23 @@ export const ARTICLE02 = {
   inLanguage: 'en',
   author: 'RutinHQ',
   datePublished: '2026-09-13',
-  dateModified: '2026-11-23',
+  dateModified: CONTENT_STAMP,
   faq: [
     {
-      q: 'What is Store OS?',
+      q: 'What is STORE OS?',
       a: 'Make the store convert before you buy ads. Replicable Shopify Admin audit + config — variants, price, weight, shipping — so ops friction stops killing conversion.',
     },
     {
-      q: 'Who is Store OS for?',
+      q: 'Who is STORE OS for?',
       a: 'Founder / ecom lead on DTC Shopify. Ops friction. Wants ads but store doesn’t convert yet.',
     },
     {
-      q: 'Does Store OS buy ads or edit the theme?',
-      a: 'No. Ads / creatives = out of scope (NEXUS OS). Theme / Dawn file editing is not Store OS. Config only — no theme file edits.',
+      q: 'Does STORE OS buy ads or edit the theme?',
+      a: 'No. Ads / creatives = out of scope (NEXUS OS). Theme / Dawn file editing is not STORE OS. Config only — no theme file edits.',
     },
     {
       q: 'Where’s the full system sheet?',
-      a: 'See the Store OS catalog ficha at https://docs.rutinhq.com/catalog/store-os/ and the https://www.rutinhq.com/store-os page.',
+      a: 'See the STORE OS system sheet and the www.rutinhq.com/store-os page.',
     },
   ],
 } as const
@@ -200,8 +202,8 @@ export const ARTICLE02_ES = {
   noindex: false,
   inLanguage: 'es',
   author: 'RutinHQ',
-  datePublished: '2026-11-23',
-  dateModified: '2026-11-23',
+  datePublished: CONTENT_STAMP,
+  dateModified: CONTENT_STAMP,
   faq: [
     {
       q: '¿Qué es STORE OS?',
@@ -217,7 +219,7 @@ export const ARTICLE02_ES = {
     },
     {
       q: '¿Dónde está la ficha del sistema?',
-      a: 'Mire la ficha STORE OS en el catálogo y la página /es/store-os.',
+      a: 'Mire la ficha STORE OS en el catálogo y la página www.rutinhq.com/es/store-os.',
     },
   ],
 } as const
