@@ -41,7 +41,7 @@ export default function BlogMarketingAgenticoPapelPage() {
       <BlogPostLayout
         typeLabel="Guía práctica · NEXUS OS"
         breadcrumbs={[
-          { label: 'Inicio', to: '/' },
+          { label: 'Inicio', to: '/es' },
           { label: 'Blog', to: '/es/blog' },
           { label: ARTICLE03_ES.title },
         ]}
@@ -49,9 +49,10 @@ export default function BlogMarketingAgenticoPapelPage() {
         lede={
           <p>
             Marketing agéntico — primero en papel, anuncios solo con aprobación
-            explícita. NEXUS OS corre <strong>Estrategia → Social → Ads</strong>.
-            Hasta que apruebe las creatividades, la mezcla y el presupuesto:
-            solo papel (sin píxel, sin gasto).
+            explícita. NEXUS OS sigue{' '}
+            <strong>Estrategia → Social → Ads</strong>. Hasta que apruebe las
+            creatividades, la mezcla y el presupuesto: solo papel (sin píxel,
+            sin gasto).
           </p>
         }
         faqTitle="Preguntas frecuentes"
@@ -80,8 +81,8 @@ export default function BlogMarketingAgenticoPapelPage() {
           title: 'Un producto. Un siguiente paso.',
           body: (
             <p>
-              Agende 30 min de encaje. Recorra la puerta de NEXUS OS — primero
-              en papel.
+              Agende 30 min de encaje. Revise la compuerta de NEXUS OS —
+              primero en papel.
             </p>
           ),
           mailto: MAILTO_NEXUS_ES,
@@ -101,9 +102,9 @@ export default function BlogMarketingAgenticoPapelPage() {
           píxel y nada se gasta.
         </p>
         <p>
-          Anuncios en vivo / píxel / gasto sin aprobación explícita es lo que
-          NEXUS OS no es. Presupuesto en cero presentado como si los anuncios
-          ya estuvieran activos está en la lista de “no es para”.
+          Anuncios en vivo, píxel o gasto sin aprobación explícita quedan
+          fuera de NEXUS OS. Presupuesto en cero presentado como si los
+          anuncios ya estuvieran activos está en la lista de “no es para”.
         </p>
 
         <h2>Cómo funciona NEXUS OS</h2>
@@ -149,7 +150,7 @@ export default function BlogMarketingAgenticoPapelPage() {
           inventadas.
         </p>
         <p className="note">
-          Prueba de temario:{' '}
+          Temario:{' '}
           <a href={DOCS_NEXUS_URL} target="_blank" rel="noopener noreferrer">
             ficha NEXUS OS
           </a>

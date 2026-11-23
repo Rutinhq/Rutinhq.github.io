@@ -64,6 +64,10 @@ const shells = [
     h1: 'Prospección en frío con perfil de cliente ideal (ICP) — sin SDR rentado',
   },
   {
+    file: 'dist/prerender/es-blog-auditoria-panel-shopify-antes-de-anuncios.html',
+    h1: 'Auditoría del panel de Shopify antes de comprar anuncios',
+  },
+  {
     file: 'dist/prerender/blog-agentic-marketing-paper-first-before-ads.html',
     h1: 'Agentic marketing: paper first, Ads only when signed',
   },

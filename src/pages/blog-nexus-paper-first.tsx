@@ -47,7 +47,7 @@ export default function BlogNexusPaperFirstPage() {
           <p>
             Agentic marketing — paper first, Ads only when signed. NEXUS OS
             runs <strong>Strategy → Social → Ads</strong>. Until creatives,
-            mix, and budget have an explicit GO: paper only (no pixel, no
+            mix, and budget have an explicit sign-off: paper only (no pixel, no
             spend).
           </p>
         }
@@ -64,7 +64,7 @@ export default function BlogNexusPaperFirstPage() {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      NEXUS OS catalog ficha
+                      NEXUS OS system sheet
                     </a>{' '}
                     and the{' '}
                     <a href={WWW_NEXUS_URL}>www.rutinhq.com/nexus-os</a> page.
@@ -77,7 +77,7 @@ export default function BlogNexusPaperFirstPage() {
           title: 'One SKU. One next step.',
           body: (
             <p>
-              Book a 30-min fit call. Walk the NEXUS OS gate — paper first.
+              Book a 30-min fit call. The next step is NEXUS OS — paper first.
             </p>
           ),
           mailto: MAILTO_NEXUS,
@@ -92,12 +92,12 @@ export default function BlogNexusPaperFirstPage() {
         <p>
           NEXUS OS produces content batches and plans. It does not invent the
           retailer’s offer or ICP. Brand voice stays owned by the client’s
-          ops/marketing. Until photos, mix, and budget are signed, nothing
+          ops/marketing. Until creatives, mix, and budget are signed, nothing
           hits a pixel and nothing spends.
         </p>
         <p>
-          Live Ads / pixel / spend without GO is what NEXUS OS is not. Budget 0
-          pretending to be “live Ads” is in the not-for list.
+          Live Ads, pixel, or spend without explicit sign-off is out of scope.
+          Budget 0 pretending to be “live Ads” is in the not-for list.
         </p>
 
         <h2>How NEXUS OS works</h2>
@@ -111,7 +111,7 @@ export default function BlogNexusPaperFirstPage() {
             ['2', 'Weekly paper batch: message · organic post · product story'],
             ['3', 'Voice approval by client’s brand owner'],
             ['4', 'Pillar rotation'],
-            ['5', 'Ads parked until photos + mix + budget signed'],
+            ['5', 'Ads parked until creatives, mix, and budget are signed'],
           ]}
         />
 
@@ -144,9 +144,9 @@ export default function BlogNexusPaperFirstPage() {
         <h2>Voice approval, then the Ads gate</h2>
         <p>
           Voice approval belongs to the client’s brand owner. Pillar rotation
-          keeps the batch moving. Ads stay parked until photos + mix + budget
-          are signed. That is the explicit GO. Without it: paper only (no
-          pixel, no spend).
+          keeps the batch moving. Ads stay parked until creatives, mix, and
+          budget are signed. That is the explicit sign-off. Without it: paper
+          only (no pixel, no spend).
         </p>
 
         <h2>Who this is for / not for</h2>
@@ -168,9 +168,9 @@ export default function BlogNexusPaperFirstPage() {
           ]}
         />
 
-        <h2>Not GTM OS. Not Store OS.</h2>
+        <h2>Not GTM OS. Not STORE OS.</h2>
         <p>
-          Clear separation: NEXUS ≠ outbound (GTM OS) ≠ store Admin (Store OS).
+          Clear separation: NEXUS ≠ outbound (GTM OS) ≠ store Admin (STORE OS).
           NEXUS OS is not GTM OS. It is not Shopify theme editing. It is
           agentic marketing — Strategy → Social → Ads — paper first.
         </p>
