@@ -267,10 +267,16 @@ const ROUTES = [
     ogType: 'article',
     locale: 'en',
     image: OG_IMAGE.blog,
+    datePublished: '2026-09-13',
+    dateModified: '2026-11-23',
     alternates: [
       {
         hreflang: 'en',
         href: `${SITE}/blog/shopify-admin-audit-before-ads`,
+      },
+      {
+        hreflang: 'es',
+        href: `${SITE}/es/blog/auditoria-panel-shopify-antes-de-anuncios`,
       },
       {
         hreflang: 'x-default',
@@ -280,13 +286,7 @@ const ROUTES = [
     jsonLd: {
       '@context': 'https://schema.org',
       '@graph': [
-        {
-          '@type': 'Organization',
-          '@id': `${SITE}/#organization`,
-          name: 'RutinHQ',
-          url: `${SITE}/`,
-          email: 'strategy@rutinhq.com',
-        },
+        organizationNode(),
         {
           '@type': 'BlogPosting',
           '@id': `${SITE}/blog/shopify-admin-audit-before-ads#article`,
@@ -294,11 +294,61 @@ const ROUTES = [
           description:
             'Replicable Shopify Admin audit + config — variants, price, weight, shipping — so ops friction stops killing conversion.',
           datePublished: '2026-09-13',
-          dateModified: '2026-09-13',
+          dateModified: '2026-11-23',
           inLanguage: 'en',
           url: `${SITE}/blog/shopify-admin-audit-before-ads`,
+          mainEntityOfPage: {
+            '@type': 'WebPage',
+            '@id': `${SITE}/blog/shopify-admin-audit-before-ads`,
+          },
           author: { '@id': `${SITE}/#organization` },
           publisher: { '@id': `${SITE}/#organization` },
+        },
+        breadcrumbList(`${SITE}/blog/shopify-admin-audit-before-ads`, [
+          { name: 'Home', url: `${SITE}/` },
+          { name: 'Blog', url: `${SITE}/blog` },
+          {
+            name: 'Shopify Admin audit before you buy ads',
+            url: `${SITE}/blog/shopify-admin-audit-before-ads`,
+          },
+        ]),
+        {
+          '@type': 'FAQPage',
+          '@id': `${SITE}/blog/shopify-admin-audit-before-ads#faq`,
+          mainEntity: [
+            {
+              '@type': 'Question',
+              name: 'What is Store OS?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Make the store convert before you buy ads. Replicable Shopify Admin audit + config — variants, price, weight, shipping — so ops friction stops killing conversion.',
+              },
+            },
+            {
+              '@type': 'Question',
+              name: 'Who is Store OS for?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Founder / ecom lead on DTC Shopify. Ops friction. Wants ads but store doesn’t convert yet.',
+              },
+            },
+            {
+              '@type': 'Question',
+              name: 'Does Store OS buy ads or edit the theme?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'No. Ads / creatives = out of scope (NEXUS OS). Theme / Dawn file editing is not Store OS. Config only — no theme file edits.',
+              },
+            },
+            {
+              '@type': 'Question',
+              name: 'Where’s the full system sheet?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'See the Store OS catalog ficha at https://docs.rutinhq.com/catalog/store-os/ and the https://www.rutinhq.com/store-os page.',
+              },
+            },
+          ],
         },
       ],
     },
@@ -336,13 +386,19 @@ const ROUTES = [
           '@type': 'ItemList',
           '@id': `${SITE}/es/blog#featured`,
           name: 'Destacado',
-          numberOfItems: 1,
+          numberOfItems: 2,
           itemListElement: [
             {
               '@type': 'ListItem',
               position: 1,
               name: 'Prospección en frío con perfil de cliente ideal (ICP) — sin SDR rentado',
               url: `${SITE}/es/blog/outbound-frio-con-icp-sin-sdr-rentado`,
+            },
+            {
+              '@type': 'ListItem',
+              position: 2,
+              name: 'Auditoría del panel de Shopify antes de comprar anuncios',
+              url: `${SITE}/es/blog/auditoria-panel-shopify-antes-de-anuncios`,
             },
           ],
         },
@@ -455,6 +511,101 @@ const ROUTES = [
               acceptedAnswer: {
                 '@type': 'Answer',
                 text: 'Mire la ficha GTM OS en el catálogo y la página /es/gtm-os.',
+              },
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    path: '/es/blog/auditoria-panel-shopify-antes-de-anuncios',
+    file: 'prerender/es-blog-auditoria-panel-shopify-antes-de-anuncios.html',
+    title: 'RutinHQ — Auditoría del panel de Shopify antes de comprar anuncios',
+    description:
+      'Auditoría y configuración del panel de Shopify — variantes, precio, peso, envío — para que la tienda convierta antes de gastar en anuncios.',
+    ogType: 'article',
+    locale: 'es',
+    image: OG_IMAGE.blog,
+    datePublished: '2026-11-23',
+    dateModified: '2026-11-23',
+    alternates: [
+      {
+        hreflang: 'en',
+        href: `${SITE}/blog/shopify-admin-audit-before-ads`,
+      },
+      {
+        hreflang: 'es',
+        href: `${SITE}/es/blog/auditoria-panel-shopify-antes-de-anuncios`,
+      },
+      {
+        hreflang: 'x-default',
+        href: `${SITE}/blog/shopify-admin-audit-before-ads`,
+      },
+    ],
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@graph': [
+        organizationNode('es'),
+        {
+          '@type': 'BlogPosting',
+          '@id': `${SITE}/es/blog/auditoria-panel-shopify-antes-de-anuncios#article`,
+          headline: 'Auditoría del panel de Shopify antes de comprar anuncios',
+          description:
+            'Auditoría y configuración del panel de Shopify — variantes, precio, peso, envío — para que la tienda convierta antes de gastar en anuncios.',
+          datePublished: '2026-11-23',
+          dateModified: '2026-11-23',
+          inLanguage: 'es',
+          url: `${SITE}/es/blog/auditoria-panel-shopify-antes-de-anuncios`,
+          mainEntityOfPage: {
+            '@type': 'WebPage',
+            '@id': `${SITE}/es/blog/auditoria-panel-shopify-antes-de-anuncios`,
+          },
+          author: { '@id': `${SITE}/#organization` },
+          publisher: { '@id': `${SITE}/#organization` },
+        },
+        breadcrumbList(`${SITE}/es/blog/auditoria-panel-shopify-antes-de-anuncios`, [
+          { name: 'Inicio', url: `${SITE}/` },
+          { name: 'Blog', url: `${SITE}/es/blog` },
+          {
+            name: 'Auditoría del panel de Shopify antes de comprar anuncios',
+            url: `${SITE}/es/blog/auditoria-panel-shopify-antes-de-anuncios`,
+          },
+        ]),
+        {
+          '@type': 'FAQPage',
+          '@id': `${SITE}/es/blog/auditoria-panel-shopify-antes-de-anuncios#faq`,
+          mainEntity: [
+            {
+              '@type': 'Question',
+              name: '¿Qué es STORE OS?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Auditoría y configuración del panel de Shopify para que la tienda convierta antes de gastar en anuncios.',
+              },
+            },
+            {
+              '@type': 'Question',
+              name: '¿Para quién es STORE OS?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Marcas que venden directo al consumidor en Shopify. Hay fricción en la operación de la tienda. Quiere anuncios, pero la tienda aún no convierte.',
+              },
+            },
+            {
+              '@type': 'Question',
+              name: '¿STORE OS compra anuncios o edita la plantilla?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'No. No incluye anuncios ni creatividades — quedan fuera de alcance y viven en NEXUS OS. No es edición de plantilla / Dawn. Configuración del panel, sin editar archivos de plantilla.',
+              },
+            },
+            {
+              '@type': 'Question',
+              name: '¿Dónde está la ficha del sistema?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Mire la ficha STORE OS en el catálogo y la página /es/store-os.',
               },
             },
           ],

@@ -3,6 +3,8 @@ export const ARTICLE01_PATH =
 export const ARTICLE01_ES_PATH =
   '/es/blog/outbound-frio-con-icp-sin-sdr-rentado' as const
 export const ARTICLE02_PATH = '/blog/shopify-admin-audit-before-ads' as const
+export const ARTICLE02_ES_PATH =
+  '/es/blog/auditoria-panel-shopify-antes-de-anuncios' as const
 
 /** Capo GO 23 Sep: blog index + articles are indexable.
  *  Capo 4 Nov 2026: Article02 stays indexable (do not apply the noindex option). */
@@ -152,41 +154,70 @@ export const ARTICLE02 = {
     'Replicable Shopify Admin audit + config — variants, price, weight, shipping — so ops friction stops killing conversion.',
   slug: 'shopify-admin-audit-before-ads',
   path: ARTICLE02_PATH,
+  alternatePath: ARTICLE02_ES_PATH,
   type: 'how-to',
   sku: 'store-os',
   job: 'Audit Admin friction before ad spend.',
   cta: 'strategy@',
-  draft: true,
-  /** Capo 4 Nov 2026: outline may stay visually DRAFT; robots stay index,follow. */
+  draft: false,
   noindex: false,
   inLanguage: 'en',
   author: 'RutinHQ',
   datePublished: '2026-09-13',
-  dateModified: '2026-09-13',
-  outline: [
+  dateModified: '2026-11-23',
+  faq: [
     {
-      heading: 'Why Admin before ads',
-      note: 'DRAFT — catalog language only. Store converts before ad spend.',
+      q: 'What is Store OS?',
+      a: 'Make the store convert before you buy ads. Replicable Shopify Admin audit + config — variants, price, weight, shipping — so ops friction stops killing conversion.',
     },
     {
-      heading: 'Scorecard / Admin friction diagnosis',
-      note: 'DRAFT — name ops friction; no invented scores or case studies.',
+      q: 'Who is Store OS for?',
+      a: 'Founder / ecom lead on DTC Shopify. Ops friction. Wants ads but store doesn’t convert yet.',
     },
     {
-      heading: 'Audit: variants, price, weight, shipping',
-      note: 'DRAFT — replicable Shopify Admin audit from the Store OS sheet.',
+      q: 'Does Store OS buy ads or edit the theme?',
+      a: 'No. Ads / creatives = out of scope (NEXUS OS). Theme / Dawn file editing is not Store OS. Config only — no theme file edits.',
     },
     {
-      heading: 'Admin config to the mold',
-      note: 'DRAFT — config only; no theme / Dawn file edits.',
+      q: 'Where’s the full system sheet?',
+      a: 'See the Store OS catalog ficha at https://docs.rutinhq.com/catalog/store-os/ and the https://www.rutinhq.com/store-os page.',
+    },
+  ],
+} as const
+
+export const ARTICLE02_ES = {
+  title: 'Auditoría del panel de Shopify antes de comprar anuncios',
+  description:
+    'Auditoría y configuración del panel de Shopify — variantes, precio, peso, envío — para que la tienda convierta antes de gastar en anuncios.',
+  slug: 'auditoria-panel-shopify-antes-de-anuncios',
+  path: ARTICLE02_ES_PATH,
+  alternatePath: ARTICLE02_PATH,
+  type: 'how-to',
+  sku: 'store-os',
+  job: 'Audite la fricción del panel de Shopify antes de gastar en anuncios.',
+  cta: 'strategy@',
+  draft: false,
+  noindex: false,
+  inLanguage: 'es',
+  author: 'RutinHQ',
+  datePublished: '2026-11-23',
+  dateModified: '2026-11-23',
+  faq: [
+    {
+      q: '¿Qué es STORE OS?',
+      a: 'Auditoría y configuración del panel de Shopify para que la tienda convierta antes de gastar en anuncios.',
     },
     {
-      heading: 'Delivery checklist + handoff',
-      note: 'DRAFT — team owns the Admin after install.',
+      q: '¿Para quién es STORE OS?',
+      a: 'Marcas que venden directo al consumidor en Shopify. Hay fricción en la operación de la tienda. Quiere anuncios, pero la tienda aún no convierte.',
     },
     {
-      heading: 'Out of scope',
-      note: 'DRAFT — Ads / creatives = NEXUS OS. Theme-only work is not Store OS.',
+      q: '¿STORE OS compra anuncios o edita la plantilla?',
+      a: 'No. No incluye anuncios ni creatividades — quedan fuera de alcance y viven en NEXUS OS. No es edición de plantilla / Dawn. Configuración del panel, sin editar archivos de plantilla.',
+    },
+    {
+      q: '¿Dónde está la ficha del sistema?',
+      a: 'Mire la ficha STORE OS en el catálogo y la página /es/store-os.',
     },
   ],
 } as const

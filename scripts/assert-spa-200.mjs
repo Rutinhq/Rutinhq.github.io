@@ -91,6 +91,7 @@ const HTML_CACHE_REQUEST_PATHS = [
   '/blog/icp-gated-cold-outbound-without-rented-sdr',
   '/blog/shopify-admin-audit-before-ads',
   '/es/blog/outbound-frio-con-icp-sin-sdr-rentado',
+  '/es/blog/auditoria-panel-shopify-antes-de-anuncios',
   '/agents',
   '/agents/auth',
   '/es/agents',
@@ -291,6 +292,16 @@ if (fs.existsSync('dist/blog/shopify-admin-audit-before-ads/index.html')) {
   )
   process.exit(1)
 }
+if (
+  fs.existsSync(
+    'dist/es/blog/auditoria-panel-shopify-antes-de-anuncios/index.html',
+  )
+) {
+  console.error(
+    'dist/es/blog/<slug>/index.html must not ship — pretty /es/blog/<slug> would 308.',
+  )
+  process.exit(1)
+}
 if (fs.existsSync('dist/es/blog/index.html')) {
   console.error(
     'dist/es/blog/index.html must not ship — pretty /es/blog would 308.',
@@ -434,6 +445,16 @@ if (
   )
   process.exit(1)
 }
+if (
+  !/\/es\/blog\/auditoria-panel-shopify-antes-de-anuncios\s+\/prerender\/es-blog-auditoria-panel-shopify-antes-de-anuncios\s+200/.test(
+    redirects,
+  )
+) {
+  console.error(
+    'dist/_redirects must 200-rewrite Article02 ES to /prerender/<slug> (not .html).',
+  )
+  process.exit(1)
+}
 if (!/\/es\/blog\s+\/prerender\/es-blog\s+200/.test(redirects)) {
   console.error(
     'dist/_redirects must 200-rewrite /es/blog to /prerender/es-blog.',
@@ -542,15 +563,13 @@ const expectedLocs = [
   'https://www.rutinhq.com/blog/shopify-admin-audit-before-ads',
   'https://www.rutinhq.com/es/blog',
   'https://www.rutinhq.com/es/blog/outbound-frio-con-icp-sin-sdr-rentado',
+  'https://www.rutinhq.com/es/blog/auditoria-panel-shopify-antes-de-anuncios',
 ]
-const article02Loc =
-  'https://www.rutinhq.com/blog/shopify-admin-audit-before-ads'
-const pairedLocs = expectedLocs.filter((url) => url !== article02Loc)
 const xhtmlCount = (sitemapBody.match(/xhtml:link rel="alternate"/g) || [])
   .length
-if (xhtmlCount < pairedLocs.length * 3 + 2) {
+if (xhtmlCount !== expectedLocs.length * 3) {
   console.error(
-    `${sitemap} must emit xhtml:link hreflang (en + es + x-default) on paired URLs; Article02 is EN-only (en + x-default).`,
+    `${sitemap} must emit xhtml:link hreflang (en + es + x-default) on every URL.`,
   )
   process.exit(1)
 }
@@ -559,7 +578,7 @@ if (
   expectedLocs.some((url) => !locs.includes(url))
 ) {
   console.error(
-    `${sitemap} must list exactly the 17 indexable www URLs (hub + 3 SKUs + agents/auth + blog EN/ES).`,
+    `${sitemap} must list exactly the 18 indexable www URLs (hub + 3 SKUs + agents/auth + blog EN/ES, including Store OS ES).`,
   )
   process.exit(1)
 }
@@ -605,7 +624,9 @@ const expectedPostLastmods = {
     '2026-09-08',
   'https://www.rutinhq.com/es/blog/outbound-frio-con-icp-sin-sdr-rentado':
     '2026-09-08',
-  'https://www.rutinhq.com/blog/shopify-admin-audit-before-ads': '2026-09-13',
+  'https://www.rutinhq.com/blog/shopify-admin-audit-before-ads': '2026-11-23',
+  'https://www.rutinhq.com/es/blog/auditoria-panel-shopify-antes-de-anuncios':
+    '2026-11-23',
 }
 for (const [loc, date] of Object.entries(expectedPostLastmods)) {
   if (sitemapLastmodFor(loc) !== date) {
@@ -1043,12 +1064,15 @@ if (esArticleHtml.includes(`<title>${homepageTitle}</title>`)) {
 }
 
 const article02Shell = 'dist/prerender/blog-shopify-admin-audit-before-ads.html'
+const article02EsShellEarly =
+  'dist/prerender/es-blog-auditoria-panel-shopify-antes-de-anuncios.html'
 for (const file of [
   blogShell,
   articleShell,
   article02Shell,
   esBlogShell,
   esArticleShell,
+  article02EsShellEarly,
 ]) {
   assertBlogPublishRobots(file)
 }
@@ -1318,6 +1342,7 @@ const llmsFullRequired = [
   ...llmsRequired,
   'https://www.rutinhq.com/es/blog',
   'https://www.rutinhq.com/es/blog/outbound-frio-con-icp-sin-sdr-rentado',
+  'https://www.rutinhq.com/es/blog/auditoria-panel-shopify-antes-de-anuncios',
   'https://docs.rutinhq.com/catalog/gtm-os/',
   'https://docs.rutinhq.com/catalog/store-os/',
   'https://docs.rutinhq.com/catalog/nexus-os/',
@@ -1358,6 +1383,21 @@ for (const spec of [
       console.error(`${spec.file} must include ${needle}.`)
       process.exit(1)
     }
+  }
+}
+const builtTextRoots = [
+  'dist/llms.txt',
+  'dist/llms-full.txt',
+  ...fs
+    .readdirSync('dist/prerender')
+    .filter((name) => name.endsWith('.html'))
+    .map((name) => `dist/prerender/${name}`),
+]
+for (const file of builtTextRoots) {
+  const body = fs.readFileSync(file, 'utf8')
+  if (/draft outline/i.test(body)) {
+    console.error(`${file} must not contain "draft outline".`)
+    process.exit(1)
   }
 }
 
@@ -1455,6 +1495,12 @@ const relatedReadingNeedles = [
     label: 'Related reading:',
     title: 'Shopify Admin audit before you buy ads',
   },
+  {
+    file: 'dist/prerender/es-store-os.html',
+    href: '/es/blog/auditoria-panel-shopify-antes-de-anuncios',
+    label: 'Lectura relacionada:',
+    title: 'Auditoría del panel de Shopify antes de comprar anuncios',
+  },
 ]
 for (const spec of relatedReadingNeedles) {
   const html = fs.readFileSync(spec.file, 'utf8')
@@ -1475,7 +1521,7 @@ const esStoreRelatedHtml = fs.readFileSync(
 )
 if (esStoreRelatedHtml.includes('/blog/shopify-admin-audit-before-ads')) {
   console.error(
-    'dist/prerender/es-store-os.html must not link the EN-only Store OS article.',
+    'dist/prerender/es-store-os.html must link the ES Store OS article, not the EN URL.',
   )
   process.exit(1)
 }
@@ -1876,7 +1922,8 @@ const bodyRoutes = [
     file: 'dist/prerender/blog-shopify-admin-audit-before-ads.html',
     needles: [
       'Shopify Admin audit before you buy ads',
-      'DRAFT',
+      'What is Store OS?',
+      'Book 30 min',
       'strategy@rutinhq.com',
       'calendly.com/rutinhq/30min',
     ],
@@ -1888,7 +1935,15 @@ const bodyRoutes = [
       '¿Qué es el blog de RutinHQ?',
       'llamada de encaje',
       'Encaje de perfil de cliente ideal (ICP)',
-      'Esquema en inglés',
+      'Auditoría del panel de Shopify antes de comprar anuncios',
+    ],
+  },
+  {
+    file: 'dist/prerender/es-blog-auditoria-panel-shopify-antes-de-anuncios.html',
+    needles: [
+      'Auditoría del panel de Shopify antes de comprar anuncios',
+      '¿Qué es STORE OS?',
+      'Agendar 30 min',
     ],
   },
   {
@@ -2064,6 +2119,7 @@ const twitterShells = [
   articleShell,
   'dist/prerender/blog-shopify-admin-audit-before-ads.html',
   'dist/prerender/es-blog-outbound-frio-con-icp-sin-sdr-rentado.html',
+  'dist/prerender/es-blog-auditoria-panel-shopify-antes-de-anuncios.html',
   'dist/prerender/agents.html',
   'dist/prerender/agents-auth.html',
   'dist/prerender/es-agents.html',
@@ -2236,18 +2292,26 @@ if (
 }
 
 if (!fs.existsSync(article02Shell)) {
-  console.error(`${article02Shell} missing — Article02 draft shell must prerender.`)
+  console.error(`${article02Shell} missing — Article02 shell must prerender.`)
   process.exit(1)
 }
 const article02Html = fs.readFileSync(article02Shell, 'utf8')
-if (/"@type":"FAQPage"/.test(article02Html)) {
-  console.error('Article02 draft shell must not invent FAQPage.')
+if (!/"@type":"FAQPage"/.test(article02Html)) {
+  console.error(`${article02Shell} must emit FAQPage for the Store OS article FAQ.`)
+  process.exit(1)
+}
+if (!article02Html.includes('"@type":"BreadcrumbList"')) {
+  console.error(`${article02Shell} must emit BreadcrumbList matching the visible crumbs.`)
   process.exit(1)
 }
 if (article02Html.includes('DRAFT outline — catalog language only.')) {
   console.error(
     `${article02Shell} must not show the public DRAFT outline label.`,
   )
+  process.exit(1)
+}
+if (/\bDRAFT\b/.test(rootInner(article02Html))) {
+  console.error(`${article02Shell} must not show DRAFT in the article body.`)
   process.exit(1)
 }
 if (
@@ -2272,15 +2336,57 @@ if (
     'hreflang="x-default" href="https://www.rutinhq.com/blog/shopify-admin-audit-before-ads"',
   )
 ) {
-  console.error(`${article02Shell} must emit EN + x-default hreflang (no ES twin).`)
+  console.error(`${article02Shell} must emit EN + x-default hreflang.`)
   process.exit(1)
 }
 if (
-  article02Html.includes(
-    'hreflang="es" href="https://www.rutinhq.com/es/blog/shopify-admin-audit-before-ads"',
+  !article02Html.includes(
+    'hreflang="es" href="https://www.rutinhq.com/es/blog/auditoria-panel-shopify-antes-de-anuncios"',
   )
 ) {
-  console.error(`${article02Shell} must not invent an ES hreflang twin.`)
+  console.error(`${article02Shell} must hreflang to the ES Store OS article.`)
+  process.exit(1)
+}
+const article02EsShell =
+  'dist/prerender/es-blog-auditoria-panel-shopify-antes-de-anuncios.html'
+if (!fs.existsSync(article02EsShell)) {
+  console.error(`${article02EsShell} missing — Article02 ES twin must prerender.`)
+  process.exit(1)
+}
+const article02EsHtml = fs.readFileSync(article02EsShell, 'utf8')
+assertBlogPublishRobots(article02EsShell)
+if (!/"@type":"FAQPage"/.test(article02EsHtml)) {
+  console.error(`${article02EsShell} must emit FAQPage for the Store OS ES FAQ.`)
+  process.exit(1)
+}
+if (!article02EsHtml.includes('"@type":"BreadcrumbList"')) {
+  console.error(`${article02EsShell} must emit BreadcrumbList matching the visible crumbs.`)
+  process.exit(1)
+}
+if (
+  !article02EsHtml.includes(
+    'rel="canonical" href="https://www.rutinhq.com/es/blog/auditoria-panel-shopify-antes-de-anuncios"',
+  )
+) {
+  console.error(`${article02EsShell} must canonical the Article02 ES www URL.`)
+  process.exit(1)
+}
+if (
+  !article02EsHtml.includes(
+    'hreflang="en" href="https://www.rutinhq.com/blog/shopify-admin-audit-before-ads"',
+  ) ||
+  !article02EsHtml.includes(
+    'hreflang="es" href="https://www.rutinhq.com/es/blog/auditoria-panel-shopify-antes-de-anuncios"',
+  ) ||
+  !article02EsHtml.includes(
+    'hreflang="x-default" href="https://www.rutinhq.com/blog/shopify-admin-audit-before-ads"',
+  )
+) {
+  console.error(`${article02EsShell} must emit en/es/x-default hreflang.`)
+  process.exit(1)
+}
+if (/\bDRAFT\b|\bborrador\b/i.test(rootInner(article02EsHtml))) {
+  console.error(`${article02EsShell} must not show DRAFT/borrador in the article body.`)
   process.exit(1)
 }
 
@@ -2349,6 +2455,10 @@ const ogShells = [
   },
   {
     file: 'dist/prerender/es-blog-outbound-frio-con-icp-sin-sdr-rentado.html',
+    image: 'https://www.rutinhq.com/og/og-blog.png',
+  },
+  {
+    file: 'dist/prerender/es-blog-auditoria-panel-shopify-antes-de-anuncios.html',
     image: 'https://www.rutinhq.com/og/og-blog.png',
   },
   { file: 'dist/prerender/agents.html', image: 'https://www.rutinhq.com/og/og-hub.png' },

@@ -277,6 +277,10 @@ export default defineConfig({
               test: /src[\\/]pages[\\/]blog-outbound-frio\.tsx$/,
             },
             {
+              name: 'page-article-store-es',
+              test: /src[\\/]pages[\\/]blog-auditoria-panel-shopify\.tsx$/,
+            },
+            {
               name: 'page-not-found',
               test: /src[\\/]pages[\\/]not-found\.tsx$/,
             },

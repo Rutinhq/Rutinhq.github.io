@@ -59,6 +59,7 @@ Catalog: https://docs.rutinhq.com/catalog/nexus-os/
 - https://www.rutinhq.com/blog/shopify-admin-audit-before-ads
 - https://www.rutinhq.com/es/blog
 - https://www.rutinhq.com/es/blog/outbound-frio-con-icp-sin-sdr-rentado
+- https://www.rutinhq.com/es/blog/auditoria-panel-shopify-antes-de-anuncios
 - https://www.rutinhq.com/auth.md
 - https://www.rutinhq.com/agents.md
 - https://www.rutinhq.com/.well-known/api-catalog
@@ -99,3 +100,7 @@ Title: Blog — sistemas que posees
 
 Article ES: https://www.rutinhq.com/es/blog/outbound-frio-con-icp-sin-sdr-rentado
 Title: Outbound frío con ICP — sin SDR rentado
+
+Article ES: https://www.rutinhq.com/es/blog/auditoria-panel-shopify-antes-de-anuncios
+Title: Auditoría del panel de Shopify antes de comprar anuncios
+Description: Auditoría y configuración del panel de Shopify — variantes, precio, peso, envío — para que la tienda convierta antes de gastar en anuncios.

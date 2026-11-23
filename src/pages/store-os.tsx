@@ -4,7 +4,7 @@ import { Ctas } from '@/components/Ctas'
 import { FaqSection } from '@/components/Faq'
 import { BulletList, MonoTitle, Section } from '@/components/Section'
 import { OG_IMAGE, Seo, skuJsonLd } from '@/components/Seo'
-import { ARTICLE02 } from '@/lib/blog'
+import { ARTICLE02, ARTICLE02_ES } from '@/lib/blog'
 import { useObjectList } from '@/lib/i18n/lists'
 import { usePageLocale } from '@/lib/i18n/usePageLocale'
 import { DOCS_STORE_URL, talkMailtoForPath } from '@/lib/links'
@@ -81,17 +81,15 @@ export default function StoreOsPage() {
         <MonoTitle muted>{t('store.notWhat.title')}</MonoTitle>
         <BulletList items={notWhat} muted />
         <Ctas className="mt-10" docsHref={DOCS_STORE_URL} mailtoHref={talkMailtoForPath(path)} />
-        {locale === 'en' ? (
-          <p className="mt-10 max-w-2xl text-sm text-muted-foreground">
-            {t('common.relatedReading')}{' '}
-            <Link
-              to={ARTICLE02.path}
-              className="text-foreground underline underline-offset-4 hover:text-primary"
-            >
-              {ARTICLE02.title}
-            </Link>
-          </p>
-        ) : null}
+        <p className="mt-10 max-w-2xl text-sm text-muted-foreground">
+          {t('common.relatedReading')}{' '}
+          <Link
+            to={locale === 'es' ? ARTICLE02_ES.path : ARTICLE02.path}
+            className="text-foreground underline underline-offset-4 hover:text-primary"
+          >
+            {locale === 'es' ? ARTICLE02_ES.title : ARTICLE02.title}
+          </Link>
+        </p>
       </Section>
 
       <FaqSection title={t('store.faq.title')} items={faq} />
