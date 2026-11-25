@@ -656,6 +656,18 @@ function sitemapLastmodFor(loc) {
   )
   return (block?.match(/<lastmod>([^<]+)<\/lastmod>/) || [])[1]
 }
+if (sitemapLastmodFor('https://www.rutinhq.com/') !== CONTENT_STAMP) {
+  console.error(
+    `${sitemap} lastmod for / must equal the build CONTENT_STAMP (${CONTENT_STAMP}).`,
+  )
+  process.exit(1)
+}
+if (sitemapLastmodFor('https://www.rutinhq.com/es') !== CONTENT_STAMP) {
+  console.error(
+    `${sitemap} lastmod for /es must equal the build CONTENT_STAMP (${CONTENT_STAMP}).`,
+  )
+  process.exit(1)
+}
 if (sitemapLastmodFor('https://www.rutinhq.com/blog') !== CONTENT_STAMP) {
   console.error(
     `${sitemap} lastmod for /blog must equal the build CONTENT_STAMP (${CONTENT_STAMP}).`,
@@ -1774,8 +1786,14 @@ if (!homepage.includes('property="og:site_name" content="RutinHQ"')) {
   console.error('dist/index.html must emit og:site_name RutinHQ.')
   process.exit(1)
 }
-if (!homepage.includes('"@type":"Organization"') || !homepage.includes('strategy@rutinhq.com')) {
-  console.error('dist/index.html must emit Organization JSON-LD with strategy@rutinhq.com.')
+if (
+  !homepage.includes('ProfessionalService') ||
+  !homepage.includes('"Organization"') ||
+  !homepage.includes('strategy@rutinhq.com')
+) {
+  console.error(
+    'dist/index.html must emit merged ProfessionalService + Organization JSON-LD with strategy@rutinhq.com.',
+  )
   process.exit(1)
 }
 if (
@@ -1996,10 +2014,11 @@ if (
   !footerSource.includes("localized('/blog')") ||
   !footerSource.includes("localized('/agents')") ||
   !footerSource.includes('CALENDLY_URL') ||
-  !footerSource.includes('MAILTO_EMAIL')
+  !footerSource.includes('MAILTO_EMAIL') ||
+  !footerSource.includes('LINKEDIN_URL')
 ) {
   console.error(
-    'Footer must keep Catalog (docs), locale Blog, Agents, Talk Calendly, and mailto email.',
+    'Footer must keep Catalog (docs), locale Blog, Agents, Talk Calendly, mailto email, and LinkedIn.',
   )
   process.exit(1)
 }
@@ -2013,6 +2032,9 @@ const bodyRoutes = [
       'STORE OS',
       'NEXUS OS',
       'What does RutinHQ install?',
+      'Tijuana, Baja California, México',
+      'strategy@rutinhq.com',
+      'https://www.linkedin.com/company/rutinhq',
     ],
   },
   {
@@ -2035,6 +2057,9 @@ const bodyRoutes = [
     needles: [
       'Sistemas que usted posee — no iguala mensual que desaparece.',
       '¿Qué instala RutinHQ?',
+      'Tijuana, Baja California, México',
+      'strategy@rutinhq.com',
+      'https://www.linkedin.com/company/rutinhq',
     ],
   },
   {
@@ -2451,7 +2476,7 @@ if (!esArticleHtml.includes('"datePublished":"2026-09-08"')) {
   console.error(`${esArticleShell} BlogPosting must include datePublished.`)
   process.exit(1)
 }
-if (!esArticleHtml.includes('"@type":"Organization"')) {
+if (!esArticleHtml.includes('"Organization"')) {
   console.error(`${esArticleShell} must emit the Organization publisher node.`)
   process.exit(1)
 }

@@ -40,23 +40,58 @@ const OG_IMAGE = {
 }
 
 const LOGO_PNG = `${SITE}/apple-touch-icon.png`
+const EMAIL = 'strategy@rutinhq.com'
+const CALENDLY_URL = 'https://calendly.com/rutinhq/30min'
+const LINKEDIN_URL = 'https://www.linkedin.com/company/rutinhq'
+
+const AREA_SERVED_CITIES = [
+  'Tijuana',
+  'Playas de Rosarito',
+  'Tecate',
+  'Mexicali',
+  'Ensenada',
+  'San Diego',
+  'Ciudad de México',
+  'Guadalajara',
+  'Monterrey',
+  'Querétaro',
+  'Puebla',
+  'León',
+  'Mérida',
+  'Chihuahua',
+  'Hermosillo',
+  'Culiacán',
+]
+
+const OFFER_CATALOG_NAMES = [
+  'Diagnóstico STORE OS',
+  'Instalación STORE OS',
+  'Sprint GTM OS',
+  'Operación mensual',
+]
+
+function jsonLdTypes(node) {
+  const type = node?.['@type']
+  if (Array.isArray(type)) return type
+  return typeof type === 'string' ? [type] : []
+}
 
 function organizationNode(locale = 'en') {
   const es = locale === 'es'
   return {
-    '@type': 'Organization',
+    '@type': ['ProfessionalService', 'Organization'],
     '@id': `${SITE}/#organization`,
     name: 'RutinHQ',
     alternateName: 'Rutin HQ',
     url: `${SITE}/`,
-    email: 'strategy@rutinhq.com',
+    email: EMAIL,
     logo: {
       '@type': 'ImageObject',
       url: LOGO_PNG,
       width: 180,
       height: 180,
     },
-    image: LOGO_PNG,
+    image: OG_IMAGE.hub,
     description: es
       ? 'RutinHQ es un estudio de sistemas B2B. Instalamos GTM OS, STORE OS y NEXUS OS — sistemas operativos que los equipos poseen, no iguala mensual que desaparece.'
       : 'RutinHQ is a B2B systems studio. We install GTM OS, STORE OS, and NEXUS OS — operating systems teams own, not retainers that vanish.',
@@ -66,11 +101,49 @@ function organizationNode(locale = 'en') {
       'NEXUS OS',
       es ? 'prospección en frío B2B' : 'B2B outbound',
     ],
+    sameAs: [LINKEDIN_URL],
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: 'Tijuana',
+      addressRegion: 'Baja California',
+      addressCountry: 'MX',
+    },
+    areaServed: [
+      ...AREA_SERVED_CITIES.map((name) => ({ '@type': 'City', name })),
+      { '@type': 'Country', name: 'MX' },
+      { '@type': 'Country', name: 'US' },
+    ],
+    openingHoursSpecification: {
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+      opens: '09:00',
+      closes: '18:00',
+    },
     contactPoint: {
       '@type': 'ContactPoint',
-      email: 'strategy@rutinhq.com',
+      email: EMAIL,
+      url: CALENDLY_URL,
       contactType: 'sales',
       availableLanguage: ['English', 'Spanish'],
+    },
+    potentialAction: {
+      '@type': 'ReserveAction',
+      name: es ? 'Agendar 30 min' : 'Book a 30-min fit call',
+      target: {
+        '@type': 'EntryPoint',
+        url: CALENDLY_URL,
+      },
+    },
+    hasOfferCatalog: {
+      '@type': 'OfferCatalog',
+      name: es ? 'Servicios RutinHQ' : 'RutinHQ services',
+      itemListElement: OFFER_CATALOG_NAMES.map((name) => ({
+        '@type': 'Offer',
+        itemOffered: {
+          '@type': 'Service',
+          name,
+        },
+      })),
     },
   }
 }
@@ -1035,7 +1108,9 @@ if (esHub) {
               name: esHub.title,
             }
           }
-          if (node['@type'] === 'Organization') return organizationNode('es')
+          if (jsonLdTypes(node).includes('Organization')) {
+            return organizationNode('es')
+          }
           if (node['@type'] === 'WebSite') {
             return {
               ...node,
@@ -1326,13 +1401,16 @@ async function main() {
       writePage(route.file, page, route.path)
     }
 
-    const hubPage = injectSsrBody(
-      fs.readFileSync(templatePath, 'utf8'),
-      (await render('/', 'en')).html,
-      '/',
+    const hubSsr = await render('/', 'en')
+    let hubPage = fs.readFileSync(templatePath, 'utf8')
+    const mergedHubLd = mergeJsonLd(HUB_JSON_LD, extractJsonLdBlocks(hubSsr.head))
+    hubPage = hubPage.replace(
+      jsonLdScriptRe(),
+      `<script type="application/ld+json">${JSON.stringify(mergedHubLd)}</script>`,
     )
+    hubPage = injectSsrBody(hubPage, hubSsr.html, '/')
     fs.writeFileSync(templatePath, hubPage)
-    console.log('prerender / → index.html (SSR body)')
+    console.log('prerender / → index.html (SSR body + JSON-LD)')
 
     let notFound = stripHomepageSeo(pageTemplate)
     const notFoundSsr = await render(NOT_FOUND_ROUTE.renderPath, 'en')
@@ -1366,6 +1444,8 @@ function stampSitemapLastmod() {
   const file = path.join(dist, 'sitemap.xml')
   if (!fs.existsSync(file)) return
   const locStamps = {
+    'https://www.rutinhq.com/': CONTENT_STAMP,
+    'https://www.rutinhq.com/es': CONTENT_STAMP,
     'https://www.rutinhq.com/blog': CONTENT_STAMP,
     'https://www.rutinhq.com/es/blog': CONTENT_STAMP,
     'https://www.rutinhq.com/store-os': CONTENT_STAMP,

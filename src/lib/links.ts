@@ -1,5 +1,6 @@
 export const EMAIL = 'strategy@rutinhq.com'
 export const CALENDLY_URL = 'https://calendly.com/rutinhq/30min'
+export const LINKEDIN_URL = 'https://www.linkedin.com/company/rutinhq'
 export const MAILTO_EMAIL = `mailto:${EMAIL}`
 export const SITE_URL = 'https://www.rutinhq.com'
 export const WWW_GTM_URL = `${SITE_URL}/gtm-os`

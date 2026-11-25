@@ -1,4 +1,5 @@
 import { Helmet } from '@dr.pogodin/react-helmet'
+import { CALENDLY_URL, EMAIL, LINKEDIN_URL } from '@/lib/links'
 
 export const SITE = 'https://www.rutinhq.com'
 /** HQ brand mark (green square + arrow). PNG/ICO before SVG for Google SERP. */
@@ -23,22 +24,48 @@ export const OG_IMAGE = {
   blog: `${SITE}/og/og-blog.png`,
 } as const
 
+const AREA_SERVED_CITIES = [
+  'Tijuana',
+  'Playas de Rosarito',
+  'Tecate',
+  'Mexicali',
+  'Ensenada',
+  'San Diego',
+  'Ciudad de México',
+  'Guadalajara',
+  'Monterrey',
+  'Querétaro',
+  'Puebla',
+  'León',
+  'Mérida',
+  'Chihuahua',
+  'Hermosillo',
+  'Culiacán',
+] as const
+
+const OFFER_CATALOG_NAMES = [
+  'Diagnóstico STORE OS',
+  'Instalación STORE OS',
+  'Sprint GTM OS',
+  'Operación mensual',
+] as const
+
 export function organizationNode(locale: 'en' | 'es' = 'en') {
   const es = locale === 'es'
   return {
-    '@type': 'Organization',
+    '@type': ['ProfessionalService', 'Organization'],
     '@id': `${SITE}/#organization`,
     name: 'RutinHQ',
     alternateName: 'Rutin HQ',
     url: `${SITE}/`,
-    email: 'strategy@rutinhq.com',
+    email: EMAIL,
     logo: {
       '@type': 'ImageObject',
       url: LOGO_PNG,
       width: LOGO_WIDTH,
       height: LOGO_HEIGHT,
     },
-    image: LOGO_PNG,
+    image: OG_IMAGE.hub,
     description: es
       ? 'RutinHQ es un estudio de sistemas B2B. Instalamos GTM OS, STORE OS y NEXUS OS — sistemas operativos que los equipos poseen, no iguala mensual que desaparece.'
       : 'RutinHQ is a B2B systems studio. We install GTM OS, STORE OS, and NEXUS OS — operating systems teams own, not retainers that vanish.',
@@ -48,11 +75,49 @@ export function organizationNode(locale: 'en' | 'es' = 'en') {
       'NEXUS OS',
       es ? 'prospección en frío B2B' : 'B2B outbound',
     ],
+    sameAs: [LINKEDIN_URL],
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: 'Tijuana',
+      addressRegion: 'Baja California',
+      addressCountry: 'MX',
+    },
+    areaServed: [
+      ...AREA_SERVED_CITIES.map((name) => ({ '@type': 'City', name })),
+      { '@type': 'Country', name: 'MX' },
+      { '@type': 'Country', name: 'US' },
+    ],
+    openingHoursSpecification: {
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+      opens: '09:00',
+      closes: '18:00',
+    },
     contactPoint: {
       '@type': 'ContactPoint',
-      email: 'strategy@rutinhq.com',
+      email: EMAIL,
+      url: CALENDLY_URL,
       contactType: 'sales',
       availableLanguage: ['English', 'Spanish'],
+    },
+    potentialAction: {
+      '@type': 'ReserveAction',
+      name: es ? 'Agendar 30 min' : 'Book a 30-min fit call',
+      target: {
+        '@type': 'EntryPoint',
+        url: CALENDLY_URL,
+      },
+    },
+    hasOfferCatalog: {
+      '@type': 'OfferCatalog',
+      name: es ? 'Servicios RutinHQ' : 'RutinHQ services',
+      itemListElement: OFFER_CATALOG_NAMES.map((name) => ({
+        '@type': 'Offer',
+        itemOffered: {
+          '@type': 'Service',
+          name,
+        },
+      })),
     },
   }
 }
