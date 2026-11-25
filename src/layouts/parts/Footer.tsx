@@ -2,7 +2,13 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { EmailLink } from '@/components/EmailLink'
 import { usePageLocale } from '@/lib/i18n/usePageLocale'
-import { CALENDLY_URL, DOCS_CATALOG_URL, EMAIL, MAILTO_EMAIL } from '@/lib/links'
+import {
+  CALENDLY_URL,
+  DOCS_CATALOG_URL,
+  EMAIL,
+  LINKEDIN_URL,
+  MAILTO_EMAIL,
+} from '@/lib/links'
 
 export function Footer() {
   const { t } = useTranslation()
@@ -16,6 +22,15 @@ export function Footer() {
           <EmailLink href={MAILTO_EMAIL} className="text-foreground hover:text-primary">
             {EMAIL}
           </EmailLink>
+          {' · '}
+          <a
+            href={LINKEDIN_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-foreground hover:text-primary"
+          >
+            {t('footer.linkedin')}
+          </a>
         </p>
         <nav className="flex flex-wrap items-center gap-x-4 gap-y-2">
           <a
