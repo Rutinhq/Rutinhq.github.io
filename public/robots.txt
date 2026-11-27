@@ -3,6 +3,8 @@ Allow: /
 Disallow: /prerender/
 Disallow: /guide-kb.json
 Disallow: /guide-rate-limit.json
+Disallow: /gtm-os/offer
+Disallow: /es/gtm-os/offer
 Content-Signal: search=yes,ai-train=no,use=reference
 
 User-agent: GPTBot
